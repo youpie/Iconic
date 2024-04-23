@@ -1,0 +1,66 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $GtkTestWindow : Adw.ApplicationWindow {
+  default-width: 1000;
+  default-height: 600;
+  content:
+  Adw.ToastOverlay toast_overlay {
+    Adw.ToolbarView toolbar {
+      [top]
+      Adw.HeaderBar header_bar {
+        [end]
+        MenuButton {
+          primary: true;
+          icon-name: "open-menu-symbolic";
+          tooltip-text: _("Menu");
+          menu-model: primary_menu;
+        }
+      }
+      content:
+      Box {
+      orientation: vertical;
+      halign: center;
+      valign: center;
+      margin-top: 20;
+      margin-start: 20;
+      margin-end: 20;
+        Label label {
+          label: "Hello, World!";
+          margin-bottom: 40;
+          styles [
+            "title-1",
+          ]
+        }
+        Button button1 {
+          label: "Button?";
+          margin-bottom: 40;
+          action-name: "app.button_clicked";
+          styles [
+            "suggested-action",
+            "pill",
+          ]
+        }
+        };
+    }
+  };
+}
+
+menu primary_menu {
+  section {
+    item {
+      label: _("_Preferences");
+      action: "app.preferences";
+    }
+
+    item {
+      label: _("_Keyboard Shortcuts");
+      action: "win.show-help-overlay";
+    }
+
+    item {
+      label: _("_About GTK_test");
+      action: "app.about";
+    }
+  }
+}

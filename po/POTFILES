@@ -1,0 +1,4 @@
+data/com.emphisia.gtk.desktop.in
+data/com.emphisia.gtk.metainfo.xml.in
+data/com.emphisia.gtk.gschema.xml
+src/window.ui
