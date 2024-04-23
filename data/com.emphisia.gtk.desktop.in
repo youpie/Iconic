@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=gtk_test
+Exec=gtk_test
+Icon=com.emphisia.gtk
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true

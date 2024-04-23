@@ -1,0 +1,17 @@
+[package]
+name = "gtk_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies.gtk]
+package = "gtk4"
+version = "0.8"
+features = ["v4_8"]
+
+[dependencies]
+gettext-rs = { version = "0.7", features = ["gettext-system"] }
+
+[dependencies.adw]
+package = "libadwaita"
+version = "0.6"
+features = ["v1_5"]
