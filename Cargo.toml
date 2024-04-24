@@ -9,6 +9,7 @@ version = "0.8"
 features = ["v4_8"]
 
 [dependencies]
+ashpd = { version = "0.8.1", features = ["gtk4"] }
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
 
 [dependencies.adw]
