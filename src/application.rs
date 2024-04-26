@@ -110,7 +110,7 @@ impl GtkTestApplication {
     }
 
     fn setup_accels(&self) {
-        self.set_accels_for_action("app.button_clicked", &["<primary>p"]);
+        self.set_accels_for_action("app.generate_icon", &["<primary>p"]);
         println!("test");
     }
 
@@ -122,7 +122,7 @@ impl GtkTestApplication {
             .developer_name("Youpie")
             .version(VERSION)
             .developers(vec!["Youpie"])
-            .copyright("© 2024 Youpie")
+            .copyright("© 2024 YoupDeGamerNL")
             .build();
         about.present(&window);
     }

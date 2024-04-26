@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies.gtk]
 package = "gtk4"
 version = "0.8"
-features = ["v4_8"]
+features = ["v4_10"]
 
 [dependencies]
 ashpd = { version = "0.8.1", features = ["gtk4"] }
