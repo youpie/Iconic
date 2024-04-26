@@ -26,30 +26,50 @@ template $GtkTestWindow : Adw.ApplicationWindow {
       margin-start: 20;
       margin-end: 20;
         Label label {
+
           label: "Hello, World!";
           margin-bottom: 40;
           styles [
             "title-1",
           ]
         }
-        Button button1 {
-          label: "Button?";
+        Button open_folder_icon {
+          Adw.ButtonContent folder_icon_content{
+            label: "Select folder image";
+            icon-name: "image-missing-symbolic";
+          }
           margin-bottom: 40;
-          action-name: "app.button_clicked";
-          styles [
-            "suggested-action",
-            "pill",
-          ]
-        }
-        Button button2 {
-          label: "File picker";
-          margin-bottom: 40;
-          action-name: "app.file_picker";
+          width-request: 40;
+          action-name: "app.open_folder_icon";
           styles [
             "pill",
           ]
         }
-        };
+        Button open_top_icon {
+          Adw.ButtonContent top_icon_content{
+            label: "Select top image";
+            icon-name: "image-missing-symbolic";
+          }
+          margin-bottom: 40;
+          action-name: "app.open_top_icon";
+          styles [
+            "pill",
+          ]
+        }
+        Button generate_icon {
+
+          Adw.ButtonContent {
+            label: "Generate icon";
+            icon-name: "checkbox-checked-symbolic";
+          }
+          margin-bottom: 40;
+          action-name: "app.generate_icon";
+          styles [
+            "pill",
+            "suggested-action"
+          ]
+        }
+      };
     }
   };
 }

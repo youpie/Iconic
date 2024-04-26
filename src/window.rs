@@ -20,10 +20,10 @@
 
 use crate::glib::clone;
 use adw::subclass::prelude::*;
-use ashpd::desktop::file_chooser::{Choice,  SelectedFiles};
-use ashpd::WindowIdentifier;
+use gettextrs::gettext;
 use gtk::prelude::*;
 use gtk::{gio, glib};
+
 
 mod imp {
     use super::*;
@@ -39,11 +39,15 @@ mod imp {
         #[template_child]
         pub label: TemplateChild<gtk::Label>,
         #[template_child]
-        pub button1: TemplateChild<gtk::Button>,
+        pub open_folder_icon: TemplateChild<gtk::Button>,
         #[template_child]
         pub toast_overlay: TemplateChild<adw::ToastOverlay>,
         #[template_child]
-        pub button2: TemplateChild<gtk::Button>,
+        pub open_top_icon: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub folder_icon_content: TemplateChild<adw::ButtonContent>,
+        #[template_child]
+        pub top_icon_content: TemplateChild<adw::ButtonContent>,
     }
 
     #[glib::object_subclass]
@@ -55,27 +59,17 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
-            klass.install_action("app.button_clicked", None, move |win, _, _| {
+            klass.install_action("app.generate_icon", None, move |win, _, _| {
                 win.button_clicked();
             });
-            klass.install_action("app.file_picker", None, move |win, _, _| {
+            klass.install_action("app.open_folder_icon", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(@weak win => async move {
-                    // Get native of button for window identifier
-                //     let native = win.native().expect("Need to be able to get native.");
-                    // Get window identifier so that the dialog will be modal to the main window
-                //     let identifier = WindowIdentifier::from_native(&native).await;
-                //     let request = UserInformation::request()
-                //         .reason("App would like to access user information.")
-                //         .identifier(identifier)
-                //         .send()
-                //         .await;
-
-                //     if let Ok(response) = request.and_then(|r| r.response()) {
-                //         println!("User name: {}", response.name());
-                //     } else {
-                //         println!("Could not access user information.")
-                //     }
-                    win.open_file_chooser().await;
+                    win.open_file_chooser_gtk(0).await;
+                }));
+            });
+            klass.install_action("app.open_top_icon", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(@weak win => async move {
+                    win.open_file_chooser_gtk(1).await;
                 }));
             });
         }
@@ -106,39 +100,57 @@ impl GtkTestWindow {
             .build()
     }
 
-    #[template_callback]
     pub fn button_clicked(&self) {
         println!("Button Pressed");
-        self.imp().toast_overlay.add_toast(adw::Toast::new("TOATS"));
-        self.imp().button1.set_label("JE MOEDER");
+        self.imp().toast_overlay.add_toast(adw::Toast::new("generated"));
     }
 
-    #[template_callback]
-    pub async fn open_file_chooser(&self) {
-        let native = self
-            .imp()
-            .button2
-            .native()
-            .expect("Need to be able to get native.");
-        // Get window identifier so that the dialog will be modal to the main window
-        let identifier = WindowIdentifier::from_native(&native).await;
-        let files = SelectedFiles::open_file()
-            .title("open a file to read")
-            .accept_label("open")
-            .modal(true)
-            .multiple(true)
-            .identifier(identifier)
-            .choice(
-                Choice::new("encoding", "Encoding", "latin15")
-                    .insert("utf8", "Unicode (UTF-8)")
-                    .insert("latin15", "Western"),
-            )
-            // A trick to have a checkbox
-            .choice(Choice::boolean("re-encode", "Re-encode", false))
-            .send()
-            .await;
+    pub async fn open_file_chooser_gtk(&self,what_button:usize) {
+        let filters = gio::ListStore::new::<gtk::FileFilter>();
+        let filter = gtk::FileFilter::new();
+        filter.add_mime_type("image/*");
+        filters.append(&filter);
+        let dialog = gtk::FileDialog::builder()
+                .title(gettext("Open Document"))
+                .modal(true)
+                .filters(&filters)
+                .build();
+        let file = dialog.open_future(Some(self)).await;
+        match file {
+            Ok(x) => {println!("{:#?}",&x.path().unwrap());
+                    match what_button {
+                        0 => {self.imp().open_folder_icon.set_tooltip_text(Some("The currently set folder image"));
+                                self.imp().folder_icon_content.set_icon_name("image-x-generic-symbolic");
+                                self.imp().folder_icon_content.set_label(&Self::get_file_name(&x,Some(8),true));},
+                        _ => {self.imp().open_top_icon.set_tooltip_text(Some("The currently set top image"));
+                                self.imp().top_icon_content.set_icon_name("image-x-generic-symbolic");
+                                self.imp().top_icon_content.set_label(&Self::get_file_name(&x,Some(8),true));},
+                        }
+                    },
+            Err(y) => println!("{:#?}",y),
+        };
 
-        println!("{:#?}", files);
+    }
+
+    fn get_file_name(filename: &gio::File, slice: Option<usize>,show_extension: bool) -> String{
+        let name = filename.basename().unwrap().into_os_string().into_string().unwrap();
+        // name[..6].into
+        match slice{
+            Some(x) => {
+                let period_split:Vec<&str> = name.split(".").collect();
+                let file_extension = format!(".{}",period_split.last().unwrap());
+                let name_no_extension = name.replace(&file_extension,"");
+                let mut substring = String::from(&name_no_extension [..x/2]);
+                substring.push_str("...");
+                substring.push_str(&name_no_extension[name_no_extension.len()-(x/2)..]);
+                if show_extension{
+                    substring.push_str(&file_extension);
+                }
+                substring
+            },
+            None => name
+        }
+
     }
 
     #[template_callback]
