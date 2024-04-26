@@ -23,12 +23,15 @@ use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::prelude::*;
 use gtk::{gio, glib};
+use crate::objects::file::File;
+use std::cell::RefCell;
+use image::io::Reader as ImageReader;
 
 
 mod imp {
     use super::*;
 
-    #[derive(Debug, Default, gtk::CompositeTemplate)]
+    #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/com/emphisia/gtk/window.ui")]
     pub struct GtkTestWindow {
         // Template widgets
@@ -48,6 +51,29 @@ mod imp {
         pub folder_icon_content: TemplateChild<adw::ButtonContent>,
         #[template_child]
         pub top_icon_content: TemplateChild<adw::ButtonContent>,
+        #[template_child]
+        pub image_view: TemplateChild<gtk::Image>,
+
+        pub folder_image_file: RefCell<Option<File>>,
+        pub top_image_file: RefCell<Option<File>>,
+    }
+
+    impl Default for GtkTestWindow {
+        fn default() -> Self {
+            Self{
+                toolbar: TemplateChild::default(),
+                header_bar: TemplateChild::default(),
+                label: TemplateChild::default(),
+                open_folder_icon: TemplateChild::default(),
+                toast_overlay: TemplateChild::default(),
+                open_top_icon: TemplateChild::default(),
+                folder_icon_content: TemplateChild::default(),
+                top_icon_content: TemplateChild::default(),
+                image_view: TemplateChild::default(),
+                folder_image_file: RefCell::new(None),
+                top_image_file: RefCell::new(None),
+            }
+        }
     }
 
     #[glib::object_subclass]
@@ -59,10 +85,12 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
+
             klass.install_action("app.generate_icon", None, move |win, _, _| {
                 win.button_clicked();
             });
-            klass.install_action("app.open_folder_icon", None, move |win, _, _| {
+            klass.install_action("app.open_folder_icon", None, move |win, e, a| {
+            println!("{:?}",e);
                 glib::spawn_future_local(clone!(@weak win => async move {
                     win.open_file_chooser_gtk(0).await;
                 }));
@@ -103,6 +131,8 @@ impl GtkTestWindow {
     pub fn button_clicked(&self) {
         println!("Button Pressed");
         self.imp().toast_overlay.add_toast(adw::Toast::new("generated"));
+        self.imp().image_view.set_file(self.imp().folder_image_file.borrow().clone().unwrap().path.to_str())
+
     }
 
     pub async fn open_file_chooser_gtk(&self,what_button:usize) {
@@ -121,10 +151,12 @@ impl GtkTestWindow {
                     match what_button {
                         0 => {self.imp().open_folder_icon.set_tooltip_text(Some("The currently set folder image"));
                                 self.imp().folder_icon_content.set_icon_name("image-x-generic-symbolic");
-                                self.imp().folder_icon_content.set_label(&Self::get_file_name(&x,Some(8),true));},
+                                self.imp().folder_icon_content.set_label(&self.get_file_name(x,
+            														&self.imp().folder_image_file, Some(8),true));},
                         _ => {self.imp().open_top_icon.set_tooltip_text(Some("The currently set top image"));
                                 self.imp().top_icon_content.set_icon_name("image-x-generic-symbolic");
-                                self.imp().top_icon_content.set_label(&Self::get_file_name(&x,Some(8),true));},
+                                self.imp().top_icon_content.set_label(&self.get_file_name(x,
+                                									&self.imp().top_image_file,Some(8),true));},
                         }
                     },
             Err(y) => println!("{:#?}",y),
@@ -132,23 +164,21 @@ impl GtkTestWindow {
 
     }
 
-    fn get_file_name(filename: &gio::File, slice: Option<usize>,show_extension: bool) -> String{
-        let name = filename.basename().unwrap().into_os_string().into_string().unwrap();
-        // name[..6].into
+    fn get_file_name(&self, filename: gio::File, file: &RefCell<Option<File>>, slice: Option<usize>,show_extension: bool) -> String{
+        file.replace(Some(File::new(filename)));
+        let file = file.borrow().clone().unwrap();
+        println!("{:#?}",file.name);
         match slice{
             Some(x) => {
-                let period_split:Vec<&str> = name.split(".").collect();
-                let file_extension = format!(".{}",period_split.last().unwrap());
-                let name_no_extension = name.replace(&file_extension,"");
-                let mut substring = String::from(&name_no_extension [..x/2]);
+                let mut substring = String::from(&file.name [..x/2]);
                 substring.push_str("...");
-                substring.push_str(&name_no_extension[name_no_extension.len()-(x/2)..]);
-                if show_extension{
-                    substring.push_str(&file_extension);
-                }
+                substring.push_str(&file.name[file.name.len()-(x/2)..]);
+		        if show_extension{
+		            substring.push_str(&file.extension);
+		        }
                 substring
             },
-            None => name
+            None => String::from(format!("{}{}",&file.name,&file.extension))
         }
 
     }
