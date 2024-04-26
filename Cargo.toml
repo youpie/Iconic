@@ -11,6 +11,7 @@ features = ["v4_10"]
 [dependencies]
 ashpd = { version = "0.8.1", features = ["gtk4"] }
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
+image = {version = "0.25.1"}
 
 [dependencies.adw]
 package = "libadwaita"

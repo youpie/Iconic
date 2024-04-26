@@ -21,6 +21,7 @@
 mod application;
 mod config;
 mod window;
+mod objects;
 
 use self::application::GtkTestApplication;
 use self::window::GtkTestWindow;
