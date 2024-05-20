@@ -654,6 +654,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "folder_icon"
+version = "0.1.0"
+dependencies = [
+ "ashpd",
+ "cairo-rs",
+ "gettext-rs",
+ "gtk4",
+ "image",
+ "libadwaita",
+]
+
+[[package]]
 name = "form_urlencoded"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1097,17 +1109,6 @@ dependencies = [
  "libc",
  "pango-sys",
  "system-deps",
-]
-
-[[package]]
-name = "gtk_test"
-version = "0.1.0"
-dependencies = [
- "ashpd",
- "gettext-rs",
- "gtk4",
- "image",
- "libadwaita",
 ]
 
 [[package]]

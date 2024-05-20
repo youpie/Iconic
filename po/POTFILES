@@ -1,4 +1,4 @@
-data/com.emphisia.gtk.desktop.in
-data/com.emphisia.gtk.metainfo.xml.in
-data/com.emphisia.gtk.gschema.xml
+data/nl.emphisia.icon.desktop.in
+data/nl.emphisia.icon.metainfo.xml.in
+data/nl.emphisia.icon.gschema.xml
 src/window.ui

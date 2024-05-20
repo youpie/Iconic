@@ -22,17 +22,21 @@ use crate::glib::clone;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::prelude::*;
-use gtk::{gio, glib};
+use gtk::{gio, glib,gdk};
+use image::*;
 use crate::objects::file::File;
 use std::cell::RefCell;
-use image::io::Reader as ImageReader;
+use cairo::*;
+use std::io::*;
+use std::time::Duration;
+use std::thread;
 
 
 mod imp {
     use super::*;
 
     #[derive(Debug, gtk::CompositeTemplate)]
-    #[template(resource = "/com/emphisia/gtk/window.ui")]
+    #[template(resource = "/nl/emphisia/icon/window.ui")]
     pub struct GtkTestWindow {
         // Template widgets
         #[template_child]
@@ -52,7 +56,9 @@ mod imp {
         #[template_child]
         pub top_icon_content: TemplateChild<adw::ButtonContent>,
         #[template_child]
-        pub image_view: TemplateChild<gtk::Image>,
+        pub generate_icon: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub image_view: TemplateChild<gtk::Picture>,
 
         pub folder_image_file: RefCell<Option<File>>,
         pub top_image_file: RefCell<Option<File>>,
@@ -70,6 +76,7 @@ mod imp {
                 folder_icon_content: TemplateChild::default(),
                 top_icon_content: TemplateChild::default(),
                 image_view: TemplateChild::default(),
+                generate_icon: TemplateChild::default(),
                 folder_image_file: RefCell::new(None),
                 top_image_file: RefCell::new(None),
             }
@@ -89,8 +96,8 @@ mod imp {
             klass.install_action("app.generate_icon", None, move |win, _, _| {
                 win.button_clicked();
             });
-            klass.install_action("app.open_folder_icon", None, move |win, e, a| {
-            println!("{:?}",e);
+            klass.install_action("app.open_folder_icon", None, move |win, _, a| {
+            println!("{:#?}",a);
                 glib::spawn_future_local(clone!(@weak win => async move {
                     win.open_file_chooser_gtk(0).await;
                 }));
@@ -130,9 +137,18 @@ impl GtkTestWindow {
 
     pub fn button_clicked(&self) {
         println!("Button Pressed");
-        self.imp().toast_overlay.add_toast(adw::Toast::new("generated"));
-        self.imp().image_view.set_file(self.imp().folder_image_file.borrow().clone().unwrap().path.to_str())
-
+        let imp = self.imp();
+        imp.generate_icon.set_sensitive(false);
+        imp.toast_overlay.add_toast(adw::Toast::new("generated"));
+        println!("{}",imp.folder_image_file.borrow().as_ref().unwrap().path_str());
+        let mut base = image::open(imp.folder_image_file.borrow().as_ref().unwrap().path_str()).expect("kon bovenste file niet openen");
+        let top_image = image::open(imp.top_image_file.borrow().as_ref().unwrap().path_str()).unwrap();
+        imageops::overlay(&mut base, &top_image,0,0);
+        base.save("/tmp/overlayed_image.png").unwrap();
+       // let image1 = image::io::Reader::open(self.imp().folder_image_file.borrow().unwrap().path);
+        //let texture = gdk::Texture::from_resource(&self.imp().folder_image_file.borrow().unwrap().path_str());
+        imp.image_view.set_file(Some(&gio::File::for_path("/tmp/overlayed_image.png")));
+        imp.generate_icon.set_sensitive(true);
     }
 
     pub async fn open_file_chooser_gtk(&self,what_button:usize) {

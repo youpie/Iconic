@@ -18,60 +18,104 @@ template $GtkTestWindow : Adw.ApplicationWindow {
         }
       }
       content:
-      Box {
-      orientation: vertical;
-      halign: center;
-      valign: center;
-      margin-top: 20;
-      margin-start: 20;
-      margin-end: 20;
-        Label label {
+      Adw.Clamp clamp {
+        width-request: 150;
+        Box {
+        orientation: vertical;
+        halign: center;
+        valign: center;
+        margin-top: 20;
+        margin-start: 20;
+        margin-end: 20;
+          Label label {
 
-          label: "Hello, World!";
-          margin-bottom: 40;
-          styles [
-            "title-1",
-          ]
-        }
-        Button open_folder_icon {
-          Adw.ButtonContent folder_icon_content{
-            label: "Select folder image";
-            icon-name: "image-missing-symbolic";
+            label: "Hello, World!";
+            margin-bottom: 40;
+            styles [
+              "title-1",
+            ]
           }
-          margin-bottom: 40;
-          width-request: 40;
-          action-name: "app.open_folder_icon";
-          styles [
-            "pill",
-          ]
-        }
-        Button open_top_icon {
-          Adw.ButtonContent top_icon_content{
-            label: "Select top image";
-            icon-name: "image-missing-symbolic";
+          Button open_folder_icon {
+            Adw.ButtonContent folder_icon_content{
+              label: "Select folder image";
+              icon-name: "image-missing-symbolic";
+            }
+            margin-bottom: 40;
+            width-request: 40;
+            action-name: "app.open_folder_icon";
+            styles [
+              "pill",
+            ]
           }
-          margin-bottom: 40;
-          action-name: "app.open_top_icon";
-          styles [
-            "pill",
-          ]
-        }
-        Button generate_icon {
+          Button open_top_icon {
+            Adw.ButtonContent top_icon_content{
+              label: "Select top image";
+              icon-name: "image-missing-symbolic";
+            }
+            margin-bottom: 40;
+            action-name: "app.open_top_icon";
+            styles [
+              "pill",
+            ]
+          }
+          Button generate_icon {
 
-          Adw.ButtonContent {
-            label: "Generate icon";
-            icon-name: "checkbox-checked-symbolic";
+            Adw.ButtonContent {
+              label: "Generate icon";
+              icon-name: "checkbox-checked-symbolic";
+            }
+            margin-bottom: 40;
+            action-name: "app.generate_icon";
+            styles [
+              "pill",
+              "suggested-action"
+            ]
           }
-          margin-bottom: 40;
-          action-name: "app.generate_icon";
-          styles [
-            "pill",
-            "suggested-action"
-          ]
-        }
-        Image image_view {
+            Box{
+              orientation: horizontal;
+              Box{
+                orientation: vertical;
+                Scale scale2 {
+                  has-origin: false;
+                  orientation: horizontal;
+                  adjustment: Adjustment percentage {
+                    lower: -50;
+                    upper: 50;
+                    step-increment: 1;
+                    };
+                  hexpand: true;
+                  vexpand: true;
+                  digits: 0;
+                  draw-value: true;
+                  value-pos: top;
+                }
+                Picture image_view {
+                  width-request: 150;
+                  height-request: 150;
 
-        }
+                  margin-bottom: 40;
+                  content-fit: contain;
+                  hexpand: false;
+                  vexpand: true;
+                }
+              }
+              Scale scale {
+                has-origin: false;
+                orientation: vertical;
+                adjustment: Adjustment percentage2 {
+                  lower: -50;
+                  upper: 50;
+                  step-increment: 1;
+                };
+                hexpand: true;
+                vexpand: true;
+                digits: 0;
+                draw-value: true;
+                value-pos: left;
+              }
+            }
+          }
+
       };
     }
   };

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=gtk_test
 Exec=gtk_test
-Icon=com.emphisia.gtk
+Icon=nl.emphisia.icon
 Terminal=false
 Type=Application
 Categories=GTK;
