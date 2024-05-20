@@ -1,5 +1,5 @@
 [package]
-name = "gtk_test"
+name = "folder_icon"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,6 +12,7 @@ features = ["v4_10"]
 ashpd = { version = "0.8.1", features = ["gtk4"] }
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
 image = {version = "0.25.1"}
+cairo-rs = {version = "0.19.4", features = ["png"]}
 
 [dependencies.adw]
 package = "libadwaita"

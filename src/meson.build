@@ -10,8 +10,8 @@ blueprints = custom_target('blueprints',
   command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
 )
 
-gnome.compile_resources('gtk_test',
-  'gtk_test.gresource.xml',
+gnome.compile_resources('folder_icon',
+  'folder_icon.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
@@ -20,7 +20,7 @@ gnome.compile_resources('gtk_test',
 
 conf = configuration_data()
 conf.set_quoted('VERSION', meson.project_version())
-conf.set_quoted('GETTEXT_PACKAGE', 'gtk_test')
+conf.set_quoted('GETTEXT_PACKAGE', 'folder_icon')
 conf.set_quoted('LOCALEDIR', get_option('prefix') / get_option('localedir'))
 conf.set_quoted('PKGDATADIR', pkgdatadir)
 

@@ -1,1 +1,1 @@
-i18n.gettext('gtk_test', preset: 'glib')
+i18n.gettext('folder_icon', preset: 'glib')

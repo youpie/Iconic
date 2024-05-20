@@ -1,5 +1,5 @@
 {
-    "app-id" : "com.emphisia.gtk",
+    "app-id" : "nl.emphisia.icon",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "master",
     "sdk" : "org.gnome.Sdk",
@@ -7,7 +7,7 @@
     "sdk-extensions" : [
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
-    "command" : "gtk_test",
+    "command" : "folder_icon",
     "finish-args" : [
         "--share=network",
         "--share=ipc",
@@ -22,7 +22,7 @@
         ],
         "env" : {
             "RUST_BACKTRACE" : "1",
-            "RUST_LOG" : "gtk_test=debug"
+            "RUST_LOG" : "folder_icon=debug"
         }
     },
     "cleanup" : [
@@ -38,13 +38,13 @@
     ],
     "modules" : [
         {
-            "name" : "gtk_test",
+            "name" : "folder_icon",
             "builddir" : true,
             "buildsystem" : "meson",
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : "file:///home/youpie/Projects"
+                    "url" : "file:///home/youpie/Nextcloud/Projects/Rust/GTK_test"
                 }
             ]
         }

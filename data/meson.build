@@ -1,6 +1,6 @@
 desktop_file = i18n.merge_file(
-        input: 'com.emphisia.gtk.desktop.in',
-       output: 'com.emphisia.gtk.desktop',
+        input: 'nl.emphisia.icon.desktop.in',
+       output: 'nl.emphisia.icon.desktop',
          type: 'desktop',
        po_dir: '../po',
       install: true,
@@ -13,8 +13,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-        input: 'com.emphisia.gtk.metainfo.xml.in',
-       output: 'com.emphisia.gtk.metainfo.xml',
+        input: 'nl.emphisia.icon.metainfo.xml.in',
+       output: 'nl.emphisia.icon.metainfo.xml',
        po_dir: '../po',
       install: true,
   install_dir: get_option('datadir') / 'metainfo'
@@ -24,7 +24,7 @@ appstreamcli = find_program('appstreamcli', required: false, disabler: true)
 test('Validate appstream file', appstreamcli,
      args: ['validate', '--no-net', '--explain', appstream_file])
 
-install_data('com.emphisia.gtk.gschema.xml',
+install_data('nl.emphisia.icon.gschema.xml',
   install_dir: get_option('datadir') / 'glib-2.0' / 'schemas'
 )
 

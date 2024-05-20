@@ -1,4 +1,4 @@
-application_id = 'com.emphisia.gtk'
+application_id = 'nl.emphisia.icon'
 
 scalable_dir = 'hicolor' / 'scalable' / 'apps'
 install_data(
