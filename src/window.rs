@@ -56,9 +56,17 @@ mod imp {
         #[template_child]
         pub top_icon_content: TemplateChild<adw::ButtonContent>,
         #[template_child]
+        pub generate_icon_content: TemplateChild<adw::ButtonContent>,
+        #[template_child]
         pub generate_icon: TemplateChild<gtk::Button>,
         #[template_child]
         pub image_view: TemplateChild<gtk::Picture>,
+        #[template_child]
+        pub loading_spinner: TemplateChild<gtk::Spinner>,
+        #[template_child]
+        pub x_scale: TemplateChild<gtk::Scale>,
+        #[template_child]
+        pub y_scale: TemplateChild<gtk::Scale>,
 
         pub folder_image_file: RefCell<Option<File>>,
         pub top_image_file: RefCell<Option<File>>,
@@ -75,10 +83,14 @@ mod imp {
                 open_top_icon: TemplateChild::default(),
                 folder_icon_content: TemplateChild::default(),
                 top_icon_content: TemplateChild::default(),
+                generate_icon_content: TemplateChild::default(),
                 image_view: TemplateChild::default(),
                 generate_icon: TemplateChild::default(),
                 folder_image_file: RefCell::new(None),
                 top_image_file: RefCell::new(None),
+                loading_spinner: TemplateChild::default(),
+                x_scale: TemplateChild::default(),
+                y_scale: TemplateChild::default(),
             }
         }
     }
@@ -92,7 +104,6 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
-
             klass.install_action("app.generate_icon", None, move |win, _, _| {
                 win.button_clicked();
             });
@@ -138,17 +149,53 @@ impl GtkTestWindow {
     pub fn button_clicked(&self) {
         println!("Button Pressed");
         let imp = self.imp();
-        imp.generate_icon.set_sensitive(false);
-        imp.toast_overlay.add_toast(adw::Toast::new("generated"));
+
         println!("{}",imp.folder_image_file.borrow().as_ref().unwrap().path_str());
         let mut base = image::open(imp.folder_image_file.borrow().as_ref().unwrap().path_str()).expect("kon bovenste file niet openen");
         let top_image = image::open(imp.top_image_file.borrow().as_ref().unwrap().path_str()).unwrap();
-        imageops::overlay(&mut base, &top_image,0,0);
-        base.save("/tmp/overlayed_image.png").unwrap();
-       // let image1 = image::io::Reader::open(self.imp().folder_image_file.borrow().unwrap().path);
-        //let texture = gdk::Texture::from_resource(&self.imp().folder_image_file.borrow().unwrap().path_str());
-        imp.image_view.set_file(Some(&gio::File::for_path("/tmp/overlayed_image.png")));
-        imp.generate_icon.set_sensitive(true);
+
+        self.generate_image(base, top_image);
+
+    }
+
+    fn generate_image (&self, mut base_image: image::DynamicImage, top_image: image::DynamicImage){
+        let button = self.imp();
+        let (tx, rx) = async_channel::bounded(1);
+        let tx1 = tx.clone();
+        button.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
+        button.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
+        let coordinates: (i64,i64) = ((button.x_scale.value()+50.0) as i64,(button.y_scale.value()+50.0) as i64);
+        gio::spawn_blocking(move ||{
+            tx1.send_blocking(false).expect("could not send path");
+            let mut base = base_image;
+            let top = top_image;
+            let top_dimension: (i64,i64) = ((top.dimensions().0/2).into(),(top.dimensions().1/2).into());
+            let base_dimension: (i64,i64)  = ((base.dimensions().0/100).into(),(base.dimensions().1/100).into());
+            let final_coordinates: (i64,i64) = (base_dimension.0*coordinates.0-top_dimension.0,base_dimension.1*coordinates.1-top_dimension.1);
+            println!("base dims: {:?}",base.dimensions());
+            println!("base dims/slider: {:?}",base_dimension);
+            println!("top_dimension: {:?}",top.dimensions());
+            println!(" halfway top_dimension: {:?}",top_dimension);
+            println!("final coord: {:?}",final_coordinates);
+            println!("slider pos: {:?}",coordinates);
+            imageops::overlay(&mut base, &top,final_coordinates.0.into(),final_coordinates.1.into());
+            base.save("/tmp/overlayed_image.png").unwrap();
+            tx1.send_blocking(true).expect("could not send path")
+        });
+
+        glib::spawn_future_local(clone!(@weak-allow-none button => async move {
+            let window = button.as_ref().unwrap();
+            let button_label = window.generate_icon_content.label();
+            while let Ok(enable_button) = rx.recv().await {
+                window.loading_spinner.set_spinning(!enable_button);
+                window.generate_icon_content.set_label("");
+                window.generate_icon.set_sensitive(enable_button);
+            }
+            window.generate_icon_content.set_label(button_label.as_str());
+            window.image_view.set_file(Some(&gio::File::for_path("/tmp/overlayed_image.png")));
+            window.toast_overlay.add_toast(adw::Toast::new("generated"));
+        }));
+
     }
 
     pub async fn open_file_chooser_gtk(&self,what_button:usize) {
