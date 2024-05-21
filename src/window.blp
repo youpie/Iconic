@@ -42,6 +42,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
             }
             margin-bottom: 40;
             width-request: 40;
+            sensitive: false;
             action-name: "app.open_folder_icon";
             styles [
               "pill",
@@ -60,22 +61,30 @@ template $GtkTestWindow : Adw.ApplicationWindow {
           }
           Button generate_icon {
 
-            Adw.ButtonContent {
+            Adw.ButtonContent generate_icon_content{
               label: "Generate icon";
               icon-name: "checkbox-checked-symbolic";
+              Spinner loading_spinner {
+                valign: center;
+                halign: center;
+                height-request: 32;
+                width-request: 32;
+              }
             }
             margin-bottom: 40;
             action-name: "app.generate_icon";
+            sensitive: false;
             styles [
               "pill",
-              "suggested-action"
+              "suggested-action",
             ]
+
           }
             Box{
               orientation: horizontal;
               Box{
                 orientation: vertical;
-                Scale scale2 {
+                Scale x_scale {
                   has-origin: false;
                   orientation: horizontal;
                   adjustment: Adjustment percentage {
@@ -99,9 +108,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                   vexpand: true;
                 }
               }
-              Scale scale {
+              Scale y_scale {
                 has-origin: false;
                 orientation: vertical;
+
                 adjustment: Adjustment percentage2 {
                   lower: -50;
                   upper: 50;
