@@ -1,3 +1,3 @@
 # Folder icon maker
 
-A description of this project.
+I am trying to create an application using libadwaita and rust to let you easily add an icon to a folder
