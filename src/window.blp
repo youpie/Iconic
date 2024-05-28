@@ -9,6 +9,15 @@ template $GtkTestWindow : Adw.ApplicationWindow {
     Adw.ToolbarView toolbar {
       [top]
       Adw.HeaderBar header_bar {
+        Button save_button{
+          Adw.ButtonContent save_button_content{
+            label: "Save";
+            icon-name: "media-floppy-symbolic";
+          }
+          margin-start: 5;
+          sensitive: false;
+          action-name: "app.save_button";
+        }
         [end]
         MenuButton {
           primary: true;
@@ -16,6 +25,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
           tooltip-text: _("Menu");
           menu-model: primary_menu;
         }
+
       }
       content:
       Adw.Clamp clamp {
@@ -84,6 +94,20 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               orientation: horizontal;
               Box{
                 orientation: vertical;
+                Scale size {
+                  has-origin: false;
+                  orientation: horizontal;
+                  adjustment: Adjustment percentage3 {
+                    lower: 10;
+                    upper: 50;
+                    step-increment: 1;
+                    };
+                  hexpand: true;
+                  vexpand: true;
+                  digits: 0;
+                  draw-value: true;
+                  value-pos: top;
+                }
                 Scale x_scale {
                   has-origin: false;
                   orientation: horizontal;

@@ -64,12 +64,17 @@ mod imp {
         #[template_child]
         pub loading_spinner: TemplateChild<gtk::Spinner>,
         #[template_child]
+        pub save_button: TemplateChild<gtk::Button>,
+        #[template_child]
         pub x_scale: TemplateChild<gtk::Scale>,
         #[template_child]
         pub y_scale: TemplateChild<gtk::Scale>,
+        #[template_child]
+        pub size: TemplateChild<gtk::Scale>,
 
         pub folder_image_file: RefCell<Option<File>>,
         pub top_image_file: RefCell<Option<File>>,
+        pub file_created: RefCell<bool>
     }
 
     impl Default for GtkTestWindow {
@@ -86,11 +91,14 @@ mod imp {
                 generate_icon_content: TemplateChild::default(),
                 image_view: TemplateChild::default(),
                 generate_icon: TemplateChild::default(),
+                save_button: TemplateChild::default(),
                 folder_image_file: RefCell::new(None),
                 top_image_file: RefCell::new(None),
+                file_created: RefCell::new(false),
                 loading_spinner: TemplateChild::default(),
                 x_scale: TemplateChild::default(),
                 y_scale: TemplateChild::default(),
+                size: TemplateChild::default(),
             }
         }
     }
@@ -116,6 +124,11 @@ mod imp {
             klass.install_action("app.open_top_icon", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(@weak win => async move {
                     win.open_file_chooser_gtk(1).await;
+                }));
+            });
+            klass.install_action("app.save_button", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(@weak win => async move {
+                    win.save_file().await;
                 }));
             });
         }
@@ -151,33 +164,43 @@ impl GtkTestWindow {
         let imp = self.imp();
 
         println!("{}",imp.folder_image_file.borrow().as_ref().unwrap().path_str());
-        let mut base = image::open(imp.folder_image_file.borrow().as_ref().unwrap().path_str()).expect("kon bovenste file niet openen");
+        let base = image::open(imp.folder_image_file.borrow().as_ref().unwrap().path_str()).expect("kon bovenste file niet openen");
         let top_image = image::open(imp.top_image_file.borrow().as_ref().unwrap().path_str()).unwrap();
 
         self.generate_image(base, top_image);
 
     }
 
-    fn generate_image (&self, mut base_image: image::DynamicImage, top_image: image::DynamicImage){
+    async fn save_file(&self){
+        let file_name = "folder.png";
+        let file_chooser = gtk::FileDialog::builder()
+            .initial_name(file_name)
+            .modal(true)
+            .build();
+        let file = file_chooser.save_future(Some(self)).await;
+
+
+        image::open("/tmp/overlayed_image.png").unwrap().save(file.unwrap().path().unwrap());
+        self.imp().toast_overlay.add_toast(adw::Toast::new("saved file"));
+    }
+
+    fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage){
         let button = self.imp();
         let (tx, rx) = async_channel::bounded(1);
         let tx1 = tx.clone();
         button.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
-        button.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
+        button.x_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         let coordinates: (i64,i64) = ((button.x_scale.value()+50.0) as i64,(button.y_scale.value()+50.0) as i64);
+        let scale: f32 = button.size.value() as f32;
+        println!("{}",scale);
         gio::spawn_blocking(move ||{
             tx1.send_blocking(false).expect("could not send path");
             let mut base = base_image;
             let top = top_image;
-            let top_dimension: (i64,i64) = ((top.dimensions().0/2).into(),(top.dimensions().1/2).into());
             let base_dimension: (i64,i64)  = ((base.dimensions().0/100).into(),(base.dimensions().1/100).into());
+            let top = GtkTestWindow::resize_image(top,base.dimensions(),scale);
+            let top_dimension: (i64,i64) = ((top.dimensions().0/2).into(),(top.dimensions().1/2).into());
             let final_coordinates: (i64,i64) = (base_dimension.0*coordinates.0-top_dimension.0,base_dimension.1*coordinates.1-top_dimension.1);
-            println!("base dims: {:?}",base.dimensions());
-            println!("base dims/slider: {:?}",base_dimension);
-            println!("top_dimension: {:?}",top.dimensions());
-            println!(" halfway top_dimension: {:?}",top_dimension);
-            println!("final coord: {:?}",final_coordinates);
-            println!("slider pos: {:?}",coordinates);
             imageops::overlay(&mut base, &top,final_coordinates.0.into(),final_coordinates.1.into());
             base.save("/tmp/overlayed_image.png").unwrap();
             tx1.send_blocking(true).expect("could not send path")
@@ -196,6 +219,15 @@ impl GtkTestWindow {
             window.toast_overlay.add_toast(adw::Toast::new("generated"));
         }));
 
+    }
+
+    fn resize_image (image: DynamicImage, dimensions: (u32,u32), slider_position: f32) -> DynamicImage{
+        let width: f32 = dimensions.0 as f32;
+        let height: f32 = dimensions.1 as f32;
+        let scale_factor: f32 = slider_position / 10.0;
+        let new_width: u32 = (width/scale_factor) as u32;
+        let new_height: u32 = (height/scale_factor) as u32;
+        image.resize(new_width, new_height, imageops::FilterType::Triangle)
     }
 
     pub async fn open_file_chooser_gtk(&self,what_button:usize) {
@@ -252,4 +284,5 @@ impl GtkTestWindow {
         println!("test");
     }
 }
+
 
