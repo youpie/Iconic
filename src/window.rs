@@ -72,6 +72,7 @@ mod imp {
         pub top_image_file: RefCell<Option<File>>,
         pub file_created: RefCell<bool>,
         pub final_image: RefCell<Option<DynamicImage>>,
+        pub signals: RefCell<Vec<glib::SignalHandlerId>>,
     }
 
     impl Default for GtkTestWindow {
@@ -93,6 +94,7 @@ mod imp {
                 top_image_file: RefCell::new(None),
                 final_image: RefCell::new(None),
                 file_created: RefCell::new(false),
+                signals: RefCell::new(vec![]),
                 loading_spinner: TemplateChild::default(),
                 x_scale: TemplateChild::default(),
                 y_scale: TemplateChild::default(),
@@ -152,10 +154,45 @@ glib::wrapper! {
 #[gtk::template_callbacks]
 impl GtkTestWindow {
     pub fn new<P: IsA<adw::Application>>(application: &P) -> Self {
-        glib::Object::builder()
+        let win = glib::Object::builder::<GtkTestWindow>()
             .property("application", application)
-            .build()
+            .build();
+        win.imp().generate_icon.set_sensitive(false);
+        win.imp().save_button.set_sensitive(false);
+        win
     }
+
+    fn setup_update (&self){
+        self.imp().generate_icon.set_sensitive(true);
+
+        self.imp().x_scale.connect_value_changed(clone!(@weak self as this => move |_| {
+                this.generate_image(
+                    this.imp().folder_image_file.borrow().clone().unwrap().dynamicImage,
+                    this.imp().top_image_file.borrow().clone().unwrap().dynamicImage);
+            }));
+        self.imp().y_scale.connect_value_changed(clone!(@weak self as this => move |_| {
+                this.generate_image(
+                    this.imp().folder_image_file.borrow().clone().unwrap().dynamicImage,
+                    this.imp().top_image_file.borrow().clone().unwrap().dynamicImage);
+            }));
+        let test = self.imp().size.connect_value_changed(clone!(@weak self as this => move |_| {
+                this.generate_image(
+                    this.imp().folder_image_file.borrow().clone().unwrap().dynamicImage,
+                    this.imp().top_image_file.borrow().clone().unwrap().dynamicImage);
+            }));
+    }
+
+    // fn remove_update (&self) {
+    //     for signal in self.imp().signals.borrow().as_ref().unwrap() {
+    //         self.block_signal(signal);
+    //     }
+    // }
+
+    // fn readd_update (&self) {
+    //     for signal in self.imp().signals.borrow().as_ref().unwrap() {
+    //         self.unblock_signal(signal);
+    //     }
+    // }
 
     pub fn button_clicked(&self) {
         println!("Button Pressed");
@@ -166,6 +203,7 @@ impl GtkTestWindow {
         let top_image = imp.top_image_file.borrow().clone().unwrap().dynamicImage;
 
         self.generate_image(base, top_image);
+        //self.readd_update();
 
     }
 
@@ -184,6 +222,8 @@ impl GtkTestWindow {
 
     fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage){
         let button = self.imp();
+        self.imp().save_button.set_sensitive(true);
+        //self.remove_update();
         let (tx, rx) = async_channel::bounded(1);
         let (tx_texture, rx_texture) = async_channel::bounded(1);
         let tx1 = tx.clone();
@@ -216,7 +256,6 @@ impl GtkTestWindow {
                 window.generate_icon.set_sensitive(enable_button);
             }
             window.generate_icon_content.set_label(button_label.as_str());
-
             //window.image_view.set_file(Some(&gio::File::for_path("/tmp/overlayed_image.png")));
             window.toast_overlay.add_toast(adw::Toast::new("generated"));
         }));
@@ -240,6 +279,7 @@ impl GtkTestWindow {
     }
 
     pub async fn open_file_chooser_gtk(&self,what_button:usize) {
+        let imp = self.imp();
         let filters = gio::ListStore::new::<gtk::FileFilter>();
         let filter = gtk::FileFilter::new();
         filter.add_mime_type("image/*");
@@ -265,6 +305,9 @@ impl GtkTestWindow {
                     },
             Err(y) => println!("{:#?}",y),
         };
+        if imp.top_image_file.borrow().as_ref() != None && imp.top_image_file.borrow().as_ref() != None {
+            self.setup_update();
+        }
 
     }
 
