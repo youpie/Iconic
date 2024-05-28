@@ -26,11 +26,7 @@ use gtk::{gio, glib,gdk};
 use image::*;
 use crate::objects::file::File;
 use std::cell::RefCell;
-use cairo::*;
-use std::io::*;
-use std::time::Duration;
-use std::thread;
-
+use gtk::gdk_pixbuf::Pixbuf;
 
 mod imp {
     use super::*;
@@ -74,7 +70,8 @@ mod imp {
 
         pub folder_image_file: RefCell<Option<File>>,
         pub top_image_file: RefCell<Option<File>>,
-        pub file_created: RefCell<bool>
+        pub file_created: RefCell<bool>,
+        pub final_image: RefCell<Option<DynamicImage>>,
     }
 
     impl Default for GtkTestWindow {
@@ -94,6 +91,7 @@ mod imp {
                 save_button: TemplateChild::default(),
                 folder_image_file: RefCell::new(None),
                 top_image_file: RefCell::new(None),
+                final_image: RefCell::new(None),
                 file_created: RefCell::new(false),
                 loading_spinner: TemplateChild::default(),
                 x_scale: TemplateChild::default(),
@@ -164,8 +162,8 @@ impl GtkTestWindow {
         let imp = self.imp();
 
         println!("{}",imp.folder_image_file.borrow().as_ref().unwrap().path_str());
-        let base = image::open(imp.folder_image_file.borrow().as_ref().unwrap().path_str()).expect("kon bovenste file niet openen");
-        let top_image = image::open(imp.top_image_file.borrow().as_ref().unwrap().path_str()).unwrap();
+        let base = imp.folder_image_file.borrow().clone().unwrap().dynamicImage;
+        let top_image = imp.top_image_file.borrow().clone().unwrap().dynamicImage;
 
         self.generate_image(base, top_image);
 
@@ -180,14 +178,16 @@ impl GtkTestWindow {
         let file = file_chooser.save_future(Some(self)).await;
 
 
-        image::open("/tmp/overlayed_image.png").unwrap().save(file.unwrap().path().unwrap());
+        let _ = self.imp().final_image.borrow().as_ref().unwrap().save(file.unwrap().path().unwrap());
         self.imp().toast_overlay.add_toast(adw::Toast::new("saved file"));
     }
 
     fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage){
         let button = self.imp();
         let (tx, rx) = async_channel::bounded(1);
+        let (tx_texture, rx_texture) = async_channel::bounded(1);
         let tx1 = tx.clone();
+        let tx_texture1 = tx_texture.clone();
         button.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         button.x_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         let coordinates: (i64,i64) = ((button.x_scale.value()+50.0) as i64,(button.y_scale.value()+50.0) as i64);
@@ -202,8 +202,9 @@ impl GtkTestWindow {
             let top_dimension: (i64,i64) = ((top.dimensions().0/2).into(),(top.dimensions().1/2).into());
             let final_coordinates: (i64,i64) = (base_dimension.0*coordinates.0-top_dimension.0,base_dimension.1*coordinates.1-top_dimension.1);
             imageops::overlay(&mut base, &top,final_coordinates.0.into(),final_coordinates.1.into());
-            base.save("/tmp/overlayed_image.png").unwrap();
-            tx1.send_blocking(true).expect("could not send path")
+            //base.save("/tmp/overlayed_image.png").unwrap();
+            tx1.send_blocking(true).expect("could not send path");
+            tx_texture1.send_blocking(base)
         });
 
         glib::spawn_future_local(clone!(@weak-allow-none button => async move {
@@ -215,8 +216,16 @@ impl GtkTestWindow {
                 window.generate_icon.set_sensitive(enable_button);
             }
             window.generate_icon_content.set_label(button_label.as_str());
-            window.image_view.set_file(Some(&gio::File::for_path("/tmp/overlayed_image.png")));
+
+            //window.image_view.set_file(Some(&gio::File::for_path("/tmp/overlayed_image.png")));
             window.toast_overlay.add_toast(adw::Toast::new("generated"));
+        }));
+        glib::spawn_future_local(clone!(@weak-allow-none button => async move {
+            let window = button.as_ref().unwrap();
+            let image = rx_texture.recv().await.unwrap();
+            window.final_image.replace(Some(image));
+            let texture = GtkTestWindow::dynamic_image_to_texture(&window.final_image.borrow().as_ref().unwrap());
+            window.image_view.set_paintable(Some(&texture));
         }));
 
     }
@@ -224,7 +233,7 @@ impl GtkTestWindow {
     fn resize_image (image: DynamicImage, dimensions: (u32,u32), slider_position: f32) -> DynamicImage{
         let width: f32 = dimensions.0 as f32;
         let height: f32 = dimensions.1 as f32;
-        let scale_factor: f32 = slider_position / 10.0;
+        let scale_factor: f32 = (slider_position + 10.0) / 10.0;
         let new_width: u32 = (width/scale_factor) as u32;
         let new_height: u32 = (height/scale_factor) as u32;
         image.resize(new_width, new_height, imageops::FilterType::Triangle)
@@ -277,6 +286,26 @@ impl GtkTestWindow {
         }
 
     }
+
+    fn dynamic_image_to_texture(dynamic_image: &DynamicImage) -> gdk::Texture {
+        let rgba_image = dynamic_image.to_rgba8();
+        let (width, height) = rgba_image.dimensions();
+        let pixels = rgba_image.into_raw(); // Get the raw pixel data
+
+        // Create Pixbuf from raw pixel data
+        let pixbuf = Pixbuf::from_bytes(
+            &glib::Bytes::from(&pixels),
+            gtk::gdk_pixbuf::Colorspace::Rgb,
+            true,  // has_alpha
+            8,     // bits_per_sample
+            width as i32,
+            height as i32,
+            width as i32 * 4, // rowstride
+        );
+        gdk::Texture::for_pixbuf(&pixbuf)
+        //self.imp().image_view.set_paintable(Some(&texture));
+    }
+
 
     #[template_callback]
     fn handle_button_clicked() {

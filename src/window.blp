@@ -95,16 +95,16 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               Box{
                 orientation: vertical;
                 Scale size {
-                  has-origin: false;
+                  has-origin: true;
                   orientation: horizontal;
                   adjustment: Adjustment percentage3 {
-                    lower: 10;
-                    upper: 50;
+                    lower: 0;
+                    upper: 30;
                     step-increment: 1;
                     };
                   hexpand: true;
                   vexpand: true;
-                  digits: 0;
+                  digits: 1;
                   draw-value: true;
                   value-pos: top;
                 }

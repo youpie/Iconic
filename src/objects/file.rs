@@ -1,13 +1,15 @@
 use std::path::PathBuf;
 use gtk::gio;
+use image::*;
 use adw::prelude::FileExt;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct File {
 	pub files: gio::File,
 	pub path: PathBuf,
 	pub name: String,
 	pub extension: String,
+	pub dynamicImage: DynamicImage,
 }
 
 impl File{
@@ -20,11 +22,13 @@ impl File{
 		let period_split:Vec<&str> = file_name.split(".").collect();
 		let file_extension = format!(".{}",period_split.last().unwrap());
         let name_no_extension = file_name.replace(&file_extension,"");
+        let dynamicImage = image::open(temp_path.clone().into_os_string()).unwrap();
 		Self {
 			files: file,
 			path: temp_path.into(),
 			extension: file_extension,
 			name: name_no_extension,
+			dynamicImage
 		}
 	}
 	pub fn get_file(&self) -> &gio::File{
