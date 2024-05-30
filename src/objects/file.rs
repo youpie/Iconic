@@ -10,6 +10,7 @@ pub struct File {
 	pub name: String,
 	pub extension: String,
 	pub dynamicImage: DynamicImage,
+	pub thumbnail: DynamicImage
 }
 
 impl File{
@@ -23,12 +24,14 @@ impl File{
 		let file_extension = format!(".{}",period_split.last().unwrap());
         let name_no_extension = file_name.replace(&file_extension,"");
         let dynamicImage = image::open(temp_path.clone().into_os_string()).unwrap();
+        let thumbnail = dynamicImage.clone().resize(255, 255, imageops::FilterType::Nearest);
 		Self {
 			files: file,
 			path: temp_path.into(),
 			extension: file_extension,
 			name: name_no_extension,
-			dynamicImage
+			dynamicImage,
+			thumbnail
 		}
 	}
 	pub fn get_file(&self) -> &gio::File{
