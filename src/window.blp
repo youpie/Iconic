@@ -2,8 +2,10 @@ using Gtk 4.0;
 using Adw 1;
 
 template $GtkTestWindow : Adw.ApplicationWindow {
-  default-width: 1000;
-  default-height: 600;
+  default-width: 750;
+  default-height: 750;
+  width-request: 300;
+  height-request: 300;
   content:
   Adw.ToastOverlay toast_overlay {
     Adw.ToolbarView toolbar {
@@ -30,126 +32,133 @@ template $GtkTestWindow : Adw.ApplicationWindow {
       content:
       Adw.Clamp clamp {
         width-request: 150;
-        Box {
-        orientation: vertical;
-        halign: center;
-        valign: center;
-        margin-top: 20;
-        margin-start: 20;
-        margin-end: 20;
-          Label label {
+        Label label {
 
-            label: "Hello, World!";
-            margin-bottom: 40;
-            styles [
-              "title-1",
-            ]
-          }
-          Button open_folder_icon {
-            Adw.ButtonContent folder_icon_content{
-              label: "Select folder image";
-              icon-name: "image-missing-symbolic";
-            }
-            margin-bottom: 40;
-            width-request: 40;
-            sensitive: false;
-            action-name: "app.open_folder_icon";
-            styles [
-              "pill",
-            ]
-          }
-          Button open_top_icon {
-            Adw.ButtonContent top_icon_content{
-              label: "Select top image";
-              icon-name: "image-missing-symbolic";
-            }
-            margin-bottom: 40;
-            action-name: "app.open_top_icon";
-            styles [
-              "pill",
-            ]
-          }
-          Button generate_icon {
-
-            Adw.ButtonContent generate_icon_content{
-              label: "Generate icon";
-              icon-name: "checkbox-checked-symbolic";
-              Spinner loading_spinner {
-                valign: center;
-                halign: center;
-                height-request: 32;
-                width-request: 32;
+          label: "Hello, World!";
+          margin-bottom: 40;
+          styles [
+            "title-1",
+          ]
+        }
+        Adw.PreferencesPage {
+          Adw.PreferencesGroup{
+            Adw.ActionRow{
+              
+              Picture image_view {
+                
+                width-request: 150;
+                height-request: 150;
+                margin-bottom: 40;
+                content-fit: scale_down;
+                hexpand: true;
+                vexpand: true;
               }
             }
-            margin-bottom: 40;
-            action-name: "app.generate_icon";
-            sensitive: false;
-            styles [
-              "pill",
-              "suggested-action",
-            ]
-
           }
-            Box{
-              orientation: horizontal;
-              Box{
-                orientation: vertical;
-                Scale size {
-                  has-origin: true;
-                  orientation: horizontal;
-                  adjustment: Adjustment percentage3 {
-                    lower: 0;
-                    upper: 30;
-                    step-increment: 1;
-                    };
-                  hexpand: true;
-                  vexpand: true;
-                  digits: 1;
-                  draw-value: true;
-                  value-pos: top;
+          Adw.PreferencesGroup{
+            Adw.ActionRow{
+              title: "select folder icon";
+              activatable-widget: open_folder_icon;
+              Button open_folder_icon {
+                Adw.ButtonContent folder_icon_content{
+                  label: "Select folder image";
+                  icon-name: "image-missing-symbolic";
                 }
-                Scale x_scale {
+                margin-bottom: 40;
+                width-request: 40;
+                sensitive: false;
+                action-name: "app.open_folder_icon";
+                styles [
+                  "pill",
+                ]
+              }
+            }
+            Adw.ActionRow{
+              title: "select top icon";
+              activatable-widget: open_top_icon;
+              Button open_top_icon {
+                Adw.ButtonContent top_icon_content{
+                  label: "Select top image";
+                  icon-name: "image-missing-symbolic";
+                }
+                margin-bottom: 40;
+                action-name: "app.open_top_icon";
+                styles [
+                  "pill",
+                ]
+              }
+            }
+            Adw.ActionRow{
+                title: "select top icon";
+                activatable-widget: generate_icon;
+                Button generate_icon {
+                  Adw.ButtonContent generate_icon_content{
+                    label: "Generate icon";
+                    icon-name: "checkbox-checked-symbolic";
+                  }
+                  margin-bottom: 40;
+                  action-name: "app.generate_icon";
+                  sensitive: false;
+                  styles [
+                    "pill",
+                    "suggested-action",
+                  ]
+
+                }
+              }
+            }
+            Adw.PreferencesGroup{
+              Box{
+                orientation: horizontal;
+                Box{
+                  orientation: vertical;
+                  Scale size {
+                    has-origin: true;
+                    orientation: horizontal;
+                    adjustment: Adjustment percentage3 {
+                      lower: 0;
+                      upper: 30;
+                      step-increment: 1;
+                      };
+                    hexpand: true;
+                    vexpand: true;
+                    digits: 1;
+                    draw-value: true;
+                    value-pos: top;
+                  }
+                  Scale x_scale {
+                    has-origin: false;
+                    orientation: horizontal;
+                    adjustment: Adjustment percentage {
+                      lower: -50;
+                      upper: 50;
+                      step-increment: 1;
+                      };
+                    hexpand: true;
+                    vexpand: true;
+                    digits: 0;
+                    draw-value: true;
+                    value-pos: top;
+                  }
+                }
+                Scale y_scale {
                   has-origin: false;
-                  orientation: horizontal;
-                  adjustment: Adjustment percentage {
+                  orientation: vertical;
+
+                  adjustment: Adjustment percentage2 {
                     lower: -50;
                     upper: 50;
                     step-increment: 1;
-                    };
+                  };
                   hexpand: true;
                   vexpand: true;
                   digits: 0;
                   draw-value: true;
-                  value-pos: top;
+                  value-pos: left;
                 }
-                Picture image_view {
-                  width-request: 150;
-                  height-request: 150;
-
-                  margin-bottom: 40;
-                  content-fit: scale_down;
-                  hexpand: false;
-                  vexpand: true;
-                }
-              }
-              Scale y_scale {
-                has-origin: false;
-                orientation: vertical;
-
-                adjustment: Adjustment percentage2 {
-                  lower: -50;
-                  upper: 50;
-                  step-increment: 1;
-                };
-                hexpand: true;
-                vexpand: true;
-                digits: 0;
-                draw-value: true;
-                value-pos: left;
               }
             }
           }
-
       };
     }
   };

@@ -60,8 +60,6 @@ mod imp {
         #[template_child]
         pub image_view: TemplateChild<gtk::Picture>,
         #[template_child]
-        pub loading_spinner: TemplateChild<gtk::Spinner>,
-        #[template_child]
         pub save_button: TemplateChild<gtk::Button>,
         #[template_child]
         pub x_scale: TemplateChild<gtk::Scale>,
@@ -97,7 +95,6 @@ mod imp {
                 final_image: RefCell::new(None),
                 file_created: RefCell::new(false),
                 signals: RefCell::new(vec![]),
-                loading_spinner: TemplateChild::default(),
                 x_scale: TemplateChild::default(),
                 y_scale: TemplateChild::default(),
                 size: TemplateChild::default(),
@@ -214,6 +211,7 @@ impl GtkTestWindow {
 
 
         imp.image_view.set_paintable(Some(&self.generate_image(base, top_image).await));
+        //imp.image_container.append(&image_flow_box_child);
         //self.readd_update();
 
     }
@@ -278,13 +276,9 @@ impl GtkTestWindow {
 
         glib::spawn_future_local(clone!(@weak-allow-none button => async move {
             let window = button.as_ref().unwrap();
-            let button_label = window.generate_icon_content.label();
             while let Ok(enable_button) = rx.recv().await {
-                window.loading_spinner.set_spinning(!enable_button);
-                window.generate_icon_content.set_label("");
                 window.generate_icon.set_sensitive(enable_button);
             }
-            window.generate_icon_content.set_label(button_label.as_str());
             //window.image_view.set_file(Some(&gio::File::for_path("/tmp/overlayed_image.png")));
             window.toast_overlay.add_toast(adw::Toast::new("generated"));
         }));
