@@ -27,6 +27,8 @@ use image::*;
 use crate::objects::file::File;
 use std::cell::RefCell;
 use gtk::gdk_pixbuf::Pixbuf;
+use adw::prelude::AlertDialogExt;
+use adw::prelude::AlertDialogExtManual;
 
 mod imp {
     use super::*;
@@ -113,7 +115,9 @@ mod imp {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
             klass.install_action("app.generate_icon", None, move |win, _, _| {
-                win.button_clicked();
+                glib::spawn_future_local(clone!(@weak win => async move {
+                    win.button_clicked().await;
+                }));
             });
             klass.install_action("app.open_folder_icon", None, move |win, _, a| {
             println!("{:#?}",a);
@@ -166,19 +170,25 @@ impl GtkTestWindow {
         self.imp().generate_icon.set_sensitive(true);
 
         self.imp().x_scale.connect_value_changed(clone!(@weak self as this => move |_| {
-                this.generate_image(
-                    this.imp().folder_image_file.borrow().clone().unwrap().dynamicImage,
-                    this.imp().top_image_file.borrow().clone().unwrap().dynamicImage);
+        glib::spawn_future_local(clone!(@weak this => async move {
+                this.imp().image_view.set_paintable(Some(&this.generate_image(
+                    this.imp().folder_image_file.borrow().clone().unwrap().thumbnail,
+                    this.imp().top_image_file.borrow().clone().unwrap().thumbnail).await));
+                    }));
             }));
         self.imp().y_scale.connect_value_changed(clone!(@weak self as this => move |_| {
-                this.generate_image(
-                    this.imp().folder_image_file.borrow().clone().unwrap().dynamicImage,
-                    this.imp().top_image_file.borrow().clone().unwrap().dynamicImage);
+        glib::spawn_future_local(clone!(@weak this => async move {
+                this.imp().image_view.set_paintable(Some(&this.generate_image(
+                    this.imp().folder_image_file.borrow().clone().unwrap().thumbnail,
+                    this.imp().top_image_file.borrow().clone().unwrap().thumbnail).await));
+                    }));
             }));
         let test = self.imp().size.connect_value_changed(clone!(@weak self as this => move |_| {
-                this.generate_image(
-                    this.imp().folder_image_file.borrow().clone().unwrap().dynamicImage,
-                    this.imp().top_image_file.borrow().clone().unwrap().dynamicImage);
+        glib::spawn_future_local(clone!(@weak this => async move {
+                this.imp().image_view.set_paintable(Some(&this.generate_image(
+                    this.imp().folder_image_file.borrow().clone().unwrap().thumbnail,
+                    this.imp().top_image_file.borrow().clone().unwrap().thumbnail).await));
+                    }));
             }));
     }
 
@@ -194,20 +204,41 @@ impl GtkTestWindow {
     //     }
     // }
 
-    pub fn button_clicked(&self) {
+    async fn button_clicked(&self) {
         println!("Button Pressed");
         let imp = self.imp();
 
         println!("{}",imp.folder_image_file.borrow().as_ref().unwrap().path_str());
-        let base = imp.folder_image_file.borrow().clone().unwrap().dynamicImage;
-        let top_image = imp.top_image_file.borrow().clone().unwrap().dynamicImage;
+        let base = imp.folder_image_file.borrow().clone().unwrap().thumbnail;
+        let top_image = imp.top_image_file.borrow().clone().unwrap().thumbnail;
 
-        self.generate_image(base, top_image);
+
+        imp.image_view.set_paintable(Some(&self.generate_image(base, top_image).await));
         //self.readd_update();
 
     }
 
+    async fn open_dialog(&self){
+        const RESPONSE_CANCEL: &str = "cancel";
+        const RESPONSE_DISCARD: &str = "discard";
+        const RESPONSE_SAVE: &str = "save";
+        let dialog = adw::AlertDialog::builder()
+            .heading(gettext("Save Changes?"))
+            .body(gettext("Open image contain unsaved changes. Changes which are not saved will be permanently lost"))
+            .close_response(RESPONSE_CANCEL)
+            .default_response(RESPONSE_SAVE)
+            .build();
+        dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
+        dialog.add_response(RESPONSE_DISCARD, &gettext("Discard"));
+        dialog.set_response_appearance(RESPONSE_DISCARD, adw::ResponseAppearance::Destructive);
+        dialog.add_response(RESPONSE_SAVE, &gettext("Save"));
+        dialog.set_response_appearance(RESPONSE_SAVE, adw::ResponseAppearance::Suggested);
+
+        dialog.clone().choose_future(self).await;
+    }
+
     async fn save_file(&self){
+
         let file_name = "folder.png";
         let file_chooser = gtk::FileDialog::builder()
             .initial_name(file_name)
@@ -220,19 +251,18 @@ impl GtkTestWindow {
         self.imp().toast_overlay.add_toast(adw::Toast::new("saved file"));
     }
 
-    fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage){
+
+    async fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage) -> gdk::Texture{
         let button = self.imp();
         self.imp().save_button.set_sensitive(true);
-        //self.remove_update();
         let (tx, rx) = async_channel::bounded(1);
         let (tx_texture, rx_texture) = async_channel::bounded(1);
         let tx1 = tx.clone();
         let tx_texture1 = tx_texture.clone();
         button.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         button.x_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
-        let coordinates: (i64,i64) = ((button.x_scale.value()+50.0) as i64,(button.y_scale.value()+50.0) as i64);
+        let coordinates = ((button.x_scale.value()+50.0) as i64,(button.y_scale.value()+50.0) as i64);
         let scale: f32 = button.size.value() as f32;
-        println!("{}",scale);
         gio::spawn_blocking(move ||{
             tx1.send_blocking(false).expect("could not send path");
             let mut base = base_image;
@@ -242,7 +272,6 @@ impl GtkTestWindow {
             let top_dimension: (i64,i64) = ((top.dimensions().0/2).into(),(top.dimensions().1/2).into());
             let final_coordinates: (i64,i64) = (base_dimension.0*coordinates.0-top_dimension.0,base_dimension.1*coordinates.1-top_dimension.1);
             imageops::overlay(&mut base, &top,final_coordinates.0.into(),final_coordinates.1.into());
-            //base.save("/tmp/overlayed_image.png").unwrap();
             tx1.send_blocking(true).expect("could not send path");
             tx_texture1.send_blocking(base)
         });
@@ -259,14 +288,14 @@ impl GtkTestWindow {
             //window.image_view.set_file(Some(&gio::File::for_path("/tmp/overlayed_image.png")));
             window.toast_overlay.add_toast(adw::Toast::new("generated"));
         }));
-        glib::spawn_future_local(clone!(@weak-allow-none button => async move {
+
+        let texture = glib::spawn_future_local(clone!(@weak-allow-none button => async move {
             let window = button.as_ref().unwrap();
             let image = rx_texture.recv().await.unwrap();
             window.final_image.replace(Some(image));
-            let texture = GtkTestWindow::dynamic_image_to_texture(&window.final_image.borrow().as_ref().unwrap());
-            window.image_view.set_paintable(Some(&texture));
+            return GtkTestWindow::dynamic_image_to_texture(&window.final_image.borrow().as_ref().unwrap());
         }));
-
+        texture.await.unwrap()
     }
 
     fn resize_image (image: DynamicImage, dimensions: (u32,u32), slider_position: f32) -> DynamicImage{
@@ -275,7 +304,7 @@ impl GtkTestWindow {
         let scale_factor: f32 = (slider_position + 10.0) / 10.0;
         let new_width: u32 = (width/scale_factor) as u32;
         let new_height: u32 = (height/scale_factor) as u32;
-        image.resize(new_width, new_height, imageops::FilterType::Triangle)
+        image.resize(new_width, new_height, imageops::FilterType::Nearest)
     }
 
     pub async fn open_file_chooser_gtk(&self,what_button:usize) {
@@ -312,6 +341,7 @@ impl GtkTestWindow {
     }
 
     fn get_file_name(&self, filename: gio::File, file: &RefCell<Option<File>>, slice: Option<usize>,show_extension: bool) -> String{
+
         file.replace(Some(File::new(filename)));
         let file = file.borrow().clone().unwrap();
         println!("{:#?}",file.name);
@@ -334,7 +364,7 @@ impl GtkTestWindow {
         let rgba_image = dynamic_image.to_rgba8();
         let (width, height) = rgba_image.dimensions();
         let pixels = rgba_image.into_raw(); // Get the raw pixel data
-
+        println!("{:?}",dynamic_image.dimensions());
         // Create Pixbuf from raw pixel data
         let pixbuf = Pixbuf::from_bytes(
             &glib::Bytes::from(&pixels),
@@ -347,13 +377,6 @@ impl GtkTestWindow {
         );
         gdk::Texture::for_pixbuf(&pixbuf)
         //self.imp().image_view.set_paintable(Some(&texture));
-    }
-
-
-    #[template_callback]
-    fn handle_button_clicked() {
-        // Set the label to "Hello World!" after the button has been clicked on
-        println!("test");
     }
 }
 
