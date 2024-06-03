@@ -71,6 +71,7 @@ mod imp {
         pub folder_image_file: RefCell<Option<File>>,
         pub top_image_file: RefCell<Option<File>>,
         pub file_created: RefCell<bool>,
+        pub image_saved: RefCell<Option<bool>>,
         pub final_image: RefCell<Option<DynamicImage>>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
     }
@@ -92,6 +93,7 @@ mod imp {
                 save_button: TemplateChild::default(),
                 folder_image_file: RefCell::new(None),
                 top_image_file: RefCell::new(None),
+                image_saved: RefCell::new(None),
                 final_image: RefCell::new(None),
                 file_created: RefCell::new(false),
                 signals: RefCell::new(vec![]),
@@ -180,7 +182,7 @@ impl GtkTestWindow {
                     this.imp().top_image_file.borrow().clone().unwrap().thumbnail).await));
                     }));
             }));
-        let test = self.imp().size.connect_value_changed(clone!(@weak self as this => move |_| {
+        self.imp().size.connect_value_changed(clone!(@weak self as this => move |_| {
         glib::spawn_future_local(clone!(@weak this => async move {
                 this.imp().image_view.set_paintable(Some(&this.generate_image(
                     this.imp().folder_image_file.borrow().clone().unwrap().thumbnail,
@@ -188,18 +190,6 @@ impl GtkTestWindow {
                     }));
             }));
     }
-
-    // fn remove_update (&self) {
-    //     for signal in self.imp().signals.borrow().as_ref().unwrap() {
-    //         self.block_signal(signal);
-    //     }
-    // }
-
-    // fn readd_update (&self) {
-    //     for signal in self.imp().signals.borrow().as_ref().unwrap() {
-    //         self.unblock_signal(signal);
-    //     }
-    // }
 
     async fn button_clicked(&self) {
         println!("Button Pressed");
@@ -214,6 +204,13 @@ impl GtkTestWindow {
         //imp.image_container.append(&image_flow_box_child);
         //self.readd_update();
 
+    }
+
+    pub async fn check_quit(&self){
+        let imp = self.imp();
+        match imp.image_saved {
+            _ => self.open_dialog().await,
+        }
     }
 
     async fn open_dialog(&self){
@@ -244,8 +241,8 @@ impl GtkTestWindow {
             .build();
         let file = file_chooser.save_future(Some(self)).await;
 
-
-        let _ = self.imp().final_image.borrow().as_ref().unwrap().save(file.unwrap().path().unwrap());
+        self.imp().image_saved.replace(Some(true));
+        //let _ = self.imp().final_image.borrow().as_ref().unwrap().save(file.unwrap().path().unwrap());
         self.imp().toast_overlay.add_toast(adw::Toast::new("saved file"));
     }
 
@@ -253,12 +250,11 @@ impl GtkTestWindow {
     async fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage) -> gdk::Texture{
         let button = self.imp();
         self.imp().save_button.set_sensitive(true);
+        button.image_saved.replace(Some(false));
         let (tx, rx) = async_channel::bounded(1);
         let (tx_texture, rx_texture) = async_channel::bounded(1);
         let tx1 = tx.clone();
         let tx_texture1 = tx_texture.clone();
-        button.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
-        button.x_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         let coordinates = ((button.x_scale.value()+50.0) as i64,(button.y_scale.value()+50.0) as i64);
         let scale: f32 = button.size.value() as f32;
         gio::spawn_blocking(move ||{
@@ -280,7 +276,6 @@ impl GtkTestWindow {
                 window.generate_icon.set_sensitive(enable_button);
             }
             //window.image_view.set_file(Some(&gio::File::for_path("/tmp/overlayed_image.png")));
-            window.toast_overlay.add_toast(adw::Toast::new("generated"));
         }));
 
         let texture = glib::spawn_future_local(clone!(@weak-allow-none button => async move {

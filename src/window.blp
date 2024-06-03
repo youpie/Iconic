@@ -40,21 +40,74 @@ template $GtkTestWindow : Adw.ApplicationWindow {
             "title-1",
           ]
         }
+
         Adw.PreferencesPage {
           Adw.PreferencesGroup{
+            Box{
+              orientation: horizontal;
+              Scale y_scale {
+                has-origin: false;
+                orientation: vertical;
+                adjustment: Adjustment percentage2 {
+                  lower: -50;
+                  upper: 50;
+                  step-increment: 1;
+                };
+                vexpand: true;
+                digits: 0;
+                draw-value: true;
+                value-pos: left;
+              }
+              Box{
+                orientation: vertical;
+                Picture image_view {
+                  valign: center;
+                  halign: center;
+                  width-request: 150;
+                  height-request: 150;
+                  content-fit: scale_down;
+                  hexpand: true;
+                  vexpand: true;
+                }
+                Scale x_scale {
+                  has-origin: false;
+                  orientation: horizontal;
+                  adjustment: Adjustment percentage {
+                    lower: -50;
+                    upper: 50;
+                    step-increment: 1;
+                    };
+                  hexpand: true;
+                  vexpand: true;
+                  digits: 0;
+                  draw-value: true;
+                  value-pos: top;
+                }
+              }
+              styles ["card",]
+            }
+          }
+
+          Adw.PreferencesGroup{
             Adw.ActionRow{
-              
-              Picture image_view {
-                
-                width-request: 150;
-                height-request: 150;
-                margin-bottom: 40;
-                content-fit: scale_down;
+              title: "Scale";
+              Scale size {
+                has-origin: true;
+                orientation: horizontal;
+                adjustment: Adjustment percentage3 {
+                  lower: 0;
+                  upper: 30;
+                  step-increment: 1;
+                };
                 hexpand: true;
                 vexpand: true;
+                digits: 1;
+                draw-value: true;
+                value-pos: top;
               }
             }
           }
+
           Adw.PreferencesGroup{
             Adw.ActionRow{
               title: "select folder icon";
@@ -64,7 +117,8 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                   label: "Select folder image";
                   icon-name: "image-missing-symbolic";
                 }
-                margin-bottom: 40;
+                margin-top: 20;
+                margin-bottom: 20;
                 width-request: 40;
                 sensitive: false;
                 action-name: "app.open_folder_icon";
@@ -73,88 +127,40 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                 ]
               }
             }
+
             Adw.ActionRow{
               title: "select top icon";
               activatable-widget: open_top_icon;
               Button open_top_icon {
+                margin-top: 20;
+                margin-bottom: 20;
                 Adw.ButtonContent top_icon_content{
                   label: "Select top image";
                   icon-name: "image-missing-symbolic";
                 }
-                margin-bottom: 40;
                 action-name: "app.open_top_icon";
                 styles [
                   "pill",
                 ]
               }
             }
+
             Adw.ActionRow{
                 title: "select top icon";
                 activatable-widget: generate_icon;
                 Button generate_icon {
+                  margin-top: 20;
+                  margin-bottom: 20;
                   Adw.ButtonContent generate_icon_content{
                     label: "Generate icon";
                     icon-name: "checkbox-checked-symbolic";
                   }
-                  margin-bottom: 40;
                   action-name: "app.generate_icon";
                   sensitive: false;
                   styles [
                     "pill",
                     "suggested-action",
                   ]
-
-                }
-              }
-            }
-            Adw.PreferencesGroup{
-              Box{
-                orientation: horizontal;
-                Box{
-                  orientation: vertical;
-                  Scale size {
-                    has-origin: true;
-                    orientation: horizontal;
-                    adjustment: Adjustment percentage3 {
-                      lower: 0;
-                      upper: 30;
-                      step-increment: 1;
-                      };
-                    hexpand: true;
-                    vexpand: true;
-                    digits: 1;
-                    draw-value: true;
-                    value-pos: top;
-                  }
-                  Scale x_scale {
-                    has-origin: false;
-                    orientation: horizontal;
-                    adjustment: Adjustment percentage {
-                      lower: -50;
-                      upper: 50;
-                      step-increment: 1;
-                      };
-                    hexpand: true;
-                    vexpand: true;
-                    digits: 0;
-                    draw-value: true;
-                    value-pos: top;
-                  }
-                }
-                Scale y_scale {
-                  has-origin: false;
-                  orientation: vertical;
-
-                  adjustment: Adjustment percentage2 {
-                    lower: -50;
-                    upper: 50;
-                    step-increment: 1;
-                  };
-                  hexpand: true;
-                  vexpand: true;
-                  digits: 0;
-                  draw-value: true;
-                  value-pos: left;
                 }
               }
             }
