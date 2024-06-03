@@ -117,8 +117,8 @@ impl GtkTestApplication {
     fn show_about(&self) {
         let window = self.active_window().unwrap();
         let about = adw::AboutDialog::builder()
-            .application_name("gtk_test")
-            .application_icon("com.emphisia.gtk")
+            .application_name("Folder icon maker")
+            .application_icon("nl.emphisia.icon")
             .developer_name("Youpie")
             .version(VERSION)
             .developers(vec!["Youpie"])
