@@ -67,6 +67,10 @@ mod imp {
         pub y_scale: TemplateChild<gtk::Scale>,
         #[template_child]
         pub size: TemplateChild<gtk::Scale>,
+        #[template_child]
+        pub top_icon_row: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub folder_icon_row: TemplateChild<adw::ActionRow>,
 
         pub folder_image_file: RefCell<Option<File>>,
         pub top_image_file: RefCell<Option<File>>,
@@ -100,6 +104,8 @@ mod imp {
                 x_scale: TemplateChild::default(),
                 y_scale: TemplateChild::default(),
                 size: TemplateChild::default(),
+                top_icon_row: TemplateChild::default(),
+                folder_icon_row: TemplateChild::default(),
             }
         }
     }
@@ -162,6 +168,8 @@ impl GtkTestWindow {
             .build();
         win.imp().generate_icon.set_sensitive(false);
         win.imp().save_button.set_sensitive(false);
+        win.imp().x_scale.add_mark(0.0, gtk::PositionType::Top, None);
+        win.imp().y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         win
     }
 
@@ -311,14 +319,14 @@ impl GtkTestWindow {
         match file {
             Ok(x) => {println!("{:#?}",&x.path().unwrap());
                     match what_button {
-                        0 => {self.imp().open_folder_icon.set_tooltip_text(Some("The currently set folder image"));
-                                self.imp().folder_icon_content.set_icon_name("image-x-generic-symbolic");
-                                self.imp().folder_icon_content.set_label(&self.get_file_name(x,
-            														&self.imp().folder_image_file, Some(8),true));},
-                        _ => {self.imp().open_top_icon.set_tooltip_text(Some("The currently set top image"));
-                                self.imp().top_icon_content.set_icon_name("image-x-generic-symbolic");
-                                self.imp().top_icon_content.set_label(&self.get_file_name(x,
-                                									&self.imp().top_image_file,Some(8),true));},
+                        0 => {imp.open_folder_icon.set_tooltip_text(Some("The currently set folder image"));
+                                imp.folder_icon_content.set_icon_name("image-x-generic-symbolic");
+                                imp.folder_icon_row.set_property("subtitle",&self.get_file_name(x,
+            														&imp.folder_image_file));},
+                        _ => {imp.open_top_icon.set_tooltip_text(Some("The currently set top image"));
+                                imp.top_icon_content.set_icon_name("image-x-generic-symbolic");
+                                imp.top_icon_row.set_property("subtitle",&self.get_file_name(x,
+            														&imp.top_image_file));},
                         }
                     },
             Err(y) => println!("{:#?}",y),
@@ -329,24 +337,12 @@ impl GtkTestWindow {
 
     }
 
-    fn get_file_name(&self, filename: gio::File, file: &RefCell<Option<File>>, slice: Option<usize>,show_extension: bool) -> String{
+    fn get_file_name(&self, filename: gio::File, file: &RefCell<Option<File>>) -> String{
 
         file.replace(Some(File::new(filename)));
         let file = file.borrow().clone().unwrap();
         println!("{:#?}",file.name);
-        match slice{
-            Some(x) => {
-                let mut substring = String::from(&file.name [..x/2]);
-                substring.push_str("...");
-                substring.push_str(&file.name[file.name.len()-(x/2)..]);
-		        if show_extension{
-		            substring.push_str(&file.extension);
-		        }
-                substring
-            },
-            None => String::from(format!("{}{}",&file.name,&file.extension))
-        }
-
+        format!("{}{}",file.name,file.extension)
     }
 
     fn dynamic_image_to_texture(dynamic_image: &DynamicImage) -> gdk::Texture {

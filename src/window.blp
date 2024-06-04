@@ -55,8 +55,8 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                 };
                 vexpand: true;
                 digits: 0;
-                draw-value: true;
-                value-pos: left;
+                // draw-value: true;
+                // value-pos: left;
               }
               Box{
                 orientation: vertical;
@@ -78,10 +78,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                     step-increment: 1;
                     };
                   hexpand: true;
-                  vexpand: true;
+                  //vexpand: true;
                   digits: 0;
-                  draw-value: true;
-                  value-pos: top;
+                  // draw-value: true;
+                  // value-pos: top;
                 }
               }
               styles ["card",]
@@ -102,20 +102,19 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                 hexpand: true;
                 vexpand: true;
                 digits: 1;
-                draw-value: true;
-                value-pos: top;
+                // draw-value: true;
+                // value-pos: top;
               }
             }
           }
 
           Adw.PreferencesGroup{
-            Adw.ActionRow{
+            Adw.ActionRow folder_icon_row{
               title: "select folder icon";
               activatable-widget: open_folder_icon;
               Button open_folder_icon {
                 Adw.ButtonContent folder_icon_content{
-                  label: "Select folder image";
-                  icon-name: "image-missing-symbolic";
+                  icon-name: "folder-open-symbolic";
                 }
                 margin-top: 20;
                 margin-bottom: 20;
@@ -123,24 +122,25 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                 sensitive: false;
                 action-name: "app.open_folder_icon";
                 styles [
-                  "pill",
+                  "flat",
                 ]
               }
+
             }
 
-            Adw.ActionRow{
+            Adw.ActionRow top_icon_row{
               title: "select top icon";
+
               activatable-widget: open_top_icon;
               Button open_top_icon {
                 margin-top: 20;
                 margin-bottom: 20;
                 Adw.ButtonContent top_icon_content{
-                  label: "Select top image";
-                  icon-name: "image-missing-symbolic";
+                  icon-name: "folder-open-symbolic";
                 }
                 action-name: "app.open_top_icon";
                 styles [
-                  "pill",
+                  "flat",
                 ]
               }
             }
@@ -168,6 +168,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
       };
     }
   };
+  styles ["devel"]
 }
 
 menu primary_menu {
@@ -183,7 +184,7 @@ menu primary_menu {
     }
 
     item {
-      label: _("_About GTK_test");
+      label: _("_About folder icon maker");
       action: "app.about";
     }
   }
