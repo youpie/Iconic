@@ -2,6 +2,8 @@
 
 Folder icon maker lets you easily add images on top of a folder icon. It is mostly meant for Gnome. 
 This application is my first attempt at creating an application using Rust and Libadwaita.
+![afbeelding](https://github.com/youpie/Folder_icon_creator/assets/37704067/c20537a0-39ca-486c-87a4-f994f43c3cc6)
+
 
 ## Todo 📝
 These are ideas I want to implement. Everything with a `*` I want implemented before I want to release it
@@ -22,6 +24,7 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
         - [ ] Slider for threshhold
         - [ ] Select color* 
     - [ ] Add key shortcuts*
+    - [ ] Rounded corner option for top image
 - [ ] Clean up code*
 - [ ] Add comments
 - [ ] Correct flatpak manifest*
