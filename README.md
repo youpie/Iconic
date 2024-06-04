@@ -18,6 +18,9 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
     - [ ] Export to SVG
     - [ ] Change folder image in preferences
     - [ ] Add warning if closing with unsaved changes*
+    - [ ] Convert top image to Greyscale*
+        - [ ] Slider for threshhold
+        - [ ] Select color* 
     - [ ] Add key shortcuts*
 - [ ] Clean up code*
 - [ ] Add comments
