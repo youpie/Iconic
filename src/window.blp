@@ -7,164 +7,170 @@ template $GtkTestWindow : Adw.ApplicationWindow {
   width-request: 300;
   height-request: 300;
   content:
-  Adw.ToastOverlay toast_overlay {
-    Adw.ToolbarView toolbar {
-      [top]
-      Adw.HeaderBar header_bar {
-        Button save_button{
-          Adw.ButtonContent save_button_content{
-            label: "Save";
-            icon-name: "media-floppy-symbolic";
-          }
-          margin-start: 5;
-          sensitive: false;
-          action-name: "app.save_button";
-        }
-        [end]
-        MenuButton {
-          primary: true;
-          icon-name: "open-menu-symbolic";
-          tooltip-text: _("Menu");
-          menu-model: primary_menu;
-        }
-
-      }
-      content:
-      Adw.Clamp clamp {
-        width-request: 150;
-        Label label {
-
-          label: "Hello, World!";
-          margin-bottom: 40;
-          styles [
-            "title-1",
-          ]
-        }
-
-        Adw.PreferencesPage {
-          Adw.PreferencesGroup{
-            Box{
-              orientation: horizontal;
-              Scale y_scale {
-                has-origin: false;
-                orientation: vertical;
-                adjustment: Adjustment percentage2 {
-                  lower: -50;
-                  upper: 50;
-                  step-increment: 1;
-                };
-                vexpand: true;
-                digits: 0;
-                // draw-value: true;
-                // value-pos: left;
+  Stack stack{
+    transition-type: crossfade;
+    StackPage {
+      name: "stack_main_page";
+      child:
+      Adw.ToastOverlay toast_overlay {
+        Adw.ToolbarView toolbar {
+          [top]
+          Adw.HeaderBar header_bar {
+            Button save_button{
+              Adw.ButtonContent save_button_content{
+                label: "Save";
+                icon-name: "media-floppy-symbolic";
               }
-              Box{
-                orientation: vertical;
-                Picture image_view {
-                  valign: center;
-                  halign: center;
-                  width-request: 150;
-                  height-request: 150;
-                  content-fit: scale_down;
-                  hexpand: true;
-                  vexpand: true;
-                }
-                Scale x_scale {
-                  has-origin: false;
+              margin-start: 5;
+              sensitive: false;
+              action-name: "app.save_button";
+            }
+            [end]
+            MenuButton {
+              primary: true;
+              icon-name: "open-menu-symbolic";
+              tooltip-text: _("Menu");
+              menu-model: primary_menu;
+            }
+
+          }
+          content:
+          Adw.Clamp clamp {
+            width-request: 150;
+
+
+            Adw.PreferencesPage {
+              Adw.PreferencesGroup{
+                Box{
                   orientation: horizontal;
-                  adjustment: Adjustment percentage {
-                    lower: -50;
-                    upper: 50;
-                    step-increment: 1;
+                  Scale y_scale {
+                    has-origin: false;
+                    orientation: vertical;
+                    adjustment: Adjustment percentage2 {
+                      lower: -50;
+                      upper: 50;
+                      step-increment: 1;
                     };
-                  hexpand: true;
-                  //vexpand: true;
-                  digits: 0;
-                  // draw-value: true;
-                  // value-pos: top;
-                }
-              }
-              styles ["card",]
-            }
-          }
-
-          Adw.PreferencesGroup{
-            Adw.ActionRow{
-              title: "Scale";
-              Scale size {
-                has-origin: true;
-                orientation: horizontal;
-                adjustment: Adjustment percentage3 {
-                  lower: 0;
-                  upper: 30;
-                  step-increment: 1;
-                };
-                hexpand: true;
-                vexpand: true;
-                digits: 1;
-                // draw-value: true;
-                // value-pos: top;
-              }
-            }
-          }
-
-          Adw.PreferencesGroup{
-            Adw.ActionRow folder_icon_row{
-              title: "select folder icon";
-              activatable-widget: open_folder_icon;
-              Button open_folder_icon {
-                Adw.ButtonContent folder_icon_content{
-                  icon-name: "folder-open-symbolic";
-                }
-                margin-top: 20;
-                margin-bottom: 20;
-                width-request: 40;
-                sensitive: false;
-                action-name: "app.open_folder_icon";
-                styles [
-                  "flat",
-                ]
-              }
-
-            }
-
-            Adw.ActionRow top_icon_row{
-              title: "select top icon";
-
-              activatable-widget: open_top_icon;
-              Button open_top_icon {
-                margin-top: 20;
-                margin-bottom: 20;
-                Adw.ButtonContent top_icon_content{
-                  icon-name: "folder-open-symbolic";
-                }
-                action-name: "app.open_top_icon";
-                styles [
-                  "flat",
-                ]
-              }
-            }
-
-            Adw.ActionRow{
-                title: "select top icon";
-                activatable-widget: generate_icon;
-                Button generate_icon {
-                  margin-top: 20;
-                  margin-bottom: 20;
-                  Adw.ButtonContent generate_icon_content{
-                    label: "Generate icon";
-                    icon-name: "checkbox-checked-symbolic";
+                    vexpand: true;
+                    digits: 0;
+                    // draw-value: true;
+                    // value-pos: left;
                   }
-                  action-name: "app.generate_icon";
-                  sensitive: false;
-                  styles [
-                    "pill",
-                    "suggested-action",
-                  ]
+                  Box{
+                    orientation: vertical;
+                    Picture image_view {
+                      valign: center;
+                      halign: center;
+                      width-request: 150;
+                      height-request: 150;
+                      content-fit: scale_down;
+                      hexpand: true;
+                      vexpand: true;
+                    }
+                    Scale x_scale {
+                      has-origin: false;
+                      orientation: horizontal;
+                      adjustment: Adjustment percentage {
+                        lower: -50;
+                        upper: 50;
+                        step-increment: 1;
+                        };
+                      hexpand: true;
+                      //vexpand: true;
+                      digits: 0;
+                      // draw-value: true;
+                      // value-pos: top;
+                    }
+                  }
+                  styles ["card",]
                 }
               }
-            }
+
+              Adw.PreferencesGroup{
+                Adw.ActionRow{
+                  title: "Scale";
+                  Scale size {
+                    has-origin: true;
+                    orientation: horizontal;
+                    adjustment: Adjustment percentage3 {
+                      lower: 0;
+                      upper: 30;
+                      step-increment: 1;
+                    };
+                    hexpand: true;
+                    vexpand: true;
+                    digits: 1;
+                    // draw-value: true;
+                    // value-pos: top;
+                  }
+                }
+              }
+
+              Adw.PreferencesGroup{
+                Adw.ActionRow folder_icon_row{
+                  title: "select folder icon";
+                  activatable-widget: open_folder_icon;
+                  Button open_folder_icon {
+                    Adw.ButtonContent folder_icon_content{
+                      icon-name: "folder-open-symbolic";
+                    }
+                    margin-top: 20;
+                    margin-bottom: 20;
+                    width-request: 40;
+                    sensitive: false;
+                    action-name: "app.open_folder_icon";
+                    styles [
+                      "flat",
+                    ]
+                  }
+
+                }
+
+                Adw.ActionRow top_icon_row{
+                  title: "select top icon";
+
+                  activatable-widget: open_top_icon;
+                  Button open_top_icon {
+                    margin-top: 20;
+                    margin-bottom: 20;
+                    Adw.ButtonContent top_icon_content{
+                      icon-name: "folder-open-symbolic";
+                    }
+                    action-name: "app.open_top_icon";
+                    styles [
+                      "flat",
+                    ]
+                  }
+                }
+                }
+              }
+          };
+        }
+      };
+    }
+    StackPage {
+      name: "stack_saving_page";
+      child:
+      Adw.StatusPage {
+        Box {
+          orientation: vertical;
+          spacing: 12;
+
+          Spinner {
+            valign: center;
+            halign: center;
+            height-request: 32;
+            width-request: 32;
+            spinning: true;
           }
+          Label {
+            label: "Saving...";
+            margin-bottom: 40;
+            styles [
+              "subtitle",
+            ]
+          }
+        }
       };
     }
   };
