@@ -2,10 +2,10 @@ using Gtk 4.0;
 using Adw 1;
 
 template $GtkTestWindow : Adw.ApplicationWindow {
-  default-width: 750;
-  default-height: 750;
-  width-request: 300;
-  height-request: 300;
+  default-width: 400;
+  default-height: 700;
+  width-request: 400;
+  height-request: 700;
   content:
   Stack stack{
     transition-type: crossfade;
@@ -58,14 +58,24 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                   }
                   Box{
                     orientation: vertical;
-                    Picture image_view {
-                      valign: center;
-                      halign: center;
-                      width-request: 150;
-                      height-request: 150;
-                      content-fit: scale_down;
-                      hexpand: true;
-                      vexpand: true;
+                    Overlay{
+                      Picture image_view {
+                        valign: center;
+                        halign: center;
+                        width-request: 150;
+                        height-request: 150;
+                        content-fit: scale_down;
+                        hexpand: true;
+                        vexpand: true;
+                      }
+                      [overlay]
+                      Spinner image_loading_spinner{
+                        valign: center;
+                        halign: center;
+                        width-request: 50;
+                        height-request: 50;
+                        spinning: false;
+                      }
                     }
                     Scale x_scale {
                       has-origin: false;
