@@ -9,7 +9,7 @@ pub struct File {
 	pub path: PathBuf,
 	pub name: String,
 	pub extension: String,
-	pub dynamicImage: DynamicImage,
+	pub dynamic_image: DynamicImage,
 	pub thumbnail: DynamicImage
 }
 
@@ -23,14 +23,14 @@ impl File{
 		let period_split:Vec<&str> = file_name.split(".").collect();
 		let file_extension = format!(".{}",period_split.last().unwrap());
         let name_no_extension = file_name.replace(&file_extension,"");
-        let dynamicImage = image::open(temp_path.clone().into_os_string()).unwrap();
-        let thumbnail = dynamicImage.clone().resize(255, 255, imageops::FilterType::Nearest);
+        let dynamic_image = image::open(temp_path.clone().into_os_string()).unwrap();
+        let thumbnail = dynamic_image.clone().resize(255, 255, imageops::FilterType::Nearest);
 		Self {
 			files: file,
 			path: temp_path.into(),
 			extension: file_extension,
 			name: name_no_extension,
-			dynamicImage,
+			dynamic_image,
 			thumbnail
 		}
 	}

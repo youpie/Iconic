@@ -29,6 +29,7 @@ use std::cell::RefCell;
 use gtk::gdk_pixbuf::Pixbuf;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
+use std::sync::{Arc, Mutex};
 
 mod imp {
     use super::*;
@@ -67,9 +68,11 @@ mod imp {
         pub folder_icon_row: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub stack: TemplateChild<gtk::Stack>,
+        #[template_child]
+        pub image_loading_spinner: TemplateChild<gtk::Spinner>,
 
-        pub folder_image_file: RefCell<Option<File>>,
-        pub top_image_file: RefCell<Option<File>>,
+        pub folder_image_file: Arc<Mutex<Option<File>>>,
+        pub top_image_file: Arc<Mutex<Option<File>>>,
         pub file_created: RefCell<bool>,
         pub image_saved: RefCell<Option<bool>>,
         pub final_image: RefCell<Option<DynamicImage>>,
@@ -88,8 +91,8 @@ mod imp {
                 top_icon_content: TemplateChild::default(),
                 image_view: TemplateChild::default(),
                 save_button: TemplateChild::default(),
-                folder_image_file: RefCell::new(None),
-                top_image_file: RefCell::new(None),
+                folder_image_file: Arc::new(Mutex::new(None)),
+                top_image_file: Arc::new(Mutex::new(None)),
                 image_saved: RefCell::new(None),
                 final_image: RefCell::new(None),
                 file_created: RefCell::new(false),
@@ -100,6 +103,7 @@ mod imp {
                 top_icon_row: TemplateChild::default(),
                 folder_icon_row: TemplateChild::default(),
                 stack: TemplateChild::default(),
+                image_loading_spinner: TemplateChild::default(),
             }
         }
     }
@@ -211,8 +215,8 @@ impl GtkTestWindow {
 
     async fn button_clicked(&self) {
         let imp = self.imp();
-        let base = imp.folder_image_file.borrow().clone().unwrap().thumbnail;
-        let top_image = imp.top_image_file.borrow().clone().unwrap().thumbnail;
+        let base = imp.folder_image_file.lock().unwrap().clone().unwrap().thumbnail;
+        let top_image = imp.top_image_file.lock().unwrap().clone().unwrap().thumbnail;
         let texture = GtkTestWindow::dynamic_image_to_texture(&self.generate_image(base, top_image,imageops::FilterType::Nearest).await);
         imp.image_view.set_paintable(Some(&texture));
     }
@@ -227,9 +231,12 @@ impl GtkTestWindow {
         let file = file_chooser.save_future(Some(self)).await;
         self.imp().stack.set_visible_child_name("stack_saving_page");
         imp.image_saved.replace(Some(true));
-        let base_image = imp.folder_image_file.borrow().clone().unwrap().dynamicImage;
-        let top_image = imp.top_image_file.borrow().clone().unwrap().dynamicImage;
-        let _ = self.generate_image(base_image, top_image,imageops::FilterType::Gaussian).await.save(file.unwrap().path().unwrap());
+        let base_image = imp.folder_image_file.lock().unwrap().clone().unwrap().dynamic_image;
+        let top_image = imp.top_image_file.lock().unwrap().clone().unwrap().dynamic_image;
+        let generated_image = self.generate_image(base_image, top_image,imageops::FilterType::Gaussian).await;
+        let _ = gio::spawn_blocking(move ||{
+            let _ = generated_image.save(file.unwrap().path().unwrap());
+        }).await;
         self.imp().stack.set_visible_child_name("stack_main_page");
         imp.toast_overlay.add_toast(adw::Toast::new("saved file"));
     }
@@ -255,12 +262,11 @@ impl GtkTestWindow {
         });
 
         let texture = glib::spawn_future_local(clone!(@weak-allow-none button => async move {
-            let window = button.as_ref().unwrap();
-            let image = rx_texture.recv().await.unwrap();
-            window.final_image.replace(Some(image.clone()));
-            return image;
+            rx_texture.recv().await.unwrap()
         }));
-        texture.await.unwrap()
+        let image = texture.await.unwrap();
+        button.final_image.replace(Some(image.clone()));
+        image
     }
 
     fn resize_image (image: DynamicImage, dimensions: (u32,u32), slider_position: f32, filter: imageops::FilterType) -> DynamicImage{
@@ -290,28 +296,31 @@ impl GtkTestWindow {
                         0 => {imp.open_folder_icon.set_tooltip_text(Some("The currently set folder image"));
                                 imp.folder_icon_content.set_icon_name("image-x-generic-symbolic");
                                 imp.folder_icon_row.set_property("subtitle",&self.get_file_name(x,
-            														&imp.folder_image_file));},
+            														&imp.folder_image_file).await);},
                         _ => {imp.open_top_icon.set_tooltip_text(Some("The currently set top image"));
                                 imp.top_icon_content.set_icon_name("image-x-generic-symbolic");
                                 imp.top_icon_row.set_property("subtitle",&self.get_file_name(x,
-            														&imp.top_image_file));},
+            														&imp.top_image_file).await);},
                         }
                     },
             Err(y) => println!("{:#?}",y),
         };
-        if imp.top_image_file.borrow().as_ref() != None && imp.folder_image_file.borrow().as_ref() != None {
+        if imp.top_image_file.lock().unwrap().as_ref() != None && imp.folder_image_file.lock().unwrap().as_ref() != None {
             self.setup_update();
             self.button_clicked().await;
         }
-        else if imp.folder_image_file.borrow().as_ref() != None {
-            imp.image_view.set_paintable(Some(&GtkTestWindow::dynamic_image_to_texture(&imp.folder_image_file.borrow().as_ref().unwrap().thumbnail)));
+        else if imp.folder_image_file.lock().unwrap().as_ref() != None {
+            imp.image_view.set_paintable(Some(&GtkTestWindow::dynamic_image_to_texture(&imp.folder_image_file.lock().unwrap().as_ref().unwrap().thumbnail)));
         }
     }
 
-    fn get_file_name(&self, filename: gio::File, file: &RefCell<Option<File>>) -> String{
-
-        file.replace(Some(File::new(filename)));
-        let file = file.borrow().clone().unwrap();
+    async fn get_file_name(&self, filename: gio::File, file: &Arc<Mutex<Option<File>>>) -> String{
+        self.imp().image_loading_spinner.set_spinning(true);
+        let _ = gio::spawn_blocking(clone!(@weak file => move ||{
+            file.lock().expect("oh noes").replace(File::new(filename));
+        })).await;
+        let file = file.lock().unwrap().clone().unwrap();
+        self.imp().image_loading_spinner.set_spinning(false);
         println!("{:#?}",file.name);
         format!("{}{}",file.name,file.extension)
     }

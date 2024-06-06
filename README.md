@@ -9,13 +9,13 @@ This application is my first attempt at creating an application using Rust and L
 These are ideas I want to implement. Everything with a `*` I want implemented before I want to release it
 - [ ] Create Icon*
 - [ ] Add features
-    - [ ] Automatically load the folder Icon*
+    - [X] Automatically load the folder Icon*
     - [ ] Support SVG's*
     - [ ] Drag and drop
     - [ ] Proper error handling
-    - [ ] Add threading
-        - [ ] Loading images*
-        - [ ] Saving images*
+    - [X] Add threading
+        - [X] Loading images*
+        - [X] Saving images*
     - [ ] Start Screen
     - [ ] Export to SVG
     - [ ] Change folder image in preferences
