@@ -10,7 +10,7 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
 - [ ] Create Icon*
 - [ ] Add features
     - [X] Automatically load the folder Icon*
-    - [ ] Support SVG's*
+    - [X] Support SVG's*
     - [ ] Drag and drop
     - [ ] Proper error handling
     - [X] Add threading
@@ -19,12 +19,16 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
     - [ ] Start Screen
     - [ ] Export to SVG
     - [ ] Change folder image in preferences
-    - [ ] Add warning if closing with unsaved changes*
+    - [X] Add warning if closing with unsaved changes*
     - [ ] Convert top image to Greyscale*
         - [ ] Slider for threshhold
         - [ ] Select color* 
     - [ ] Add key shortcuts*
+        - [ ] Save
+        - [ ] Open 
     - [ ] Rounded corner option for top image
+    - [X] Load image folder on start*
+    - [X] Ability to save and load settings
 - [ ] Clean up code*
 - [ ] Add comments
 - [ ] Correct flatpak manifest*
