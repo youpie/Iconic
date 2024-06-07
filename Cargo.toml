@@ -12,8 +12,9 @@ features = ["v4_10"]
 ashpd = { version = "0.8.1", features = ["gtk4"] }
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
 image = {version = "0.25.1"}
-cairo-rs = {version = "0.19.4", features = ["png"]}
 async-channel = {version = "2.3.1"}
+resvg = {version = "0.42.0"}
+usvg = "0.42.0"
 
 [dependencies.adw]
 package = "libadwaita"

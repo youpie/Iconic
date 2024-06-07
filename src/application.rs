@@ -23,7 +23,6 @@ use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{gio, glib};
 use std::cell::OnceCell;
-
 use crate::config::VERSION;
 use crate::GtkTestWindow;
 use crate::glib::WeakRef;
@@ -110,7 +109,7 @@ impl GtkTestApplication {
     }
 
     fn setup_accels(&self) {
-        self.set_accels_for_action("app.generate_icon", &["<primary>p"]);
+        self.set_accels_for_action("app.save_button", &["<primary>s"]);
         println!("test");
     }
 

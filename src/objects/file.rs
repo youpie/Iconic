@@ -5,7 +5,7 @@ use adw::prelude::FileExt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
-	pub files: gio::File,
+	pub files: Option<gio::File>,
 	pub path: PathBuf,
 	pub name: String,
 	pub extension: String,
@@ -26,7 +26,7 @@ impl File{
         let dynamic_image = image::open(temp_path.clone().into_os_string()).unwrap();
         let thumbnail = dynamic_image.clone().resize(255, 255, imageops::FilterType::Nearest);
 		Self {
-			files: file,
+			files: Some(file),
 			path: temp_path.into(),
 			extension: file_extension,
 			name: name_no_extension,
@@ -34,8 +34,17 @@ impl File{
 			thumbnail
 		}
 	}
-	pub fn get_file(&self) -> &gio::File{
-	    &self.files
+
+	pub fn from_dynamicimage(file: DynamicImage) -> Self{
+        let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
+		Self {
+			files: None,
+			path: PathBuf::new(),
+			extension: String::from("svg"),
+			name: String::from("file"),
+			dynamic_image: file,
+			thumbnail
+		}
 	}
 }
 

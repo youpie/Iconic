@@ -30,6 +30,9 @@ use gtk::gdk_pixbuf::Pixbuf;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
 use std::sync::{Arc, Mutex};
+use std::fs;
+use resvg::tiny_skia::{Pixmap};
+use resvg::usvg::{Tree, Options};
 
 mod imp {
     use super::*;
@@ -74,7 +77,7 @@ mod imp {
         pub folder_image_file: Arc<Mutex<Option<File>>>,
         pub top_image_file: Arc<Mutex<Option<File>>>,
         pub file_created: RefCell<bool>,
-        pub image_saved: RefCell<Option<bool>>,
+        pub image_saved: RefCell<bool>,
         pub final_image: RefCell<Option<DynamicImage>>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
     }
@@ -93,7 +96,7 @@ mod imp {
                 save_button: TemplateChild::default(),
                 folder_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
-                image_saved: RefCell::new(None),
+                image_saved: RefCell::new(true),
                 final_image: RefCell::new(None),
                 file_created: RefCell::new(false),
                 signals: RefCell::new(vec![]),
@@ -147,7 +150,23 @@ mod imp {
 
     impl ObjectImpl for GtkTestWindow {}
     impl WidgetImpl for GtkTestWindow {}
-    impl WindowImpl for GtkTestWindow {}
+    impl WindowImpl for GtkTestWindow {
+        fn close_request(&self) -> glib::Propagation {
+            if !self.image_saved.borrow().clone(){
+                let window = self.obj();
+                return match glib::MainContext::default()
+                    .block_on(async move { window.confirm_save_changes().await })
+                {
+                    Ok(p) => p,
+                    _ => {
+                        glib::Propagation::Stop
+                    }
+                };
+            }
+
+            self.parent_close_request()
+        }
+    }
     impl ApplicationWindowImpl for GtkTestWindow {}
     impl AdwApplicationWindowImpl for GtkTestWindow {}
 }
@@ -168,6 +187,7 @@ impl GtkTestWindow {
         win.imp().x_scale.add_mark(0.0, gtk::PositionType::Top, None);
         win.imp().y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         win.imp().stack.set_visible_child_name("stack_main_page");
+        win.load_svg("/home/youpie/Afbeeldingen/folder.svg");
         win
     }
 
@@ -187,14 +207,7 @@ impl GtkTestWindow {
             }));
     }
 
-    pub async fn check_quit(&self){
-        let imp = self.imp();
-        match imp.image_saved {
-            _ => self.open_dialog().await,
-        }
-    }
-
-    async fn open_dialog(&self){
+    async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
         const RESPONSE_CANCEL: &str = "cancel";
         const RESPONSE_DISCARD: &str = "discard";
         const RESPONSE_SAVE: &str = "save";
@@ -210,18 +223,32 @@ impl GtkTestWindow {
         dialog.add_response(RESPONSE_SAVE, &gettext("Save"));
         dialog.set_response_appearance(RESPONSE_SAVE, adw::ResponseAppearance::Suggested);
 
-        dialog.clone().choose_future(self).await;
+        match &*dialog.clone().choose_future(self).await {
+            RESPONSE_CANCEL => {
+                Ok(glib::Propagation::Stop)
+            }
+            RESPONSE_DISCARD => Ok(glib::Propagation::Proceed),
+            RESPONSE_SAVE => {
+                match self.save_file().await{
+                    true => Ok(glib::Propagation::Proceed),
+                    false => Ok(glib::Propagation::Stop)
+                }
+
+            }
+            _ => unreachable!(),
+        }
     }
+
 
     async fn button_clicked(&self) {
         let imp = self.imp();
-        let base = imp.folder_image_file.lock().unwrap().clone().unwrap().thumbnail;
-        let top_image = imp.top_image_file.lock().unwrap().clone().unwrap().thumbnail;
+        let base = imp.folder_image_file.lock().unwrap().as_ref().unwrap().thumbnail.clone();
+        let top_image = imp.top_image_file.lock().unwrap().as_ref().unwrap().thumbnail.clone();
         let texture = GtkTestWindow::dynamic_image_to_texture(&self.generate_image(base, top_image,imageops::FilterType::Nearest).await);
         imp.image_view.set_paintable(Some(&texture));
     }
 
-    async fn save_file(&self){
+    async fn save_file(&self) -> bool{
         let imp = self.imp();
         let file_name = "folder.png";
         let file_chooser = gtk::FileDialog::builder()
@@ -229,23 +256,32 @@ impl GtkTestWindow {
             .modal(true)
             .build();
         let file = file_chooser.save_future(Some(self)).await;
-        self.imp().stack.set_visible_child_name("stack_saving_page");
-        imp.image_saved.replace(Some(true));
-        let base_image = imp.folder_image_file.lock().unwrap().clone().unwrap().dynamic_image;
-        let top_image = imp.top_image_file.lock().unwrap().clone().unwrap().dynamic_image;
-        let generated_image = self.generate_image(base_image, top_image,imageops::FilterType::Gaussian).await;
-        let _ = gio::spawn_blocking(move ||{
-            let _ = generated_image.save(file.unwrap().path().unwrap());
-        }).await;
-        self.imp().stack.set_visible_child_name("stack_main_page");
-        imp.toast_overlay.add_toast(adw::Toast::new("saved file"));
+        match file {
+            Ok(file) => {
+                self.imp().stack.set_visible_child_name("stack_saving_page");
+                imp.image_saved.replace(true);
+                let base_image = imp.folder_image_file.lock().unwrap().as_ref().unwrap().dynamic_image.clone();
+                let top_image = imp.top_image_file.lock().unwrap().as_ref().unwrap().dynamic_image.clone();
+                let generated_image = self.generate_image(base_image, top_image,imageops::FilterType::Gaussian).await;
+                let _ = gio::spawn_blocking(move ||{
+                    let _ = generated_image.save(file.path().unwrap());
+                }).await;
+                self.imp().stack.set_visible_child_name("stack_main_page");
+                imp.toast_overlay.add_toast(adw::Toast::new("saved file"));
+            }
+            Err(_) => {
+                imp.toast_overlay.add_toast(adw::Toast::new("File not saved"));
+                return false;
+            }
+        };
+        true
     }
 
 
     async fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage, filter: imageops::FilterType) -> DynamicImage{
         let button = self.imp();
         self.imp().save_button.set_sensitive(true);
-        button.image_saved.replace(Some(false));
+        button.image_saved.replace(false);
         let (tx_texture, rx_texture) = async_channel::bounded(1);
         let tx_texture1 = tx_texture.clone();
         let coordinates = ((button.x_scale.value()+50.0) as i64,(button.y_scale.value()+50.0) as i64);
@@ -341,6 +377,61 @@ impl GtkTestWindow {
         );
         gdk::Texture::for_pixbuf(&pixbuf)
     }
+
+    fn load_svg(&self,path: &str) {
+        // Load the SVG file content
+        let svg_data = fs::read(path).expect("Failed to read SVG file");
+
+        // Create an SVG tree
+        let opt = Options::default();
+        let rtree = Tree::from_data(&svg_data, &opt).expect("Failed to parse SVG data");
+
+        // Specify the output dimensions (you can adjust these as needed)
+        let width = rtree.size().width();
+        let height = rtree.size().height();
+
+        // Desired dimensions
+        let desired_width = 1024.0;
+        let desired_height = 1024.0;
+
+        // Calculate the scale factor
+        let scale_x = desired_width / width;
+        let scale_y = desired_height / height;
+        let scale = scale_x.min(scale_y); // Maintain aspect ratio
+
+        // Create a Pixmap to render into
+        let mut pixmap = Pixmap::new(desired_width as u32, desired_height as u32).expect("Failed to create Pixmap");
+
+        // Render the SVG tree to the Pixmap
+        let _ = resvg::render(
+            &rtree,
+            usvg::Transform::from_scale(scale, scale),
+            &mut pixmap.as_mut()
+        );
+
+        self.imp().folder_image_file.lock().unwrap().replace(File::from_dynamicimage(self.pixmap_to_image(&pixmap)));
+        self.imp().image_view.set_paintable(Some(&GtkTestWindow::dynamic_image_to_texture(&self.imp().folder_image_file.lock().unwrap().as_ref().unwrap().thumbnail)));
+    }
+
+    fn pixmap_to_image(&self, pixmap: &Pixmap) -> DynamicImage {
+        // Create an empty RgbaImage with the same dimensions as the Pixmap.
+        let mut img = RgbaImage::new(pixmap.width(), pixmap.height());
+
+        // Iterate over each pixel in the Pixmap.
+        for y in 0..pixmap.height() {
+            for x in 0..pixmap.width() {
+                // Get the pixel at (x, y). `pixel` returns an Option, we unwrap it safely because we know (x, y) is valid.
+                if let Some(pixel) = pixmap.pixel(x, y) {
+                    // Copy the pixel's RGBA data into the RgbaImage.
+                    img.put_pixel(x, y, Rgba([pixel.red(), pixel.green(), pixel.blue(), pixel.alpha()]));
+                }
+            }
+        }
+
+        // Convert the RgbaImage to a DynamicImage.
+        DynamicImage::ImageRgba8(img)
+    }
+
 }
 
 
