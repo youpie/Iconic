@@ -18,17 +18,18 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
         - [X] Saving images*
     - [ ] Start Screen
     - [ ] Export to SVG
-    - [ ] Change folder image in preferences
+    - [X] Change folder image in preferences
     - [X] Add warning if closing with unsaved changes*
     - [ ] Convert top image to Greyscale*
         - [ ] Slider for threshhold
         - [ ] Select color* 
-    - [ ] Add key shortcuts*
-        - [ ] Save
-        - [ ] Open 
+    - [X] Add key shortcuts*
+        - [X] Save
+        - [X] Open 
     - [ ] Rounded corner option for top image
     - [X] Load image folder on start*
     - [X] Ability to save and load settings
+    - [ ] Add ability to temporarily change folder icon*
 - [ ] Clean up code*
 - [ ] Add comments
 - [ ] Correct flatpak manifest*

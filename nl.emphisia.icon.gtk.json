@@ -44,7 +44,7 @@
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : "file:///home/youpie/Nextcloud/Projects/Rust/GTK_test"
+                    "url" : "file:///home/youpie/Projects/Rust/Folder_icon_creator"
                 }
             ]
         }

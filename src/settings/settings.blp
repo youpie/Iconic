@@ -1,0 +1,35 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $PreferencesWindow : Adw.PreferencesWindow {
+  Adw.PreferencesPage {
+    icon-name: "applications-system-symbolic";
+    title: _("General");
+
+    Adw.PreferencesGroup {
+      title: _("Customise");
+
+      Adw.ActionRow custom {
+        title: "select top icon";
+
+        activatable-widget: select_folder;
+        Button select_folder {
+          margin-top: 10;
+          margin-bottom: 10;
+          Adw.ButtonContent top_icon_content{
+            icon-name: "folder-open-symbolic";
+          }
+          action-name: "app.select_folder";
+          styles [
+            "flat",
+          ]
+        }
+      }
+      Adw.ActionRow custom1 {
+        subtitle: _("Currently set folder icon");
+        activatable: false;
+      }
+    }
+  }
+
+}
