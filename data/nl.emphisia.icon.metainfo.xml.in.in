@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>nl.emphisia.icon.desktop</id>
+  <id>@app-id@</id>
   <name>Folder Icon Maker</name>
   <summary>Easilly add icons on top of folders</summary>
   <metadata_license>CC0-1.0</metadata_license>
