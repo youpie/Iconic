@@ -31,7 +31,7 @@ use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
 use std::sync::{Arc, Mutex};
 
-use crate::config::{APP_ID};
+use crate::config::{APP_ID, PROFILE};
 
 mod imp {
     use super::*;
@@ -134,7 +134,22 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GtkTestWindow {}
+    impl ObjectImpl for GtkTestWindow {
+        fn constructed(&self) {
+            self.parent_constructed();
+
+            let obj = self.obj();
+
+            // Devel Profile
+            if PROFILE == "Devel" {
+                obj.add_css_class("devel");
+            }
+        }
+
+        fn dispose(&self) {
+            self.dispose_template();
+        }
+    }
     impl WidgetImpl for GtkTestWindow {}
     impl WindowImpl for GtkTestWindow {
         fn close_request(&self) -> glib::Propagation {

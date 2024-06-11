@@ -27,7 +27,7 @@ mod settings;
 use self::application::GtkTestApplication;
 use self::window::GtkTestWindow;
 
-use config::{GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
+use config::{GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR, APP_ID};
 use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
 use gtk::{gio, glib};
 use gtk::prelude::*;
@@ -47,7 +47,7 @@ fn main() -> glib::ExitCode {
     // Create a new GtkApplication. The application manages our main loop,
     // application windows, integration with the window manager/compositor, and
     // desktop features such as file opening and single-instance applications.
-    let app = GtkTestApplication::new("nl.emphisia.icon", &gio::ApplicationFlags::empty());
+    let app = GtkTestApplication::new(APP_ID, &gio::ApplicationFlags::empty());
 
     // Run the application. This function will block until the application
     // exits. Upon return, we have our exit code to return to the shell. (This

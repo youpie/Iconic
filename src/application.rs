@@ -23,10 +23,11 @@ use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{gio, glib};
 use std::cell::OnceCell;
-use crate::config::VERSION;
+use crate::config::{VERSION,PROFILE,APP_ICON};
 use crate::GtkTestWindow;
 use crate::glib::WeakRef;
 use crate::settings::settings::PreferencesWindow;
+use gtk::License;
 
 mod imp {
     use super::*;
@@ -120,12 +121,15 @@ impl GtkTestApplication {
 
     fn show_about(&self) {
         let window = self.active_window().unwrap();
+        let version = format!("{} {}",VERSION,PROFILE);
+
         let about = adw::AboutDialog::builder()
             .application_name("Folder icon maker")
-            .application_icon("nl.emphisia.icon")
+            .application_icon(APP_ICON)
             .developer_name("Youpie")
-            .version(VERSION)
+            .version(version)
             .developers(vec!["Youpie"])
+            .license_type(License::Gpl30)
             .copyright("© 2024 YoupDeGamerNL")
             .build();
         about.present(&window);
