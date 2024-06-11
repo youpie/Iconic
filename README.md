@@ -1,4 +1,6 @@
-# ![logo](https://github.com/youpie/Folder_icon_creator/assets/37704067/c20537a0-39ca-486c-87a4-f994f43c3cc6)Folder icon maker 📁
+![logo](https://raw.githubusercontent.com/youpie/Folder_icon_creator/main/data/icons/nl.emphisia.icon.svg)
+
+# Folder icon maker 📁
 
 Folder icon maker lets you easily add images on top of a folder icon. It is mostly meant for Gnome. 
 This application is my first attempt at creating an application using Rust and Libadwaita.
@@ -51,3 +53,9 @@ Wow documentation is really hard to understand so I used few programs as inspira
 - Eyedropper - https://github.com/FineFindus/eyedropper
 - Switcheroo - https://gitlab.com/adhami3310/Switcheroo
 - Geopard - https://github.com/ranfdev/Geopard
+- Obfuscate - https://gitlab.gnome.org/World/obfuscate
+
+## Icon credits
+The icon is just a few already existing icons added together, the following are used:
+- Gnome text editor - https://gitlab.gnome.org/GNOME/gnome-text-editor
+- Adwaita icons - https://gitlab.gnome.org/GNOME/adwaita-icon-theme
