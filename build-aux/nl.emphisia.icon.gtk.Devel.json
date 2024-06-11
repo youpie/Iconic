@@ -41,10 +41,13 @@
             "name" : "folder_icon",
             "builddir" : true,
             "buildsystem" : "meson",
+            "config-opts": [
+                "-Dprofile=development"
+            ],
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "file:///home/youpie/Projects/Rust/Folder_icon_creator"
+                    "type" : "dir",
+                    "url" : "../"
                 }
             ]
         }

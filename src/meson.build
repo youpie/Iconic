@@ -24,7 +24,8 @@ conf.set_quoted('VERSION', meson.project_version())
 conf.set_quoted('GETTEXT_PACKAGE', 'folder_icon')
 conf.set_quoted('LOCALEDIR', get_option('prefix') / get_option('localedir'))
 conf.set_quoted('PKGDATADIR', pkgdatadir)
-conf.set_quoted('APP_ID', application_id)
+conf.set_quoted('APP_ID', base_id)
+conf.set_quoted('PROFILE', profile)
 
 configure_file(
     input: 'config.rs.in',
@@ -45,11 +46,13 @@ cargo_opt  = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml' ]
 cargo_opt += [ '--target-dir', meson.project_build_root()  / 'src' ]
 cargo_env  = [ 'CARGO_HOME=' + meson.project_build_root()  / 'cargo-home' ]
 
-if get_option('buildtype') == 'release'
+if get_option('profile') == 'default'
   cargo_opt += [ '--release' ]
   rust_target = 'release'
+  message('Building in release mode')
 else
   rust_target = 'debug'
+  message('Building in debug mode')
 endif
 
 cargo_build = custom_target(
