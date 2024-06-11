@@ -1,4 +1,6 @@
-# ![logo](https://raw.githubusercontent.com/youpie/Folder_icon_creator/main/data/icons/nl.emphisia.icon.svg)Folder icon maker 📁
+![logo](https://raw.githubusercontent.com/youpie/Folder_icon_creator/main/data/icons/nl.emphisia.icon.svg)
+
+# Folder icon maker 📁
 
 Folder icon maker lets you easily add images on top of a folder icon. It is mostly meant for Gnome. 
 This application is my first attempt at creating an application using Rust and Libadwaita.
