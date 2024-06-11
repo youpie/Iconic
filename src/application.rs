@@ -26,6 +26,7 @@ use std::cell::OnceCell;
 use crate::config::VERSION;
 use crate::GtkTestWindow;
 use crate::glib::WeakRef;
+use crate::settings::settings::PreferencesWindow;
 
 mod imp {
     use super::*;
@@ -48,7 +49,6 @@ mod imp {
             let obj = self.obj();
             obj.setup_gactions();
             obj.setup_accels();
-            obj.set_accels_for_action("app.quit", &["<primary>q"]);
         }
     }
 
@@ -90,10 +90,6 @@ impl GtkTestApplication {
             .build()
     }
 
-    // fn main_window(&self) -> GtkTestWindow {
-    //     self.imp().window.get().expect("could not get window").upgrade().expect("could not upgrade")
-    // }
-
     fn setup_gactions(&self) {
         let quit_action = gio::ActionEntry::builder("quit")
             .activate(move |app: &Self, _, _| app.quit())
@@ -101,17 +97,26 @@ impl GtkTestApplication {
         let about_action = gio::ActionEntry::builder("about")
             .activate(move |app: &Self, _, _| app.show_about())
             .build();
-        // let button_press_action = gio::ActionEntry::builder("button_clicked")
-        //     .activate(move |app: &Self, _, _| {
-        //         app.handle_button_clicked();
-        //     }).build();
-        self.add_action_entries([quit_action, about_action]);
+        let settings_action = gio::ActionEntry::builder("preferences")
+            .activate(move |app: &Self, _, _| app.show_preferences_dialog())
+            .build();
+        self.add_action_entries([quit_action, about_action, settings_action]);
     }
 
     fn setup_accels(&self) {
         self.set_accels_for_action("app.save_button", &["<primary>s"]);
-        println!("test");
+        self.set_accels_for_action("app.open_top_icon", &["<primary>o"]);
+        self.set_accels_for_action("app.quit", &["<primary>q"]);
     }
+
+    fn show_preferences_dialog(&self) {
+        let preferences = PreferencesWindow::new();
+        let window = self.active_window().unwrap();
+
+        preferences.set_transient_for(Some(&window));
+        preferences.present();
+    }
+
 
     fn show_about(&self) {
         let window = self.active_window().unwrap();

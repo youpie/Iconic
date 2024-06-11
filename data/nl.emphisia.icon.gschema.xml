@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="gtk_test">
 	<schema id="nl.emphisia.icon" path="/nl/emphisia/icon/">
+	  <key name="folder-svg-path" type="s">
+      <default>'/usr/share/icons/Adwaita/scalable/places/folder.svg'</default>
+      <summary>Folder SVG Path</summary>
+    </key>
 	</schema>
 </schemalist>

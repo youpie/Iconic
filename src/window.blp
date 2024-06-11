@@ -117,25 +117,6 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               }
 
               Adw.PreferencesGroup{
-                Adw.ActionRow folder_icon_row{
-                  title: "select folder icon";
-                  activatable-widget: open_folder_icon;
-                  Button open_folder_icon {
-                    Adw.ButtonContent folder_icon_content{
-                      icon-name: "folder-open-symbolic";
-                    }
-                    margin-top: 20;
-                    margin-bottom: 20;
-                    width-request: 40;
-                    sensitive: false;
-                    action-name: "app.open_folder_icon";
-                    styles [
-                      "flat",
-                    ]
-                  }
-
-                }
-
                 Adw.ActionRow top_icon_row{
                   title: "select top icon";
 
