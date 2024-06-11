@@ -1,13 +1,15 @@
+
+subdir('icons')
 desktop_conf = configuration_data()
 desktop_conf.set('icon', application_id)
 desktop_file = i18n.merge_file(
   type: 'desktop',
   input: configure_file(
-    input: '@0@.desktop.in'.format(base_id),
+    input: '@0@.desktop.in.in'.format(base_id),
     output: '@BASENAME@',
     configuration: desktop_conf
   ),
-  output: '@0@.desktop'.format(application_id),
+  output: '@0@.desktop'.format(base_id),
   po_dir: podir,
   install: true,
   install_dir: datadir / 'applications'
@@ -38,5 +40,3 @@ compile_schemas = find_program('glib-compile-schemas', required: false, disabler
 test('Validate schema file',
      compile_schemas,
      args: ['--strict', '--dry-run', meson.current_source_dir()])
-
-subdir('icons')

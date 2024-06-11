@@ -24,6 +24,7 @@ conf.set_quoted('VERSION', meson.project_version())
 conf.set_quoted('GETTEXT_PACKAGE', 'folder_icon')
 conf.set_quoted('LOCALEDIR', get_option('prefix') / get_option('localedir'))
 conf.set_quoted('PKGDATADIR', pkgdatadir)
+conf.set_quoted('APP_ICON', application_id)
 conf.set_quoted('APP_ID', base_id)
 conf.set_quoted('PROFILE', profile)
 

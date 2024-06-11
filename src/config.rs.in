@@ -4,4 +4,5 @@ pub static GETTEXT_PACKAGE: &str = @GETTEXT_PACKAGE@;
 pub static LOCALEDIR: &str = @LOCALEDIR@;
 pub static PKGDATADIR: &str = @PKGDATADIR@;
 pub static PROFILE: &str = @PROFILE@;
+pub static APP_ICON: &str = @APP_ICON@;
 
