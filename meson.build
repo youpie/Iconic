@@ -8,6 +8,21 @@ i18n = import('i18n')
 gnome = import('gnome')
 
 
+base_id = 'nl.emphisia.icon'
+prefix = get_option('prefix')
+datadir = prefix / get_option('datadir')
+iconsdir = datadir / 'icons'
+podir = meson.project_source_root() / 'po'
+pkgdatadir = datadir / meson.project_name()
+
+if get_option('profile') == 'development'
+  profile = 'Devel'
+  application_id = '@0@.@1@'.format(base_id, profile)
+else
+  profile = ''
+  version_suffix = ''
+  application_id = base_id
+endif
 
 subdir('data')
 subdir('src')
