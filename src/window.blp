@@ -25,6 +25,9 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               sensitive: false;
               action-name: "app.save_button";
             }
+            title-widget: Adw.WindowTitle {
+              title: _("Folder Icon Maker");
+            };
             [end]
             MenuButton {
               primary: true;
@@ -118,7 +121,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
 
               Adw.PreferencesGroup{
                 Adw.ActionRow top_icon_row{
-                  title: "select top icon";
+                  title: "Select top icon";
 
                   activatable-widget: open_top_icon;
                   Button open_top_icon {

@@ -23,6 +23,8 @@ mod imp {
         pub select_folder: TemplateChild<gtk::Button>,
         #[template_child()]
         pub custom1: TemplateChild<adw::ActionRow>,
+        #[template_child()]
+        pub svg_image_size_row: TemplateChild<adw::SpinRow>,
         pub settings: gio::Settings,
     }
 
@@ -37,6 +39,7 @@ mod imp {
                 custom: TemplateChild::default(),
                 select_folder: TemplateChild::default(),
                 custom1: TemplateChild::default(),
+                svg_image_size_row: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
             }
         }
@@ -60,7 +63,13 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
+            // self.settings
+            //     .bind("svg-render-size", &*self.svg_image_size_row, "value")
+            //     .build();
+
         }
+
+
 
         fn dispose(&self) {
             self.dispose_template();
@@ -83,6 +92,11 @@ impl PreferencesWindow {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         let win = glib::Object::new::<Self>();
+        win.imp().svg_image_size_row.connect_changed(clone!(@weak win as this => move |_| {
+            let value = this.imp().svg_image_size_row.value() as i32;
+            let _ = this.imp().settings.set("svg-render-size",value);
+        }));
+
         win.set_path_title();
         win
     }
@@ -104,6 +118,7 @@ impl PreferencesWindow {
                     .filters(&filters)
                     .build();
             let file = dialog.open_future(Some(&window)).await;
+
             match file {
                 Ok(x) => {println!("{:#?}",&x.path().unwrap());
                             let path: &str = &x.path().unwrap().into_os_string().into_string().unwrap();
@@ -112,9 +127,7 @@ impl PreferencesWindow {
                 Err(y) => {println!("{:#?}",y);
                             },
             }
-            }));
-
+        }));
     }
-
 }
 

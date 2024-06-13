@@ -10,7 +10,7 @@ template $PreferencesWindow : Adw.PreferencesWindow {
       title: _("Customise");
 
       Adw.ActionRow custom {
-        title: "select top icon";
+        title: "Select folder icon";
 
         activatable-widget: select_folder;
         Button select_folder {
@@ -30,6 +30,20 @@ template $PreferencesWindow : Adw.PreferencesWindow {
         activatable: false;
       }
     }
-  }
+    Adw.PreferencesGroup {
+      title: _("Advanced");
 
+      Adw.SpinRow svg_image_size_row {
+        title: _("Select size of SVG images");
+        subtitle: _("SVG images will by default be converted to a 1024x1024 image. You can adjust that here");
+        adjustment: Adjustment {
+          lower: 0;
+          upper: 102400;
+          value: 1024;
+          page-increment: 128;
+          step-increment: 1;
+        };
+      }
+    }
+  }
 }

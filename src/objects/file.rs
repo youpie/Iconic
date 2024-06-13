@@ -20,14 +20,14 @@ impl File{
 	pub fn path_str (&self) -> String{
 		self.path.clone().into_os_string().into_string().unwrap()
 	}
-	pub fn new(file: gio::File) -> Self{
+	pub fn new(file: gio::File, size: i32) -> Self{
 		let temp_path = file.path().unwrap();
 		let file_name = file.basename().unwrap().into_os_string().into_string().unwrap();
 		let period_split:Vec<&str> = file_name.split(".").collect();
 		let file_extension = format!(".{}",period_split.last().unwrap());
 		let dynamic_image = if file_extension == ".svg" {
 		    let path = &temp_path.as_os_str().to_str().unwrap();
-            Self::load_svg(path)
+            Self::load_svg(path, size)
 		} else{
 		    image::open(temp_path.clone().into_os_string()).unwrap()
 		};
@@ -44,13 +44,13 @@ impl File{
 		}
 	}
 
-	pub fn from_path(path: &str) -> Self{
+	pub fn from_path(path: &str, size: i32) -> Self{
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(PathBuf::from(path).as_path());
-        Self::new(file)
+        Self::new(file,size)
 	}
 
-	pub fn load_svg(path: &str) -> DynamicImage{
+	pub fn load_svg(path: &str, size: i32) -> DynamicImage{
         // Load the SVG file content
         let svg_data = fs::read(path).expect("Failed to read SVG file");
 
@@ -62,17 +62,13 @@ impl File{
         let width = rtree.size().width();
         let height = rtree.size().height();
 
-        // Desired dimensions
-        let desired_width = 1024.0;
-        let desired_height = 1024.0;
-
         // Calculate the scale factor
-        let scale_x = desired_width / width;
-        let scale_y = desired_height / height;
+        let scale_x = size as f32 / width;
+        let scale_y = size as f32 / height;
         let scale = scale_x.min(scale_y); // Maintain aspect ratio
 
         // Create a Pixmap to render into
-        let mut pixmap = Pixmap::new(desired_width as u32, desired_height as u32).expect("Failed to create Pixmap");
+        let mut pixmap = Pixmap::new(size as u32, size as u32).expect("Failed to create Pixmap");
 
         // Render the SVG tree to the Pixmap
         let _ = resvg::render(
