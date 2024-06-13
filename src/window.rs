@@ -200,10 +200,10 @@ impl GtkTestWindow {
              window.load_folder_icon(path);
         });
         self.imp().settings.connect_changed(Some("folder-svg-path"), update_folder.clone());
+        self.imp().settings.connect_changed(Some("svg-render-size"), update_folder.clone());
     }
 
     fn setup_update (&self){
-
         self.imp().x_scale.connect_value_changed(clone!(@weak self as this => move |_| {
         glib::spawn_future_local(clone!(@weak this => async move {
                 this.render_to_screen().await;}));
@@ -344,7 +344,7 @@ impl GtkTestWindow {
     }
 
     fn load_folder_icon (&self, path: &str){
-        self.imp().folder_image_file.lock().unwrap().replace(File::from_path(path));
+        self.imp().folder_image_file.lock().unwrap().replace(File::from_path(path,self.imp().settings.get("svg-render-size")));
         glib::spawn_future_local(glib::clone!(@weak self as window => async move {
             window.check_icon_update().await;
         }));
@@ -383,8 +383,9 @@ impl GtkTestWindow {
 
     async fn get_file_name(&self, filename: gio::File, file: &Arc<Mutex<Option<File>>>) -> String{
         self.imp().image_loading_spinner.set_spinning(true);
+        let svg_render_size = self.imp().settings.get("svg-render-size");
         let _ = gio::spawn_blocking(clone!(@weak file => move ||{
-            file.lock().expect("oh noes").replace(File::new(filename));
+            file.lock().expect("oh noes").replace(File::new(filename,svg_render_size));
         })).await;
         let file = file.lock().unwrap().clone().unwrap();
         self.imp().image_loading_spinner.set_spinning(false);
@@ -408,11 +409,6 @@ impl GtkTestWindow {
         );
         gdk::Texture::for_pixbuf(&pixbuf)
     }
-
-
-
-
-
 }
 
 

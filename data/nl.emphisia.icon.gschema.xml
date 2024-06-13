@@ -5,5 +5,9 @@
       <default>'/usr/share/icons/Adwaita/scalable/places/folder.svg'</default>
       <summary>Folder SVG Path</summary>
     </key>
+	  <key name="svg-render-size" type="i">
+      <default>1024</default>
+      <summary>SVG render resolution</summary>
+    </key>
 	</schema>
 </schemalist>
