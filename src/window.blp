@@ -3,12 +3,58 @@ using Adw 1;
 
 template $GtkTestWindow : Adw.ApplicationWindow {
   default-width: 400;
-  default-height: 700;
+  default-height: 600;
   width-request: 400;
-  height-request: 700;
+  height-request: 600;
   content:
   Stack stack{
     transition-type: crossfade;
+    StackPage {
+      name: "stack_welcome_page";
+      child:
+        Adw.ToolbarView  {
+          [top]
+          Adw.HeaderBar  {
+            title-widget: Adw.WindowTitle {
+              title: _("Folder Icon Maker");
+            };
+            [end]
+            MenuButton {
+              primary: true;
+              icon-name: "open-menu-symbolic";
+              tooltip-text: _("Menu");
+              menu-model: primary_menu;
+            }
+          }
+          Adw.StatusPage {
+            icon-name: "nl.emphisia.icon.Devel";
+            title: _("Folder Icon Generator");
+            description: _("Click to Open Image");
+            hexpand: true;
+            vexpand: true;
+            child:
+            Box {
+              orientation: vertical;
+              spacing: 12;
+
+              Button open_top_icon {
+                valign: center;
+                halign: center;
+                label: _("_Open Image");
+                use-underline: true;
+                action-name: "app.open_top_icon";
+                styles [
+                  "suggested-action",
+                  "pill",
+                ]
+              }
+            };
+          styles ["icon-dropshadow"]
+        }
+      };
+    }
+
+
     StackPage {
       name: "stack_main_page";
       child:
@@ -100,7 +146,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               }
 
               Adw.PreferencesGroup{
-                Adw.ActionRow{
+                Adw.ActionRow scale_row{
                   title: "Scale";
                   Scale size {
                     has-origin: true;
@@ -118,30 +164,14 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                   }
                 }
               }
-
-              Adw.PreferencesGroup{
-                Adw.ActionRow top_icon_row{
-                  title: "Select top icon";
-
-                  activatable-widget: open_top_icon;
-                  Button open_top_icon {
-                    margin-top: 10;
-                    margin-bottom: 10;
-                    Adw.ButtonContent top_icon_content{
-                      icon-name: "folder-open-symbolic";
-                    }
-                    action-name: "app.open_top_icon";
-                    styles [
-                      "flat",
-                    ]
-                  }
-                }
-              }
               Adw.PreferencesGroup {
-                Adw.ExpanderRow enable_expander_row {
-                  show-enable-switch: true;
+                Adw.ExpanderRow monochrome_action_row {
                   title: _('Toggle Monochrome');
-
+                  [suffix]
+                  Switch monochrome_switch{
+                    valign: center;
+                    action-name: "app.monochrome_switch";
+                  }
                   Adw.ActionRow {
                     title: _('Color');
                     activatable-widget: bgcolor;
@@ -203,11 +233,39 @@ template $GtkTestWindow : Adw.ApplicationWindow {
         }
       };
     }
+    StackPage {
+      name: "stack_loading_page";
+      child:
+      Adw.StatusPage {
+        Box {
+          orientation: vertical;
+          spacing: 12;
+          Spinner {
+            valign: center;
+            halign: center;
+            height-request: 32;
+            width-request: 32;
+            spinning: true;
+          }
+        }
+      };
+    }
   };
   //styles ["devel"]
 }
 
 menu primary_menu {
+  section {
+    item {
+      label: _("_Open Top Icon");
+      action: "app.open_top_icon";
+    }
+
+    item {
+      label: _("_Open Folder Icon");
+      action: "app.select_folder";
+    }
+  }
   section {
     item {
       label: _("_Preferences");
@@ -222,10 +280,6 @@ menu primary_menu {
     item {
       label: _("_About folder icon maker");
       action: "app.about";
-    }
-    item {
-      label: _("_Quit");
-      action: "app.quit";
     }
   }
 }
