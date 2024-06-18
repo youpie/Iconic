@@ -9,5 +9,9 @@
       <default>1024</default>
       <summary>SVG render resolution</summary>
     </key>
+	  <key name="thumbnail-size" type="i">
+      <default>256</default>
+      <summary>Thumbnail render resolution</summary>
+    </key>
 	</schema>
 </schemalist>

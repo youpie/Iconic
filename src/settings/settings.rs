@@ -24,6 +24,8 @@ mod imp {
         pub svg_image_size: TemplateChild<adw::SpinRow>,
         #[template_child()]
         pub advanced_settings: TemplateChild<adw::PreferencesGroup>,
+        #[template_child()]
+        pub thumbnail_image_size: TemplateChild<adw::SpinRow>,
         pub settings: gio::Settings,
     }
 
@@ -41,6 +43,7 @@ mod imp {
                 svg_image_size: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 advanced_settings: TemplateChild::default(),
+                thumbnail_image_size: TemplateChild::default(),
             }
         }
 
@@ -107,6 +110,13 @@ impl PreferencesWindow {
             let value = this.imp().svg_image_size.value() as i32;
             println!("{}",value);
             let _ = this.imp().settings.set("svg-render-size",value);
+        }));
+        let current_value: i32 = self.imp().settings.get("thumbnail-size");
+        self.imp().thumbnail_image_size.set_value(current_value as f64);
+        self.imp().thumbnail_image_size.connect_changed(clone!(@weak self as this => move |_| {
+            let value = this.imp().thumbnail_image_size.value() as i32;
+            println!("{}",value);
+            let _ = this.imp().settings.set("thumbnail-size",value);
         }));
     }
 

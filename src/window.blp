@@ -27,7 +27,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
             }
           }
           Adw.StatusPage {
-            icon-name: "nl.emphisia.icon.Devel";
+            icon-name: "nl.emphisia.icon";
             title: _("Folder Icon Generator");
             description: _("Click to Open Image");
             hexpand: true;
@@ -174,10 +174,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                   }
                   Adw.ActionRow {
                     title: _('Color');
-                    activatable-widget: bgcolor;
-                    ColorDialogButton bgcolor {
+                    activatable-widget: monochrome_color;
+                    ColorDialogButton monochrome_color {
                       valign: center;
-                      rgba: "#000000FF";
+                      rgba: "#438DE6FF";
                       dialog: ColorDialog {
                         with-alpha: false;
                       };
@@ -196,9 +196,9 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                     };
                     hexpand: true;
                     vexpand: true;
-                    digits: 1;
-                    // draw-value: true;
-                    // value-pos: top;
+                    digits: 0;
+                    draw-value: true;
+                    value-pos: left;
                   }
                   }
                 }
