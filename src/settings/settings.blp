@@ -32,6 +32,15 @@ template $PreferencesWindow : Adw.PreferencesWindow {
     }
     Adw.PreferencesGroup advanced_settings{
       title: _("Advanced");
+      Label {
+        margin-top: 10;
+        label: _("You can see these options because you have enabled the Devel profile");
+        valign: start;
+        styles [
+          "subtitle",
+          "warning"
+        ]
+      }
       Adw.SpinRow svg_image_size {
         title: _("Select size of SVG images");
         subtitle: _("SVG images will by default be converted to a 1024x1024 image. You can adjust that here");
@@ -40,6 +49,17 @@ template $PreferencesWindow : Adw.PreferencesWindow {
           upper: 102400;
           value: 1024;
           page-increment: 128;
+          step-increment: 1;
+        };
+      }
+      Adw.SpinRow thumbnail_image_size {
+        title: _("Select size of Thumbnail images");
+        subtitle: _("Thumbnail images will by default be converted to a 255x255 image. You can adjust that here");
+        adjustment: Adjustment {
+          lower: 1;
+          upper: 102400;
+          value: 255;
+          page-increment: 10;
           step-increment: 1;
         };
       }

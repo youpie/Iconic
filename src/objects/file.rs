@@ -15,14 +15,14 @@ pub struct File {
 	pub name: String,
 	pub extension: String,
 	pub dynamic_image: DynamicImage,
-	pub thumbnail: DynamicImage
+	pub thumbnail: DynamicImage,
 }
 
 impl File{
 	pub fn path_str (&self) -> String{
 		self.path.clone().into_os_string().into_string().unwrap()
 	}
-	pub fn new(file: gio::File, size: i32) -> Self{
+	pub fn new(file: gio::File, size: i32, thumbnail_size: i32) -> Self{
 		let temp_path = file.path().unwrap();
 		let file_name = file.basename().unwrap().into_os_string().into_string().unwrap();
 		let period_split:Vec<&str> = file_name.split(".").collect();
@@ -37,9 +37,9 @@ impl File{
 
         let thumbnail = if file_extension == ".svg" {
 		    let path = &temp_path.as_os_str().to_str().unwrap();
-            Self::load_svg(path, 255)
+            Self::load_svg(path, thumbnail_size)
 		} else{
-		    dynamic_image.clone().resize(255, 255, imageops::FilterType::Nearest)
+		    dynamic_image.clone().resize(thumbnail_size as u32, thumbnail_size as u32, imageops::FilterType::Nearest)
 		};
 		Self {
 			files: Some(file),
@@ -47,14 +47,14 @@ impl File{
 			extension: file_extension,
 			name: name_no_extension,
 			dynamic_image,
-			thumbnail
+			thumbnail,
 		}
 	}
 
-	pub fn from_path(path: &str, size: i32) -> Self{
+	pub fn from_path(path: &str, size: i32, thumnail_size: i32) -> Self{
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(PathBuf::from(path).as_path());
-        Self::new(file,size)
+        Self::new(file,size, thumnail_size)
 	}
 
 	pub fn load_svg(path: &str, size: i32) -> DynamicImage{
