@@ -10,7 +10,7 @@ This application is my first attempt at creating an application using Rust and L
 
 ## Todo 📝
 These are ideas I want to implement. Everything with a `*` I want implemented before I want to release it
-- [ ] Create Icon*
+- [X] Create Icon*
 - [ ] Add features
     - [X] Automatically load the folder Icon*
     - [X] Support SVG's*
@@ -19,13 +19,13 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
     - [X] Add threading
         - [X] Loading images*
         - [X] Saving images*
-    - [ ] Start Screen
+    - [X] Start Screen
     - [ ] Export to SVG
     - [X] Change folder image in preferences
     - [X] Add warning if closing with unsaved changes*
-    - [ ] Convert top image to Greyscale*
-        - [ ] Slider for threshhold
-        - [ ] Select color* 
+    - [X] Convert top image to Greyscale*
+        - [X] Slider for threshhold
+        - [X] Select color* 
     - [X] Add key shortcuts*
         - [X] Save
         - [X] Open 
