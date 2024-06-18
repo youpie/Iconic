@@ -101,7 +101,10 @@ impl GtkTestApplication {
         let settings_action = gio::ActionEntry::builder("preferences")
             .activate(move |app: &Self, _, _| app.show_preferences_dialog())
             .build();
-        self.add_action_entries([quit_action, about_action, settings_action]);
+        let open_action = gio::ActionEntry::builder("open")
+            .activate(move |app: &Self, _, _| app.open_function())
+            .build();
+        self.add_action_entries([quit_action, about_action, settings_action,open_action]);
     }
 
     fn setup_accels(&self) {
@@ -117,6 +120,12 @@ impl GtkTestApplication {
         preferences.set_transient_for(Some(&window));
         preferences.present();
     }
+
+    fn open_function(&self) {
+        self.activate_action("app.open_top_icon", None);
+        println!("hey");
+    }
+
 
 
     fn show_about(&self) {

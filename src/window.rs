@@ -49,8 +49,6 @@ mod imp {
         #[template_child]
         pub open_top_icon: TemplateChild<gtk::Button>,
         #[template_child]
-        pub top_icon_content: TemplateChild<adw::ButtonContent>,
-        #[template_child]
         pub image_view: TemplateChild<gtk::Picture>,
         #[template_child]
         pub save_button: TemplateChild<gtk::Button>,
@@ -61,11 +59,15 @@ mod imp {
         #[template_child]
         pub size: TemplateChild<gtk::Scale>,
         #[template_child]
-        pub top_icon_row: TemplateChild<adw::ActionRow>,
+        pub scale_row: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub stack: TemplateChild<gtk::Stack>,
         #[template_child]
         pub image_loading_spinner: TemplateChild<gtk::Spinner>,
+        #[template_child]
+        pub monochrome_action_row: TemplateChild<adw::ExpanderRow>,
+        #[template_child]
+        pub monochrome_switch: TemplateChild<gtk::Switch>,
 
         pub folder_image_file: Arc<Mutex<Option<File>>>,
         pub top_image_file: Arc<Mutex<Option<File>>>,
@@ -84,9 +86,11 @@ mod imp {
                 header_bar: TemplateChild::default(),
                 toast_overlay: TemplateChild::default(),
                 open_top_icon: TemplateChild::default(),
-                top_icon_content: TemplateChild::default(),
                 image_view: TemplateChild::default(),
                 save_button: TemplateChild::default(),
+                monochrome_action_row: TemplateChild::default(),
+                scale_row: TemplateChild::default(),
+                monochrome_switch: TemplateChild::default(),
                 folder_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
                 image_saved: RefCell::new(true),
@@ -96,7 +100,6 @@ mod imp {
                 x_scale: TemplateChild::default(),
                 y_scale: TemplateChild::default(),
                 size: TemplateChild::default(),
-                top_icon_row: TemplateChild::default(),
                 stack: TemplateChild::default(),
                 image_loading_spinner: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
@@ -128,6 +131,9 @@ mod imp {
                 glib::spawn_future_local(clone!(@weak win => async move {
                     win.save_file().await;
                 }));
+            });
+            klass.install_action("app.monochrome_switch", None, move |win, _, _| {
+                win.enable_monochrome_expand();
             });
         }
 
@@ -189,7 +195,8 @@ impl GtkTestWindow {
         win.imp().save_button.set_sensitive(false);
         win.imp().x_scale.add_mark(0.0, gtk::PositionType::Top, None);
         win.imp().y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
-        win.imp().stack.set_visible_child_name("stack_main_page");
+        win.imp().stack.set_visible_child_name("stack_welcome_page");
+        win.imp().monochrome_action_row.set_property("enable_expansion",false);
         let path: &str = &win.imp().settings.string("folder-svg-path");
         win.load_folder_icon(path);
         win.setup_settings();
@@ -306,8 +313,8 @@ impl GtkTestWindow {
 
     async fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage, filter: imageops::FilterType) -> DynamicImage{
         let button = self.imp();
-        self.imp().save_button.set_sensitive(true);
-        button.image_saved.replace(false);
+        button.stack.set_visible_child_name("stack_main_page");
+        button.image_saved.replace(true);
         let (tx_texture, rx_texture) = async_channel::bounded(1);
         let tx_texture1 = tx_texture.clone();
         let coordinates = ((button.x_scale.value()+50.0) as i64,(button.y_scale.value()+50.0) as i64);
@@ -343,10 +350,7 @@ impl GtkTestWindow {
     async fn load_top_icon (&self){
         let imp = self.imp();
 		match self.open_file_chooser_gtk().await {
-            Some(x) => {imp.open_top_icon.set_tooltip_text(Some("The currently set top image"));
-                        imp.top_icon_content.set_icon_name("image-x-generic-symbolic");
-                        imp.top_icon_row.set_property("subtitle",&self.get_file_name(x,
-						&imp.top_image_file).await);}
+            Some(x) => {self.get_file_name(x,&imp.top_image_file).await;}
             None => {imp.toast_overlay.add_toast(adw::Toast::new("Nothing selected"));}
         };
         self.check_icon_update().await;
@@ -392,6 +396,9 @@ impl GtkTestWindow {
 
     async fn get_file_name(&self, filename: gio::File, file: &Arc<Mutex<Option<File>>>) -> String{
         self.imp().image_loading_spinner.set_spinning(true);
+        if self.imp().stack.visible_child_name() == Some("stack_welcome_page".into()) {
+            self.imp().stack.set_visible_child_name("stack_loading_page");
+        }
         let svg_render_size = self.imp().settings.get("svg-render-size");
         let _ = gio::spawn_blocking(clone!(@weak file => move ||{
             file.lock().expect("oh noes").replace(File::new(filename,svg_render_size));
@@ -417,6 +424,14 @@ impl GtkTestWindow {
             width as i32 * 4, // rowstride
         );
         gdk::Texture::for_pixbuf(&pixbuf)
+    }
+
+    fn enable_monochrome_expand(&self){
+        let switch_state = self.imp().monochrome_switch.state();
+        match switch_state{
+            false => {self.imp().monochrome_action_row.set_property("enable_expansion",true)},
+            true => {self.imp().monochrome_action_row.set_property("enable_expansion",false)}
+        };
     }
 }
 
