@@ -41,6 +41,7 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
 - [ ] Add comments
 - [ ] Correct flatpak manifest*
 - [ ] Think of better name
+- [ ] Add dontation link :)
 
 ## Contributing 🤝
 This program is mostly meant as practise for me so I want to solve most problems by myself. So the best will be to create an issue if you encounter any.
