@@ -30,14 +30,13 @@ template $PreferencesWindow : Adw.PreferencesWindow {
         activatable: false;
       }
     }
-    Adw.PreferencesGroup {
+    Adw.PreferencesGroup advanced_settings{
       title: _("Advanced");
-
-      Adw.SpinRow svg_image_size_row {
+      Adw.SpinRow svg_image_size {
         title: _("Select size of SVG images");
         subtitle: _("SVG images will by default be converted to a 1024x1024 image. You can adjust that here");
         adjustment: Adjustment {
-          lower: 0;
+          lower: 1;
           upper: 102400;
           value: 1024;
           page-increment: 128;

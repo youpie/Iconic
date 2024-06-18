@@ -3,6 +3,8 @@ use gtk::gio;
 use image::*;
 use adw::prelude::FileExt;
 use std::fs;
+use crate::glib;
+use crate::glib::clone;
 use resvg::tiny_skia::{Pixmap};
 use resvg::usvg::{Tree, Options};
 
@@ -33,7 +35,12 @@ impl File{
 		};
         let name_no_extension = file_name.replace(&file_extension,"");
 
-        let thumbnail = dynamic_image.clone().resize(255, 255, imageops::FilterType::Nearest);
+        let thumbnail = if file_extension == ".svg" {
+		    let path = &temp_path.as_os_str().to_str().unwrap();
+            Self::load_svg(path, 255)
+		} else{
+		    dynamic_image.clone().resize(255, 255, imageops::FilterType::Nearest)
+		};
 		Self {
 			files: Some(file),
 			path: temp_path.into(),
@@ -76,26 +83,27 @@ impl File{
             usvg::Transform::from_scale(scale, scale),
             &mut pixmap.as_mut()
         );
-        Self::pixmap_to_image(&pixmap)
+        Self::pixmap_to_image(pixmap)
     }
 
-    fn pixmap_to_image(pixmap: &Pixmap) -> DynamicImage {
+    fn pixmap_to_image(pixmap: Pixmap) -> DynamicImage {
         // Create an empty RgbaImage with the same dimensions as the Pixmap.
-        let mut img = RgbaImage::new(pixmap.width(), pixmap.height());
+        let pixmap_clone = pixmap.clone();
+            let mut img = RgbaImage::new(pixmap_clone.width(), pixmap.height());
 
-        // Iterate over each pixel in the Pixmap.
-        for y in 0..pixmap.height() {
-            for x in 0..pixmap.width() {
-                // Get the pixel at (x, y). `pixel` returns an Option, we unwrap it safely because we know (x, y) is valid.
-                if let Some(pixel) = pixmap.pixel(x, y) {
-                    // Copy the pixel's RGBA data into the RgbaImage.
-                    img.put_pixel(x, y, Rgba([pixel.red(), pixel.green(), pixel.blue(), pixel.alpha()]));
+            // Iterate over each pixel in the Pixmap.
+            for y in 0..pixmap_clone.height() {
+                for x in 0..pixmap_clone.width() {
+                    // Get the pixel at (x, y). `pixel` returns an Option, we unwrap it safely because we know (x, y) is valid.
+                    if let Some(pixel) = pixmap_clone.pixel(x, y) {
+                        // Copy the pixel's RGBA data into the RgbaImage.
+                        img.put_pixel(x, y, Rgba([pixel.red(), pixel.green(), pixel.blue(), pixel.alpha()]));
+                    }
                 }
             }
-        }
 
-        // Convert the RgbaImage to a DynamicImage.
-        DynamicImage::ImageRgba8(img)
+            // Convert the RgbaImage to a DynamicImage.
+            DynamicImage::ImageRgba8(img)
     }
 }
 

@@ -74,6 +74,7 @@ mod imp {
         pub final_image: RefCell<Option<DynamicImage>>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
+        pub count: RefCell<i32>,
     }
 
     impl Default for GtkTestWindow {
@@ -99,6 +100,7 @@ mod imp {
                 stack: TemplateChild::default(),
                 image_loading_spinner: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
+                count: RefCell::new(0),
             }
         }
     }
@@ -197,10 +199,17 @@ impl GtkTestWindow {
     fn setup_settings (&self){
         let update_folder = glib::clone!(@weak self as window => move |_: &gio::Settings, setting:&str| {
              let path: &str = &window.imp().settings.string(setting);
+
              window.load_folder_icon(path);
         });
+
+        let resize_folder = glib::clone!(@weak self as win => move |_: &gio::Settings, _:&str| {
+            let path: &str = &win.imp().settings.string("folder-svg-path");
+            win.load_folder_icon(path);
+        });
+
         self.imp().settings.connect_changed(Some("folder-svg-path"), update_folder.clone());
-        self.imp().settings.connect_changed(Some("svg-render-size"), update_folder.clone());
+        self.imp().settings.connect_changed(Some("svg-render-size"), resize_folder.clone());
     }
 
     fn setup_update (&self){
