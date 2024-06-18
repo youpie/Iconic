@@ -2,12 +2,9 @@ use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use crate::glib::clone;
-use crate::GtkTestWindow;
 use gtk::*;
-use gio::*;
-use glib::*;
 use gettextrs::*;
-use crate::config::{APP_ID};
+use crate::config::{APP_ID, PROFILE};
 
 mod imp {
     use super::*;
@@ -24,7 +21,9 @@ mod imp {
         #[template_child()]
         pub custom1: TemplateChild<adw::ActionRow>,
         #[template_child()]
-        pub svg_image_size_row: TemplateChild<adw::SpinRow>,
+        pub svg_image_size: TemplateChild<adw::SpinRow>,
+        #[template_child()]
+        pub advanced_settings: TemplateChild<adw::PreferencesGroup>,
         pub settings: gio::Settings,
     }
 
@@ -39,8 +38,9 @@ mod imp {
                 custom: TemplateChild::default(),
                 select_folder: TemplateChild::default(),
                 custom1: TemplateChild::default(),
-                svg_image_size_row: TemplateChild::default(),
+                svg_image_size: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
+                advanced_settings: TemplateChild::default(),
             }
         }
 
@@ -63,10 +63,10 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
-            // self.settings
-            //     .bind("svg-render-size", &*self.svg_image_size_row, "value")
-            //     .build();
-
+            // Devel Profile
+            if PROFILE == "Devel" {
+                obj.add_css_class("devel");
+            }
         }
 
 
@@ -92,13 +92,22 @@ impl PreferencesWindow {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         let win = glib::Object::new::<Self>();
-        win.imp().svg_image_size_row.connect_changed(clone!(@weak win as this => move |_| {
-            let value = this.imp().svg_image_size_row.value() as i32;
-            let _ = this.imp().settings.set("svg-render-size",value);
-        }));
-
+        win.setup_settings();
+        if PROFILE != "Devel" {
+            win.imp().advanced_settings.set_visible(false);
+        }
         win.set_path_title();
         win
+    }
+
+    fn setup_settings(&self){
+        let current_value: i32 = self.imp().settings.get("svg-render-size");
+        self.imp().svg_image_size.set_value(current_value as f64);
+        self.imp().svg_image_size.connect_changed(clone!(@weak self as this => move |_| {
+            let value = this.imp().svg_image_size.value() as i32;
+            println!("{}",value);
+            let _ = this.imp().settings.set("svg-render-size",value);
+        }));
     }
 
     fn set_path_title (&self){

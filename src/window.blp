@@ -125,8 +125,8 @@ template $GtkTestWindow : Adw.ApplicationWindow {
 
                   activatable-widget: open_top_icon;
                   Button open_top_icon {
-                    margin-top: 20;
-                    margin-bottom: 20;
+                    margin-top: 10;
+                    margin-bottom: 10;
                     Adw.ButtonContent top_icon_content{
                       icon-name: "folder-open-symbolic";
                     }
@@ -136,8 +136,44 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                     ]
                   }
                 }
+              }
+              Adw.PreferencesGroup {
+                Adw.ExpanderRow enable_expander_row {
+                  show-enable-switch: true;
+                  title: _('Toggle Monochrome');
+
+                  Adw.ActionRow {
+                    title: _('Color');
+                    activatable-widget: bgcolor;
+                    ColorDialogButton bgcolor {
+                      valign: center;
+                      rgba: "#000000FF";
+                      dialog: ColorDialog {
+                        with-alpha: false;
+                      };
+                    }
+                  }
+
+                  Adw.ActionRow {
+                    title: _('Threshold');
+                    Scale threshold_scale {
+                    has-origin: true;
+                    orientation: horizontal;
+                    adjustment: Adjustment threshold_value {
+                      lower: 0;
+                      upper: 255;
+                      step-increment: 1;
+                    };
+                    hexpand: true;
+                    vexpand: true;
+                    digits: 1;
+                    // draw-value: true;
+                    // value-pos: top;
+                  }
+                  }
                 }
               }
+            }
           };
         }
       };
