@@ -12,6 +12,7 @@ This application is my first attempt at creating an application using Rust and L
 These are ideas I want to implement. Everything with a `*` I want implemented before I want to release it
 - [X] Create Icon*
 - [ ] Add features
+    - [ ] Confetti 🎊 button on are you sure to close dialog     
     - [X] Automatically load the folder Icon*
     - [X] Support SVG's*
     - [ ] Drag and drop
