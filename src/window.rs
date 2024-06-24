@@ -77,8 +77,11 @@ mod imp {
         pub monochrome_color: TemplateChild<gtk::ColorDialogButton>,
         #[template_child]
         pub reset_color: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub monochrome_invert: TemplateChild<adw::SwitchRow>,
 
         pub folder_image_file: Arc<Mutex<Option<File>>>,
+        pub default_color: gdk::RGBA,
         pub top_image_file: Arc<Mutex<Option<File>>>,
         pub file_created: RefCell<bool>,
         pub image_saved: RefCell<bool>,
@@ -113,9 +116,11 @@ mod imp {
                 y_scale: TemplateChild::default(),
                 size: TemplateChild::default(),
                 stack: TemplateChild::default(),
+                monochrome_invert: TemplateChild::default(),
                 image_loading_spinner: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
+                default_color: gdk::RGBA::new(0.262745098,0.552941176,0.901960784,1.0),
             }
         }
     }
@@ -207,18 +212,21 @@ impl GtkTestWindow {
         let win = glib::Object::builder::<GtkTestWindow>()
             .property("application", application)
             .build();
-        win.imp().save_button.set_sensitive(false);
-        win.imp().x_scale.add_mark(0.0, gtk::PositionType::Top, None);
-        win.imp().y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
-        win.imp().stack.set_visible_child_name("stack_welcome_page");
-        win.imp().monochrome_action_row.set_property("enable_expansion",false);
-        win.imp().reset_color.set_visible(false);
+        let imp = win.imp();
+        imp.save_button.set_sensitive(false);
+        imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
+        imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
+        imp.y_scale.set_value(9.447);
+        imp.size.set_value(24.0);
+        imp.stack.set_visible_child_name("stack_welcome_page");
+        //imp.monochrome_switch.set_active(true);
+        //imp.monochrome_action_row.set_property("enable_expansion",true);
+        imp.reset_color.set_visible(false);
         glib::spawn_future_local(glib::clone!(@weak win as window => async move {
             let cache_file_name: &str = &window.imp().settings.string("folder-cache-name");
             let path = window.check_chache_icon(cache_file_name).await;
             window.load_folder_icon(&path.into_os_string().into_string().unwrap());
         }));
-
         win.setup_settings();
         win
     }
@@ -250,30 +258,52 @@ impl GtkTestWindow {
         self.imp().save_button.set_sensitive(true);
         self.imp().x_scale.connect_value_changed(clone!(@weak self as this => move |_| {
         glib::spawn_future_local(clone!(@weak this => async move {
+                this.imp().image_saved.replace(false);
+                this.imp().save_button.set_sensitive(true);
                 this.render_to_screen().await;}));
             }));
         self.imp().y_scale.connect_value_changed(clone!(@weak self as this => move |_| {
         glib::spawn_future_local(clone!(@weak this => async move {
-                this.render_to_screen().await;}));
+                this.render_to_screen().await;
+                this.imp().image_saved.replace(false);
+                this.imp().save_button.set_sensitive(true);}));
             }));
         self.imp().size.connect_value_changed(clone!(@weak self as this => move |_| {
         glib::spawn_future_local(clone!(@weak this => async move {
-                this.render_to_screen().await;}));
+                this.render_to_screen().await;
+                this.imp().image_saved.replace(false);
+                this.imp().save_button.set_sensitive(true);}));
             }));
         self.imp().threshold_scale.connect_value_changed(clone!(@weak self as this => move |_| {
         glib::spawn_future_local(clone!(@weak this => async move {
-                this.render_to_screen().await;}));
+                this.render_to_screen().await;
+                this.imp().image_saved.replace(false);
+                this.imp().save_button.set_sensitive(true);}));
             }));
         self.imp().monochrome_color.connect_rgba_notify(clone!(@weak self as this => move |_| {
         glib::spawn_future_local(clone!(@weak this => async move {
-                this.render_to_screen().await;
-                this.imp().reset_color.set_visible(true);}));
+            if this.imp().monochrome_color.rgba() != this.imp().default_color.clone(){
+                this.imp().reset_color.set_visible(true);
+            }
+            this.imp().image_saved.replace(false);
+            this.imp().save_button.set_sensitive(true);
+            this.render_to_screen().await;
             }));
+        }));
+        self.imp().monochrome_invert.connect_active_notify(clone!(@weak self as this => move |_| {
+        glib::spawn_future_local(clone!(@weak this => async move {
+            this.render_to_screen().await;
+            this.imp().image_saved.replace(false);
+            this.imp().save_button.set_sensitive(true);
+            }));
+        }));
     }
 
     fn reset_colors(&self){
         let imp = self.imp();
-        imp.monochrome_color.set_rgba(&gdk::RGBA::new(67.0,141.0,230.0,0.0));
+        imp.reset_color.set_visible(false);
+
+        imp.monochrome_color.set_rgba(&imp.default_color.clone());
         self.check_icon_update();
         imp.reset_color.set_visible(false);
     }
@@ -282,7 +312,6 @@ impl GtkTestWindow {
         let imp = self.imp();
         let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
         let cache_path = env::var("XDG_CACHE_HOME").unwrap();
-        println!("{}",cache_path);
         let folder_icon_cache_path = PathBuf::from(format!("{}/{}",cache_path,file_name));
         if folder_icon_cache_path.exists() {
             println!("File found in cache at: {:?}",folder_icon_cache_path);
@@ -315,7 +344,6 @@ impl GtkTestWindow {
         self.imp().settings.set("folder-cache-name",file_name.clone()).unwrap();
         let mut cache_path = PathBuf::from(cache_dir);
         cache_path.push(file_name.clone());
-        println!("{:?}",cache_path);
         fs::copy(original_path,cache_path.clone()).unwrap();
         (cache_path,file_name)
     }
@@ -380,6 +408,7 @@ impl GtkTestWindow {
             Ok(file) => {
                 self.imp().stack.set_visible_child_name("stack_saving_page");
                 imp.image_saved.replace(true);
+                imp.save_button.set_sensitive(false);
                 let base_image = imp.folder_image_file.lock().unwrap().as_ref().unwrap().dynamic_image.clone();
                 let top_image = match self.imp().monochrome_switch.state(){
                     false => {imp.top_image_file.lock().unwrap().as_ref().unwrap().dynamic_image.clone()},
@@ -402,13 +431,12 @@ impl GtkTestWindow {
 
 
     async fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage, filter: imageops::FilterType) -> DynamicImage{
-        let button = self.imp();
-        button.stack.set_visible_child_name("stack_main_page");
-        button.image_saved.replace(false);
+        let imp = self.imp();
+        imp.stack.set_visible_child_name("stack_main_page");
         let (tx_texture, rx_texture) = async_channel::bounded(1);
         let tx_texture1 = tx_texture.clone();
-        let coordinates = ((button.x_scale.value()+50.0) as i64,(button.y_scale.value()+50.0) as i64);
-        let scale: f32 = button.size.value() as f32;
+        let coordinates = ((imp.x_scale.value()+50.0) as i64,(imp.y_scale.value()+50.0) as i64);
+        let scale: f32 = imp.size.value() as f32;
         gio::spawn_blocking(move ||{
             let mut base = base_image;
             let top = top_image;
@@ -420,11 +448,11 @@ impl GtkTestWindow {
             tx_texture1.send_blocking(base)
         });
 
-        let texture = glib::spawn_future_local(clone!(@weak-allow-none button => async move {
+        let texture = glib::spawn_future_local(async move {
             rx_texture.recv().await.unwrap()
-        }));
+        });
         let image = texture.await.unwrap();
-        button.final_image.replace(Some(image.clone()));
+        imp.final_image.replace(Some(image.clone()));
         image
     }
 
@@ -447,7 +475,7 @@ impl GtkTestWindow {
     }
 
     fn load_folder_icon (&self, path: &str){
-        let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
+        //let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
         let size: i32 = self.imp().settings.get("thumbnail-size");
         self.imp().folder_image_file.lock().unwrap().replace(File::from_path(path,self.imp().settings.get("svg-render-size"),size));
         self.check_icon_update();
@@ -494,17 +522,27 @@ impl GtkTestWindow {
 
         // Create a new image buffer for the monochrome image
         let mut mono_img: RgbaImage = ImageBuffer::new(rgba_img.width(), rgba_img.height());
-
+        let switch_state = self.imp().monochrome_invert.is_active();
         // Apply the threshold to create a black and white image, keeping the alpha channel
         for (x, y, pixel) in rgba_img.enumerate_pixels() {
             let rgba = pixel.0;
             let luma = 0.299 * rgba[0] as f32 + 0.587 * rgba[1] as f32 + 0.114 * rgba[2] as f32;
-            let mono_pixel = if luma > threshold as f32 {
-                Rgba([(color.red()*255.0) as u8, (color.green()*255.0) as u8, (color.blue()*255.0) as u8, rgba[3]]) // White with original alpha
-            } else {
-                Rgba([0u8, 0u8, 0u8, 0u8])       // Black with original alpha
-            };
-            mono_img.put_pixel(x, y, mono_pixel);
+            if !switch_state {
+                let mono_pixel = if luma > threshold as f32 {
+                    Rgba([(color.red()*255.0) as u8, (color.green()*255.0) as u8, (color.blue()*255.0) as u8, 255u8]) // White with original alpha
+                } else {
+                    Rgba([0u8, 0u8, 0u8, 0u8])       // Black with original alpha
+                };
+                mono_img.put_pixel(x, y, mono_pixel);
+            }
+            else {
+                let mono_pixel = if luma > threshold as f32 {
+                    Rgba([0u8, 0u8, 0u8, 0u8])       // Black with original alpha
+                } else {
+                    Rgba([(color.red()*255.0) as u8, (color.green()*255.0) as u8, (color.blue()*255.0) as u8, 255u8]) // White with original alpha
+                };
+                mono_img.put_pixel(x, y, mono_pixel);
+            }
         }
 
         // Convert the monochrome RgbaImage to DynamicImage
