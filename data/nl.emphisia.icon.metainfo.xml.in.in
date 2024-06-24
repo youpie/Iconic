@@ -1,9 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop">
+<?xml version='1.0' encoding='utf-8'?>
+<component type="desktop-application">
+  <!--Created with jdAppStreamEdit 9.1-->
   <id>@app-id@</id>
   <name>Folder Icon Maker</name>
   <summary>Easilly add icons on top of folders</summary>
-  <metadata_license>CC0-1.0</metadata_license>
+  <developer>
+    <name>Youpie</name>
+  </developer>
+  <metadata_license>CC-BY-4.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <description>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
@@ -12,4 +16,14 @@
       fieri tamen permagna accessio potest, si aliquod aeternum et infinitum
       impendere malum nobis opinemur. Quod idem licet transferre in.</p>
   </description>
+  <screenshots>
+    <screenshot type="default">
+      <image type="source">https://github.com/youpie/Folder_icon_creator/assets/37704067/dfab10de-9297-486c-aff6-ed4a98b97dc6</image>
+    </screenshot>
+  </screenshots>
+  <url type="bugtracker">https://github.com/youpie/Folder_icon_creator/issues</url>
+  <url type="donation">https://ko-fi.com/youpie</url>
+  <url type="contact">youpie@emphisia.nl</url>
+  <url type="vcs-browser">https://github.com/youpie/Folder_icon_creator</url>
+  <content_rating type="oars-1.1"/>
 </component>

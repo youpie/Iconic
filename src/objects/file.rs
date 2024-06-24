@@ -3,9 +3,7 @@ use gtk::gio;
 use image::*;
 use adw::prelude::FileExt;
 use std::fs;
-use crate::glib;
-use crate::glib::clone;
-use resvg::tiny_skia::{Pixmap};
+use resvg::tiny_skia::Pixmap;
 use resvg::usvg::{Tree, Options};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -59,7 +57,10 @@ impl File{
 
 	pub fn load_svg(path: &str, size: i32) -> DynamicImage{
         // Load the SVG file content
-        let svg_data = fs::read(path).expect("Failed to read SVG file");
+        let svg_data = match fs::read(path){
+            Ok(x) => x,
+            Err(_) => fs::read("/usr/share/icons/Adwaita/scalable/places/folder.svg").expect("Could not find folder.svg")
+        };
 
         // Create an SVG tree
         let opt = Options::default();

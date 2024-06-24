@@ -30,6 +30,9 @@ use gtk::gdk_pixbuf::Pixbuf;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
 use std::sync::{Arc, Mutex};
+use std::path::PathBuf;
+use std::env;
+use std::fs;
 
 use crate::config::{APP_ID, PROFILE};
 
@@ -72,6 +75,8 @@ mod imp {
         pub threshold_scale: TemplateChild<gtk::Scale>,
         #[template_child]
         pub monochrome_color: TemplateChild<gtk::ColorDialogButton>,
+        #[template_child]
+        pub reset_color: TemplateChild<gtk::Button>,
 
         pub folder_image_file: Arc<Mutex<Option<File>>>,
         pub top_image_file: Arc<Mutex<Option<File>>>,
@@ -93,6 +98,7 @@ mod imp {
                 image_view: TemplateChild::default(),
                 save_button: TemplateChild::default(),
                 threshold_scale: TemplateChild::default(),
+                reset_color: TemplateChild::default(),
                 monochrome_action_row: TemplateChild::default(),
                 monochrome_color: TemplateChild::default(),
                 scale_row: TemplateChild::default(),
@@ -140,6 +146,9 @@ mod imp {
             });
             klass.install_action("app.monochrome_switch", None, move |win, _, _| {
                 win.enable_monochrome_expand();
+            });
+            klass.install_action("app.reset_color", None, move |win, _, _| {
+                win.reset_colors();
             });
         }
 
@@ -203,8 +212,13 @@ impl GtkTestWindow {
         win.imp().y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         win.imp().stack.set_visible_child_name("stack_welcome_page");
         win.imp().monochrome_action_row.set_property("enable_expansion",false);
-        let path: &str = &win.imp().settings.string("folder-svg-path");
-        win.load_folder_icon(path);
+        win.imp().reset_color.set_visible(false);
+        glib::spawn_future_local(glib::clone!(@weak win as window => async move {
+            let cache_file_name: &str = &window.imp().settings.string("folder-cache-name");
+            let path = window.check_chache_icon(cache_file_name).await;
+            window.load_folder_icon(&path.into_os_string().into_string().unwrap());
+        }));
+
         win.setup_settings();
         win
     }
@@ -224,6 +238,7 @@ impl GtkTestWindow {
         let reload_thumbnails = glib::clone!(@weak self as win => move |_: &gio::Settings, _:&str| {
             let path: &str = &win.imp().settings.string("folder-svg-path");
             win.load_folder_icon(path);
+            win.imp().reset_color.set_visible(true);
         });
 
         self.imp().settings.connect_changed(Some("folder-svg-path"), update_folder.clone());
@@ -251,11 +266,59 @@ impl GtkTestWindow {
             }));
         self.imp().monochrome_color.connect_rgba_notify(clone!(@weak self as this => move |_| {
         glib::spawn_future_local(clone!(@weak this => async move {
-                this.render_to_screen().await;}));
+                this.render_to_screen().await;
+                this.imp().reset_color.set_visible(true);}));
             }));
     }
 
+    fn reset_colors(&self){
+        let imp = self.imp();
+        imp.monochrome_color.set_rgba(&gdk::RGBA::new(67.0,141.0,230.0,0.0));
+        self.check_icon_update();
+        imp.reset_color.set_visible(false);
+    }
 
+    async fn check_chache_icon(&self, file_name: &str) -> PathBuf{
+        let imp = self.imp();
+        let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
+        let cache_path = env::var("XDG_CACHE_HOME").unwrap();
+        println!("{}",cache_path);
+        let folder_icon_cache_path = PathBuf::from(format!("{}/{}",cache_path,file_name));
+        if folder_icon_cache_path.exists() {
+            println!("File found in cache at: {:?}",folder_icon_cache_path);
+            return folder_icon_cache_path;
+        }
+        else if icon_path.exists() {
+            println!("File not found in cache, copying to: {:?}",folder_icon_cache_path);
+            return self.copy_folder_image(icon_path).0;
+        }
+        else {
+            println!("File not found AT ALL");
+            let new_path = match self.open_file_chooser_gtk().await{
+                Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
+                None => {adw::prelude::ActionGroupExt::activate_action(self, "app.quit", None);
+                        String::from("")}
+            };
+            imp.settings.set_string("folder-svg-path", &new_path).unwrap();
+            let cached_file_name = self.copy_folder_image(PathBuf::from(new_path)).1;
+            imp.settings.set_string("folder-cache-name", &cached_file_name).unwrap();
+            let cache_file_name = &imp.settings.string("folder-cache-name");
+            let cache_path = env::var("XDG_CACHE_HOME").unwrap();
+            let folder_icon_cache_path = PathBuf::from(format!("{}/{}",cache_path,cache_file_name));
+            return PathBuf::from(folder_icon_cache_path);
+        }
+    }
+
+    fn copy_folder_image(&self, original_path: PathBuf) -> (PathBuf, String) {
+        let cache_dir = env::var("XDG_CACHE_HOME").expect("$HOME is not set");
+        let file_name = format!("folder.{}",original_path.extension().unwrap().to_str().unwrap());
+        self.imp().settings.set("folder-cache-name",file_name.clone()).unwrap();
+        let mut cache_path = PathBuf::from(cache_dir);
+        cache_path.push(file_name.clone());
+        println!("{:?}",cache_path);
+        fs::copy(original_path,cache_path.clone()).unwrap();
+        (cache_path,file_name)
+    }
 
     async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
         const RESPONSE_CANCEL: &str = "cancel";
@@ -318,7 +381,7 @@ impl GtkTestWindow {
                 self.imp().stack.set_visible_child_name("stack_saving_page");
                 imp.image_saved.replace(true);
                 let base_image = imp.folder_image_file.lock().unwrap().as_ref().unwrap().dynamic_image.clone();
-                let top_image =match self.imp().monochrome_switch.state(){
+                let top_image = match self.imp().monochrome_switch.state(){
                     false => {imp.top_image_file.lock().unwrap().as_ref().unwrap().dynamic_image.clone()},
                     true => {self.to_monochrome(imp.top_image_file.lock().unwrap().as_ref().unwrap().dynamic_image.clone(), imp.threshold_scale.value() as u8, imp.monochrome_color.rgba())}
                 };
@@ -384,6 +447,7 @@ impl GtkTestWindow {
     }
 
     fn load_folder_icon (&self, path: &str){
+        let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
         let size: i32 = self.imp().settings.get("thumbnail-size");
         self.imp().folder_image_file.lock().unwrap().replace(File::from_path(path,self.imp().settings.get("svg-render-size"),size));
         self.check_icon_update();
@@ -448,18 +512,18 @@ impl GtkTestWindow {
     }
 
     async fn get_file_name(&self, filename: gio::File, file: &Arc<Mutex<Option<File>>>) -> String{
-        self.imp().image_loading_spinner.set_spinning(true);
-        if self.imp().stack.visible_child_name() == Some("stack_welcome_page".into()) {
-            self.imp().stack.set_visible_child_name("stack_loading_page");
+        let imp = self.imp();
+        imp.image_loading_spinner.set_spinning(true);
+        if imp.stack.visible_child_name() == Some("stack_welcome_page".into()) {
+            imp.stack.set_visible_child_name("stack_loading_page");
         }
-        let svg_render_size = self.imp().settings.get("svg-render-size");
-        let size: i32 = self.imp().settings.get("thumbnail-size");
+        let svg_render_size = imp.settings.get("svg-render-size");
+        let size: i32 = imp.settings.get("thumbnail-size");
         let _ = gio::spawn_blocking(clone!(@weak file => move ||{
-            file.lock().expect("oh noes").replace(File::new(filename,svg_render_size,size));
+            file.lock().expect("Could not get file").replace(File::new(filename,svg_render_size,size));
         })).await;
         let file = file.lock().unwrap().clone().unwrap();
-        self.imp().image_loading_spinner.set_spinning(false);
-        println!("{:#?}",file.name);
+        imp.image_loading_spinner.set_spinning(false);
         format!("{}{}",file.name,file.extension)
     }
 

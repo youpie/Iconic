@@ -175,12 +175,26 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                   Adw.ActionRow {
                     title: _('Color');
                     activatable-widget: monochrome_color;
-                    ColorDialogButton monochrome_color {
+                    Box {
                       valign: center;
-                      rgba: "#438DE6FF";
-                      dialog: ColorDialog {
-                        with-alpha: false;
-                      };
+                      Button reset_color {
+                        halign: start;
+                        Adw.ButtonContent top_icon_content{
+                          icon-name: "edit-undo-symbolic";
+                        }
+                        action-name: "app.reset_color";
+                        styles [
+                          "flat",
+                        ]
+                      }
+                      ColorDialogButton monochrome_color {
+                        halign: end;
+                        margin-start: 5;
+                        rgba: "#438DE6FF";
+                        dialog: ColorDialog {
+                          with-alpha: false;
+                        };
+                      }
                     }
                   }
 
