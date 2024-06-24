@@ -35,7 +35,7 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
     - [ ] Add ability to temporarily change folder icon*
     - [ ] Loading symbolic icons directly
         - [ ] Add symbolic icon picker (like [Icon Library](https://gitlab.gnome.org/World/design/icon-library))
-    - [ ] Automatically place icon in right position
+    - [X] Automatically place icon in right position
     - [ ] Add guide grid or something
 - [ ] Clean up code*
 - [ ] Add comments
