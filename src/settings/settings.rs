@@ -5,6 +5,7 @@ use crate::glib::clone;
 use gtk::*;
 use gettextrs::*;
 use crate::config::{APP_ID, PROFILE};
+use std::{env,fs,path};
 
 mod imp {
     use super::*;
@@ -139,14 +140,23 @@ impl PreferencesWindow {
             let file = dialog.open_future(Some(&window)).await;
 
             match file {
-                Ok(x) => {println!("{:#?}",&x.path().unwrap());
+                Ok(x) => {  println!("{:#?}",&x.path().unwrap());
                             let path: &str = &x.path().unwrap().into_os_string().into_string().unwrap();
+                            window.copy_folder_image(path::PathBuf::from(path));
                             window.imp().settings.set("folder-svg-path", path).unwrap();
                             window.set_path_title();},
-                Err(y) => {println!("{:#?}",y);
-                            },
+                Err(y) => {println!("{:#?}",y);},
             }
         }));
+    }
+
+    fn copy_folder_image(&self, original_path: path::PathBuf) {
+        let cache_dir = env::var("XDG_CACHE_HOME").expect("$HOME is not set");
+        let file_name = format!("folder.{}",original_path.extension().unwrap().to_str().unwrap());
+        self.imp().settings.set("folder-cache-name",file_name.clone()).unwrap();
+        let mut cache_path = path::PathBuf::from(cache_dir);
+        cache_path.push(file_name);
+        fs::copy(original_path,cache_path).unwrap();
     }
 }
 
