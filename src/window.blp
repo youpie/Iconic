@@ -3,9 +3,9 @@ using Adw 1;
 
 template $GtkTestWindow : Adw.ApplicationWindow {
   default-width: 400;
-  default-height: 600;
+  default-height: 650;
   width-request: 400;
-  height-request: 600;
+  height-request: 650;
   content:
   Stack stack{
     transition-type: crossfade;
@@ -70,6 +70,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               margin-start: 5;
               sensitive: false;
               action-name: "app.save_button";
+              styles ["suggested-action"]
             }
             title-widget: Adw.WindowTitle {
               title: _("Folder Icon Maker");
@@ -85,8 +86,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
           }
           content:
           Adw.Clamp clamp {
-            width-request: 150;
-
+            width-request: 300;
 
             Adw.PreferencesPage {
               Adw.PreferencesGroup{
@@ -159,8 +159,8 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                     hexpand: true;
                     vexpand: true;
                     digits: 1;
-                    // draw-value: true;
-                    // value-pos: top;
+                    //draw-value: true;
+                    //value-pos: top;
                   }
                 }
               }
@@ -171,6 +171,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                   Switch monochrome_switch{
                     valign: center;
                     action-name: "app.monochrome_switch";
+                    active: true;
+                  }
+                  Adw.SwitchRow monochrome_invert {
+                    title: _('Invert');
                   }
                   Adw.ActionRow {
                     title: _('Color');
@@ -179,6 +183,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                       valign: center;
                       Button reset_color {
                         halign: start;
+                        visible: false;
                         Adw.ButtonContent top_icon_content{
                           icon-name: "edit-undo-symbolic";
                         }
@@ -213,7 +218,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                     digits: 0;
                     draw-value: true;
                     value-pos: left;
-                  }
+                    }
                   }
                 }
               }
