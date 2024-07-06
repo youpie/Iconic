@@ -219,8 +219,6 @@ impl GtkTestWindow {
         imp.y_scale.set_value(9.447);
         imp.size.set_value(24.0);
         imp.stack.set_visible_child_name("stack_welcome_page");
-        //imp.monochrome_switch.set_active(true);
-        //imp.monochrome_action_row.set_property("enable_expansion",true);
         imp.reset_color.set_visible(false);
         glib::spawn_future_local(glib::clone!(@weak win as window => async move {
             let cache_file_name: &str = &window.imp().settings.string("folder-cache-name");
