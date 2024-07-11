@@ -37,7 +37,8 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
         - [ ] Add symbolic icon picker (like [Icon Library](https://gitlab.gnome.org/World/design/icon-library))
     - [X] Automatically place icon in right position
     - [ ] Add guide grid or something
-- [ ] Clean up code*
+    - [ ] Ability to directly set image of folder (if even possible)
+- [ ] Clean up code
 - [ ] Add comments
 - [ ] Correct flatpak manifest*
 - [ ] Think of better name

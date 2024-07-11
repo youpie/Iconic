@@ -1,0 +1,234 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Folder icon maker package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Youpie <youplamb@hotmail.nl>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Folder icon maker\n"
+"Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
+"POT-Creation-Date: 2024-07-11 13:55+0200\n"
+"PO-Revision-Date: 2024-07-11 14:07+0200\n"
+"Last-Translator: Youpie <youplamb@hotmail.nl>\n"
+"Language-Team: Dutch\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 46.1\n"
+
+#: data/nl.emphisia.icon.desktop.in.in:3
+msgid "Folder icon creator"
+msgstr "Folder icoon maker"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:5 src/window.blp:19
+#: src/window.blp:76
+msgid "Folder Icon Maker"
+msgstr "Folder icoon maker"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:6
+msgid "Easilly add icons on top of folders"
+msgstr "Voeg gemakkelijk iconen toe aan folders"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:8
+msgid "Youpie"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:14
+msgid ""
+"This program allows an easy and intuitive way to add an icon on top of a "
+"folder to help you differentiate it better."
+msgstr ""
+"Dit programma biedt een makkelijke en intuitive manier om iconen toe te "
+"voegen aan folders om deze makkelijker te onderscheiden"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:15
+msgid ""
+"This program is written in Rust and Libadwaita and is my first attempt at "
+"creating an application"
+msgstr ""
+"Dit programma is geschreven in Rust en Libadwaita en is mijn eerste poging "
+"met het maken van een programma"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:19
+msgid "Begin screen of application"
+msgstr "Start scherm van het programma"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:23
+msgid "Main menu in light mode"
+msgstr "Hoofdmenu in light mode"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:27
+msgid "Main menu in dark mode"
+msgstr "Hoofdmenu in dark mode"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+msgid "icon"
+msgstr "icoon"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:52
+msgid "create"
+msgstr "Creëer"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:53
+msgid "folder icon"
+msgstr "Folder icoon"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:54
+msgid "svg"
+msgstr "svg"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:55
+msgid "png"
+msgstr "png"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:56
+msgid "gnome"
+msgstr "gnome"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:57
+msgid "icon create"
+msgstr "Icoon maak"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+msgid "icon creator"
+msgstr "Icoon maker"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:59
+msgid "folder icon creator"
+msgstr "Folder icoon maker"
+
+#: src/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "Algemeen"
+
+#: src/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Sneltoetsen"
+
+#: src/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Sluiten"
+
+#: src/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Save"
+msgstr "Opslaan"
+
+#: src/gtk/help-overlay.blp:29
+msgctxt "shortcut window"
+msgid "Open"
+msgstr "Openen"
+
+#: src/settings/settings.blp:7
+msgid "General"
+msgstr "Algemeen"
+
+#: src/settings/settings.blp:10
+msgid "Customise"
+msgstr "Bewerken"
+
+#: src/settings/settings.blp:29
+msgid "Currently set folder icon"
+msgstr "Op dit moment ingestelde folder afbeelding"
+
+#: src/settings/settings.blp:34
+msgid "Advanced"
+msgstr "Geadvanceerd"
+
+#: src/settings/settings.blp:37
+msgid "You can see these options because you have enabled the Devel profile"
+msgstr "Je kan deze opties zien omdat je het Devel profiel hebt geselecteerd"
+
+#: src/settings/settings.blp:45
+msgid "Select size of SVG images"
+msgstr "Selecteer grootte van SVG afbeeldingen"
+
+#: src/settings/settings.blp:46
+msgid ""
+"SVG images will by default be converted to a 1024x1024 image. You can adjust "
+"that here"
+msgstr ""
+"SVG afbeeldingen worden standaard omgezet in een 1024x1024 afbeelding. Dat "
+"kan je hier aanpassen"
+
+#: src/settings/settings.blp:56
+msgid "Select size of Thumbnail images"
+msgstr "Selecteer grootte van de Thumbnail afbeeldingen"
+
+#: src/settings/settings.blp:57
+msgid ""
+"Thumbnail images will by default be converted to a 255x255 image. You can "
+"adjust that here"
+msgstr ""
+"Thumbnail afbeeldingen worden standaard omgezet naar een 255x255 afbeelding. "
+"Dat kan je hier aanpassen"
+
+#: src/window.blp:25 src/window.blp:82
+msgid "Menu"
+msgstr "Menu"
+
+#: src/window.blp:31
+msgid "Folder Icon Generator"
+msgstr "Folder Icoon maker"
+
+#: src/window.blp:32
+msgid "Click to Open Image"
+msgstr "Klik om een afbeelding te openen"
+
+#: src/window.blp:43
+msgid "_Open Image"
+msgstr "_Open afbeelding"
+
+#: src/window.blp:279
+msgid "_Open Top Icon"
+msgstr "_Open Bovenste Icoon"
+
+#: src/window.blp:284
+msgid "_Open Folder Icon"
+msgstr "_Open Folder Afbeelding"
+
+#: src/window.blp:290
+msgid "_Preferences"
+msgstr "_Instellingen"
+
+#: src/window.blp:295
+msgid "_Keyboard Shortcuts"
+msgstr "_Sneltoetsen"
+
+#: src/window.blp:300
+msgid "_About folder icon maker"
+msgstr "_Over Folder Icoon Maker"
+
+#: src/settings/settings.rs:136 src/window.rs:501
+msgid "Open Document"
+msgstr "Open Document"
+
+#: src/window.rs:354
+msgid "Save Changes?"
+msgstr "Wijzigingen Opslaan?"
+
+#: src/window.rs:355
+msgid ""
+"Open image contain unsaved changes. Changes which are not saved will be "
+"permanently lost"
+msgstr ""
+"Geopende afbeelding bevat niet-opgeslagen veranderingen. Veranderingen die "
+"niet zijn opgeslagen gaan permanent verloren"
+
+#: src/window.rs:359
+msgid "Cancel"
+msgstr "Annuleer"
+
+#: src/window.rs:360
+msgid "Discard"
+msgstr "Wijzigingen Verwerpen"
+
+#: src/window.rs:362
+msgid "Save"
+msgstr "Opslaan"

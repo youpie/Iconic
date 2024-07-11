@@ -33,6 +33,7 @@ use std::sync::{Arc, Mutex};
 use std::path::PathBuf;
 use std::env;
 use std::fs;
+use crate::gio::ActionGroup;
 
 use crate::config::{APP_ID, PROFILE};
 
@@ -232,7 +233,6 @@ impl GtkTestWindow {
     fn setup_settings (&self){
         let update_folder = glib::clone!(@weak self as window => move |_: &gio::Settings, setting:&str| {
              let path: &str = &window.imp().settings.string(setting);
-
              window.load_folder_icon(path);
         });
 
@@ -323,7 +323,7 @@ impl GtkTestWindow {
             println!("File not found AT ALL");
             let new_path = match self.open_file_chooser_gtk().await{
                 Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
-                None => {adw::prelude::ActionGroupExt::activate_action(self, "app.quit", None);
+                None => {
                         String::from("")}
             };
             imp.settings.set_string("folder-svg-path", &new_path).unwrap();

@@ -11,20 +11,51 @@
   <project_license>GPL-3.0-or-later</project_license>
   <update_contact>youpie@emphisia.nl</update_contact>
   <description>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-      sed do eiusmod tempor incididunt ut labore et dolore magnam aliquam
-      quaerat voluptatem. Ut enim aeque doleamus animo, cum corpore dolemus,
-      fieri tamen permagna accessio potest, si aliquod aeternum et infinitum
-      impendere malum nobis opinemur. Quod idem licet transferre in.</p>
+    <p>This program allows an easy and intuitive way to add an icon on top of a folder to help you differentiate it better.</p>
+    <p>This program is written in Rust and Libadwaita and is my first attempt at creating an application</p>
   </description>
   <screenshots>
     <screenshot type="default">
-      <image type="source">https://github.com/youpie/Folder_icon_creator/assets/37704067/dfab10de-9297-486c-aff6-ed4a98b97dc6</image>
+      <caption>Begin screen of application</caption>
+      <image type="source">https://github.com/youpie/Folder_icon_creator/blob/main/data/screenshots/Schermafdruk%20van%202024-07-06%2015-17-02.png?raw=true</image>
+    </screenshot>
+    <screenshot>
+      <caption>Main menu in light mode</caption>
+      <image type="source">https://github.com/youpie/Folder_icon_creator/blob/main/data/screenshots/Schermafdruk%20van%202024-07-06%2015-14-31.png?raw=true</image>
+    </screenshot>
+    <screenshot>
+      <caption>Main menu in dark mode</caption>
+      <image type="source">https://raw.githubusercontent.com/youpie/Folder_icon_creator/main/data/screenshots/Schermafdruk%20van%202024-07-06%2015-14-35.png</image>
     </screenshot>
   </screenshots>
+  <releases>
+    <release version="0.1" date="2024-07-06" type="development"/>
+  </releases>
   <url type="bugtracker">https://github.com/youpie/Folder_icon_creator/issues</url>
   <url type="donation">https://ko-fi.com/youpie</url>
-  <url type="contact">youpie@emphisia.nl</url>
   <url type="vcs-browser">https://github.com/youpie/Folder_icon_creator</url>
+  <requires>
+    <internet>offline-only</internet>
+  </requires>
+  <recommends>
+    <internet>offline-only</internet>
+  </recommends>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+    <internet>offline-only</internet>
+  </supports>
   <content_rating type="oars-1.1"/>
+  <keywords>
+    <keyword>icon</keyword>
+    <keyword>create</keyword>
+    <keyword>folder icon</keyword>
+    <keyword>svg</keyword>
+    <keyword>png</keyword>
+    <keyword>gnome</keyword>
+    <keyword>icon create</keyword>
+    <keyword>icon creator</keyword>
+    <keyword>folder icon creator</keyword>
+  </keywords>
 </component>
