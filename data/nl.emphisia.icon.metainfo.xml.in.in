@@ -29,6 +29,11 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="1" date="2024-07-17" type="stable">
+      <description>
+        <p>Initial release</p>
+      </description>
+    </release>
     <release version="0.1" date="2024-07-06" type="development"/>
   </releases>
   <url type="bugtracker">https://github.com/youpie/Folder_icon_creator/issues</url>
