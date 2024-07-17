@@ -44,17 +44,6 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
 - [ ] Think of better name
 - [ ] Add dontation link :)
 
-## First Release Checklist
-- [X] Change version in program
-- [X] Make sure manifest passes tests
-- [ ] Make sure translation works
-    - [ ] Make sure translation is consistent
-- [ ] Create first release
-    - [ ] add to github
-- [ ] MR at flathub
-- [X] Make sure metainfo passes tests
-- [X] Make sure devel profile has own project-ID
-
 ## Contributing 🤝
 This program is mostly meant as practise for me so I want to solve most problems by myself. So the best will be to create an issue if you encounter any.
 If you want to create a merge request. That is off course totally fine, but please try not to fundamentally change how it works and clearly explain what you did and how it works 😁
