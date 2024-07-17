@@ -17,15 +17,15 @@
   <screenshots>
     <screenshot type="default">
       <caption>Begin screen of application</caption>
-      <image type="source">https://github.com/youpie/Folder_icon_creator/blob/main/data/screenshots/Schermafdruk%20van%202024-07-06%2015-17-02.png?raw=true</image>
+      <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Title%20screen.png?raw=true</image>
     </screenshot>
     <screenshot>
       <caption>Main menu in light mode</caption>
-      <image type="source">https://github.com/youpie/Folder_icon_creator/blob/main/data/screenshots/Schermafdruk%20van%202024-07-06%2015-14-31.png?raw=true</image>
+      <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true</image>
     </screenshot>
     <screenshot>
       <caption>Main menu in dark mode</caption>
-      <image type="source">https://raw.githubusercontent.com/youpie/Folder_icon_creator/main/data/screenshots/Schermafdruk%20van%202024-07-06%2015-14-35.png</image>
+      <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20dark.png?raw=true</image>
     </screenshot>
   </screenshots>
   <releases>
