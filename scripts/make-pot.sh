@@ -31,13 +31,13 @@ XGETTEXT="${XGETTEXT:-xgettext}"
 top_srcdir="${top_srcdir:-.}"
 
 srcdir="${srcdir:-$top_srcdir/po}"
-GETTEXT_PACKAGE="Folder_icon_maker"
+GETTEXT_PACKAGE="folder_icon"
 XGETTEXT_KEYWORDS="${XGETTEXT_KEYWORDS:- --keyword=_ --keyword=N_ --keyword=C_:1c,2 --keyword=NC_:1c,2 --keyword=g_dngettext:2,3 }"
 
 $XGETTEXT --default-domain="$GETTEXT_PACKAGE" \
           --directory="$top_srcdir" \
           --msgid-bugs-address="https://github.com/youpie/Folder_icon_creator" \
-          --package-name="Folder icon maker" \
+          --package-name="Iconic" \
           --add-comments \
           $XGETTEXT_KEYWORDS \
           --from-code=utf-8 \

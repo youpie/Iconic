@@ -132,7 +132,7 @@ impl GtkTestApplication {
         let window = self.active_window().unwrap();
 
         let about = adw::AboutDialog::builder()
-            .application_name("Folder icon maker")
+            .application_name("Iconic")
             .application_icon(APP_ICON)
             .developer_name("Youpie")
             .version(VERSION)

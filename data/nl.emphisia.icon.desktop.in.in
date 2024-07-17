@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Folder icon creator
+Name=Iconic
 Exec=folder_icon
 Icon=@icon@
 Terminal=false

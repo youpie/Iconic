@@ -2,7 +2,7 @@
 <component type="desktop-application">
   <!--Created with jdAppStreamEdit 9.1-->
   <id>@app-id@</id>
-  <name>Folder Icon Maker</name>
+  <name>Iconic</name>
   <summary>Easilly add icons on top of folders</summary>
   <developer id="@youpie@social.emphisia.nl">
     <name>Youpie</name>
@@ -41,6 +41,7 @@
     <internet>offline-only</internet>
   </supports>
   <content_rating type="oars-1.1"/>
+  <launchable type="desktop-id">@app-id@.desktop</launchable>
   <keywords>
     <keyword>icon</keyword>
     <keyword>create</keyword>
@@ -51,7 +52,11 @@
     <keyword>icon create</keyword>
     <keyword>icon creator</keyword>
     <keyword>folder icon creator</keyword>
+    <keyword>Iconic</keyword>
   </keywords>
   <translation type="gettext">@gettext-package@</translation>
-  <launchable type="desktop-id">@app-id@.desktop</launchable>
+  <branding>
+    <color type="primary" scheme_preference="light">#99c1f1</color>
+    <color type="primary" scheme_preference="dark">#b5835a</color>
+  </branding>
 </component>

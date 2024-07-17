@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the Folder icon maker package.
+# This file is distributed under the same license as the Iconic package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Folder icon maker\n"
+"Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-07-11 13:55+0200\n"
+"POT-Creation-Date: 2024-07-17 16:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,12 +18,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: data/nl.emphisia.icon.desktop.in.in:3
-msgid "Folder icon creator"
-msgstr ""
-
-#: data/nl.emphisia.icon.metainfo.xml.in.in:5 src/window.blp:19
-#: src/window.blp:76
-msgid "Folder Icon Maker"
+#: data/nl.emphisia.icon.metainfo.xml.in.in:5
+#: data/nl.emphisia.icon.metainfo.xml.in.in:55
+msgid "Iconic"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:6
@@ -58,39 +55,39 @@ msgstr ""
 msgid "Main menu in dark mode"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
 msgid "icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:52
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
 msgid "create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:53
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
 msgid "folder icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:54
+#: data/nl.emphisia.icon.metainfo.xml.in.in:49
 msgid "svg"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:55
+#: data/nl.emphisia.icon.metainfo.xml.in.in:50
 msgid "png"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:56
+#: data/nl.emphisia.icon.metainfo.xml.in.in:51
 msgid "gnome"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:57
+#: data/nl.emphisia.icon.metainfo.xml.in.in:52
 msgid "icon create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+#: data/nl.emphisia.icon.metainfo.xml.in.in:53
 msgid "icon creator"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:59
+#: data/nl.emphisia.icon.metainfo.xml.in.in:54
 msgid "folder icon creator"
 msgstr ""
 
@@ -164,7 +161,7 @@ msgid "Menu"
 msgstr ""
 
 #: src/window.blp:31
-msgid "Folder Icon Generator"
+msgid "Folder Icon Creator"
 msgstr ""
 
 #: src/window.blp:32

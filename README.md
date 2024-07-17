@@ -1,8 +1,8 @@
 ![logo](https://raw.githubusercontent.com/youpie/Folder_icon_creator/main/data/icons/nl.emphisia.icon.svg)
 
-# Folder icon maker 📁
+# Iconic 📁
 
-Folder icon maker lets you easily add images on top of a folder icon. It is mostly meant for Gnome. 
+Iconic lets you easily add images on top of a folder icon. It is mostly meant for Gnome. 
 This application is my first attempt at creating an application using Rust and Libadwaita.
 ![afbeelding](https://github.com/youpie/Folder_icon_creator/assets/37704067/dfab10de-9297-486c-aff6-ed4a98b97dc6)
 
@@ -52,7 +52,7 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
 - [ ] Create first release
     - [ ] add to github
 - [ ] MR at flathub
-- [ ] Make sure metainfo passes tests
+- [X] Make sure metainfo passes tests
 - [X] Make sure devel profile has own project-ID
 
 ## Contributing 🤝
