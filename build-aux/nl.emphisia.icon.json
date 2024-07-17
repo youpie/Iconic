@@ -39,12 +39,12 @@
     "modules" : [
         {
             "name" : "folder_icon",
-            "builddir" : true,
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "dir",
-                    "path" : "../"
+                    "type": "archive",
+                    "url" : "https://github.com/youpie/Iconic/releases/latest/download/Iconic-Release.tar.xz",
+                    "sha256" : "https://github.com/youpie/Iconic/releases/latest/download/Iconic-Release.tar.xz.sha256sum"
                 }
             ]
         }
