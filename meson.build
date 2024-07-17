@@ -1,5 +1,5 @@
 project('folder_icon', 'rust',
-          version: '0.1.0',
+          version: '1.0.0',
     meson_version: '>= 0.62.0',
   default_options: [ 'warning_level=2', 'werror=false', ],
 )
@@ -12,11 +12,18 @@ base_id = 'nl.emphisia.icon'
 prefix = get_option('prefix')
 datadir = prefix / get_option('datadir')
 iconsdir = datadir / 'icons'
+gettext_package = meson.project_name()
 podir = meson.project_source_root() / 'po'
 pkgdatadir = datadir / meson.project_name()
 
 if get_option('profile') == 'development'
   profile = 'Devel'
+  vcs_tag = run_command('git', 'rev-parse', '--short', 'HEAD').stdout().strip()
+  if vcs_tag == ''
+    version_suffix = '-devel'
+  else
+    version_suffix = '-@0@'.format(vcs_tag)
+  endif
   application_id = '@0@.@1@'.format(base_id, profile)
 else
   profile = ''

@@ -4,7 +4,7 @@
   <id>@app-id@</id>
   <name>Folder Icon Maker</name>
   <summary>Easilly add icons on top of folders</summary>
-  <developer>
+  <developer id="@youpie@social.emphisia.nl">
     <name>Youpie</name>
   </developer>
   <metadata_license>CC-BY-4.0</metadata_license>
@@ -34,12 +34,6 @@
   <url type="bugtracker">https://github.com/youpie/Folder_icon_creator/issues</url>
   <url type="donation">https://ko-fi.com/youpie</url>
   <url type="vcs-browser">https://github.com/youpie/Folder_icon_creator</url>
-  <requires>
-    <internet>offline-only</internet>
-  </requires>
-  <recommends>
-    <internet>offline-only</internet>
-  </recommends>
   <supports>
     <control>pointing</control>
     <control>keyboard</control>
@@ -58,4 +52,6 @@
     <keyword>icon creator</keyword>
     <keyword>folder icon creator</keyword>
   </keywords>
+  <translation type="gettext">@gettext-package@</translation>
+  <launchable type="desktop-id">@app-id@.desktop</launchable>
 </component>
