@@ -4,7 +4,7 @@
 
 Iconic lets you easily add images on top of a folder icon. It is mostly meant for Gnome. 
 This application is my first attempt at creating an application using Rust and Libadwaita.
-![afbeelding](https://github.com/youpie/Folder_icon_creator/assets/37704067/dfab10de-9297-486c-aff6-ed4a98b97dc6)
+![afbeelding](https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20dark.png?raw=true)
 
 
 
