@@ -33,11 +33,12 @@
         {
             "name": "blueprint-compiler",
             "buildsystem": "meson",
+            "cleanup": ["*"],
             "sources": [
                 {
-                    "type": "git",
-                    "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
-                    "tag": "v0.8.1"
+                "type": "git",
+                "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
+                "tag": "v0.12.0"
                 }
             ]
         },
@@ -47,8 +48,8 @@
             "sources" : [
                 {
                     "type": "archive",
-                    "url" : "https://github.com/youpie/Iconic/releases/download/Major/Iconic-Release.tar.xz",
-                    "sha256" : "b1231ac10e851582feecc070fb198ca92295be6918949877e9a22ee6d72628d2"
+                    "url" : "https://github.com/youpie/Iconic/releases/download/v1.0.0/Iconic-Release.tar.xz",
+                    "sha256" : "9a2909bd231da0c9c64b8bddf3e0177223e74a72919db05dedb8c0ac96074357"
                 }
             ]
         }
