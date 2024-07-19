@@ -8,6 +8,7 @@ use crate::config::{APP_ID, PROFILE};
 use std::{env,fs,path};
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AdwDialogExt;
+use crate::Results;
 
 mod imp {
     use super::*;
@@ -132,7 +133,7 @@ impl PreferencesWindow {
         let mut default_value = self.imp().settings.default_value("folder-svg-path").unwrap().to_string();
         default_value.pop();
         default_value.remove(0);
-        self.set_path(&default_value);
+        self.can_error(self.set_path(&default_value));
     }
 
     fn set_path_title (&self){
@@ -156,37 +157,40 @@ impl PreferencesWindow {
             match file {
                 Ok(x) => {  println!("{:#?}",&x.path().unwrap());
                             let path: &str = &x.path().unwrap().into_os_string().into_string().unwrap();
-                            window.set_path(path)},
+                            window.can_error(window.set_path(path));},
                 Err(y) => {println!("{:#?}",y);},
             }
         }));
     }
 
-    fn set_path(&self,path: &str){
-        self.copy_folder_image_to_cache(path::PathBuf::from(path));
-        self.imp().settings.set("folder-svg-path", path).unwrap();
+    fn set_path(&self,path: &str) -> Results<()>{
+        self.copy_folder_image_to_cache(path::PathBuf::from(path))?;
+        self.imp().settings.set("folder-svg-path", path)?;
         self.set_path_title();
+        Ok(())
     }
 
-    fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) {
-        let cache_dir = env::var("XDG_CACHE_HOME").expect("$HOME is not set");
+    fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) -> Results<()>{
+        let cache_dir = env::var("XDG_CACHE_HOME")?;
         let file_name = format!("folder.{}",original_path.extension().unwrap().to_str().unwrap());
-        self.imp().settings.set("folder-cache-name",file_name.clone()).unwrap();
+        self.imp().settings.set("folder-cache-name",file_name.clone())?;
         let mut cache_path = path::PathBuf::from(cache_dir);
         cache_path.push(file_name);
-        fs::copy(original_path,cache_path).expect("Could not move file to cache");
+        fs::copy(original_path,cache_path)?;
+        Ok(())
     }
 
-    // fn show_error_popup(&self,message:&str){
-    //     const RESPONSE_OK: &str = "ok";
-    //     let dialog = adw::AlertDialog::builder()
-    //             .heading(gettext("Error"))
-    //             .body(message)
-    //             .default_response(RESPONSE_OK)
-    //             .build();
-    //     dialog.add_response(RESPONSE_OK, "ok");
-    //     dialog.present(self);
+    fn can_error <T>(&self,result:Results<T>){
+        let _ = result.map_err(|e|
+        {const RESPONSE_OK: &str = "ok";
+        let dialog = adw::AlertDialog::builder()
+                .heading(gettext("Error"))
+                .body(&e.to_string())
+                .default_response(RESPONSE_OK)
+                .build();
+        dialog.add_response(RESPONSE_OK, "ok");
+        dialog.present(self)});
 
-    // }
+    }
 }
 

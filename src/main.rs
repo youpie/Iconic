@@ -17,12 +17,15 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-
+type Results<T> = std::result::Result<T, Box<dyn error::Error>>;
 mod application;
 mod config;
 mod window;
 mod objects;
 mod settings;
+
+use std::error;
+use std::boxed::Box;
 
 use self::application::GtkTestApplication;
 use self::window::GtkTestWindow;
@@ -31,6 +34,8 @@ use config::{GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR, APP_ID};
 use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
 use gtk::{gio, glib};
 use gtk::prelude::*;
+
+
 
 fn main() -> glib::ExitCode {
     // Set up gettext translations
