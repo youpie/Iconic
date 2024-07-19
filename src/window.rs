@@ -33,7 +33,6 @@ use std::sync::{Arc, Mutex};
 use std::path::PathBuf;
 use std::env;
 use std::fs;
-use crate::gio::ActionGroup;
 
 use crate::config::{APP_ID, PROFILE};
 

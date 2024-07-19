@@ -53,7 +53,12 @@ mod imp {
             klass.bind_template_instance_callbacks();
             klass.install_action("app.select_folder", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(@weak win => async move {
-                    win.select_path();
+                    win.select_path_filechooser();
+                }));
+            });
+            klass.install_action("app.reset_location", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(@weak win => async move {
+                    win.reset_location_fn();
                 }));
             });
         }
@@ -121,12 +126,19 @@ impl PreferencesWindow {
         }));
     }
 
+    fn reset_location_fn(&self){
+        let mut default_value = self.imp().settings.default_value("folder-svg-path").unwrap().to_string();
+        default_value.pop();
+        default_value.remove(0);
+        self.set_path(&default_value);
+    }
+
     fn set_path_title (&self){
         let current_path = &self.imp().settings.string("folder-svg-path");
         self.imp().custom1.set_property("title",current_path);
     }
 
-    fn select_path (&self) {
+    fn select_path_filechooser (&self) {
         glib::spawn_future_local(glib::clone!(@weak self as window => async move {
             let filters = gio::ListStore::new::<gtk::FileFilter>();
             let filter = gtk::FileFilter::new();
@@ -142,21 +154,25 @@ impl PreferencesWindow {
             match file {
                 Ok(x) => {  println!("{:#?}",&x.path().unwrap());
                             let path: &str = &x.path().unwrap().into_os_string().into_string().unwrap();
-                            window.copy_folder_image(path::PathBuf::from(path));
-                            window.imp().settings.set("folder-svg-path", path).unwrap();
-                            window.set_path_title();},
+                            window.set_path(path)},
                 Err(y) => {println!("{:#?}",y);},
             }
         }));
     }
 
-    fn copy_folder_image(&self, original_path: path::PathBuf) {
+    fn set_path(&self,path: &str){
+        self.copy_folder_image_to_cache(path::PathBuf::from(path));
+        self.imp().settings.set("folder-svg-path", path).unwrap();
+        self.set_path_title();
+    }
+
+    fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) {
         let cache_dir = env::var("XDG_CACHE_HOME").expect("$HOME is not set");
         let file_name = format!("folder.{}",original_path.extension().unwrap().to_str().unwrap());
         self.imp().settings.set("folder-cache-name",file_name.clone()).unwrap();
         let mut cache_path = path::PathBuf::from(cache_dir);
         cache_path.push(file_name);
-        fs::copy(original_path,cache_path).unwrap();
+        fs::copy(original_path,cache_path).expect("Could not move file to cache");
     }
 }
 

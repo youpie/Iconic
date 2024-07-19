@@ -1,7 +1,7 @@
 {
     "app-id" : "nl.emphisia.icon.Devel",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "master",
+    "runtime-version" : "46",
     "sdk" : "org.gnome.Sdk",
     "runtime-version" : "46",
     "sdk-extensions" : [
@@ -9,7 +9,6 @@
     ],
     "command" : "folder_icon",
     "finish-args" : [
-        "--share=network",
         "--share=ipc",
         "--socket=fallback-x11",
         "--device=dri",
@@ -37,6 +36,18 @@
         "*.a"
     ],
     "modules" : [
+    	{
+            "name": "blueprint-compiler",
+            "buildsystem": "meson",
+            "cleanup": ["*"],
+            "sources": [
+                {
+                "type": "git",
+                "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
+                "tag": "v0.12.0"
+                }
+            ]
+        },
         {
             "name" : "folder_icon",
             "builddir" : true,
@@ -47,7 +58,7 @@
             "sources" : [
                 {
                     "type" : "dir",
-                    "url" : "../"
+                    "path" : "../"
                 }
             ]
         }

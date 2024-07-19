@@ -2,6 +2,7 @@ using Gtk 4.0;
 using Adw 1;
 
 template $PreferencesWindow : Adw.PreferencesWindow {
+  width-request: 526;
   Adw.PreferencesPage {
     icon-name: "applications-system-symbolic";
     title: _("General");
@@ -11,7 +12,6 @@ template $PreferencesWindow : Adw.PreferencesWindow {
 
       Adw.ActionRow custom {
         title: "Select folder icon";
-
         activatable-widget: select_folder;
         Button select_folder {
           margin-top: 10;
@@ -26,8 +26,9 @@ template $PreferencesWindow : Adw.PreferencesWindow {
         }
       }
       Adw.ActionRow custom1 {
-        subtitle: _("Currently set folder icon");
-        activatable: false;
+        subtitle: _("Currently set folder icon, click to reset to default");
+        activatable: true;
+        action-name: "app.reset_location";
       }
     }
     Adw.PreferencesGroup advanced_settings{
