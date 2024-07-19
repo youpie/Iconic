@@ -27,8 +27,7 @@ use image::*;
 use crate::objects::file::File;
 use std::cell::RefCell;
 use gtk::gdk_pixbuf::Pixbuf;
-use adw::prelude::AlertDialogExt;
-use adw::prelude::AlertDialogExtManual;
+use adw::prelude::{AlertDialogExt,AlertDialogExtManual};
 use std::sync::{Arc, Mutex};
 use std::path::PathBuf;
 use std::env;
@@ -320,19 +319,36 @@ impl GtkTestWindow {
         }
         else {
             println!("File not found AT ALL");
-            let new_path = match self.open_file_chooser_gtk().await{
-                Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
-                None => {
-                        String::from("")}
+            let dialog = self.show_popup(&gettext("The set folder icon could not be found, press ok to select a new one"));
+            match &*dialog.clone().choose_future(self).await {
+                "OK" => {
+                    let new_path = match self.open_file_chooser_gtk().await{
+                        Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
+                        None => {
+                                String::from("")}
+                    };
+                    imp.settings.set_string("folder-svg-path", &new_path).unwrap();
+                    let cached_file_name = self.copy_folder_image(PathBuf::from(new_path)).1;
+                    imp.settings.set_string("folder-cache-name", &cached_file_name).unwrap();
+                    let cache_file_name = &imp.settings.string("folder-cache-name");
+                    let cache_path = env::var("XDG_CACHE_HOME").unwrap();
+                    let folder_icon_cache_path = PathBuf::from(format!("{}/{}",cache_path,cache_file_name));
+                    return PathBuf::from(folder_icon_cache_path);
+                }
+            _ => unreachable!()
             };
-            imp.settings.set_string("folder-svg-path", &new_path).unwrap();
-            let cached_file_name = self.copy_folder_image(PathBuf::from(new_path)).1;
-            imp.settings.set_string("folder-cache-name", &cached_file_name).unwrap();
-            let cache_file_name = &imp.settings.string("folder-cache-name");
-            let cache_path = env::var("XDG_CACHE_HOME").unwrap();
-            let folder_icon_cache_path = PathBuf::from(format!("{}/{}",cache_path,cache_file_name));
-            return PathBuf::from(folder_icon_cache_path);
         }
+    }
+
+    fn show_popup (&self, message: &str) -> adw::AlertDialog{
+        const RESPONSE_OK: &str = "OK";
+        let dialog = adw::AlertDialog::builder()
+                .heading(gettext("Error"))
+                .body(message)
+                .default_response(RESPONSE_OK)
+                .build();
+        dialog.add_response(RESPONSE_OK, &gettext("OK"));
+        dialog
     }
 
     fn copy_folder_image(&self, original_path: PathBuf) -> (PathBuf, String) {
