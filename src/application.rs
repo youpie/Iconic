@@ -104,13 +104,17 @@ impl GtkTestApplication {
         let open_action = gio::ActionEntry::builder("open")
             .activate(move |app: &Self, _, _| app.open_function())
             .build();
-        self.add_action_entries([quit_action, about_action, settings_action,open_action]);
+        let open_folder_action = gio::ActionEntry::builder("open")
+            .activate(move |app: &Self, _, _| app.open_folder_function())
+            .build();
+        self.add_action_entries([quit_action, about_action, settings_action,open_action,open_folder_action]);
     }
 
     fn setup_accels(&self) {
         self.set_accels_for_action("app.save_button", &["<primary>s"]);
         self.set_accels_for_action("app.open_top_icon", &["<primary>o"]);
         self.set_accels_for_action("app.quit", &["<primary>q"]);
+        self.set_accels_for_action("app.select_folder", &["<primary><shift>o"]);
     }
 
     fn show_preferences_dialog(&self) {
@@ -123,7 +127,10 @@ impl GtkTestApplication {
 
     fn open_function(&self) {
         self.activate_action("app.open_top_icon", None);
-        println!("hey");
+    }
+
+    fn open_folder_function(&self) {
+        self.activate_action("app.select_folder", None);
     }
 
 

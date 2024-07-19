@@ -143,6 +143,11 @@ mod imp {
                     win.load_top_icon().await;
                 }));
             });
+            klass.install_action("app.select_folder", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(@weak win => async move {
+                    win.load_temp_folder_icon().await;
+                }));
+            });
             klass.install_action("app.save_button", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(@weak win => async move {
                     win.save_file().await;
@@ -217,13 +222,11 @@ impl GtkTestWindow {
         imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         imp.y_scale.set_value(9.447);
         imp.size.set_value(24.0);
+        imp.size.add_mark(24.0, gtk::PositionType::Top, None);
+        imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
         imp.stack.set_visible_child_name("stack_welcome_page");
         imp.reset_color.set_visible(false);
-        glib::spawn_future_local(glib::clone!(@weak win as window => async move {
-            let cache_file_name: &str = &window.imp().settings.string("folder-cache-name");
-            let path = window.check_chache_icon(cache_file_name).await;
-            window.load_folder_icon(&path.into_os_string().into_string().unwrap());
-        }));
+        win.load_folder_path();
         win.setup_settings();
         win
     }
@@ -302,6 +305,14 @@ impl GtkTestWindow {
         imp.monochrome_color.set_rgba(&imp.default_color.clone());
         self.check_icon_update();
         imp.reset_color.set_visible(false);
+    }
+
+    fn load_folder_path(&self){
+        glib::spawn_future_local(glib::clone!(@weak self as window => async move {
+            let cache_file_name: &str = &window.imp().settings.string("folder-cache-name");
+            let path = window.check_chache_icon(cache_file_name).await;
+            window.load_folder_icon(&path.into_os_string().into_string().unwrap());
+        }));
     }
 
     async fn check_chache_icon(&self, file_name: &str) -> PathBuf{
@@ -446,6 +457,7 @@ impl GtkTestWindow {
     async fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage, filter: imageops::FilterType) -> DynamicImage{
         let imp = self.imp();
         imp.stack.set_visible_child_name("stack_main_page");
+        imp.image_saved.replace(false);
         let (tx_texture, rx_texture) = async_channel::bounded(1);
         let tx_texture1 = tx_texture.clone();
         let coordinates = ((imp.x_scale.value()+50.0) as i64,(imp.y_scale.value()+50.0) as i64);
@@ -481,10 +493,26 @@ impl GtkTestWindow {
     async fn load_top_icon (&self){
         let imp = self.imp();
 		match self.open_file_chooser_gtk().await {
-            Some(x) => {self.get_file_name(x,&imp.top_image_file).await;}
+            Some(x) => {self.load_top_file(x,&imp.top_image_file).await;}
             None => {imp.toast_overlay.add_toast(adw::Toast::new("Nothing selected"));}
         };
         self.check_icon_update();
+    }
+
+    async fn load_temp_folder_icon (&self){
+        let imp = self.imp();
+        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
+        let size: i32 = imp.settings.get("svg-render-size");
+		match self.open_file_chooser_gtk().await {
+            Some(x) => {
+                imp.folder_image_file.lock().unwrap().replace(File::new(x, size, thumbnail_size));
+                self.check_icon_update();
+            }
+            None => {
+                imp.toast_overlay.add_toast(adw::Toast::new("Icon reset"));
+                self.load_folder_path();
+            }
+        };
     }
 
     fn load_folder_icon (&self, path: &str){
@@ -493,6 +521,7 @@ impl GtkTestWindow {
         self.imp().folder_image_file.lock().unwrap().replace(File::from_path(path,self.imp().settings.get("svg-render-size"),size));
         self.check_icon_update();
     }
+
 
     fn check_icon_update(&self){
         let imp = self.imp();
@@ -562,7 +591,7 @@ impl GtkTestWindow {
         DynamicImage::ImageRgba8(mono_img)
     }
 
-    async fn get_file_name(&self, filename: gio::File, file: &Arc<Mutex<Option<File>>>) -> String{
+    async fn load_top_file(&self, filename: gio::File, file: &Arc<Mutex<Option<File>>>) -> String{
         let imp = self.imp();
         imp.image_loading_spinner.set_spinning(true);
         if imp.stack.visible_child_name() == Some("stack_welcome_page".into()) {
