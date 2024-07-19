@@ -6,6 +6,8 @@ use gtk::*;
 use gettextrs::*;
 use crate::config::{APP_ID, PROFILE};
 use std::{env,fs,path};
+use adw::prelude::AlertDialogExt;
+use adw::prelude::AdwDialogExt;
 
 mod imp {
     use super::*;
@@ -174,5 +176,17 @@ impl PreferencesWindow {
         cache_path.push(file_name);
         fs::copy(original_path,cache_path).expect("Could not move file to cache");
     }
+
+    // fn show_error_popup(&self,message:&str){
+    //     const RESPONSE_OK: &str = "ok";
+    //     let dialog = adw::AlertDialog::builder()
+    //             .heading(gettext("Error"))
+    //             .body(message)
+    //             .default_response(RESPONSE_OK)
+    //             .build();
+    //     dialog.add_response(RESPONSE_OK, "ok");
+    //     dialog.present(self);
+
+    // }
 }
 
