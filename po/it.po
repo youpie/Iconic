@@ -20,7 +20,7 @@ msgstr ""
 #: data/nl.emphisia.icon.metainfo.xml.in.in:5
 #: data/nl.emphisia.icon.metainfo.xml.in.in:71
 msgid "Iconic"
-msgstr "Iconico"
+msgstr "Iconic"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:6
 msgid "Easilly add icons on top of folders"
