@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-07-17 16:57+0200\n"
+"POT-Creation-Date: 2024-07-20 11:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: data/nl.emphisia.icon.desktop.in.in:3
 #: data/nl.emphisia.icon.metainfo.xml.in.in:5
-#: data/nl.emphisia.icon.metainfo.xml.in.in:55
+#: data/nl.emphisia.icon.metainfo.xml.in.in:71
 msgid "Iconic"
 msgstr ""
 
@@ -55,39 +55,59 @@ msgstr ""
 msgid "Main menu in dark mode"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+#: data/nl.emphisia.icon.metainfo.xml.in.in:34
+msgid "This version adds a few small features and fixes some bugs"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+msgid "The app now shows some errors as pop-ups"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:37
+msgid "You can now temporarilly open a new folder image"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:38
+msgid "It now first shows a pop-up when the folder image is not found"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+msgid "Initial release"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
 msgid "icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+#: data/nl.emphisia.icon.metainfo.xml.in.in:63
 msgid "create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
 msgid "folder icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:49
+#: data/nl.emphisia.icon.metainfo.xml.in.in:65
 msgid "svg"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:50
+#: data/nl.emphisia.icon.metainfo.xml.in.in:66
 msgid "png"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+#: data/nl.emphisia.icon.metainfo.xml.in.in:67
 msgid "gnome"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:52
+#: data/nl.emphisia.icon.metainfo.xml.in.in:68
 msgid "icon create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:53
+#: data/nl.emphisia.icon.metainfo.xml.in.in:69
 msgid "icon creator"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:54
+#: data/nl.emphisia.icon.metainfo.xml.in.in:70
 msgid "folder icon creator"
 msgstr ""
 
@@ -113,44 +133,49 @@ msgstr ""
 
 #: src/gtk/help-overlay.blp:29
 msgctxt "shortcut window"
-msgid "Open"
+msgid "Open top image"
 msgstr ""
 
-#: src/settings/settings.blp:7
+#: src/gtk/help-overlay.blp:34
+msgctxt "shortcut window"
+msgid "Open temporary folder image"
+msgstr ""
+
+#: src/settings/settings.blp:8
 msgid "General"
 msgstr ""
 
-#: src/settings/settings.blp:10
+#: src/settings/settings.blp:11
 msgid "Customise"
 msgstr ""
 
 #: src/settings/settings.blp:29
-msgid "Currently set folder icon"
+msgid "Currently set folder icon, click to reset to default"
 msgstr ""
 
-#: src/settings/settings.blp:34
+#: src/settings/settings.blp:35
 msgid "Advanced"
 msgstr ""
 
-#: src/settings/settings.blp:37
+#: src/settings/settings.blp:38
 msgid "You can see these options because you have enabled the Devel profile"
 msgstr ""
 
-#: src/settings/settings.blp:45
+#: src/settings/settings.blp:46
 msgid "Select size of SVG images"
 msgstr ""
 
-#: src/settings/settings.blp:46
+#: src/settings/settings.blp:47
 msgid ""
 "SVG images will by default be converted to a 1024x1024 image. You can adjust "
 "that here"
 msgstr ""
 
-#: src/settings/settings.blp:56
+#: src/settings/settings.blp:57
 msgid "Select size of Thumbnail images"
 msgstr ""
 
-#: src/settings/settings.blp:57
+#: src/settings/settings.blp:58
 msgid ""
 "Thumbnail images will by default be converted to a 255x255 image. You can "
 "adjust that here"
@@ -172,48 +197,60 @@ msgstr ""
 msgid "_Open Image"
 msgstr ""
 
-#: src/window.blp:279
+#: src/window.blp:277
 msgid "_Open Top Icon"
 msgstr ""
 
-#: src/window.blp:284
+#: src/window.blp:282
 msgid "_Open Folder Icon"
 msgstr ""
 
-#: src/window.blp:290
+#: src/window.blp:288
 msgid "_Preferences"
 msgstr ""
 
-#: src/window.blp:295
+#: src/window.blp:293
 msgid "_Keyboard Shortcuts"
 msgstr ""
 
-#: src/window.blp:300
+#: src/window.blp:298
 msgid "_About folder icon maker"
 msgstr ""
 
-#: src/settings/settings.rs:136 src/window.rs:501
+#: src/settings/settings.rs:151 src/window.rs:545
 msgid "Open Document"
 msgstr ""
 
-#: src/window.rs:354
+#: src/settings/settings.rs:187 src/window.rs:357
+msgid "Error"
+msgstr ""
+
+#: src/window.rs:333
+msgid "The set folder icon could not be found, press ok to select a new one"
+msgstr ""
+
+#: src/window.rs:361
+msgid "OK"
+msgstr ""
+
+#: src/window.rs:380
 msgid "Save Changes?"
 msgstr ""
 
-#: src/window.rs:355
+#: src/window.rs:381
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
 msgstr ""
 
-#: src/window.rs:359
+#: src/window.rs:385
 msgid "Cancel"
 msgstr ""
 
-#: src/window.rs:360
+#: src/window.rs:386
 msgid "Discard"
 msgstr ""
 
-#: src/window.rs:362
+#: src/window.rs:388
 msgid "Save"
 msgstr ""

@@ -29,6 +29,16 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="1.1.0" date="2024-07-20" type="stable">
+      <description>
+        <p>This version adds a few small features and fixes some bugs</p>
+        <ul>
+          <li>The app now shows some errors as pop-ups</li>
+          <li>You can now temporarilly open a new folder image</li>
+          <li>It now first shows a pop-up when the folder image is not found</li>
+        </ul>
+      </description>
+    </release>
     <release version="1" date="2024-07-17" type="stable">
       <description>
         <p>Initial release</p>
