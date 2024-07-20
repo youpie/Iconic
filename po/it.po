@@ -1,0 +1,265 @@
+# ITLIAN TRANSLATION.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Iconic package.
+# ALBANO BATTISTELLA <ALBANOBATTISTELLA@GMAIL.COM>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Iconic\n"
+"Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
+"POT-Creation-Date: 2024-07-20 11:26+0200\n"
+"PO-Revision-Date: 2024-07-20 14:44+0200\n"
+"Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
+"Language-Team: Italian <LL@li.org>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/nl.emphisia.icon.desktop.in.in:3
+#: data/nl.emphisia.icon.metainfo.xml.in.in:5
+#: data/nl.emphisia.icon.metainfo.xml.in.in:71
+msgid "Iconic"
+msgstr "Iconico"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:6
+msgid "Easilly add icons on top of folders"
+msgstr "Aggiungi facilmente icone sopra le cartelle"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:8
+msgid "Youpie"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:14
+msgid ""
+"This program allows an easy and intuitive way to add an icon on top of a "
+"folder to help you differentiate it better."
+msgstr ""
+"Questo programma consente in modo semplice ed intuitivo di aggiungere un'icona sopra un "
+"cartella per aiutarti a differenziarla meglio."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:15
+msgid ""
+"This program is written in Rust and Libadwaita and is my first attempt at "
+"creating an application"
+msgstr ""
+"Questo programma è scritto in Rust e Libadwaita ed è il mio primo tentativo di "
+"creazione di un'applicazione"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:19
+msgid "Begin screen of application"
+msgstr "Schermata iniziale dell'applicazione"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:23
+msgid "Main menu in light mode"
+msgstr "Menu principale in modalità luce"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:27
+msgid "Main menu in dark mode"
+msgstr "Menu principale in modalità scura"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:34
+msgid "This version adds a few small features and fixes some bugs"
+msgstr "Questa versione aggiunge alcune piccole funzionalità e corregge alcuni bug"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+msgid "The app now shows some errors as pop-ups"
+msgstr "L'app ora mostra alcuni errori come popup"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:37
+msgid "You can now temporarilly open a new folder image"
+msgstr "Ora puoi aprire temporaneamente una nuova immagine di cartella"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:38
+msgid "It now first shows a pop-up when the folder image is not found"
+msgstr "Ora viene prima visualizzato un popup quando l'immagine della cartella non viene trovata"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+msgid "Initial release"
+msgstr "Versione iniziale"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
+msgid "icon"
+msgstr "icona"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:63
+msgid "create"
+msgstr "crea"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
+msgid "folder icon"
+msgstr "icona cartella"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:65
+msgid "svg"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:66
+msgid "png"
+msgstr "png"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:67
+msgid "gnome"
+msgstr "gnome"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:68
+msgid "icon create"
+msgstr "crea icona"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:69
+msgid "icon creator"
+msgstr ""creatore di icone
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:70
+msgid "folder icon creator"
+msgstr "creatore di icone di cartelle"
+
+#: src/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "Generale"
+
+#: src/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Mostra scorciatoie"
+
+#: src/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Esci"
+
+#: src/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Save"
+msgstr "Salva"
+
+#: src/gtk/help-overlay.blp:29
+msgctxt "shortcut window"
+msgid "Open top image"
+msgstr "Apri l'immagine in alto"
+
+#: src/gtk/help-overlay.blp:34
+msgctxt "shortcut window"
+msgid "Open temporary folder image"
+msgstr "Apri l'immagine della cartella temporanea"
+
+#: src/settings/settings.blp:8
+msgid "General"
+msgstr "Generale"
+
+#: src/settings/settings.blp:11
+msgid "Customise"
+msgstr "Personalizza"
+
+#: src/settings/settings.blp:29
+msgid "Currently set folder icon, click to reset to default"
+msgstr "Icona della cartella attualmente impostata, fare clic per ripristinare le impostazioni predefinite"
+
+#: src/settings/settings.blp:35
+msgid "Advanced"
+msgstr "Avanzato"
+
+#: src/settings/settings.blp:38
+msgid "You can see these options because you have enabled the Devel profile"
+msgstr "Puoi vedere queste opzioni perché hai abilitato il profilo sviluppatore"
+
+#: src/settings/settings.blp:46
+msgid "Select size of SVG images"
+msgstr "Seleziona la dimensione delle immagini SVG"
+
+#: src/settings/settings.blp:47
+msgid ""
+"SVG images will by default be converted to a 1024x1024 image. You can adjust "
+"that here"
+msgstr ""
+"Le immagini SVG verranno convertite per impostazione predefinita in un'immagine 1024x1024. È possibile regolarle "
+"qui"
+
+#: src/settings/settings.blp:57
+msgid "Select size of Thumbnail images"
+msgstr "Seleziona la dimensione delle immagini in miniatura"
+
+#: src/settings/settings.blp:58
+msgid ""
+"Thumbnail images will by default be converted to a 255x255 image. You can "
+"adjust that here"
+msgstr ""
+"Le immagini in miniatura verranno convertite per impostazione predefinita in un'immagine 255x255. Puoi "
+"aggiustalo qui"
+
+#: src/window.blp:25 src/window.blp:82
+msgid "Menu"
+msgstr "Menu"
+
+#: src/window.blp:31
+msgid "Folder Icon Creator"
+msgstr "Creatore di icone di cartelle"
+
+#: src/window.blp:32
+msgid "Click to Open Image"
+msgstr "Fare clic per aprire l'immagine"
+
+#: src/window.blp:43
+msgid "_Open Image"
+msgstr "_Apri immagine"
+
+#: src/window.blp:277
+msgid "_Open Top Icon"
+msgstr "_Apri l'icona in alto"
+
+#: src/window.blp:282
+msgid "_Open Folder Icon"
+msgstr "_Apri icona della cartella"
+
+#: src/window.blp:288
+msgid "_Preferences"
+msgstr "_Preferenze"
+
+#: src/window.blp:293
+msgid "_Keyboard Shortcuts"
+msgstr "_Scorciatoie da tastiera"
+
+#: src/window.blp:298
+msgid "_About folder icon maker"
+msgstr "_Informazioni sul creatore di icone di cartelle"
+
+#: src/settings/settings.rs:151 src/window.rs:545
+msgid "Open Document"
+msgstr "Apri documento"
+
+#: src/settings/settings.rs:187 src/window.rs:357
+msgid "Error"
+msgstr "Errore"
+
+#: src/window.rs:333
+msgid "The set folder icon could not be found, press ok to select a new one"
+msgstr "Impossibile trovare l'icona della cartella impostata, premere OK per selezionarne una nuova"
+
+#: src/window.rs:361
+msgid "OK"
+msgstr "Ok"
+
+#: src/window.rs:380
+msgid "Save Changes?"
+msgstr "Salvare le modifiche?"
+
+#: src/window.rs:381
+msgid ""
+"Open image contain unsaved changes. Changes which are not saved will be "
+"permanently lost"
+msgstr ""
+"L'immagine aperta contiene modifiche non salvate. Le modifiche che non vengono salvate verranno "
+"perdute definitivamente"
+
+#: src/window.rs:385
+msgid "Cancel"
+msgstr "Anulla"
+
+#: src/window.rs:386
+msgid "Discard"
+msgstr "Scarta"
+
+#: src/window.rs:388
+msgid "Save"
+msgstr "Salva"
