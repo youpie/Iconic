@@ -82,6 +82,7 @@ mod imp {
         pub folder_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: gdk::RGBA,
         pub top_image_file: Arc<Mutex<Option<File>>>,
+        pub saved_file: Arc<Mutex<Option<File>>>,
         pub file_created: RefCell<bool>,
         pub image_saved: RefCell<bool>,
         pub final_image: RefCell<Option<DynamicImage>>,
@@ -107,6 +108,7 @@ mod imp {
                 monochrome_switch: TemplateChild::default(),
                 folder_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
+                saved_file: Arc::new(Mutex::new(None)),
                 image_saved: RefCell::new(true),
                 final_image: RefCell::new(None),
                 file_created: RefCell::new(false),
@@ -143,8 +145,14 @@ mod imp {
                     win.load_top_icon().await;
                 }));
             });
+            klass.install_action("app.open_file_location", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(@weak win => async move {
+                    win.open_directory().await;
+                }));
+            });
             klass.install_action("app.select_folder", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(@weak win => async move {
+                    //win.load_temp_folder_icon().await;
                     win.load_temp_folder_icon().await;
                 }));
             });
@@ -255,6 +263,7 @@ impl GtkTestWindow {
 
     fn setup_update (&self){
         self.imp().save_button.set_sensitive(true);
+        self.imp().image_saved.replace(false);
         self.imp().x_scale.connect_value_changed(clone!(@weak self as this => move |_| {
         glib::spawn_future_local(clone!(@weak this => async move {
                 this.imp().image_saved.replace(false);
@@ -431,6 +440,7 @@ impl GtkTestWindow {
         match file {
             Ok(file) => {
                 self.imp().stack.set_visible_child_name("stack_saving_page");
+                imp.saved_file.lock().expect("Could not get file").replace(File::new(file.clone(),255,1024));
                 imp.image_saved.replace(true);
                 imp.save_button.set_sensitive(false);
                 let base_image = imp.folder_image_file.lock().unwrap().as_ref().unwrap().dynamic_image.clone();
@@ -443,7 +453,10 @@ impl GtkTestWindow {
                     let _ = generated_image.save(file.path().unwrap());
                 }).await;
                 self.imp().stack.set_visible_child_name("stack_main_page");
-                imp.toast_overlay.add_toast(adw::Toast::new("saved file"));
+                imp.toast_overlay.add_toast(adw::Toast::builder()
+                                            .button_label(gettext("Open Folder"))
+                                            .action_name("app.open_file_location")
+                                            .title("File Saved").build());
             }
             Err(_) => {
                 imp.toast_overlay.add_toast(adw::Toast::new("File not saved"));
@@ -457,7 +470,8 @@ impl GtkTestWindow {
     async fn generate_image (&self, base_image: image::DynamicImage, top_image: image::DynamicImage, filter: imageops::FilterType) -> DynamicImage{
         let imp = self.imp();
         imp.stack.set_visible_child_name("stack_main_page");
-        imp.image_saved.replace(false);
+        // imp.image_saved.replace(false);
+        // imp.save_button.set_sensitive(true);
         let (tx_texture, rx_texture) = async_channel::bounded(1);
         let tx_texture1 = tx_texture.clone();
         let coordinates = ((imp.x_scale.value()+50.0) as i64,(imp.y_scale.value()+50.0) as i64);
@@ -556,6 +570,16 @@ impl GtkTestWindow {
 
     }
 
+    async fn open_directory(&self) {
+        let imp = self.imp();
+        let launcher = gtk::FileLauncher::new(Some(&imp.saved_file.lock().unwrap().clone().unwrap().files.unwrap()));
+        let win = self.native().and_downcast::<gtk::Window>();
+        if let Err(e) = launcher.open_containing_folder_future(win.as_ref()).await {
+            println!("Could not open directory {}",e);
+        };
+    }
+
+
     fn to_monochrome(&self, image: DynamicImage,threshold: u8, color: gdk::RGBA) -> DynamicImage {
         // Convert the image to RGBA8
         let rgba_img = image.to_rgba8();
@@ -633,5 +657,6 @@ impl GtkTestWindow {
         self.check_icon_update();
     }
 }
+
 
 

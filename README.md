@@ -61,6 +61,7 @@ Wow documentation is really hard to understand so I used few programs as inspira
 - Switcheroo - https://gitlab.com/adhami3310/Switcheroo
 - Geopard - https://github.com/ranfdev/Geopard
 - Obfuscate - https://gitlab.gnome.org/World/obfuscate
+- Loupe - https://gitlab.gnome.org/GNOME/loupe
 
 ## Icon credits
 The icon is just a few already existing icons added together, the following are used:
