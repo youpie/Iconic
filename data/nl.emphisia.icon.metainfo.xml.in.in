@@ -47,9 +47,10 @@
     <release version="0.1" date="2024-07-06" type="development"/>
   </releases>
   <url type="homepage">https://emphisia.nl</url>
-  <url type="bugtracker">https://github.com/youpie/Folder_icon_creator/issues</url>
+  <url type="bugtracker">https://github.com/youpie/Iconic/issues</url>
   <url type="donation">https://ko-fi.com/youpie</url>
-  <url type="vcs-browser">https://github.com/youpie/Folder_icon_creator</url>
+  <url type="vcs-browser">https://github.com/youpie/Iconic</url>
+  <url type="translate">https://github.com/youpie/Iconic/tree/main/po</url>
   <supports>
     <control>pointing</control>
     <control>keyboard</control>
