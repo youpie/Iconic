@@ -456,7 +456,7 @@ impl GtkTestWindow {
                 imp.toast_overlay.add_toast(adw::Toast::builder()
                                             .button_label(gettext("Open Folder"))
                                             .action_name("app.open_file_location")
-                                            .title("File Saved").build());
+                                            .title(gettext("File Saved")).build());
             }
             Err(_) => {
                 imp.toast_overlay.add_toast(adw::Toast::new("File not saved"));

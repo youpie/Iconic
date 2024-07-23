@@ -108,7 +108,7 @@ msgstr "crea icona"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:69
 msgid "icon creator"
-msgstr ""creatore di icone
+msgstr "creatore di icone"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:70
 msgid "folder icon creator"

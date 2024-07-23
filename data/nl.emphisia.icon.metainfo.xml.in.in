@@ -29,6 +29,16 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="1.1.1" date="2024-07-23" type="stable">
+      <description>
+        <p>Another small update with a few additions and changes</p>
+        <ol>
+          <li>You can now open containing folder after saving image</li>
+          <li>Added italian translation</li>
+          <li>Updated Dutch translation</li>
+        </ol>
+      </description>
+    </release>
     <release version="1.1.0" date="2024-07-20" type="stable">
       <description>
         <p>This version adds a few small features and fixes some bugs</p>
@@ -49,8 +59,8 @@
   <url type="homepage">https://emphisia.nl</url>
   <url type="bugtracker">https://github.com/youpie/Iconic/issues</url>
   <url type="donation">https://ko-fi.com/youpie</url>
-  <url type="vcs-browser">https://github.com/youpie/Iconic</url>
   <url type="translate">https://github.com/youpie/Iconic/tree/main/po</url>
+  <url type="vcs-browser">https://github.com/youpie/Iconic</url>
   <supports>
     <control>pointing</control>
     <control>keyboard</control>
