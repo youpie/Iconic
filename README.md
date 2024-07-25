@@ -49,8 +49,7 @@ This program is mostly meant as practise for me so I want to solve most problems
 If you want to create a merge request. That is off course totally fine, but please try not to fundamentally change how it works and clearly explain what you did and how it works 😁
 
 ## Running the app 🏃
-The app is currently not finished, so I have not released it anywhere yet. I do however plan to release it on flathub.
-The easiest way to run the app is:
+If you want to run the app:
 1. Clone the repo
 2. Open it in [gnome-builder](https://flathub.org/apps/org.gnome.Builder)
 3. Start the application by pressing `ctrl+shift+escape`
