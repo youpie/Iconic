@@ -16,10 +16,6 @@
   </description>
   <screenshots>
     <screenshot type="default">
-      <caption>Begin screen of application</caption>
-      <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Title%20screen.png?raw=true</image>
-    </screenshot>
-    <screenshot>
       <caption>Main menu in light mode</caption>
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true</image>
     </screenshot>
