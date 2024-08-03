@@ -5,18 +5,19 @@ edition = "2021"
 
 [dependencies.gtk]
 package = "gtk4"
-version = "0.8"
-features = ["v4_10"]
+version = "0.9"
+features = ["gnome_45"]
+
+[dependencies.adw]
+package = "libadwaita"
+version = "0.7"
+features = ["v1_5"]
 
 [dependencies]
-ashpd = { version = "0.8.1", features = ["gtk4"] }
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
 image = {version = "0.25.1"}
 async-channel = {version = "2.3.1"}
 resvg = {version = "0.42.0"}
 usvg = "0.42.0"
 
-[dependencies.adw]
-package = "libadwaita"
-version = "0.6"
-features = ["v1_5"]
+

@@ -273,6 +273,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
 
 menu primary_menu {
   section {
+  item {
+      label: _("_Paste Top Icon from Clipboard");
+      action: "app.paste";
+    }
     item {
       label: _("_Open Top Icon");
       action: "app.open_top_icon";

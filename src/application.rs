@@ -107,7 +107,10 @@ impl GtkTestApplication {
         let open_folder_action = gio::ActionEntry::builder("open")
             .activate(move |app: &Self, _, _| app.open_folder_function())
             .build();
-        self.add_action_entries([quit_action, about_action, settings_action,open_action,open_folder_action]);
+        let paste = gio::ActionEntry::builder("open")
+            .activate(move |app: &Self, _, _| app.paste_image())
+            .build();
+        self.add_action_entries([quit_action, about_action, settings_action,open_action,open_folder_action,paste]);
     }
 
     fn setup_accels(&self) {
@@ -115,6 +118,7 @@ impl GtkTestApplication {
         self.set_accels_for_action("app.open_top_icon", &["<primary>o"]);
         self.set_accels_for_action("app.quit", &["<primary>q"]);
         self.set_accels_for_action("app.select_folder", &["<primary><shift>o"]);
+        self.set_accels_for_action("app.paste", &["<primary>v"]);
     }
 
     fn show_preferences_dialog(&self) {
@@ -133,6 +137,10 @@ impl GtkTestApplication {
         self.activate_action("app.select_folder", None);
     }
 
+    fn paste_image(&self) {
+        self.activate_action("app.paste", None);
+    }
+
 
 
     fn show_about(&self) {
@@ -147,7 +155,7 @@ impl GtkTestApplication {
             .license_type(License::Gpl30)
             .copyright("© 2024 YoupDeGamerNL")
             .build();
-        about.present(&window);
+        about.present(Some(&window));
     }
 }
 

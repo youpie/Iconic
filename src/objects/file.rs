@@ -49,10 +49,22 @@ impl File{
 		}
 	}
 
-	pub fn from_path(path: &str, size: i32, thumnail_size: i32) -> Self{
+	pub fn from_path(path: &str, size: i32, thumbnail_size: i32) -> Self{
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(PathBuf::from(path).as_path());
-        Self::new(file,size, thumnail_size)
+        Self::new(file,size, thumbnail_size)
+	}
+
+	pub fn from_image(image: DynamicImage, thumbnail_size: i32) -> Self {
+	let thumbnail = image.clone().resize(thumbnail_size as u32, thumbnail_size as u32, imageops::FilterType::Nearest);
+	    Self {
+			files: None,
+			path :  "".into(),
+			extension: ".dynamic".to_string(),
+			name: "Dynamic".to_string(),
+			dynamic_image: image,
+			thumbnail,
+		}
 	}
 
 	pub fn load_svg(path: &str, size: i32) -> DynamicImage{

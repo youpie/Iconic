@@ -19,9 +19,8 @@
  */
 
 use crate::glib::clone;
-use adw::subclass::prelude::*;
+use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
-use gtk::prelude::*;
 use gtk::{gio, glib,gdk};
 use image::*;
 use crate::objects::file::File;
@@ -156,6 +155,11 @@ mod imp {
                     win.load_temp_folder_icon().await;
                 }));
             });
+            klass.install_action("app.paste", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(@weak win => async move {
+                    win.paste().await;
+                }));
+            });
             klass.install_action("app.save_button", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(@weak win => async move {
                     win.save_file().await;
@@ -240,17 +244,17 @@ impl GtkTestWindow {
     }
 
     fn setup_settings (&self){
-        let update_folder = glib::clone!(@weak self as window => move |_: &gio::Settings, setting:&str| {
-             let path: &str = &window.imp().settings.string(setting);
-             window.load_folder_icon(path);
+        let update_folder = glib::clone!(#[weak(rename_to = win)] self, move |_: &gio::Settings, setting:&str| {
+             let path: &str = &win.imp().settings.string(setting);
+             win.load_folder_icon(path);
         });
 
-        let resize_folder = glib::clone!(@weak self as win => move |_: &gio::Settings, _:&str| {
+        let resize_folder = glib::clone!(#[weak(rename_to = win)] self, move |_: &gio::Settings, _:&str| {
             let path: &str = &win.imp().settings.string("folder-svg-path");
             win.load_folder_icon(path);
         });
 
-        let reload_thumbnails = glib::clone!(@weak self as win => move |_: &gio::Settings, _:&str| {
+        let reload_thumbnails = glib::clone!(#[weak(rename_to = win)] self, move |_: &gio::Settings, _:&str| {
             let path: &str = &win.imp().settings.string("folder-svg-path");
             win.load_folder_icon(path);
             win.imp().reset_color.set_visible(true);
@@ -381,6 +385,27 @@ impl GtkTestWindow {
         (cache_path,file_name)
     }
 
+    pub async fn paste(&self) {
+        let clipboard = self.clipboard();
+        let imp = self.imp();
+        match clipboard.read_texture_future().await {
+            Ok(Some(texture)) => {
+                imp.stack.set_visible_child_name("stack_loading_page");
+                let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
+                let png_texture = texture.save_to_png_bytes();
+                let image = image::load_from_memory_with_format(&png_texture, image::ImageFormat::Png).unwrap();
+                imp.top_image_file.lock().unwrap().replace(File::from_image(image, thumbnail_size));
+                self.check_icon_update();
+            }
+            Ok(None) => {
+                println!("No texture found");
+            }
+            Err(err) => {
+                println!("Failed to paste texture {err}");
+            }
+        }
+    }
+
     async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
         const RESPONSE_CANCEL: &str = "cancel";
         const RESPONSE_DISCARD: &str = "discard";
@@ -399,6 +424,7 @@ impl GtkTestWindow {
 
         match &*dialog.clone().choose_future(self).await {
             RESPONSE_CANCEL => {
+                dialog.close();
                 Ok(glib::Propagation::Stop)
             }
             RESPONSE_DISCARD => Ok(glib::Propagation::Proceed),

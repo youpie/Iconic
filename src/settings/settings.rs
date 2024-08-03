@@ -189,7 +189,7 @@ impl PreferencesWindow {
                 .default_response(RESPONSE_OK)
                 .build();
         dialog.add_response(RESPONSE_OK, "ok");
-        dialog.present(self)});
+        dialog.present(Some(self))});
     }
 }
 
