@@ -619,8 +619,9 @@ impl GtkTestWindow {
         for (x, y, pixel) in rgba_img.enumerate_pixels() {
             let rgba = pixel.0;
             let luma = 0.299 * rgba[0] as f32 + 0.587 * rgba[1] as f32 + 0.114 * rgba[2] as f32;
+            //println!("{}",rgba[3]);
             if !switch_state {
-                let mono_pixel = if luma > threshold as f32 {
+                let mono_pixel = if luma >= threshold as f32 && rgba[3] > 0 {
                     Rgba([(color.red()*255.0) as u8, (color.green()*255.0) as u8, (color.blue()*255.0) as u8, 255u8]) // White with original alpha
                 } else {
                     Rgba([0u8, 0u8, 0u8, 0u8])       // Black with original alpha
@@ -628,7 +629,7 @@ impl GtkTestWindow {
                 mono_img.put_pixel(x, y, mono_pixel);
             }
             else {
-                let mono_pixel = if luma > threshold as f32 {
+                let mono_pixel = if luma >= threshold as f32 && rgba[3] > 0 {
                     Rgba([0u8, 0u8, 0u8, 0u8])       // Black with original alpha
                 } else {
                     Rgba([(color.red()*255.0) as u8, (color.green()*255.0) as u8, (color.blue()*255.0) as u8, 255u8]) // White with original alpha
