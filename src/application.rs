@@ -151,6 +151,8 @@ impl GtkTestApplication {
             .application_icon(APP_ICON)
             .developer_name("Youpie")
             .version(VERSION)
+            .issue_url("https://github.com/youpie/Iconic/issues")
+            .website("https://github.com/youpie/Iconic")
             .developers(vec!["Youpie"])
             .license_type(License::Gpl30)
             .copyright("© 2024 YoupDeGamerNL")
