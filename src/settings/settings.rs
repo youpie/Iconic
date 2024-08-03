@@ -182,7 +182,7 @@ impl PreferencesWindow {
 
     fn can_error <T>(&self,result:Results<T>){
         let _ = result.map_err(|e|
-        {const RESPONSE_OK: &str = "ok";
+        {const RESPONSE_OK: &str = "OK";
         let dialog = adw::AlertDialog::builder()
                 .heading(gettext("Error"))
                 .body(&e.to_string())

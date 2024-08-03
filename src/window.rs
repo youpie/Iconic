@@ -388,12 +388,14 @@ impl GtkTestWindow {
     pub async fn paste(&self) {
         let clipboard = self.clipboard();
         let imp = self.imp();
+        println!("{:#?}",clipboard.read_future(&["image/*"],glib::Priority::HIGH).await);
+
         match clipboard.read_texture_future().await {
             Ok(Some(texture)) => {
                 imp.stack.set_visible_child_name("stack_loading_page");
                 let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-                let png_texture = texture.save_to_png_bytes();
-                let image = image::load_from_memory_with_format(&png_texture, image::ImageFormat::Png).unwrap();
+                let png_texture = texture.save_to_tiff_bytes();
+                let image = image::load_from_memory_with_format(&png_texture, image::ImageFormat::Tiff).unwrap();
                 imp.top_image_file.lock().unwrap().replace(File::from_image(image, thumbnail_size));
                 self.check_icon_update();
             }
@@ -622,7 +624,7 @@ impl GtkTestWindow {
             //println!("{}",rgba[3]);
             if !switch_state {
                 let mono_pixel = if luma >= threshold as f32 && rgba[3] > 0 {
-                    Rgba([(color.red()*255.0) as u8, (color.green()*255.0) as u8, (color.blue()*255.0) as u8, 255u8]) // White with original alpha
+                    Rgba([(color.red()*255.0) as u8, (color.green()*255.0) as u8, (color.blue()*255.0) as u8, rgba[3] as u8]) // White with original alpha
                 } else {
                     Rgba([0u8, 0u8, 0u8, 0u8])       // Black with original alpha
                 };
@@ -632,7 +634,7 @@ impl GtkTestWindow {
                 let mono_pixel = if luma >= threshold as f32 && rgba[3] > 0 {
                     Rgba([0u8, 0u8, 0u8, 0u8])       // Black with original alpha
                 } else {
-                    Rgba([(color.red()*255.0) as u8, (color.green()*255.0) as u8, (color.blue()*255.0) as u8, 255u8]) // White with original alpha
+                    Rgba([(color.red()*255.0) as u8, (color.green()*255.0) as u8, (color.blue()*255.0) as u8, rgba[3] as u8]) // White with original alpha
                 };
                 mono_img.put_pixel(x, y, mono_pixel);
             }
