@@ -492,7 +492,7 @@ impl GtkTestWindow {
         match mime_type {
             Some(x) if x == String::from("image") => {imp.top_image_file.lock().unwrap().replace(File::new(file, svg_render_size, thumbnail_size));},
             _ => {println!("unsupported file type");
-                self.show_popup("Unsupported file type");}
+                self.show_popup(&gettext("Unsupported file type"));}
         }
 
         self.check_icon_update();

@@ -3,7 +3,7 @@
   <!--Created with jdAppStreamEdit 9.1-->
   <id>@app-id@</id>
   <name>Iconic</name>
-  <summary>Easilly add icons on top of folders</summary>
+  <summary>Easily add icons on top of folders</summary>
   <developer id="@youpie@social.emphisia.nl">
     <name>Youpie</name>
   </developer>
@@ -40,7 +40,7 @@
         <p>This version adds a few small features and fixes some bugs</p>
         <ul>
           <li>The app now shows some errors as pop-ups</li>
-          <li>You can now temporarilly open a new folder image</li>
+          <li>You can now temporarily open a new folder image</li>
           <li>It now first shows a pop-up when the folder image is not found</li>
         </ul>
       </description>

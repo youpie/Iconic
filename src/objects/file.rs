@@ -74,7 +74,7 @@ impl File{
 			files: None,
 			path :  "".into(),
 			extension: ".dynamic".to_string(),
-			name: "Dynamic".to_string(),
+			name: "pasted".to_string(),
 			dynamic_image: image,
 			thumbnail,
 		}

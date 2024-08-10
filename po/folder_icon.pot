@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-03 21:29+0200\n"
+"POT-Creation-Date: 2024-08-10 21:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgid "Iconic"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:6
-msgid "Easilly add icons on top of folders"
+msgid "Easily add icons on top of folders"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:8
@@ -76,7 +76,7 @@ msgid "The app now shows some errors as pop-ups"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:43
-msgid "You can now temporarilly open a new folder image"
+msgid "You can now temporarily open a new folder image"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:44
@@ -233,48 +233,52 @@ msgstr ""
 msgid "_About Iconic"
 msgstr ""
 
-#: src/settings/settings.rs:151 src/window.rs:587
+#: src/settings/settings.rs:151 src/window.rs:677
 msgid "Open Document"
 msgstr ""
 
-#: src/settings/settings.rs:187 src/window.rs:370
+#: src/settings/settings.rs:187 src/window.rs:409
 msgid "Error"
 msgstr ""
 
-#: src/window.rs:346
+#: src/window.rs:385
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 
-#: src/window.rs:374
+#: src/window.rs:413
 msgid "OK"
 msgstr ""
 
-#: src/window.rs:416
+#: src/window.rs:495
+msgid "Unsupported file type"
+msgstr ""
+
+#: src/window.rs:506
 msgid "Save Changes?"
 msgstr ""
 
-#: src/window.rs:417
+#: src/window.rs:507
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
 msgstr ""
 
-#: src/window.rs:421
+#: src/window.rs:511
 msgid "Cancel"
 msgstr ""
 
-#: src/window.rs:422
+#: src/window.rs:512
 msgid "Discard"
 msgstr ""
 
-#: src/window.rs:424
+#: src/window.rs:514
 msgid "Save"
 msgstr ""
 
-#: src/window.rs:485
+#: src/window.rs:575
 msgid "Open Folder"
 msgstr ""
 
-#: src/window.rs:487
+#: src/window.rs:577
 msgid "File Saved"
 msgstr ""
