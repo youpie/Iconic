@@ -80,6 +80,10 @@ mod imp {
         pub reset_color: TemplateChild<gtk::Button>,
         #[template_child]
         pub monochrome_invert: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub main_status_page: TemplateChild<adw::StatusPage>,
+        #[template_child]
+        pub image_preferences: TemplateChild<adw::Clamp>,
 
         pub folder_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: gdk::RGBA,
@@ -108,6 +112,7 @@ mod imp {
                 monochrome_color: TemplateChild::default(),
                 scale_row: TemplateChild::default(),
                 monochrome_switch: TemplateChild::default(),
+                image_preferences: TemplateChild::default(),
                 folder_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),
@@ -119,6 +124,7 @@ mod imp {
                 y_scale: TemplateChild::default(),
                 size: TemplateChild::default(),
                 stack: TemplateChild::default(),
+                main_status_page: TemplateChild::default(),
                 monochrome_invert: TemplateChild::default(),
                 image_loading_spinner: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
@@ -191,6 +197,36 @@ mod imp {
             if PROFILE == "Devel" {
                 obj.add_css_class("devel");
             }
+            let drop_target = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+            drop_target.connect_drop(clone!(
+                #[strong]
+                obj,
+                move |_, value, _, _| {
+                    if let Ok(file) = value.get::<gio::File>() {
+                        obj.set_open_file(file);
+                        true
+                    } else {
+                        false
+                    }
+                }
+            ));
+
+            let drop_target_2 = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+            drop_target_2.connect_drop(clone!(
+                #[strong]
+                obj,
+                move |_, value, _, _| {
+                    if let Ok(file) = value.get::<gio::File>() {
+                        obj.set_open_file(file);
+                        true
+                    } else {
+                        false
+                    }
+                }
+            ));
+            self.image_preferences.add_controller(drop_target);
+            self.main_status_page.add_controller(drop_target_2);
+
         }
 
         fn dispose(&self) {
@@ -416,12 +452,11 @@ impl GtkTestWindow {
                 }
             }, // no svg in clipboard
         };
-
-
     }
 
     fn clipboard_load_svg(&self, stream: Option<gio::InputStream>){
         let imp = self.imp();
+        imp.stack.set_visible_child_name("stack_loading_page");
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let none_file: Option<&gio::File> = None;
@@ -439,6 +474,11 @@ impl GtkTestWindow {
         let mut stream = std::fs::File::create(&clipboard_path).unwrap();
         surface.write_to_png(&mut stream).unwrap();
         imp.top_image_file.lock().unwrap().replace(File::from_path(clipboard_path,svg_render_size,thumbnail_size));
+        self.check_icon_update();
+    }
+
+    pub fn set_open_file(&self, file: gio::File) {
+        self.imp().top_image_file.lock().unwrap().replace(File::new(file, 1024, 255));
         self.check_icon_update();
     }
 
