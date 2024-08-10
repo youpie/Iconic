@@ -484,8 +484,7 @@ impl GtkTestWindow {
         let file_info = file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE).unwrap();
         println!("{:?}",file_info.name());
         let mime_type: Option<String> = match file_info.content_type() {
-            Some(x) => {let main_string = String::from(x);
-                        let sub_string: Vec<&str> = main_string.split("/").collect();
+            Some(x) => {let sub_string: Vec<&str> = x.split("/").collect();
                         Some(sub_string.first().unwrap().to_string())},
             None => None
         };
@@ -550,7 +549,7 @@ impl GtkTestWindow {
             imp.toast_overlay.add_toast(adw::Toast::new("Can't save anything"));
             return false;
         };
-        let file_name = "folder.png";
+        let file_name = format!("folder-{}.png",imp.top_image_file.lock().unwrap().as_ref().unwrap().name);
         let file_chooser = gtk::FileDialog::builder()
             .initial_name(file_name)
             .modal(true)

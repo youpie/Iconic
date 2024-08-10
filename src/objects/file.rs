@@ -23,10 +23,11 @@ impl File{
 	}
 	pub fn new(file: gio::File, size: i32, thumbnail_size: i32) -> Self{
 		let temp_path = file.path().unwrap();
-		let file_name = file.basename().unwrap().into_os_string().into_string().unwrap();
+		let file_info = file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE).unwrap();
+		let file_name = file_info.name().into_os_string().into_string().unwrap();
 		let period_split:Vec<&str> = file_name.split(".").collect();
 		let file_extension = format!(".{}",period_split.last().unwrap());
-		let file_info = file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE).unwrap();
+
 		let mime_type = file_info.content_type();
 		println!("{:#?}",mime_type);
 		let dynamic_image = if mime_type == Some("image/svg+xml".into()) {
