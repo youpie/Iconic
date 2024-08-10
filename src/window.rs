@@ -370,37 +370,45 @@ impl GtkTestWindow {
     async fn check_chache_icon(&self, file_name: &str) -> PathBuf{
         let imp = self.imp();
         let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
-        let cache_path = env::var("XDG_CACHE_HOME").unwrap();
-        let folder_icon_cache_path = PathBuf::from(format!("{}/{}",cache_path,file_name));
+        let cache_path = match env::var("XDG_CACHE_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".cache")
+                    .join("Iconic");
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
+        let folder_icon_cache_path = cache_path.join(file_name);
         if folder_icon_cache_path.exists() {
             println!("File found in cache at: {:?}",folder_icon_cache_path);
             return folder_icon_cache_path;
         }
-        else if icon_path.exists() {
+        if icon_path.exists() {
             println!("File not found in cache, copying to: {:?}",folder_icon_cache_path);
-            return self.copy_folder_image(icon_path).0;
+            return self.copy_folder_image(&icon_path, &cache_path).0;
         }
-        else {
-            println!("File not found AT ALL");
-            let dialog = self.show_popup(&gettext("The set folder icon could not be found, press ok to select a new one"));
-            match &*dialog.clone().choose_future(self).await {
-                "OK" => {
-                    let new_path = match self.open_file_chooser_gtk().await{
-                        Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
-                        None => {
-                                String::from("")}
-                    };
-                    imp.settings.set_string("folder-svg-path", &new_path).unwrap();
-                    let cached_file_name = self.copy_folder_image(PathBuf::from(new_path)).1;
-                    imp.settings.set_string("folder-cache-name", &cached_file_name).unwrap();
-                    let cache_file_name = &imp.settings.string("folder-cache-name");
-                    let cache_path = env::var("XDG_CACHE_HOME").unwrap();
-                    let folder_icon_cache_path = PathBuf::from(format!("{}/{}",cache_path,cache_file_name));
-                    return PathBuf::from(folder_icon_cache_path);
-                }
-            _ => unreachable!()
-            };
-        }
+        println!("File not found AT ALL");
+        let dialog = self.show_popup(&gettext("The set folder icon could not be found, press ok to select a new one"));
+        match &*dialog.clone().choose_future(self).await {
+            "OK" => {
+                let new_path = match self.open_file_chooser_gtk().await{
+                    Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
+                    None => {
+                            String::from("")}
+                };
+                imp.settings.set_string("folder-svg-path", &new_path).unwrap();
+                let cached_file_name = self.copy_folder_image(&PathBuf::from(new_path), &cache_path).1;
+                imp.settings.set_string("folder-cache-name", &cached_file_name).unwrap();
+                let cache_file_name = &imp.settings.string("folder-cache-name");
+                let folder_icon_cache_path = cache_path.join(cache_file_name);
+                return PathBuf::from(folder_icon_cache_path);
+            }
+        _ => unreachable!()
+        };
     }
 
     fn show_popup (&self, message: &str) -> adw::AlertDialog{
@@ -414,12 +422,10 @@ impl GtkTestWindow {
         dialog
     }
 
-    fn copy_folder_image(&self, original_path: PathBuf) -> (PathBuf, String) {
-        let cache_dir = env::var("XDG_CACHE_HOME").expect("$HOME is not set");
+    fn copy_folder_image(&self, original_path: &PathBuf, cache_dir: &PathBuf) -> (PathBuf, String) {
         let file_name = format!("folder.{}",original_path.extension().unwrap().to_str().unwrap());
         self.imp().settings.set("folder-cache-name",file_name.clone()).unwrap();
-        let mut cache_path = PathBuf::from(cache_dir);
-        cache_path.push(file_name.clone());
+        let cache_path = cache_dir.join(file_name.clone());
         fs::copy(original_path,cache_path.clone()).unwrap();
         (cache_path,file_name)
     }

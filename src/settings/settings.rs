@@ -5,6 +5,7 @@ use crate::glib::clone;
 use gtk::*;
 use gettextrs::*;
 use crate::config::{APP_ID, PROFILE};
+use std::path::PathBuf;
 use std::{env,fs,path};
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AdwDialogExt;
@@ -171,11 +172,21 @@ impl PreferencesWindow {
     }
 
     fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) -> Results<()>{
-        let cache_dir = env::var("XDG_CACHE_HOME")?;
+        let cache_dir = match env::var("XDG_CACHE_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".cache")
+                    .join("Iconic");
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
         let file_name = format!("folder.{}",original_path.extension().unwrap().to_str().unwrap());
         self.imp().settings.set("folder-cache-name",file_name.clone())?;
-        let mut cache_path = path::PathBuf::from(cache_dir);
-        cache_path.push(file_name);
+        let cache_path = cache_dir.join(file_name);
         fs::copy(original_path,cache_path)?;
         Ok(())
     }
