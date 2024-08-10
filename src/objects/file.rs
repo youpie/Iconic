@@ -5,6 +5,7 @@ use adw::prelude::FileExt;
 use std::fs;
 use resvg::tiny_skia::Pixmap;
 use resvg::usvg::{Tree, Options};
+use gio::{FileQueryInfoFlags,Cancellable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
@@ -25,7 +26,10 @@ impl File{
 		let file_name = file.basename().unwrap().into_os_string().into_string().unwrap();
 		let period_split:Vec<&str> = file_name.split(".").collect();
 		let file_extension = format!(".{}",period_split.last().unwrap());
-		let dynamic_image = if file_extension == ".svg" {
+		let file_info = file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE).unwrap();
+		let mime_type = file_info.content_type();
+		println!("{:#?}",mime_type);
+		let dynamic_image = if mime_type == Some("image/svg+xml".into()) {
 		    let path = &temp_path.as_os_str().to_str().unwrap();
             Self::load_svg(path, size)
 		} else{
@@ -42,7 +46,7 @@ impl File{
 		Self {
 			files: Some(file),
 			path: temp_path.into(),
-			extension: file_extension,
+			extension: mime_type.unwrap().into(),
 			name: name_no_extension,
 			dynamic_image,
 			thumbnail,
@@ -81,7 +85,6 @@ impl File{
             Ok(x) => x,
             Err(_) => fs::read("/usr/share/icons/Adwaita/scalable/places/folder.svg").expect("Could not find folder.svg")
         };
-
         // Create an SVG tree
         let opt = Options::default();
         let rtree = Tree::from_data(&svg_data, &opt).expect("Failed to parse SVG data");

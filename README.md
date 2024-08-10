@@ -14,7 +14,7 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
 - [ ] Add features
     - [X] Automatically load the folder Icon*
     - [X] Support SVG's*
-    - [ ] Drag and drop
+    - [X] Drag and drop
     - [ ] Proper error handling
     - [X] Add threading
         - [X] Loading images*
@@ -32,16 +32,17 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
     - [ ] Rounded corner option for top image
     - [X] Load image folder on start*
     - [X] Ability to save and load settings
-    - [ ] Add ability to temporarily change folder icon*
-    - [ ] Loading symbolic icons directly
+    - [X] Add ability to temporarily change folder icon*
+    - [X] Loading symbolic icons directly
         - [ ] Add symbolic icon picker (like [Icon Library](https://gitlab.gnome.org/World/design/icon-library))
     - [X] Automatically place icon in right position
     - [ ] Add guide grid or something
     - [ ] Ability to directly set image of folder (if even possible)
+        - [ ] Ability to drag generated image from iconic window to nautulis  
 - [ ] Clean up code
 - [ ] Add comments
-- [ ] Correct flatpak manifest*
-- [ ] Think of better name
+- [X] Correct flatpak manifest*
+- [X] Think of better name
 - [ ] Add dontation link :)
 
 ## Contributing 🤝

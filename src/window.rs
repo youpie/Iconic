@@ -88,7 +88,7 @@ mod imp {
         pub folder_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: gdk::RGBA,
         pub top_image_file: Arc<Mutex<Option<File>>>,
-        pub saved_file: Arc<Mutex<Option<File>>>,
+        pub saved_file: Arc<Mutex<Option<gio::File>>>,
         pub file_created: RefCell<bool>,
         pub image_saved: RefCell<bool>,
         pub final_image: RefCell<Option<DynamicImage>>,
@@ -478,7 +478,24 @@ impl GtkTestWindow {
     }
 
     pub fn set_open_file(&self, file: gio::File) {
-        self.imp().top_image_file.lock().unwrap().replace(File::new(file, 1024, 255));
+        let imp = self.imp();
+        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
+        let svg_render_size: i32 = imp.settings.get("svg-render-size");
+        let file_info = file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE).unwrap();
+        println!("{:?}",file_info.name());
+        let mime_type: Option<String> = match file_info.content_type() {
+            Some(x) => {let main_string = String::from(x);
+                        let sub_string: Vec<&str> = main_string.split("/").collect();
+                        Some(sub_string.first().unwrap().to_string())},
+            None => None
+        };
+        println!("{:?}",mime_type);
+        match mime_type {
+            Some(x) if x == String::from("image") => {imp.top_image_file.lock().unwrap().replace(File::new(file, svg_render_size, thumbnail_size));},
+            _ => {println!("unsupported file type");
+                self.show_popup("Unsupported file type");}
+        }
+
         self.check_icon_update();
     }
 
@@ -542,7 +559,7 @@ impl GtkTestWindow {
         match file {
             Ok(file) => {
                 self.imp().stack.set_visible_child_name("stack_saving_page");
-                imp.saved_file.lock().expect("Could not get file").replace(File::new(file.clone(),255,1024));
+                imp.saved_file.lock().expect("Could not get file").replace(file.clone());
                 imp.image_saved.replace(true);
                 imp.save_button.set_sensitive(false);
                 let base_image = imp.folder_image_file.lock().unwrap().as_ref().unwrap().dynamic_image.clone();
@@ -674,7 +691,7 @@ impl GtkTestWindow {
 
     async fn open_directory(&self) {
         let imp = self.imp();
-        let launcher = gtk::FileLauncher::new(Some(&imp.saved_file.lock().unwrap().clone().unwrap().files.unwrap()));
+        let launcher = gtk::FileLauncher::new(Some(&imp.saved_file.lock().unwrap().clone().unwrap()));
         let win = self.native().and_downcast::<gtk::Window>();
         if let Err(e) = launcher.open_containing_folder_future(win.as_ref()).await {
             println!("Could not open directory {}",e);
