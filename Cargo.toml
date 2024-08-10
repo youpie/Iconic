@@ -3,6 +3,16 @@ name = "folder_icon"
 version = "0.1.0"
 edition = "2021"
 
+[dependencies]
+gettext-rs = { version = "0.7", features = ["gettext-system"] }
+image = {version = "0.25.2"}
+gio = "0.20"
+librsvg = "2.59.0-beta.3"
+cairo-rs = "0.20"
+async-channel = {version = "2.3.1"}
+resvg = {version = "0.42.0"}
+usvg = "0.42.0"
+
 [dependencies.gtk]
 package = "gtk4"
 version = "0.9"
@@ -12,12 +22,3 @@ features = ["gnome_45"]
 package = "libadwaita"
 version = "0.7"
 features = ["v1_5"]
-
-[dependencies]
-gettext-rs = { version = "0.7", features = ["gettext-system"] }
-image = {version = "0.25.1"}
-async-channel = {version = "2.3.1"}
-resvg = {version = "0.42.0"}
-usvg = "0.42.0"
-
-

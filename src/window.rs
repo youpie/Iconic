@@ -21,7 +21,7 @@
 use crate::glib::clone;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
-use gtk::{gio, glib,gdk};
+use gtk::{glib,gdk};
 use image::*;
 use crate::objects::file::File;
 use std::cell::RefCell;
@@ -31,6 +31,9 @@ use std::sync::{Arc, Mutex};
 use std::path::PathBuf;
 use std::env;
 use std::fs;
+use rsvg::*;
+use gio::*;
+use std::fs::*;
 
 use crate::config::{APP_ID, PROFILE};
 
@@ -388,24 +391,55 @@ impl GtkTestWindow {
     pub async fn paste(&self) {
         let clipboard = self.clipboard();
         let imp = self.imp();
-        println!("{:#?}",clipboard.read_future(&["image/*"],glib::Priority::HIGH).await);
+        // println!("{:#?}",clipboard.read_future(&["image/*"],glib::Priority::HIGH).await);
+        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
 
-        match clipboard.read_texture_future().await {
-            Ok(Some(texture)) => {
-                imp.stack.set_visible_child_name("stack_loading_page");
-                let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-                let png_texture = texture.save_to_tiff_bytes();
-                let image = image::load_from_memory_with_format(&png_texture, image::ImageFormat::Tiff).unwrap();
-                imp.top_image_file.lock().unwrap().replace(File::from_image(image, thumbnail_size));
-                self.check_icon_update();
-            }
-            Ok(None) => {
-                println!("No texture found");
-            }
-            Err(err) => {
-                println!("Failed to paste texture {err}");
-            }
-        }
+
+        match clipboard.read_future(&["image/svg+xml"], glib::Priority::DEFAULT).await {
+            Ok((stream, _mime)) => self.clipboard_load_svg(Some(stream)),
+            Err(_) => {
+               match clipboard.read_texture_future().await {
+                    Ok(Some(texture)) => {
+                        imp.stack.set_visible_child_name("stack_loading_page");
+
+                        let png_texture = texture.save_to_tiff_bytes();
+                        let image = image::load_from_memory_with_format(&png_texture, image::ImageFormat::Tiff).unwrap();
+                        imp.top_image_file.lock().unwrap().replace(File::from_image(image, thumbnail_size));
+                        self.check_icon_update();
+                    }
+                    Ok(None) => {
+                        println!("No texture found");
+                    }
+                    Err(err) => {
+                        println!("Failed to paste texture {err}");
+                    }
+                }
+            }, // no svg in clipboard
+        };
+
+
+    }
+
+    fn clipboard_load_svg(&self, stream: Option<gio::InputStream>){
+        let imp = self.imp();
+        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
+        let svg_render_size: i32 = imp.settings.get("svg-render-size");
+        let none_file: Option<&gio::File> = None;
+        let none_cancelable: Option<&Cancellable> = None;
+        let loader = rsvg::Loader::new().read_stream(&stream.unwrap(), none_file, none_cancelable).unwrap();
+        let surface = cairo::ImageSurface::create(cairo::Format::ARgb32, svg_render_size, svg_render_size).unwrap();
+        let cr = cairo::Context::new(&surface).expect("Failed to create a cairo context");
+        let renderer = rsvg::CairoRenderer::new(&loader);
+            renderer.render_document(
+                &cr,
+                &cairo::Rectangle::new(0.0, 0.0, f64::from(svg_render_size), f64::from(svg_render_size))
+            ).unwrap();
+        let cache_path = env::var("XDG_CACHE_HOME").unwrap();
+        let clipboard_path = PathBuf::from(format!("{}/clipboard.png",cache_path));
+        let mut stream = std::fs::File::create(&clipboard_path).unwrap();
+        surface.write_to_png(&mut stream).unwrap();
+        imp.top_image_file.lock().unwrap().replace(File::from_path(clipboard_path,svg_render_size,thumbnail_size));
+        self.check_icon_update();
     }
 
     async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
@@ -560,7 +594,7 @@ impl GtkTestWindow {
     fn load_folder_icon (&self, path: &str){
         //let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
         let size: i32 = self.imp().settings.get("thumbnail-size");
-        self.imp().folder_image_file.lock().unwrap().replace(File::from_path(path,self.imp().settings.get("svg-render-size"),size));
+        self.imp().folder_image_file.lock().unwrap().replace(File::from_path_string(path,self.imp().settings.get("svg-render-size"),size));
         self.check_icon_update();
     }
 
