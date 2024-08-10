@@ -18,16 +18,16 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+use crate::config::{APP_ICON, VERSION};
+use crate::glib::WeakRef;
+use crate::settings::settings::PreferencesWindow;
+use crate::GtkTestWindow;
 use adw::prelude::AdwDialogExt;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
+use gtk::License;
 use gtk::{gio, glib};
 use std::cell::OnceCell;
-use crate::config::{VERSION,APP_ICON};
-use crate::GtkTestWindow;
-use crate::glib::WeakRef;
-use crate::settings::settings::PreferencesWindow;
-use gtk::License;
 
 mod imp {
     use super::*;
@@ -110,7 +110,14 @@ impl GtkTestApplication {
         let paste = gio::ActionEntry::builder("open")
             .activate(move |app: &Self, _, _| app.paste_image())
             .build();
-        self.add_action_entries([quit_action, about_action, settings_action,open_action,open_folder_action,paste]);
+        self.add_action_entries([
+            quit_action,
+            about_action,
+            settings_action,
+            open_action,
+            open_folder_action,
+            paste,
+        ]);
     }
 
     fn setup_accels(&self) {
@@ -141,8 +148,6 @@ impl GtkTestApplication {
         self.activate_action("app.paste", None);
     }
 
-
-
     fn show_about(&self) {
         let window = self.active_window().unwrap();
 
@@ -160,5 +165,3 @@ impl GtkTestApplication {
         about.present(Some(&window));
     }
 }
-
-

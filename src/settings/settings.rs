@@ -1,15 +1,15 @@
+use crate::config::{APP_ID, PROFILE};
+use crate::glib::clone;
+use crate::Results;
+use adw::prelude::AdwDialogExt;
+use adw::prelude::AlertDialogExt;
+use gettextrs::*;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use crate::glib::clone;
 use gtk::*;
-use gettextrs::*;
-use crate::config::{APP_ID, PROFILE};
 use std::path::PathBuf;
-use std::{env,fs,path};
-use adw::prelude::AlertDialogExt;
-use adw::prelude::AdwDialogExt;
-use crate::Results;
+use std::{env, fs, path};
 
 mod imp {
     use super::*;
@@ -82,8 +82,6 @@ mod imp {
             }
         }
 
-
-
         fn dispose(&self) {
             self.dispose_template();
         }
@@ -113,36 +111,47 @@ impl PreferencesWindow {
         win
     }
 
-    fn setup_settings(&self){
+    fn setup_settings(&self) {
         let current_value: i32 = self.imp().settings.get("svg-render-size");
         self.imp().svg_image_size.set_value(current_value as f64);
-        self.imp().svg_image_size.connect_changed(clone!(@weak self as this => move |_| {
-            let value = this.imp().svg_image_size.value() as i32;
-            println!("{}",value);
-            let _ = this.imp().settings.set("svg-render-size",value);
-        }));
+        self.imp()
+            .svg_image_size
+            .connect_changed(clone!(@weak self as this => move |_| {
+                let value = this.imp().svg_image_size.value() as i32;
+                println!("{}",value);
+                let _ = this.imp().settings.set("svg-render-size",value);
+            }));
         let current_value: i32 = self.imp().settings.get("thumbnail-size");
-        self.imp().thumbnail_image_size.set_value(current_value as f64);
-        self.imp().thumbnail_image_size.connect_changed(clone!(@weak self as this => move |_| {
-            let value = this.imp().thumbnail_image_size.value() as i32;
-            println!("{}",value);
-            let _ = this.imp().settings.set("thumbnail-size",value);
-        }));
+        self.imp()
+            .thumbnail_image_size
+            .set_value(current_value as f64);
+        self.imp()
+            .thumbnail_image_size
+            .connect_changed(clone!(@weak self as this => move |_| {
+                let value = this.imp().thumbnail_image_size.value() as i32;
+                println!("{}",value);
+                let _ = this.imp().settings.set("thumbnail-size",value);
+            }));
     }
 
-    fn reset_location_fn(&self){
-        let mut default_value = self.imp().settings.default_value("folder-svg-path").unwrap().to_string();
+    fn reset_location_fn(&self) {
+        let mut default_value = self
+            .imp()
+            .settings
+            .default_value("folder-svg-path")
+            .unwrap()
+            .to_string();
         default_value.pop();
         default_value.remove(0);
         self.can_error(self.set_path(&default_value));
     }
 
-    fn set_path_title (&self){
+    fn set_path_title(&self) {
         let current_path = &self.imp().settings.string("folder-svg-path");
-        self.imp().custom1.set_property("title",current_path);
+        self.imp().custom1.set_property("title", current_path);
     }
 
-    fn select_path_filechooser (&self) {
+    fn select_path_filechooser(&self) {
         glib::spawn_future_local(glib::clone!(@weak self as window => async move {
             let filters = gio::ListStore::new::<gtk::FileFilter>();
             let filter = gtk::FileFilter::new();
@@ -164,14 +173,14 @@ impl PreferencesWindow {
         }));
     }
 
-    fn set_path(&self,path: &str) -> Results<()>{
+    fn set_path(&self, path: &str) -> Results<()> {
         self.copy_folder_image_to_cache(path::PathBuf::from(path))?;
         self.imp().settings.set("folder-svg-path", path)?;
         self.set_path_title();
         Ok(())
     }
 
-    fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) -> Results<()>{
+    fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) -> Results<()> {
         let cache_dir = match env::var("XDG_CACHE_HOME") {
             Ok(value) => PathBuf::from(value),
             Err(_) => {
@@ -184,23 +193,28 @@ impl PreferencesWindow {
                 config_dir
             }
         };
-        let file_name = format!("folder.{}",original_path.extension().unwrap().to_str().unwrap());
-        self.imp().settings.set("folder-cache-name",file_name.clone())?;
+        let file_name = format!(
+            "folder.{}",
+            original_path.extension().unwrap().to_str().unwrap()
+        );
+        self.imp()
+            .settings
+            .set("folder-cache-name", file_name.clone())?;
         let cache_path = cache_dir.join(file_name);
-        fs::copy(original_path,cache_path)?;
+        fs::copy(original_path, cache_path)?;
         Ok(())
     }
 
-    fn can_error <T>(&self,result:Results<T>){
-        let _ = result.map_err(|e|
-        {const RESPONSE_OK: &str = "OK";
-        let dialog = adw::AlertDialog::builder()
+    fn can_error<T>(&self, result: Results<T>) {
+        let _ = result.map_err(|e| {
+            const RESPONSE_OK: &str = "OK";
+            let dialog = adw::AlertDialog::builder()
                 .heading(gettext("Error"))
                 .body(&e.to_string())
                 .default_response(RESPONSE_OK)
                 .build();
-        dialog.add_response(RESPONSE_OK, "ok");
-        dialog.present(Some(self))});
+            dialog.add_response(RESPONSE_OK, "ok");
+            dialog.present(Some(self))
+        });
     }
 }
-

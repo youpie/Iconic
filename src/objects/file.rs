@@ -1,90 +1,99 @@
-use std::path::PathBuf;
+use adw::prelude::FileExt;
+use gio::{Cancellable, FileQueryInfoFlags};
 use gtk::gio;
 use image::*;
-use adw::prelude::FileExt;
-use std::fs;
 use resvg::tiny_skia::Pixmap;
-use resvg::usvg::{Tree, Options};
-use gio::{FileQueryInfoFlags,Cancellable};
+use resvg::usvg::{Options, Tree};
+use std::fs;
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
-	pub files: Option<gio::File>,
-	pub path: PathBuf,
-	pub name: String,
-	pub extension: String,
-	pub dynamic_image: DynamicImage,
-	pub thumbnail: DynamicImage,
+    pub files: Option<gio::File>,
+    pub path: PathBuf,
+    pub name: String,
+    pub extension: String,
+    pub dynamic_image: DynamicImage,
+    pub thumbnail: DynamicImage,
 }
 
-impl File{
-	pub fn path_str (&self) -> String{
-		self.path.clone().into_os_string().into_string().unwrap()
-	}
-	pub fn new(file: gio::File, size: i32, thumbnail_size: i32) -> Self{
-		let temp_path = file.path().unwrap();
-		let file_info = file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE).unwrap();
-		let file_name = file_info.name().into_os_string().into_string().unwrap();
-		let period_split:Vec<&str> = file_name.split(".").collect();
-		let file_extension = format!(".{}",period_split.last().unwrap());
+impl File {
+    pub fn path_str(&self) -> String {
+        self.path.clone().into_os_string().into_string().unwrap()
+    }
+    pub fn new(file: gio::File, size: i32, thumbnail_size: i32) -> Self {
+        let temp_path = file.path().unwrap();
+        let file_info = file
+            .query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE)
+            .unwrap();
+        let file_name = file_info.name().into_os_string().into_string().unwrap();
+        let period_split: Vec<&str> = file_name.split(".").collect();
+        let file_extension = format!(".{}", period_split.last().unwrap());
 
-		let mime_type = file_info.content_type();
-		println!("{:#?}",mime_type);
-		let dynamic_image = if mime_type == Some("image/svg+xml".into()) {
-		    let path = &temp_path.as_os_str().to_str().unwrap();
+        let mime_type = file_info.content_type();
+        println!("{:#?}", mime_type);
+        let dynamic_image = if mime_type == Some("image/svg+xml".into()) {
+            let path = &temp_path.as_os_str().to_str().unwrap();
             Self::load_svg(path, size)
-		} else{
-		    image::open(temp_path.clone().into_os_string()).unwrap()
-		};
-        let name_no_extension = file_name.replace(&file_extension,"");
+        } else {
+            image::open(temp_path.clone().into_os_string()).unwrap()
+        };
+        let name_no_extension = file_name.replace(&file_extension, "");
 
         let thumbnail = if file_extension == ".svg" {
-		    let path = &temp_path.as_os_str().to_str().unwrap();
+            let path = &temp_path.as_os_str().to_str().unwrap();
             Self::load_svg(path, thumbnail_size)
-		} else{
-		    dynamic_image.clone().resize(thumbnail_size as u32, thumbnail_size as u32, imageops::FilterType::Nearest)
-		};
-		Self {
-			files: Some(file),
-			path: temp_path.into(),
-			extension: mime_type.unwrap().into(),
-			name: name_no_extension,
-			dynamic_image,
-			thumbnail,
-		}
-	}
+        } else {
+            dynamic_image.clone().resize(
+                thumbnail_size as u32,
+                thumbnail_size as u32,
+                imageops::FilterType::Nearest,
+            )
+        };
+        Self {
+            files: Some(file),
+            path: temp_path.into(),
+            extension: mime_type.unwrap().into(),
+            name: name_no_extension,
+            dynamic_image,
+            thumbnail,
+        }
+    }
 
-	pub fn from_path_string(path: &str, size: i32, thumbnail_size: i32) -> Self{
+    pub fn from_path_string(path: &str, size: i32, thumbnail_size: i32) -> Self {
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(PathBuf::from(path).as_path());
-        Self::new(file,size, thumbnail_size)
-	}
+        Self::new(file, size, thumbnail_size)
+    }
 
-	pub fn from_path(path: PathBuf, size: i32, thumbnail_size: i32) -> Self{
+    pub fn from_path(path: PathBuf, size: i32, thumbnail_size: i32) -> Self {
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(path);
-        Self::new(file,size, thumbnail_size)
-	}
+        Self::new(file, size, thumbnail_size)
+    }
 
+    pub fn from_image(image: DynamicImage, thumbnail_size: i32) -> Self {
+        let thumbnail = image.clone().resize(
+            thumbnail_size as u32,
+            thumbnail_size as u32,
+            imageops::FilterType::Nearest,
+        );
+        Self {
+            files: None,
+            path: "".into(),
+            extension: ".dynamic".to_string(),
+            name: "pasted".to_string(),
+            dynamic_image: image,
+            thumbnail,
+        }
+    }
 
-
-	pub fn from_image(image: DynamicImage, thumbnail_size: i32) -> Self {
-	let thumbnail = image.clone().resize(thumbnail_size as u32, thumbnail_size as u32, imageops::FilterType::Nearest);
-	    Self {
-			files: None,
-			path :  "".into(),
-			extension: ".dynamic".to_string(),
-			name: "pasted".to_string(),
-			dynamic_image: image,
-			thumbnail,
-		}
-	}
-
-	pub fn load_svg(path: &str, size: i32) -> DynamicImage{
+    pub fn load_svg(path: &str, size: i32) -> DynamicImage {
         // Load the SVG file content
-        let svg_data = match fs::read(path){
+        let svg_data = match fs::read(path) {
             Ok(x) => x,
-            Err(_) => fs::read("/usr/share/icons/Adwaita/scalable/places/folder.svg").expect("Could not find folder.svg")
+            Err(_) => fs::read("/usr/share/icons/Adwaita/scalable/places/folder.svg")
+                .expect("Could not find folder.svg"),
         };
         // Create an SVG tree
         let opt = Options::default();
@@ -106,7 +115,7 @@ impl File{
         let _ = resvg::render(
             &rtree,
             usvg::Transform::from_scale(scale, scale),
-            &mut pixmap.as_mut()
+            &mut pixmap.as_mut(),
         );
         Self::pixmap_to_image(pixmap)
     }
@@ -114,21 +123,24 @@ impl File{
     fn pixmap_to_image(pixmap: Pixmap) -> DynamicImage {
         // Create an empty RgbaImage with the same dimensions as the Pixmap.
         let pixmap_clone = pixmap.clone();
-            let mut img = RgbaImage::new(pixmap_clone.width(), pixmap.height());
+        let mut img = RgbaImage::new(pixmap_clone.width(), pixmap.height());
 
-            // Iterate over each pixel in the Pixmap.
-            for y in 0..pixmap_clone.height() {
-                for x in 0..pixmap_clone.width() {
-                    // Get the pixel at (x, y). `pixel` returns an Option, we unwrap it safely because we know (x, y) is valid.
-                    if let Some(pixel) = pixmap_clone.pixel(x, y) {
-                        // Copy the pixel's RGBA data into the RgbaImage.
-                        img.put_pixel(x, y, Rgba([pixel.red(), pixel.green(), pixel.blue(), pixel.alpha()]));
-                    }
+        // Iterate over each pixel in the Pixmap.
+        for y in 0..pixmap_clone.height() {
+            for x in 0..pixmap_clone.width() {
+                // Get the pixel at (x, y). `pixel` returns an Option, we unwrap it safely because we know (x, y) is valid.
+                if let Some(pixel) = pixmap_clone.pixel(x, y) {
+                    // Copy the pixel's RGBA data into the RgbaImage.
+                    img.put_pixel(
+                        x,
+                        y,
+                        Rgba([pixel.red(), pixel.green(), pixel.blue(), pixel.alpha()]),
+                    );
                 }
             }
+        }
 
-            // Convert the RgbaImage to a DynamicImage.
-            DynamicImage::ImageRgba8(img)
+        // Convert the RgbaImage to a DynamicImage.
+        DynamicImage::ImageRgba8(img)
     }
 }
-
