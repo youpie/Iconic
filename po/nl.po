@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-07-23 13:26+0200\n"
-"PO-Revision-Date: 2024-07-23 13:26+0200\n"
+"POT-Creation-Date: 2024-08-11 21:48+0200\n"
+"PO-Revision-Date: 2024-08-11 22:16+0200\n"
 "Last-Translator: Youpie <youplamb@hotmail.nl>\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -21,12 +21,12 @@ msgstr ""
 
 #: data/nl.emphisia.icon.desktop.in.in:3
 #: data/nl.emphisia.icon.metainfo.xml.in.in:5
-#: data/nl.emphisia.icon.metainfo.xml.in.in:82
+#: data/nl.emphisia.icon.metainfo.xml.in.in:78
 msgid "Iconic"
 msgstr "Iconic"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:6
-msgid "Easilly add icons on top of folders"
+msgid "Easily add icons on top of folders"
 msgstr "Voeg gemakkelijk iconen toe aan folders"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:8
@@ -50,89 +50,85 @@ msgstr ""
 "poging om een programma te schrijven"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:19
-msgid "Begin screen of application"
-msgstr "Begin scherm van het programma"
-
-#: data/nl.emphisia.icon.metainfo.xml.in.in:23
 msgid "Main menu in light mode"
 msgstr "Hoofdmenu in light mode"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:27
+#: data/nl.emphisia.icon.metainfo.xml.in.in:23
 msgid "Main menu in dark mode"
 msgstr "Hoofdmenu in dark mode"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:34
+#: data/nl.emphisia.icon.metainfo.xml.in.in:30
 msgid "Another small update with a few additions and changes"
 msgstr ""
 "Een nieuwe kleine update met een paar kleine toevoegingen en veranderingen"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+#: data/nl.emphisia.icon.metainfo.xml.in.in:32
 msgid "You can now open containing folder after saving image"
 msgstr "Je kan nu de folder openen waar de nieuwe afbeelding is opgeslagen"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:37
+#: data/nl.emphisia.icon.metainfo.xml.in.in:33
 msgid "Added italian translation"
 msgstr "Italiaanse vertaling toegevoegd"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:38
+#: data/nl.emphisia.icon.metainfo.xml.in.in:34
 msgid "Updated Dutch translation"
 msgstr "Nederlandse vertaling geupdate"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+#: data/nl.emphisia.icon.metainfo.xml.in.in:40
 msgid "This version adds a few small features and fixes some bugs"
 msgstr "Deze versie voegt een paar kleine dingen toe en fixt was bugs"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+#: data/nl.emphisia.icon.metainfo.xml.in.in:42
 msgid "The app now shows some errors as pop-ups"
 msgstr "De app laat nu een paar fouten zien als pop-ups"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:47
-msgid "You can now temporarilly open a new folder image"
+#: data/nl.emphisia.icon.metainfo.xml.in.in:43
+msgid "You can now temporarily open a new folder image"
 msgstr "Je kan nu tijdelijk een nieuwe folder afbeelding openen"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
 msgid "It now first shows a pop-up when the folder image is not found"
 msgstr ""
 "Er wordt nu eerst een pop-up getoont als de folder afbeelding niet is "
 "gevonden"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:54
+#: data/nl.emphisia.icon.metainfo.xml.in.in:50
 msgid "Initial release"
 msgstr "Eerste versie"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:73
+#: data/nl.emphisia.icon.metainfo.xml.in.in:69
 msgid "icon"
 msgstr "icoon"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:74
+#: data/nl.emphisia.icon.metainfo.xml.in.in:70
 msgid "create"
 msgstr "maken"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:75
+#: data/nl.emphisia.icon.metainfo.xml.in.in:71
 msgid "folder icon"
 msgstr "folder icoon"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:76
+#: data/nl.emphisia.icon.metainfo.xml.in.in:72
 msgid "svg"
 msgstr "svg"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:77
+#: data/nl.emphisia.icon.metainfo.xml.in.in:73
 msgid "png"
 msgstr "png"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:78
+#: data/nl.emphisia.icon.metainfo.xml.in.in:74
 msgid "gnome"
 msgstr "gnome"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:79
+#: data/nl.emphisia.icon.metainfo.xml.in.in:75
 msgid "icon create"
 msgstr "icoon maken"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:80
+#: data/nl.emphisia.icon.metainfo.xml.in.in:76
 msgid "icon creator"
 msgstr "icoon maker"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:81
+#: data/nl.emphisia.icon.metainfo.xml.in.in:77
 msgid "folder icon creator"
 msgstr "folder icoon maker"
 
@@ -220,56 +216,64 @@ msgid "Folder Icon Creator"
 msgstr "Folder Icoon Maker"
 
 #: src/window.blp:32
-msgid "Click to Open Image"
-msgstr "Klik om afbeelding te openen"
+msgid "Click or Drag to Open Image"
+msgstr "Klik of Sleep om een afbeelding te openen"
 
 #: src/window.blp:43
 msgid "_Open Image"
 msgstr "_Open afbeelding"
 
 #: src/window.blp:277
+msgid "_Paste Top Icon from Clipboard"
+msgstr ""
+
+#: src/window.blp:281
 msgid "_Open Top Icon"
 msgstr "_Open bovenste Icoon"
 
-#: src/window.blp:282
+#: src/window.blp:286
 msgid "_Open Folder Icon"
 msgstr "_Open Folder Icoon"
 
-#: src/window.blp:288
+#: src/window.blp:292
 msgid "_Preferences"
 msgstr "_Instellingen"
 
-#: src/window.blp:293
+#: src/window.blp:297
 msgid "_Keyboard Shortcuts"
 msgstr "_Sneltoetsen"
 
-#: src/window.blp:298
-msgid "_About folder icon maker"
+#: src/window.blp:302
+msgid "_About Iconic"
 msgstr "_Over Iconic"
 
-#: src/settings/settings.rs:151 src/window.rs:559
+#: src/settings/settings.rs:176 src/window.rs:850
 msgid "Open Document"
 msgstr "Open Document"
 
-#: src/settings/settings.rs:187 src/window.rs:366
+#: src/settings/settings.rs:232 src/window.rs:538
 msgid "Error"
 msgstr "Fout"
 
-#: src/window.rs:342
+#: src/window.rs:496
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 "De huidig ingestelde folder afbeelding kan niet gevonden worden, druk op OK "
 "om een nieuwe te selecteren"
 
-#: src/window.rs:370
+#: src/window.rs:542
 msgid "OK"
 msgstr "OK"
 
-#: src/window.rs:389
+#: src/window.rs:653
+msgid "Unsupported file type"
+msgstr ""
+
+#: src/window.rs:665
 msgid "Save Changes?"
 msgstr "Veranderingen Opslaan?"
 
-#: src/window.rs:390
+#: src/window.rs:666
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
@@ -277,25 +281,31 @@ msgstr ""
 "Open afbeelding bevat niet-opgeslagen veranderingen. Niet opgeslagen "
 "veranderingen gaan permanent verloren"
 
-#: src/window.rs:394
+#: src/window.rs:670
 msgid "Cancel"
 msgstr "Annuleer"
 
-#: src/window.rs:395
+#: src/window.rs:671
 msgid "Discard"
 msgstr "Verwerpen"
 
-#: src/window.rs:397
+#: src/window.rs:673
 msgid "Save"
 msgstr "Opslaan"
 
-#: src/window.rs:457
+#: src/window.rs:754
 msgid "Open Folder"
 msgstr "Open Folder"
 
-#: src/window.rs:459
+#: src/window.rs:756
 msgid "File Saved"
 msgstr "Bestand Opgeslagen"
+
+#~ msgid "Begin screen of application"
+#~ msgstr "Begin scherm van het programma"
+
+#~ msgid "_About folder icon maker"
+#~ msgstr "_Over Iconic"
 
 #~ msgctxt "shortcut window"
 #~ msgid "Open"
