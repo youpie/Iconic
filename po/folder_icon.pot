@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-11 13:21+0200\n"
+"POT-Creation-Date: 2024-08-11 21:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -233,52 +233,52 @@ msgstr ""
 msgid "_About Iconic"
 msgstr ""
 
-#: src/settings/settings.rs:173 src/window.rs:914
+#: src/settings/settings.rs:176 src/window.rs:850
 msgid "Open Document"
 msgstr ""
 
-#: src/settings/settings.rs:224 src/window.rs:499
+#: src/settings/settings.rs:232 src/window.rs:538
 msgid "Error"
 msgstr ""
 
-#: src/window.rs:471
+#: src/window.rs:496
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 
-#: src/window.rs:503
+#: src/window.rs:542
 msgid "OK"
 msgstr ""
 
-#: src/window.rs:620
+#: src/window.rs:653
 msgid "Unsupported file type"
 msgstr ""
 
-#: src/window.rs:632
+#: src/window.rs:665
 msgid "Save Changes?"
 msgstr ""
 
-#: src/window.rs:633
+#: src/window.rs:666
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
 msgstr ""
 
-#: src/window.rs:637
+#: src/window.rs:670
 msgid "Cancel"
 msgstr ""
 
-#: src/window.rs:638
+#: src/window.rs:671
 msgid "Discard"
 msgstr ""
 
-#: src/window.rs:640
+#: src/window.rs:673
 msgid "Save"
 msgstr ""
 
-#: src/window.rs:760
+#: src/window.rs:754
 msgid "Open Folder"
 msgstr ""
 
-#: src/window.rs:762
+#: src/window.rs:756
 msgid "File Saved"
 msgstr ""

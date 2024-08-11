@@ -1,20 +1,8 @@
-use crate::glib::clone;
-use crate::objects::file::File;
-use adw::prelude::{AlertDialogExt, AlertDialogExtManual};
 use adw::{prelude::*, subclass::prelude::*};
-use gettextrs::gettext;
-use gio::*;
-use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
 use image::*;
-use std::cell::RefCell;
-use std::env;
-use std::fs;
-use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
-use crate::GtkTestWindow;
 
-use crate::config::{APP_ICON, APP_ID, PROFILE};
+use crate::GtkTestWindow;
 
 impl GtkTestWindow {
     pub async fn render_to_screen(&self) {

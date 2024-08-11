@@ -933,3 +933,4 @@ impl GtkTestWindow {
         self.check_icon_update();
     }
 }
+

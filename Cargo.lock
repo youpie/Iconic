@@ -448,7 +448,7 @@ dependencies = [
 
 [[package]]
 name = "folder_icon"
-version = "0.1.0"
+version = "2024.2.0"
 dependencies = [
  "async-channel",
  "cairo-rs",
