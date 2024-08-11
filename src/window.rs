@@ -27,15 +27,13 @@ use gio::*;
 use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
 use image::*;
-use rsvg::*;
 use std::cell::RefCell;
 use std::env;
 use std::fs;
-use std::fs::*;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-use crate::config::{APP_ID, PROFILE};
+use crate::config::{APP_ID, PROFILE,APP_ICON};
 
 mod imp {
     use super::*;
@@ -144,33 +142,44 @@ mod imp {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
             klass.install_action("app.generate_icon", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(@weak win => async move {
+                glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
                     win.render_to_screen().await;
                 }));
             });
             klass.install_action("app.open_top_icon", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(@weak win => async move {
+                glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
                     win.load_top_icon().await;
                 }));
             });
             klass.install_action("app.open_file_location", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(@weak win => async move {
+                glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
                     win.open_directory().await;
                 }));
             });
             klass.install_action("app.select_folder", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(@weak win => async move {
-                    //win.load_temp_folder_icon().await;
+                glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
                     win.load_temp_folder_icon().await;
                 }));
             });
             klass.install_action("app.paste", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(@weak win => async move {
+                glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
                     win.paste().await;
                 }));
             });
             klass.install_action("app.save_button", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(@weak win => async move {
+                glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
                     win.save_file().await;
                 }));
             });
@@ -266,6 +275,9 @@ impl GtkTestWindow {
             .property("application", application)
             .build();
         let imp = win.imp();
+        if PROFILE == "Devel" {
+            imp.main_status_page.set_icon_name(Some(APP_ICON));
+        }
         imp.save_button.set_sensitive(false);
         imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
@@ -323,57 +335,87 @@ impl GtkTestWindow {
     fn setup_update(&self) {
         self.imp().save_button.set_sensitive(true);
         self.imp().image_saved.replace(false);
-        self.imp()
-            .x_scale
-            .connect_value_changed(clone!(@weak self as this => move |_| {
-            glib::spawn_future_local(clone!(@weak this => async move {
-                    this.imp().image_saved.replace(false);
-                    this.imp().save_button.set_sensitive(true);
-                    this.render_to_screen().await;}));
-                }));
+        self.imp().x_scale.connect_value_changed(clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_| {
+                glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
+                    win.imp().image_saved.replace(false);
+                    win.imp().save_button.set_sensitive(true);
+                    win.render_to_screen().await;}));
+            }
+        ));
         self.imp()
             .y_scale
-            .connect_value_changed(clone!(@weak self as this => move |_| {
-            glib::spawn_future_local(clone!(@weak this => async move {
-                    this.render_to_screen().await;
-                    this.imp().image_saved.replace(false);
-                    this.imp().save_button.set_sensitive(true);}));
+            .connect_value_changed(clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_| {
+            glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
+                    win.render_to_screen().await;
+                    win.imp().image_saved.replace(false);
+                    win.imp().save_button.set_sensitive(true);}));
                 }));
         self.imp()
             .size
-            .connect_value_changed(clone!(@weak self as this => move |_| {
-            glib::spawn_future_local(clone!(@weak this => async move {
-                    this.render_to_screen().await;
-                    this.imp().image_saved.replace(false);
-                    this.imp().save_button.set_sensitive(true);}));
+            .connect_value_changed(clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_| {
+            glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
+                    win.render_to_screen().await;
+                    win.imp().image_saved.replace(false);
+                    win.imp().save_button.set_sensitive(true);}));
                 }));
         self.imp()
             .threshold_scale
-            .connect_value_changed(clone!(@weak self as this => move |_| {
-            glib::spawn_future_local(clone!(@weak this => async move {
-                    this.render_to_screen().await;
-                    this.imp().image_saved.replace(false);
-                    this.imp().save_button.set_sensitive(true);}));
+            .connect_value_changed(clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_| {
+            glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
+                    win.render_to_screen().await;
+                    win.imp().image_saved.replace(false);
+                    win.imp().save_button.set_sensitive(true);}));
                 }));
         self.imp()
             .monochrome_color
-            .connect_rgba_notify(clone!(@weak self as this => move |_| {
-            glib::spawn_future_local(clone!(@weak this => async move {
-                if this.imp().monochrome_color.rgba() != this.imp().default_color.clone(){
-                    this.imp().reset_color.set_visible(true);
+            .connect_rgba_notify(clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_| {
+            glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
+                let imp = win.imp();
+                if imp.monochrome_color.rgba() != imp.default_color.clone(){
+                    imp.reset_color.set_visible(true);
                 }
-                this.imp().image_saved.replace(false);
-                this.imp().save_button.set_sensitive(true);
-                this.render_to_screen().await;
+                imp.image_saved.replace(false);
+                imp.save_button.set_sensitive(true);
+                win.render_to_screen().await;
                 }));
             }));
         self.imp()
             .monochrome_invert
-            .connect_active_notify(clone!(@weak self as this => move |_| {
-            glib::spawn_future_local(clone!(@weak this => async move {
-                this.render_to_screen().await;
-                this.imp().image_saved.replace(false);
-                this.imp().save_button.set_sensitive(true);
+            .connect_active_notify(clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_| {
+            glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
+                win.render_to_screen().await;
+                win.imp().image_saved.replace(false);
+                win.imp().save_button.set_sensitive(true);
                 }));
             }));
     }
@@ -388,10 +430,12 @@ impl GtkTestWindow {
     }
 
     fn load_folder_path(&self) {
-        glib::spawn_future_local(glib::clone!(@weak self as window => async move {
-            let cache_file_name: &str = &window.imp().settings.string("folder-cache-name");
-            let path = window.check_chache_icon(cache_file_name).await;
-            window.load_folder_icon(&path.into_os_string().into_string().unwrap());
+        glib::spawn_future_local(glib::clone!(
+                #[weak(rename_to = win)] self,
+                async move {
+            let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
+            let path = win.check_chache_icon(cache_file_name).await;
+            win.load_folder_icon(&path.into_os_string().into_string().unwrap());
         }));
     }
 
@@ -842,8 +886,10 @@ impl GtkTestWindow {
             && imp.folder_image_file.lock().unwrap().as_ref() != None
         {
             self.setup_update();
-            glib::spawn_future_local(glib::clone!(@weak self as window => async move {
-                window.render_to_screen().await;
+            glib::spawn_future_local(glib::clone!(
+                #[weak(rename_to = win)] self,
+                async move {
+                win.render_to_screen().await;
             }));
         } else if imp.folder_image_file.lock().unwrap().as_ref() != None {
             imp.image_view.set_paintable(Some(
@@ -945,7 +991,10 @@ impl GtkTestWindow {
         }
         let svg_render_size = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
-        let _ = gio::spawn_blocking(clone!(@weak file => move ||{
+        let _ = gio::spawn_blocking(clone!(
+        #[weak]
+        file,
+        move ||{
             file.lock().expect("Could not get file").replace(File::new(filename,svg_render_size,size));
         })).await;
         let file = file.lock().unwrap().clone().unwrap();

@@ -29,7 +29,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
           Adw.StatusPage main_status_page {
             icon-name: "nl.emphisia.icon";
             title: _("Folder Icon Creator");
-            description: _("Click to Open Image");
+            description: _("Click or Drag to Open Image");
             hexpand: true;
             vexpand: true;
             child:
@@ -153,7 +153,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                     orientation: horizontal;
                     adjustment: Adjustment percentage3 {
                       lower: 0;
-                      upper: 30;
+                      upper: 50;
                       step-increment: 1;
                     };
                     hexpand: true;

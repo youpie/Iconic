@@ -56,12 +56,16 @@ mod imp {
             klass.bind_template();
             klass.bind_template_instance_callbacks();
             klass.install_action("app.select_folder", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(@weak win => async move {
+                glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
                     win.select_path_filechooser();
                 }));
             });
             klass.install_action("app.reset_location", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(@weak win => async move {
+                glib::spawn_future_local(clone!(
+                #[weak] win,
+                async move {
                     win.reset_location_fn();
                 }));
             });
@@ -116,10 +120,13 @@ impl PreferencesWindow {
         self.imp().svg_image_size.set_value(current_value as f64);
         self.imp()
             .svg_image_size
-            .connect_changed(clone!(@weak self as this => move |_| {
-                let value = this.imp().svg_image_size.value() as i32;
+            .connect_changed(clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_| {
+                let value = win.imp().svg_image_size.value() as i32;
                 println!("{}",value);
-                let _ = this.imp().settings.set("svg-render-size",value);
+                let _ = win.imp().settings.set("svg-render-size",value);
             }));
         let current_value: i32 = self.imp().settings.get("thumbnail-size");
         self.imp()
@@ -127,10 +134,13 @@ impl PreferencesWindow {
             .set_value(current_value as f64);
         self.imp()
             .thumbnail_image_size
-            .connect_changed(clone!(@weak self as this => move |_| {
-                let value = this.imp().thumbnail_image_size.value() as i32;
+            .connect_changed(clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_| {
+                let value = win.imp().thumbnail_image_size.value() as i32;
                 println!("{}",value);
-                let _ = this.imp().settings.set("thumbnail-size",value);
+                let _ = win.imp().settings.set("thumbnail-size",value);
             }));
     }
 
@@ -152,7 +162,9 @@ impl PreferencesWindow {
     }
 
     fn select_path_filechooser(&self) {
-        glib::spawn_future_local(glib::clone!(@weak self as window => async move {
+        glib::spawn_future_local(glib::clone!(
+                #[weak(rename_to = win)] self,
+                async move {
             let filters = gio::ListStore::new::<gtk::FileFilter>();
             let filter = gtk::FileFilter::new();
             filter.add_mime_type("image/*");
@@ -162,12 +174,12 @@ impl PreferencesWindow {
                     .modal(true)
                     .filters(&filters)
                     .build();
-            let file = dialog.open_future(Some(&window)).await;
+            let file = dialog.open_future(Some(&win)).await;
 
             match file {
                 Ok(x) => {  println!("{:#?}",&x.path().unwrap());
                             let path: &str = &x.path().unwrap().into_os_string().into_string().unwrap();
-                            window.can_error(window.set_path(path));},
+                            win.can_error(win.set_path(path));},
                 Err(y) => {println!("{:#?}",y);},
             }
         }));

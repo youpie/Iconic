@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-10 21:34+0200\n"
+"POT-Creation-Date: 2024-08-11 13:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -202,7 +202,7 @@ msgid "Folder Icon Creator"
 msgstr ""
 
 #: src/window.blp:32
-msgid "Click to Open Image"
+msgid "Click or Drag to Open Image"
 msgstr ""
 
 #: src/window.blp:43
@@ -233,52 +233,52 @@ msgstr ""
 msgid "_About Iconic"
 msgstr ""
 
-#: src/settings/settings.rs:151 src/window.rs:677
+#: src/settings/settings.rs:173 src/window.rs:914
 msgid "Open Document"
 msgstr ""
 
-#: src/settings/settings.rs:187 src/window.rs:409
+#: src/settings/settings.rs:224 src/window.rs:499
 msgid "Error"
 msgstr ""
 
-#: src/window.rs:385
+#: src/window.rs:471
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 
-#: src/window.rs:413
+#: src/window.rs:503
 msgid "OK"
 msgstr ""
 
-#: src/window.rs:495
+#: src/window.rs:620
 msgid "Unsupported file type"
 msgstr ""
 
-#: src/window.rs:506
+#: src/window.rs:632
 msgid "Save Changes?"
 msgstr ""
 
-#: src/window.rs:507
+#: src/window.rs:633
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
 msgstr ""
 
-#: src/window.rs:511
+#: src/window.rs:637
 msgid "Cancel"
 msgstr ""
 
-#: src/window.rs:512
+#: src/window.rs:638
 msgid "Discard"
 msgstr ""
 
-#: src/window.rs:514
+#: src/window.rs:640
 msgid "Save"
 msgstr ""
 
-#: src/window.rs:575
+#: src/window.rs:760
 msgid "Open Folder"
 msgstr ""
 
-#: src/window.rs:577
+#: src/window.rs:762
 msgid "File Saved"
 msgstr ""
