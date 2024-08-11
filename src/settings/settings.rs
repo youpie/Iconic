@@ -57,17 +57,21 @@ mod imp {
             klass.bind_template_instance_callbacks();
             klass.install_action("app.select_folder", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
-                #[weak] win,
-                async move {
-                    win.select_path_filechooser();
-                }));
+                    #[weak]
+                    win,
+                    async move {
+                        win.select_path_filechooser();
+                    }
+                ));
             });
             klass.install_action("app.reset_location", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
-                #[weak] win,
-                async move {
-                    win.reset_location_fn();
-                }));
+                    #[weak]
+                    win,
+                    async move {
+                        win.reset_location_fn();
+                    }
+                ));
             });
         }
 
@@ -118,30 +122,28 @@ impl PreferencesWindow {
     fn setup_settings(&self) {
         let current_value: i32 = self.imp().settings.get("svg-render-size");
         self.imp().svg_image_size.set_value(current_value as f64);
-        self.imp()
-            .svg_image_size
-            .connect_changed(clone!(
+        self.imp().svg_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
                 let value = win.imp().svg_image_size.value() as i32;
-                println!("{}",value);
-                let _ = win.imp().settings.set("svg-render-size",value);
-            }));
+                println!("{}", value);
+                let _ = win.imp().settings.set("svg-render-size", value);
+            }
+        ));
         let current_value: i32 = self.imp().settings.get("thumbnail-size");
         self.imp()
             .thumbnail_image_size
             .set_value(current_value as f64);
-        self.imp()
-            .thumbnail_image_size
-            .connect_changed(clone!(
+        self.imp().thumbnail_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
                 let value = win.imp().thumbnail_image_size.value() as i32;
-                println!("{}",value);
-                let _ = win.imp().settings.set("thumbnail-size",value);
-            }));
+                println!("{}", value);
+                let _ = win.imp().settings.set("thumbnail-size", value);
+            }
+        ));
     }
 
     fn reset_location_fn(&self) {
@@ -163,26 +165,32 @@ impl PreferencesWindow {
 
     fn select_path_filechooser(&self) {
         glib::spawn_future_local(glib::clone!(
-                #[weak(rename_to = win)] self,
-                async move {
-            let filters = gio::ListStore::new::<gtk::FileFilter>();
-            let filter = gtk::FileFilter::new();
-            filter.add_mime_type("image/*");
-            filters.append(&filter);
-            let dialog = gtk::FileDialog::builder()
+            #[weak(rename_to = win)]
+            self,
+            async move {
+                let filters = gio::ListStore::new::<gtk::FileFilter>();
+                let filter = gtk::FileFilter::new();
+                filter.add_mime_type("image/*");
+                filters.append(&filter);
+                let dialog = gtk::FileDialog::builder()
                     .title(gettext("Open Document"))
                     .modal(true)
                     .filters(&filters)
                     .build();
-            let file = dialog.open_future(Some(&win)).await;
+                let file = dialog.open_future(Some(&win)).await;
 
-            match file {
-                Ok(x) => {  println!("{:#?}",&x.path().unwrap());
-                            let path: &str = &x.path().unwrap().into_os_string().into_string().unwrap();
-                            win.can_error(win.set_path(path));},
-                Err(y) => {println!("{:#?}",y);},
+                match file {
+                    Ok(x) => {
+                        println!("{:#?}", &x.path().unwrap());
+                        let path: &str = &x.path().unwrap().into_os_string().into_string().unwrap();
+                        win.can_error(win.set_path(path));
+                    }
+                    Err(y) => {
+                        println!("{:#?}", y);
+                    }
+                }
             }
-        }));
+        ));
     }
 
     fn set_path(&self, path: &str) -> Results<()> {

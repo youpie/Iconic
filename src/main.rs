@@ -23,6 +23,7 @@ mod config;
 mod objects;
 mod settings;
 mod window;
+mod windows;
 
 use std::boxed::Box;
 use std::error;
