@@ -1,22 +1,24 @@
 [package]
 name = "folder_icon"
-version = "0.1.0"
+version = "2024.2.0"
 edition = "2021"
 
-[dependencies.gtk]
-package = "gtk4"
-version = "0.8"
-features = ["v4_10"]
-
 [dependencies]
-ashpd = { version = "0.8.1", features = ["gtk4"] }
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
-image = {version = "0.25.1"}
+image = {version = "0.25.2"}
+gio = "0.20"
+librsvg = "2.59.0-beta.3"
+cairo-rs = "0.20"
 async-channel = {version = "2.3.1"}
 resvg = {version = "0.42.0"}
 usvg = "0.42.0"
 
+[dependencies.gtk]
+package = "gtk4"
+version = "0.9"
+features = ["gnome_45"]
+
 [dependencies.adw]
 package = "libadwaita"
-version = "0.6"
+version = "0.7"
 features = ["v1_5"]

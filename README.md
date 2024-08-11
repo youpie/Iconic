@@ -4,21 +4,24 @@
 
 Iconic lets you easily add images on top of a folder icon. It is mostly meant for Gnome. 
 This application is my first attempt at creating an application using Rust and Libadwaita.
+
+<a href='https://flathub.org/apps/details/nl.emphisia.icon'><img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en&light'/></a>
+
 ![afbeelding](https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20dark.png?raw=true)
 
-
-
 ## Todo 📝
-These are ideas I want to implement. Everything with a `*` I want implemented before I want to release it
+These are ideas I want to implement.
 - [X] Create Icon*
 - [ ] Add features
     - [X] Automatically load the folder Icon*
     - [X] Support SVG's*
-    - [ ] Drag and drop
+    - [X] Drag and drop
     - [ ] Proper error handling
     - [X] Add threading
         - [X] Loading images*
+            - [ ] Loading dragged images
         - [X] Saving images*
+        - [ ] Making images monochrome
     - [X] Start Screen
     - [ ] Export to SVG
     - [X] Change folder image in preferences
@@ -32,16 +35,17 @@ These are ideas I want to implement. Everything with a `*` I want implemented be
     - [ ] Rounded corner option for top image
     - [X] Load image folder on start*
     - [X] Ability to save and load settings
-    - [ ] Add ability to temporarily change folder icon*
-    - [ ] Loading symbolic icons directly
+    - [X] Add ability to temporarily change folder icon*
+    - [X] Loading symbolic icons directly
         - [ ] Add symbolic icon picker (like [Icon Library](https://gitlab.gnome.org/World/design/icon-library))
     - [X] Automatically place icon in right position
     - [ ] Add guide grid or something
     - [ ] Ability to directly set image of folder (if even possible)
+        - [ ] Ability to drag generated image from iconic window to nautulis  
 - [ ] Clean up code
 - [ ] Add comments
-- [ ] Correct flatpak manifest*
-- [ ] Think of better name
+- [X] Correct flatpak manifest*
+- [X] Think of better name
 - [ ] Add dontation link :)
 
 ## Contributing 🤝

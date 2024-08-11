@@ -26,10 +26,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               menu-model: primary_menu;
             }
           }
-          Adw.StatusPage {
+          Adw.StatusPage main_status_page {
             icon-name: "nl.emphisia.icon";
             title: _("Folder Icon Creator");
-            description: _("Click to Open Image");
+            description: _("Click or Drag to Open Image");
             hexpand: true;
             vexpand: true;
             child:
@@ -85,11 +85,11 @@ template $GtkTestWindow : Adw.ApplicationWindow {
 
           }
           content:
-          Adw.Clamp clamp {
+          Adw.Clamp image_preferences {
             width-request: 300;
 
             Adw.PreferencesPage {
-              Adw.PreferencesGroup{
+              Adw.PreferencesGroup {
                 Box{
                   orientation: horizontal;
                   Scale y_scale {
@@ -153,7 +153,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                     orientation: horizontal;
                     adjustment: Adjustment percentage3 {
                       lower: 0;
-                      upper: 30;
+                      upper: 50;
                       step-increment: 1;
                     };
                     hexpand: true;
@@ -273,6 +273,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
 
 menu primary_menu {
   section {
+  item {
+      label: _("_Paste Top Icon from Clipboard");
+      action: "app.paste";
+    }
     item {
       label: _("_Open Top Icon");
       action: "app.open_top_icon";
@@ -295,7 +299,7 @@ menu primary_menu {
     }
 
     item {
-      label: _("_About folder icon maker");
+      label: _("_About Iconic");
       action: "app.about";
     }
   }

@@ -20,22 +20,21 @@
 type Results<T> = std::result::Result<T, Box<dyn error::Error>>;
 mod application;
 mod config;
-mod window;
 mod objects;
 mod settings;
+mod window;
+mod windows;
 
-use std::error;
 use std::boxed::Box;
+use std::error;
 
 use self::application::GtkTestApplication;
 use self::window::GtkTestWindow;
 
-use config::{GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR, APP_ID};
+use config::{APP_ID, GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
 use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
-use gtk::{gio, glib};
 use gtk::prelude::*;
-
-
+use gtk::{gio, glib};
 
 fn main() -> glib::ExitCode {
     // Set up gettext translations
@@ -60,4 +59,3 @@ fn main() -> glib::ExitCode {
     // terminal.
     app.run()
 }
-

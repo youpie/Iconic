@@ -3,7 +3,7 @@
   <!--Created with jdAppStreamEdit 9.1-->
   <id>@app-id@</id>
   <name>Iconic</name>
-  <summary>Easilly add icons on top of folders</summary>
+  <summary>Easily add icons on top of folders</summary>
   <developer id="@youpie@social.emphisia.nl">
     <name>Youpie</name>
   </developer>
@@ -25,6 +25,20 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2024.2.0" date="2024-08-11" type="stable">
+      <description>
+        <p>This is a new major release of Iconic. Featuring many bug fixes and added features. Some notable ones are:</p>
+        <ol>
+          <li>Drag and drop support</li>
+          <li>Copy-paste support</li>
+          <li>Better file type detection</li>
+          <li>Updated dutch translations</li>
+          <li>Added Hindi translations</li>
+          <li>Fixed spelling mistakes</li>
+          <li>Fixed issues with black pixels not converting to monochrome</li>
+        </ol>
+      </description>
+    </release>
     <release version="1.1.1" date="2024-07-23" type="stable">
       <description>
         <p>Another small update with a few additions and changes</p>
@@ -40,7 +54,7 @@
         <p>This version adds a few small features and fixes some bugs</p>
         <ul>
           <li>The app now shows some errors as pop-ups</li>
-          <li>You can now temporarilly open a new folder image</li>
+          <li>You can now temporarily open a new folder image</li>
           <li>It now first shows a pop-up when the folder image is not found</li>
         </ul>
       </description>
