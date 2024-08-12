@@ -230,7 +230,13 @@ mod imp {
                 obj,
                 move |_, value, _, _| {
                     if let Ok(file) = value.get::<gio::File>() {
-                        obj.open_dragged_file(file);
+                        glib::spawn_future_local(glib::clone!(
+                            #[weak(rename_to = win)]
+                            obj,
+                            async move {
+                                win.open_dragged_file(file).await;
+                            }
+                        ));
                         true
                     } else {
                         false
@@ -245,7 +251,13 @@ mod imp {
                 obj,
                 move |_, value, _, _| {
                     if let Ok(file) = value.get::<gio::File>() {
-                        obj.open_dragged_file(file);
+                        glib::spawn_future_local(glib::clone!(
+                            #[weak(rename_to = win)]
+                            obj,
+                            async move {
+                                win.open_dragged_file(file).await;
+                            }
+                        ));
                         true
                     } else {
                         false
@@ -554,8 +566,23 @@ impl GtkTestWindow {
         }
     }
 
-    pub fn top_or_bottom_popup(&self) -> Result<bool> {
+    pub async fn top_or_bottom_popup(&self) -> Option<bool> {
+        const RESPONSE_TOP: &str = "TOP";
+        const RESPONSE_BOTTOM: &str = "BOTTOM";
+        let dialog = adw::AlertDialog::builder()
+            .heading(gettext("Select layer"))
+            .body(&gettext("Do you want to load this image to the top or bottom layer?"))
+            .default_response(RESPONSE_TOP)
+            .build();
+        dialog.add_response(RESPONSE_TOP, &gettext("Top"));
+        dialog.add_response(RESPONSE_BOTTOM, &gettext("Bottom"));
+        dialog.set_response_appearance(RESPONSE_TOP, adw::ResponseAppearance::Suggested);
 
+        match &*dialog.clone().choose_future(self).await {
+            RESPONSE_TOP => Some (true),
+            RESPONSE_BOTTOM => Some(false),
+            _ => None,
+        }
     }
 
     pub async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
@@ -639,11 +666,11 @@ impl GtkTestWindow {
         let file = dialog.open_future(Some(self)).await;
         match file {
             Ok(x) => {
-                debug!("{:#?}", &x.path().unwrap());
+                debug!("{:?}", &x.path().unwrap());
                 Some(x)
             }
             Err(y) => {
-                error!("{:#?}", y);
+                error!("{:?}", y);
                 None
             }
         }

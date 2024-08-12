@@ -96,11 +96,12 @@ impl GtkTestWindow {
         self.check_icon_update();
     }
 
-    pub fn open_dragged_file(&self, file: gio::File) {
+    pub async fn open_dragged_file(&self, file: gio::File) {
         let imp = self.imp();
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         debug!("{:#?}", file.path().value_type());
+        let top_file_selected = self.top_or_bottom_popup().await;
         let file_info =
             match file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE) {
                 Ok(x) => x,
@@ -121,7 +122,11 @@ impl GtkTestWindow {
         debug!("file type: {:?}", mime_type);
         match mime_type {
             Some(x) if x == String::from("image") => {
-                self.new_iconic_file_creation(file, svg_render_size, thumbnail_size);
+                match top_file_selected {
+                    Some(true) => self.new_iconic_file_creation(file, svg_render_size, thumbnail_size, true),
+                    Some(false) => self.new_iconic_file_creation(file, svg_render_size, thumbnail_size, false),
+                    _ => self.new_iconic_file_creation(file, svg_render_size, thumbnail_size, true),
+                };
             }
             _ => {
                 self.show_error_popup(&gettext("Unsupported file type"), true, None);
@@ -235,7 +240,7 @@ impl GtkTestWindow {
         let size: i32 = imp.settings.get("svg-render-size");
         match self.open_file_chooser_gtk().await {
             Some(x) => {
-                self.new_iconic_file_creation(x, size, thumbnail_size)
+                self.new_iconic_file_creation(x, size, thumbnail_size, false)
             }
             None => {
                 imp.toast_overlay.add_toast(adw::Toast::new("Icon reset"));
@@ -267,7 +272,7 @@ impl GtkTestWindow {
         }
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
-        self.new_iconic_file_creation(filename, svg_render_size, size);
+        self.new_iconic_file_creation(filename, svg_render_size, size, true);
         imp.image_loading_spinner.set_spinning(false);
     }
 
@@ -276,6 +281,7 @@ impl GtkTestWindow {
         file: gio::File,
         svg_render_size: i32,
         thumbnail_render_size: i32,
+        change_top_icon: bool,
     ) {
         let imp = self.imp();
         let new_file = match File::new(file, svg_render_size, thumbnail_render_size) {
@@ -287,7 +293,10 @@ impl GtkTestWindow {
         };
         match new_file {
             Some(file) => {
-                imp.top_image_file.lock().unwrap().replace(file);
+                match change_top_icon{
+                    true => imp.top_image_file.lock().unwrap().replace(file),
+                    false => imp.folder_image_file.lock().unwrap().replace(file),
+                };
                 self.check_icon_update();
             }
             None => {
