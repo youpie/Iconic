@@ -102,12 +102,15 @@ impl GtkTestWindow {
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         debug!("{:#?}", file.path().value_type());
-        let file_info = match file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE) {
-            Ok(x) => x,
-            Err(e) => {self.show_popup(&e.to_string(),true);
-                        error!("{:?}",e);
-                        return;}
-        };
+        let file_info =
+            match file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE) {
+                Ok(x) => x,
+                Err(e) => {
+                    self.show_popup(&e.to_string(), true);
+                    error!("{:?}", e);
+                    return;
+                }
+            };
         imp.stack.set_visible_child_name("stack_loading_page");
         debug!("file name: {:?}", file_info.name());
         let mime_type: Option<String> = match file_info.content_type() {
@@ -120,11 +123,14 @@ impl GtkTestWindow {
         debug!("file type: {:?}", mime_type);
         match mime_type {
             Some(x) if x == String::from("image") => {
-                imp.top_image_file.lock().unwrap().replace(File::new(
-                    file,
-                    svg_render_size,
-                    thumbnail_size,
-                ));
+                let new_file = match File::new(file, svg_render_size, thumbnail_size) {
+                    Ok(x) => x,
+                    Err(e) => {
+                        self.show_popup(&e.to_string(), true);
+                        return;
+                    }
+                };
+                imp.top_image_file.lock().unwrap().replace(new_file);
             }
             _ => {
                 imp.stack.set_visible_child_name("stack_welcome_page");
@@ -235,10 +241,14 @@ impl GtkTestWindow {
         let size: i32 = imp.settings.get("svg-render-size");
         match self.open_file_chooser_gtk().await {
             Some(x) => {
-                imp.folder_image_file
-                    .lock()
-                    .unwrap()
-                    .replace(File::new(x, size, thumbnail_size));
+                let new_file = match File::new(x, size, thumbnail_size) {
+                    Ok(x) => x,
+                    Err(e) => {
+                        self.show_popup(&e.to_string(), true);
+                        return;
+                    }
+                };
+                imp.folder_image_file.lock().unwrap().replace(new_file);
                 self.check_icon_update();
             }
             None => {
@@ -267,7 +277,7 @@ impl GtkTestWindow {
         &self,
         filename: gio::File,
         file: &Arc<Mutex<Option<File>>>,
-    ) -> String {
+        ) -> String {
         let imp = self.imp();
         imp.image_loading_spinner.set_spinning(true);
         if imp.stack.visible_child_name() == Some("stack_welcome_page".into()) {
@@ -275,15 +285,18 @@ impl GtkTestWindow {
         }
         let svg_render_size = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
+        let new_file = match File::new(filename,svg_render_size,size,) {
+            Ok(x) => x,
+            Err(e) => {
+                self.show_popup(&e.to_string(), true);
+                return Default::default();
+            }
+        };
         let _ = gio::spawn_blocking(clone!(
             #[weak]
             file,
             move || {
-                file.lock().expect("Could not get file").replace(File::new(
-                    filename,
-                    svg_render_size,
-                    size,
-                ));
+                file.lock().expect("Could not get file").replace(new_file);
             }
         ))
         .await;
@@ -291,4 +304,6 @@ impl GtkTestWindow {
         imp.image_loading_spinner.set_spinning(false);
         format!("{}{}", file.name, file.extension)
     }
+
+ pub fn file_error_handling ()
 }

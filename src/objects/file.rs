@@ -1,13 +1,15 @@
 use adw::prelude::FileExt;
+use file_format::FileFormat;
 use gio::{Cancellable, FileQueryInfoFlags};
 use gtk::gio;
 use image::*;
 use log::*;
 use resvg::tiny_skia::Pixmap;
 use resvg::usvg::{Options, Tree};
+use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
 use std::ops::Deref;
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
@@ -23,11 +25,13 @@ impl File {
     pub fn path_str(&self) -> String {
         self.path.clone().into_os_string().into_string().unwrap()
     }
-    pub fn new(file: gio::File, size: i32, thumbnail_size: i32) -> Self {
+    pub fn new(file: gio::File, size: i32, thumbnail_size: i32) -> Result<Self, Box<dyn Error>> {
         let temp_path = file.path().unwrap();
-        let file_info = file
-            .query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE)
-            .unwrap();
+        let fileformat_binding = FileFormat::from_file(temp_path.clone()).unwrap();
+        let mime_type_second_opinion = fileformat_binding.media_type();
+        debug!("Media type: {}", mime_type_second_opinion);
+        let file_info =
+            file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE)?;
         let file_name = file_info.name().into_os_string().into_string().unwrap();
         let period_split: Vec<&str> = file_name.split(".").collect();
         let file_extension = format!(".{}", period_split.last().unwrap());
@@ -36,15 +40,15 @@ impl File {
         debug!("Mime type: {:?}", mime_type);
         let dynamic_image = if mime_type == Some("image/svg+xml".into()) {
             let path = &temp_path.as_os_str().to_str().unwrap();
-            Self::load_svg(path, size)
+            Self::load_svg(path, size)?
         } else {
-            image::open(temp_path.clone().into_os_string()).unwrap()
+            image::open(temp_path.clone().into_os_string())?
         };
         let name_no_extension = file_name.replace(&file_extension, "");
 
         let thumbnail = if file_extension == ".svg" {
             let path = &temp_path.as_os_str().to_str().unwrap();
-            Self::load_svg(path, thumbnail_size)
+            Self::load_svg(path, thumbnail_size)?
         } else {
             dynamic_image.clone().resize(
                 thumbnail_size as u32,
@@ -52,26 +56,26 @@ impl File {
                 imageops::FilterType::Nearest,
             )
         };
-        Self {
+        Ok(Self {
             files: Some(file),
             path: temp_path.into(),
             extension: mime_type.unwrap().into(),
             name: name_no_extension,
             dynamic_image,
             thumbnail,
-        }
+        })
     }
 
     pub fn from_path_string(path: &str, size: i32, thumbnail_size: i32) -> Self {
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(PathBuf::from(path).as_path());
-        Self::new(file, size, thumbnail_size)
+        Self::new(file, size, thumbnail_size).unwrap() //TODO
     }
 
     pub fn from_path(path: PathBuf, size: i32, thumbnail_size: i32) -> Self {
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(path);
-        Self::new(file, size, thumbnail_size)
+        Self::new(file, size, thumbnail_size).unwrap() //TODO
     }
 
     pub fn from_image(image: DynamicImage, thumbnail_size: i32) -> Self {
@@ -90,16 +94,15 @@ impl File {
         }
     }
 
-    pub fn load_svg(path: &str, size: i32) -> DynamicImage {
+    pub fn load_svg(path: &str, size: i32) -> Result<DynamicImage, Box<dyn Error>> {
         // Load the SVG file content
         let svg_data = match fs::read(path) {
             Ok(x) => x,
-            Err(_) => fs::read("/usr/share/icons/Adwaita/scalable/places/folder.svg")
-                .expect("Could not find folder.svg"),
+            Err(_) => fs::read("/usr/share/icons/Adwaita/scalable/places/folder.svg")?,
         };
         // Create an SVG tree
         let opt = Options::default();
-        let rtree = Tree::from_data(&svg_data, &opt).expect("Failed to parse SVG data");
+        let rtree = Tree::from_data(&svg_data, &opt)?;
 
         // Specify the output dimensions (you can adjust these as needed)
         let width = rtree.size().width();
@@ -111,7 +114,7 @@ impl File {
         let scale = scale_x.min(scale_y); // Maintain aspect ratio
 
         // Create a Pixmap to render into
-        let mut pixmap = Pixmap::new(size as u32, size as u32).expect("Failed to create Pixmap");
+        let mut pixmap = Pixmap::new(size as u32, size as u32).unwrap();
 
         // Render the SVG tree to the Pixmap
         let _ = resvg::render(
@@ -119,7 +122,7 @@ impl File {
             usvg::Transform::from_scale(scale, scale),
             &mut pixmap.as_mut(),
         );
-        Self::pixmap_to_image(pixmap)
+        Ok(Self::pixmap_to_image(pixmap))
     }
 
     fn pixmap_to_image(pixmap: Pixmap) -> DynamicImage {
