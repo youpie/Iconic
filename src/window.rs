@@ -32,6 +32,7 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+use std::error::Error;
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
@@ -191,7 +192,12 @@ mod imp {
                     #[weak]
                     win,
                     async move {
-                        win.save_file().await;
+                        match win.save_file().await {
+                            Ok(_) => (),
+                            Err(error) => {
+                                win.show_error_popup(&error.to_string(),true, Some(error));
+                            }
+                        };
                     }
                 ));
             });
@@ -480,9 +486,10 @@ impl GtkTestWindow {
         }
         info!("File not found AT ALL");
         let dialog = self
-            .show_popup(
+            .show_error_popup(
                 &gettext("The set folder icon could not be found, press ok to select a new one"),
                 false,
+                None
             )
             .unwrap();
         match &*dialog.clone().choose_future(self).await {
@@ -526,7 +533,7 @@ impl GtkTestWindow {
         (cache_path, file_name)
     }
 
-    pub fn show_popup(&self, message: &str, show: bool) -> Option<adw::AlertDialog> {
+    pub fn show_error_popup(&self, message: &str, show: bool, error: Option<Box<dyn Error + '_>>) -> Option<adw::AlertDialog> {
         const RESPONSE_OK: &str = "OK";
         let dialog = adw::AlertDialog::builder()
             .heading(gettext("Error"))
@@ -534,6 +541,10 @@ impl GtkTestWindow {
             .default_response(RESPONSE_OK)
             .build();
         dialog.add_response(RESPONSE_OK, &gettext("OK"));
+        match error {
+            Some(ref x) => error!("An error has occured: \"{:?}\"",x),
+            None => error!("An error has occured: \"{}\"",message),
+        };
         match show {
             true => {
                 dialog.present(Some(self));
@@ -541,6 +552,10 @@ impl GtkTestWindow {
             }
             false => Some(dialog),
         }
+    }
+
+    pub fn top_or_bottom_popup(&self) -> Result<bool> {
+
     }
 
     pub async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
@@ -566,8 +581,16 @@ impl GtkTestWindow {
             }
             RESPONSE_DISCARD => Ok(glib::Propagation::Proceed),
             RESPONSE_SAVE => match self.save_file().await {
-                true => Ok(glib::Propagation::Proceed),
-                false => Ok(glib::Propagation::Stop),
+                Ok(saved) => {
+                    match saved {
+                        true => Ok(glib::Propagation::Proceed),
+                        false => Ok(glib::Propagation::Stop),
+                    }
+                }
+                Err(error) => {
+                    self.show_error_popup(&error.to_string(), true, Some(error));
+                    Ok(glib::Propagation::Stop)
+                }
             },
             _ => unreachable!(),
         }
@@ -575,8 +598,6 @@ impl GtkTestWindow {
 
     pub fn check_icon_update(&self) {
         let imp = self.imp();
-        debug!("top image file: {:?}", imp.top_image_file.lock().unwrap().as_ref().is_none());
-        debug!("folder image file: {:?}", imp.folder_image_file.lock().unwrap().as_ref().is_none());
         if imp.top_image_file.lock().unwrap().as_ref() != None
             && imp.folder_image_file.lock().unwrap().as_ref() != None
         {

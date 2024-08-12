@@ -432,12 +432,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "file-format"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ffe3a660c3a1b10e96f304a9413d673b2118d62e4520f7ddf4a4faccfe8b9b9"
-
-[[package]]
 name = "flate2"
 version = "1.0.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -471,7 +465,6 @@ version = "2024.2.0"
 dependencies = [
  "async-channel",
  "cairo-rs",
- "file-format",
  "gettext-rs",
  "gio",
  "gtk4",

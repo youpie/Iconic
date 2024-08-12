@@ -1,5 +1,4 @@
 use adw::prelude::FileExt;
-use file_format::FileFormat;
 use gio::{Cancellable, FileQueryInfoFlags};
 use gtk::gio;
 use image::*;
@@ -26,15 +25,11 @@ impl File {
     }
     pub fn new(file: gio::File, size: i32, thumbnail_size: i32) -> Result<Self, Box<dyn Error>> {
         let temp_path = file.path().unwrap();
-        let fileformat_binding = FileFormat::from_file(temp_path.clone()).unwrap();
-        let mime_type_second_opinion = fileformat_binding.media_type();
-        debug!("Media type: {}", mime_type_second_opinion);
         let file_info =
             file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE)?;
         let file_name = file_info.name().into_os_string().into_string().unwrap();
         let period_split: Vec<&str> = file_name.split(".").collect();
         let file_extension = format!(".{}", period_split.last().unwrap());
-
         let mime_type = file_info.content_type();
         debug!("Mime type: {:?}", mime_type);
         let dynamic_image = if mime_type == Some("image/svg+xml".into()) {

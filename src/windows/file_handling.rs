@@ -7,6 +7,7 @@ use image::*;
 use log::*;
 use std::env;
 use std::path::PathBuf;
+use std::error::Error;
 
 use crate::GtkTestWindow;
 
@@ -104,8 +105,7 @@ impl GtkTestWindow {
             match file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE) {
                 Ok(x) => x,
                 Err(e) => {
-                    self.show_popup(&e.to_string(), true);
-                    error!("{:?}", e);
+                    self.show_error_popup(&e.to_string(), true, Some(Box::new(e)));
                     return;
                 }
             };
@@ -124,24 +124,23 @@ impl GtkTestWindow {
                 self.new_iconic_file_creation(file, svg_render_size, thumbnail_size);
             }
             _ => {
-                warn!("unsupported file type");
-                self.show_popup(&gettext("Unsupported file type"), true);
+                self.show_error_popup(&gettext("Unsupported file type"), true, None);
             }
         }
 
         self.check_icon_update();
     }
 
-    pub async fn save_file(&self) -> bool {
+    pub async fn save_file(&self) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
         if !imp.save_button.is_sensitive() {
             imp.toast_overlay
                 .add_toast(adw::Toast::new("Can't save anything"));
-            return false;
+            return Ok(false);
         };
         let file_name = format!(
             "folder-{}.png",
-            imp.top_image_file.lock().unwrap().as_ref().unwrap().name
+            imp.top_image_file.lock()?.as_ref().unwrap().name
         );
         let file_chooser = gtk::FileDialog::builder()
             .initial_name(file_name)
@@ -159,8 +158,7 @@ impl GtkTestWindow {
                 imp.save_button.set_sensitive(false);
                 let base_image = imp
                     .folder_image_file
-                    .lock()
-                    .unwrap()
+                    .lock()?
                     .as_ref()
                     .unwrap()
                     .dynamic_image
@@ -168,16 +166,14 @@ impl GtkTestWindow {
                 let top_image = match self.imp().monochrome_switch.state() {
                     false => imp
                         .top_image_file
-                        .lock()
-                        .unwrap()
+                        .lock()?
                         .as_ref()
                         .unwrap()
                         .dynamic_image
                         .clone(),
                     true => self.to_monochrome(
                         imp.top_image_file
-                            .lock()
-                            .unwrap()
+                            .lock()?
                             .as_ref()
                             .unwrap()
                             .dynamic_image
@@ -189,10 +185,10 @@ impl GtkTestWindow {
                 let generated_image = self
                     .generate_image(base_image, top_image, imageops::FilterType::Gaussian)
                     .await;
-                let _ = gio::spawn_blocking(move || {
-                    let _ = generated_image.save(file.path().unwrap());
-                })
-                .await;
+                //let _ = gio::spawn_blocking(move || {
+                    generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)?;
+                //})
+                //.await;
                 self.imp().stack.set_visible_child_name("stack_main_page");
                 imp.toast_overlay.add_toast(
                     adw::Toast::builder()
@@ -202,13 +198,21 @@ impl GtkTestWindow {
                         .build(),
                 );
             }
-            Err(_) => {
-                imp.toast_overlay
-                    .add_toast(adw::Toast::new("File not saved"));
-                return false;
+            Err(e) => {
+                match e.message() {
+                    "Dismissed by user" => {
+                        imp.toast_overlay
+                            .add_toast(adw::Toast::new("File not saved"));
+                       },
+                    _ => {
+                        imp.image_saved.replace(false);
+                        imp.save_button.set_sensitive(true);
+                        return Err(Box::new(e));
+                    }
+                };
             }
         };
-        true
+        Ok(true)
     }
 
     pub async fn load_top_icon(&self) {
@@ -277,8 +281,7 @@ impl GtkTestWindow {
         let new_file = match File::new(file, svg_render_size, thumbnail_render_size) {
             Ok(x) => Some(x),
             Err(e) => {
-                self.show_popup(&e.to_string(), true);
-                error!("An error has occured opening a file: {:?}", e);
+                self.show_error_popup(&e.to_string(), true, Some(e));
                 None
             }
         };

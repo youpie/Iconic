@@ -14,7 +14,6 @@ resvg = {version = "0.42.0"}
 usvg = "0.42.0"
 log = "0.4"
 pretty_env_logger = "0.5"
-file-format = "0.25.0"
 
 [dependencies.gtk]
 package = "gtk4"
