@@ -301,6 +301,7 @@ impl GtkTestWindow {
         imp.reset_color.set_visible(false);
         win.load_folder_path_from_settings();
         win.setup_settings();
+        win.setup_update();
         win
     }
 
@@ -345,8 +346,6 @@ impl GtkTestWindow {
     }
 
     pub fn setup_update(&self) {
-        self.imp().save_button.set_sensitive(true);
-        self.imp().image_saved.replace(false);
         self.imp().x_scale.connect_value_changed(clone!(
             #[weak(rename_to = win)]
             self,
@@ -576,10 +575,13 @@ impl GtkTestWindow {
 
     pub fn check_icon_update(&self) {
         let imp = self.imp();
+        debug!("top image file: {:?}", imp.top_image_file.lock().unwrap().as_ref().is_none());
+        debug!("folder image file: {:?}", imp.folder_image_file.lock().unwrap().as_ref().is_none());
         if imp.top_image_file.lock().unwrap().as_ref() != None
             && imp.folder_image_file.lock().unwrap().as_ref() != None
         {
-            self.setup_update();
+            self.imp().save_button.set_sensitive(true);
+            self.imp().image_saved.replace(false);
             glib::spawn_future_local(glib::clone!(
                 #[weak(rename_to = win)]
                 self,
@@ -587,6 +589,7 @@ impl GtkTestWindow {
                     win.render_to_screen().await;
                 }
             ));
+            imp.stack.set_visible_child_name("stack_main_page");
         } else if imp.folder_image_file.lock().unwrap().as_ref() != None {
             imp.image_view.set_paintable(Some(
                 &self.dynamic_image_to_texture(
@@ -598,6 +601,7 @@ impl GtkTestWindow {
                         .thumbnail,
                 ),
             ));
+            imp.stack.set_visible_child_name("stack_welcome_page");
         }
     }
 

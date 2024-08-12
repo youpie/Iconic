@@ -8,7 +8,6 @@ use resvg::tiny_skia::Pixmap;
 use resvg::usvg::{Options, Tree};
 use std::error::Error;
 use std::fs;
-use std::ops::Deref;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq)]

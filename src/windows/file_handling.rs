@@ -1,4 +1,3 @@
-use crate::glib::clone;
 use crate::objects::file::File;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -8,7 +7,6 @@ use image::*;
 use log::*;
 use std::env;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
 
 use crate::GtkTestWindow;
 
@@ -123,17 +121,9 @@ impl GtkTestWindow {
         debug!("file type: {:?}", mime_type);
         match mime_type {
             Some(x) if x == String::from("image") => {
-                let new_file = match File::new(file, svg_render_size, thumbnail_size) {
-                    Ok(x) => x,
-                    Err(e) => {
-                        self.show_popup(&e.to_string(), true);
-                        return;
-                    }
-                };
-                imp.top_image_file.lock().unwrap().replace(new_file);
+                self.new_iconic_file_creation(file, svg_render_size, thumbnail_size);
             }
             _ => {
-                imp.stack.set_visible_child_name("stack_welcome_page");
                 warn!("unsupported file type");
                 self.show_popup(&gettext("Unsupported file type"), true);
             }
@@ -225,7 +215,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         match self.open_file_chooser_gtk().await {
             Some(x) => {
-                self.load_top_file(x, &imp.top_image_file).await;
+                self.load_top_file(x).await;
             }
             None => {
                 imp.toast_overlay
@@ -241,15 +231,7 @@ impl GtkTestWindow {
         let size: i32 = imp.settings.get("svg-render-size");
         match self.open_file_chooser_gtk().await {
             Some(x) => {
-                let new_file = match File::new(x, size, thumbnail_size) {
-                    Ok(x) => x,
-                    Err(e) => {
-                        self.show_popup(&e.to_string(), true);
-                        return;
-                    }
-                };
-                imp.folder_image_file.lock().unwrap().replace(new_file);
-                self.check_icon_update();
+                self.new_iconic_file_creation(x, size, thumbnail_size)
             }
             None => {
                 imp.toast_overlay.add_toast(adw::Toast::new("Icon reset"));
@@ -273,37 +255,41 @@ impl GtkTestWindow {
         self.check_icon_update();
     }
 
-    pub async fn load_top_file(
-        &self,
-        filename: gio::File,
-        file: &Arc<Mutex<Option<File>>>,
-        ) -> String {
+    pub async fn load_top_file(&self, filename: gio::File) {
         let imp = self.imp();
         imp.image_loading_spinner.set_spinning(true);
         if imp.stack.visible_child_name() == Some("stack_welcome_page".into()) {
             imp.stack.set_visible_child_name("stack_loading_page");
         }
-        let svg_render_size = imp.settings.get("svg-render-size");
+        let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
-        let new_file = match File::new(filename,svg_render_size,size,) {
-            Ok(x) => x,
-            Err(e) => {
-                self.show_popup(&e.to_string(), true);
-                return Default::default();
-            }
-        };
-        let _ = gio::spawn_blocking(clone!(
-            #[weak]
-            file,
-            move || {
-                file.lock().expect("Could not get file").replace(new_file);
-            }
-        ))
-        .await;
-        let file = file.lock().unwrap().clone().unwrap();
+        self.new_iconic_file_creation(filename, svg_render_size, size);
         imp.image_loading_spinner.set_spinning(false);
-        format!("{}{}", file.name, file.extension)
     }
 
- pub fn file_error_handling ()
+    pub fn new_iconic_file_creation(
+        &self,
+        file: gio::File,
+        svg_render_size: i32,
+        thumbnail_render_size: i32,
+    ) {
+        let imp = self.imp();
+        let new_file = match File::new(file, svg_render_size, thumbnail_render_size) {
+            Ok(x) => Some(x),
+            Err(e) => {
+                self.show_popup(&e.to_string(), true);
+                error!("An error has occured opening a file: {:?}", e);
+                None
+            }
+        };
+        match new_file {
+            Some(file) => {
+                imp.top_image_file.lock().unwrap().replace(file);
+                self.check_icon_update();
+            }
+            None => {
+                self.check_icon_update();
+            }
+        }
+    }
 }
