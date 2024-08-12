@@ -8,6 +8,7 @@ use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::*;
+use log::*;
 use std::path::PathBuf;
 use std::{env, fs, path};
 
@@ -127,7 +128,7 @@ impl PreferencesWindow {
             self,
             move |_| {
                 let value = win.imp().svg_image_size.value() as i32;
-                println!("{}", value);
+                debug!("{}", value);
                 let _ = win.imp().settings.set("svg-render-size", value);
             }
         ));
@@ -140,7 +141,7 @@ impl PreferencesWindow {
             self,
             move |_| {
                 let value = win.imp().thumbnail_image_size.value() as i32;
-                println!("{}", value);
+                debug!("{}", value);
                 let _ = win.imp().settings.set("thumbnail-size", value);
             }
         ));
@@ -181,12 +182,12 @@ impl PreferencesWindow {
 
                 match file {
                     Ok(x) => {
-                        println!("{:#?}", &x.path().unwrap());
+                        info!("{:#?}", &x.path().unwrap());
                         let path: &str = &x.path().unwrap().into_os_string().into_string().unwrap();
                         win.can_error(win.set_path(path));
                     }
                     Err(y) => {
-                        println!("{:#?}", y);
+                        warn!("{:#?}", y);
                     }
                 }
             }

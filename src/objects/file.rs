@@ -2,10 +2,12 @@ use adw::prelude::FileExt;
 use gio::{Cancellable, FileQueryInfoFlags};
 use gtk::gio;
 use image::*;
+use log::*;
 use resvg::tiny_skia::Pixmap;
 use resvg::usvg::{Options, Tree};
 use std::fs;
 use std::path::PathBuf;
+use std::ops::Deref;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
@@ -31,7 +33,7 @@ impl File {
         let file_extension = format!(".{}", period_split.last().unwrap());
 
         let mime_type = file_info.content_type();
-        println!("{:#?}", mime_type);
+        debug!("Mime type: {:?}", mime_type);
         let dynamic_image = if mime_type == Some("image/svg+xml".into()) {
             let path = &temp_path.as_os_str().to_str().unwrap();
             Self::load_svg(path, size)
