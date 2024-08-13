@@ -6,4 +6,4 @@
 /.flatpak
 /vendor
 /custom_build
-*.mo
+**/*.mo
