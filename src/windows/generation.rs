@@ -135,7 +135,7 @@ impl GtkTestWindow {
 
         let texture = glib::spawn_future_local(async move { rx_texture.recv().await.unwrap() });
         let image = texture.await.unwrap();
-        imp.final_image.replace(Some(image.clone()));
+        imp.generated_image.replace(Some(image.clone()));
         image
     }
 

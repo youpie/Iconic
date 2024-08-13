@@ -33,6 +33,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::error::Error;
+use gtk::DragSource;
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
@@ -90,7 +91,7 @@ mod imp {
         pub saved_file: Arc<Mutex<Option<gio::File>>>,
         pub file_created: RefCell<bool>,
         pub image_saved: RefCell<bool>,
-        pub final_image: RefCell<Option<DynamicImage>>,
+        pub generated_image: RefCell<Option<DynamicImage>>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
         pub count: RefCell<i32>,
@@ -116,7 +117,7 @@ mod imp {
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),
                 image_saved: RefCell::new(true),
-                final_image: RefCell::new(None),
+                generated_image: RefCell::new(None),
                 file_created: RefCell::new(false),
                 signals: RefCell::new(vec![]),
                 x_scale: TemplateChild::default(),
@@ -219,7 +220,6 @@ mod imp {
             self.parent_constructed();
 
             let obj = self.obj();
-
             // Devel Profile
             if PROFILE == "Devel" {
                 obj.add_css_class("devel");
@@ -264,8 +264,18 @@ mod imp {
                     }
                 }
             ));
+
+            let drag_source = gtk::DragSource::builder()
+            .actions(gdk::DragAction::COPY)
+            .build();
+
+            drag_source.connect_prepare(clone!(#[weak (rename_to = win)] obj, #[upgrade_or] None, move |drag, x, y| {
+                win.drag_connect_prepare(drag, x, y)
+            }));
+
             self.image_preferences.add_controller(drop_target);
             self.main_status_page.add_controller(drop_target_2);
+            self.image_view.add_controller(drag_source)
         }
 
         fn dispose(&self) {
@@ -321,6 +331,12 @@ impl GtkTestWindow {
         win.setup_settings();
         win.setup_update();
         win
+    }
+
+    pub fn drag_connect_prepare(&self, source: &gtk::DragSource, x: f64, y: f64) -> Option<gdk::ContentProvider> {
+        let icon = self.imp().generated_image.borrow().clone().unwrap();
+        source.set_icon(Some(&self.dynamic_image_to_texture(&icon)),x as i32 ,y as i32);
+        Some(gdk::ContentProvider::for_bytes("image/png", &glib::Bytes::from_owned(icon.into_bytes())))
     }
 
     pub fn setup_settings(&self) {
@@ -508,7 +524,8 @@ impl GtkTestWindow {
             "OK" => {
                 let new_path = match self.open_file_chooser_gtk().await {
                     Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
-                    None => String::from(""),
+                    None => {//adw::subclass::prelude::ActionGroupImpl::activate_action(&self, "app.quit", None);
+                            String::from("")},
                 };
                 imp.settings
                     .set_string("folder-svg-path", &new_path)
