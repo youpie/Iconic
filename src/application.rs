@@ -28,6 +28,8 @@ use gtk::prelude::*;
 use gtk::License;
 use gtk::{gio, glib};
 use std::cell::OnceCell;
+use ashpd::desktop::open_uri::OpenFileRequest;
+use ashpd::url;
 
 mod imp {
     use super::*;
@@ -101,14 +103,17 @@ impl GtkTestApplication {
         let settings_action = gio::ActionEntry::builder("preferences")
             .activate(move |app: &Self, _, _| app.show_preferences_dialog())
             .build();
-        let open_action = gio::ActionEntry::builder("open")
+        let open_action = gio::ActionEntry::builder("open top")
             .activate(move |app: &Self, _, _| app.open_function())
             .build();
-        let open_folder_action = gio::ActionEntry::builder("open")
+        let open_folder_action = gio::ActionEntry::builder("open folder")
             .activate(move |app: &Self, _, _| app.open_folder_function())
             .build();
-        let paste = gio::ActionEntry::builder("open")
+        let paste_action = gio::ActionEntry::builder("paste")
             .activate(move |app: &Self, _, _| app.paste_image())
+            .build();
+        let donate_action = gio::ActionEntry::builder("donate")
+            .activate(move |app: &Self, _, _| app.donate())
             .build();
         self.add_action_entries([
             quit_action,
@@ -116,7 +121,8 @@ impl GtkTestApplication {
             settings_action,
             open_action,
             open_folder_action,
-            paste,
+            paste_action,
+            donate_action,
         ]);
     }
 
@@ -142,6 +148,20 @@ impl GtkTestApplication {
 
     fn open_folder_function(&self) {
         self.activate_action("app.select_folder", None);
+    }
+
+    fn donate(&self){
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to = _win)]
+            self,
+            async move {
+                let uri = url::Url::parse("https://ko-fi.com/youpie").unwrap();
+                //let root = win.native().unwrap();
+                //let identifier = WindowIdentifier::from_native(&root).await;
+                let request = OpenFileRequest::default();
+                request.send_uri(&uri).await.unwrap();
+            }
+        ));
     }
 
     fn paste_image(&self) {

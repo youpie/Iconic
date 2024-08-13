@@ -283,8 +283,14 @@ menu primary_menu {
     }
 
     item {
-      label: _("_Open Folder Icon");
+      label: _("_Open Bottom Icon");
       action: "app.select_folder";
+    }
+  }
+  section {
+    item {
+      label: _("_Reset Bottom Icon");
+      action: "app.reset_bottom";
     }
   }
   section {
@@ -296,6 +302,11 @@ menu primary_menu {
     item {
       label: _("_Keyboard Shortcuts");
       action: "win.show-help-overlay";
+    }
+
+    item {
+      label: _("_Donate ❤️");
+      action: "app.donate";
     }
 
     item {
