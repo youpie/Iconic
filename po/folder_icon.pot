@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-11 21:48+0200\n"
+"POT-Creation-Date: 2024-08-13 11:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: data/nl.emphisia.icon.desktop.in.in:3
 #: data/nl.emphisia.icon.metainfo.xml.in.in:5
-#: data/nl.emphisia.icon.metainfo.xml.in.in:78
+#: data/nl.emphisia.icon.metainfo.xml.in.in:92
 msgid "Iconic"
 msgstr ""
 
@@ -52,74 +52,108 @@ msgid "Main menu in dark mode"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:30
-msgid "Another small update with a few additions and changes"
+msgid ""
+"This is a new major release of Iconic. Featuring many bug fixes and added "
+"features. Some notable ones are:"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:32
-msgid "You can now open containing folder after saving image"
+msgid "Drag and drop support"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:33
-msgid "Added italian translation"
+msgid "Copy-paste support"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:34
-msgid "Updated Dutch translation"
+msgid "Better file type detection"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:40
-msgid "This version adds a few small features and fixes some bugs"
+#: data/nl.emphisia.icon.metainfo.xml.in.in:35
+msgid "Updated dutch translations"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:42
-msgid "The app now shows some errors as pop-ups"
+#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+msgid "Added Hindi translations"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:43
-msgid "You can now temporarily open a new folder image"
+#: data/nl.emphisia.icon.metainfo.xml.in.in:37
+msgid "Fixed spelling mistakes"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:38
+msgid "Fixed issues with black pixels not converting to monochrome"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:44
+msgid "Another small update with a few additions and changes"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+msgid "You can now open containing folder after saving image"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+msgid "Added italian translation"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+msgid "Updated Dutch translation"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:54
+msgid "This version adds a few small features and fixes some bugs"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:56
+msgid "The app now shows some errors as pop-ups"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:57
+msgid "You can now temporarily open a new folder image"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
 msgid "It now first shows a pop-up when the folder image is not found"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:50
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
 msgid "Initial release"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:69
+#: data/nl.emphisia.icon.metainfo.xml.in.in:83
 msgid "icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:70
+#: data/nl.emphisia.icon.metainfo.xml.in.in:84
 msgid "create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:71
+#: data/nl.emphisia.icon.metainfo.xml.in.in:85
 msgid "folder icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:72
+#: data/nl.emphisia.icon.metainfo.xml.in.in:86
 msgid "svg"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:73
+#: data/nl.emphisia.icon.metainfo.xml.in.in:87
 msgid "png"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:74
+#: data/nl.emphisia.icon.metainfo.xml.in.in:88
 msgid "gnome"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:75
+#: data/nl.emphisia.icon.metainfo.xml.in.in:89
 msgid "icon create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:76
+#: data/nl.emphisia.icon.metainfo.xml.in.in:90
 msgid "icon creator"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:77
+#: data/nl.emphisia.icon.metainfo.xml.in.in:91
 msgid "folder icon creator"
 msgstr ""
 
@@ -165,29 +199,29 @@ msgstr ""
 msgid "Currently set folder icon, click to reset to default"
 msgstr ""
 
-#: src/settings/settings.blp:35
+#: src/settings/settings.blp:63
 msgid "Advanced"
 msgstr ""
 
-#: src/settings/settings.blp:38
+#: src/settings/settings.blp:66
 msgid "You can see these options because you have enabled the Devel profile"
 msgstr ""
 
-#: src/settings/settings.blp:46
+#: src/settings/settings.blp:74
 msgid "Select size of SVG images"
 msgstr ""
 
-#: src/settings/settings.blp:47
+#: src/settings/settings.blp:75
 msgid ""
 "SVG images will by default be converted to a 1024x1024 image. You can adjust "
 "that here"
 msgstr ""
 
-#: src/settings/settings.blp:57
+#: src/settings/settings.blp:85
 msgid "Select size of Thumbnail images"
 msgstr ""
 
-#: src/settings/settings.blp:58
+#: src/settings/settings.blp:86
 msgid ""
 "Thumbnail images will by default be converted to a 255x255 image. You can "
 "adjust that here"
@@ -233,52 +267,72 @@ msgstr ""
 msgid "_About Iconic"
 msgstr ""
 
-#: src/settings/settings.rs:176 src/window.rs:850
+#: src/settings/settings.rs:195 src/window.rs:676
 msgid "Open Document"
 msgstr ""
 
-#: src/settings/settings.rs:232 src/window.rs:538
+#: src/settings/settings.rs:251 src/window.rs:550
 msgid "Error"
 msgstr ""
 
-#: src/window.rs:496
+#: src/window.rs:502
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 
-#: src/window.rs:542
+#: src/window.rs:557
 msgid "OK"
 msgstr ""
 
-#: src/window.rs:653
-msgid "Unsupported file type"
+#: src/window.rs:583
+msgid "Do you want to load this image to the top or bottom layer?"
 msgstr ""
 
-#: src/window.rs:665
+#: src/window.rs:584
+msgid "Hint: You can disable this pop-up in the settings"
+msgstr ""
+
+#: src/window.rs:586
+msgid "Select layer"
+msgstr ""
+
+#: src/window.rs:591
+msgid "Top"
+msgstr ""
+
+#: src/window.rs:592
+msgid "Bottom"
+msgstr ""
+
+#: src/window.rs:607
 msgid "Save Changes?"
 msgstr ""
 
-#: src/window.rs:666
+#: src/window.rs:608
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
 msgstr ""
 
-#: src/window.rs:670
+#: src/window.rs:612
 msgid "Cancel"
 msgstr ""
 
-#: src/window.rs:671
+#: src/window.rs:613
 msgid "Discard"
 msgstr ""
 
-#: src/window.rs:673
+#: src/window.rs:615
 msgid "Save"
 msgstr ""
 
-#: src/window.rs:754
+#: src/windows/file_handling.rs:133
+msgid "Unsupported file type"
+msgstr ""
+
+#: src/windows/file_handling.rs:201
 msgid "Open Folder"
 msgstr ""
 
-#: src/window.rs:756
+#: src/windows/file_handling.rs:203
 msgid "File Saved"
 msgstr ""

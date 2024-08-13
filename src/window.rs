@@ -547,8 +547,10 @@ impl GtkTestWindow {
 
     pub fn show_error_popup(&self, message: &str, show: bool, error: Option<Box<dyn Error + '_>>) -> Option<adw::AlertDialog> {
         const RESPONSE_OK: &str = "OK";
+        let error_text: &str = &gettext("Error");
         let dialog = adw::AlertDialog::builder()
-            .heading(gettext("Error"))
+            .heading(format!("<span foreground=\"red\"><b>⚠ {error_text}</b></span>"))
+            .heading_use_markup(true)
             .body(message)
             .default_response(RESPONSE_OK)
             .build();
@@ -578,9 +580,11 @@ impl GtkTestWindow {
         }
         const RESPONSE_TOP: &str = "TOP";
         const RESPONSE_BOTTOM: &str = "BOTTOM";
+        let load_question: &str = &gettext("Do you want to load this image to the top or bottom layer?");
+        let disable_hint: &str = &gettext("Hint: You can disable this pop-up in the settings");
         let dialog = adw::AlertDialog::builder()
             .heading(gettext("Select layer"))
-            .body(&gettext("Do you want to load this image to the top or bottom layer? \n <sub> <span foreground=\"#9A9996\"> Hint: You can disable this pop-up in the settings</span> </sub>"))
+            .body(format!("{load_question} \n <sub> <span foreground=\"#9A9996\"> {disable_hint}</span> </sub>"))
             .body_use_markup(true)
             .default_response(RESPONSE_TOP)
             .build();
