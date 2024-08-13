@@ -567,11 +567,21 @@ impl GtkTestWindow {
     }
 
     pub async fn top_or_bottom_popup(&self) -> Option<bool> {
+        let dnd_switch_state = self.imp().settings.boolean("default-dnd-activated");
+        let dnd_radio_state = self.imp().settings.string("default-dnd-action");
+        if dnd_switch_state {
+            return match dnd_radio_state.as_str() {
+                "top" => Some(true),
+                "bottom" => Some(false),
+                _ => None
+            };
+        }
         const RESPONSE_TOP: &str = "TOP";
         const RESPONSE_BOTTOM: &str = "BOTTOM";
         let dialog = adw::AlertDialog::builder()
             .heading(gettext("Select layer"))
-            .body(&gettext("Do you want to load this image to the top or bottom layer?"))
+            .body(&gettext("Do you want to load this image to the top or bottom layer? \n <sub> <span foreground=\"#9A9996\"> Hint: You can disable this pop-up in the settings</span> </sub>"))
+            .body_use_markup(true)
             .default_response(RESPONSE_TOP)
             .build();
         dialog.add_response(RESPONSE_TOP, &gettext("Top"));

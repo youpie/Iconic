@@ -20,17 +20,23 @@ mod imp {
     #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/nl/emphisia/icon/settings/settings.ui")]
     pub struct PreferencesWindow {
-        #[template_child()]
+        #[template_child]
         pub custom: TemplateChild<adw::ActionRow>,
-        #[template_child()]
+        #[template_child]
         pub select_folder: TemplateChild<gtk::Button>,
-        #[template_child()]
+        #[template_child]
         pub custom1: TemplateChild<adw::ActionRow>,
-        #[template_child()]
+        #[template_child]
         pub svg_image_size: TemplateChild<adw::SpinRow>,
-        #[template_child()]
+        #[template_child]
         pub advanced_settings: TemplateChild<adw::PreferencesGroup>,
-        #[template_child()]
+        #[template_child]
+        pub default_dnd: TemplateChild<adw::ExpanderRow>,
+        #[template_child]
+        pub dnd_switch: TemplateChild<gtk::Switch>,
+         #[template_child]
+        pub radio_button_1: TemplateChild<gtk::CheckButton>,
+        #[template_child]
         pub thumbnail_image_size: TemplateChild<adw::SpinRow>,
         pub settings: gio::Settings,
     }
@@ -45,6 +51,9 @@ mod imp {
             Self {
                 custom: TemplateChild::default(),
                 select_folder: TemplateChild::default(),
+                default_dnd: TemplateChild::default(),
+                dnd_switch: TemplateChild::default(),
+                radio_button_1: TemplateChild::default(),
                 custom1: TemplateChild::default(),
                 svg_image_size: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
@@ -73,6 +82,9 @@ mod imp {
                         win.reset_location_fn();
                     }
                 ));
+            });
+            klass.install_action("app.dnd_switch", None, move |win, _, _| {
+                win.dnd_row_expand();
             });
         }
 
@@ -116,7 +128,13 @@ impl PreferencesWindow {
         if PROFILE != "Devel" {
             win.imp().advanced_settings.set_visible(false);
         }
+        win.imp().dnd_switch.set_active(win.imp().settings.boolean("default-dnd-activated"));
+        win.dnd_row_expand();
         win.set_path_title();
+
+        win.imp().radio_button_1.connect_toggled(clone!(#[weak (rename_to = this)] win, move |_| {
+                this.dnd_radio_state();
+        }));
         win
     }
 
@@ -237,5 +255,41 @@ impl PreferencesWindow {
             dialog.add_response(RESPONSE_OK, "ok");
             dialog.present(Some(self))
         });
+    }
+
+    pub fn dnd_row_expand(&self) {
+        let switch_state = self.imp().dnd_switch.is_active();
+        let _ = self.imp().settings.set("default-dnd-activated",switch_state);
+        debug!("Current switch state: {}", switch_state);
+        match switch_state {
+            true => {
+                self.imp()
+                    .default_dnd
+                    .set_property("enable_expansion", false);
+                self.imp()
+                    .default_dnd
+                    .set_property("enable_expansion", true);
+            }
+            false => {
+                self.imp()
+                    .default_dnd
+                    .set_property("enable_expansion", false);
+            }
+        };
+    }
+
+    pub fn dnd_radio_state(&self) {
+        let imp = self.imp();
+        let radio_button = imp.radio_button_1.is_active();
+        info!("Radio button changed: button 1 is {}", radio_button);
+        match radio_button {
+            true => {
+                let _ = imp.settings.set("default-dnd-action","top");
+            }
+            false => {
+                let _ = imp.settings.set("default-dnd-action","bottom");
+            }
+        }
+        // self.imp().settings.set("default-dnd-action"
     }
 }

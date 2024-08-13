@@ -101,7 +101,7 @@ impl GtkTestWindow {
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         debug!("{:#?}", file.path().value_type());
-        let top_file_selected = self.top_or_bottom_popup().await;
+
         let file_info =
             match file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE) {
                 Ok(x) => x,
@@ -122,6 +122,7 @@ impl GtkTestWindow {
         debug!("file type: {:?}", mime_type);
         match mime_type {
             Some(x) if x == String::from("image") => {
+                let top_file_selected = self.top_or_bottom_popup().await;
                 match top_file_selected {
                     Some(true) => self.new_iconic_file_creation(file, svg_render_size, thumbnail_size, true),
                     Some(false) => self.new_iconic_file_creation(file, svg_render_size, thumbnail_size, false),
