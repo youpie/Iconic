@@ -281,7 +281,7 @@ impl PreferencesWindow {
     pub fn dnd_radio_state(&self) {
         let imp = self.imp();
         let radio_button = imp.radio_button_1.is_active();
-        info!("Radio button changed: button 1 is {}", radio_button);
+        debug!("Radio button changed: button 1 is {}", radio_button);
         match radio_button {
             true => {
                 let _ = imp.settings.set("default-dnd-action","top");
