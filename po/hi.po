@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-07-23 13:26+0200\n"
-"PO-Revision-Date: 2024-08-05 23:03+0530\n"
+"POT-Creation-Date: 2024-08-13 11:27+0200\n"
+"PO-Revision-Date: 2024-08-13 11:31+0200\n"
 "Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"
 "Language-Team: Hindi <indlinux-hindi@lists.sourceforge.net>\n"
 "Language: hi\n"
@@ -16,16 +16,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 46.1\n"
+"X-Generator: Poedit 3.4.4\n"
 
-#: data/nl.emphisia.icon.desktop.in.in:3
-#: data/nl.emphisia.icon.metainfo.xml.in.in:5
-#: data/nl.emphisia.icon.metainfo.xml.in.in:82
+#: data/nl.emphisia.icon.desktop.in.in:3 data/nl.emphisia.icon.metainfo.xml.in.in:5
+#: data/nl.emphisia.icon.metainfo.xml.in.in:92
 msgid "Iconic"
 msgstr "आइकोनिक"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:6
-msgid "Easilly add icons on top of folders"
+#, fuzzy
+#| msgid "Easilly add icons on top of folders"
+msgid "Easily add icons on top of folders"
 msgstr "फोल्डरों के शीर्ष पर आसानी से आइकन जोड़ें"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:8
@@ -34,101 +35,135 @@ msgstr "Youpie"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:14
 msgid ""
-"This program allows an easy and intuitive way to add an icon on top of a "
-"folder to help you differentiate it better."
+"This program allows an easy and intuitive way to add an icon on top of a folder to help you "
+"differentiate it better."
 msgstr ""
-"यह प्रोग्राम एक आसान और सहज तरीके से किसी फोल्डर के शीर्ष पर एक आइकन जोड़ने की अनुमति "
-"देता है, जिससे आपको इसे बेहतर ढंग से पहचानने में मदद मिलती है।"
+"यह प्रोग्राम एक आसान और सहज तरीके से किसी फोल्डर के शीर्ष पर एक आइकन जोड़ने की अनुमति देता है, जिससे आपको "
+"इसे बेहतर ढंग से पहचानने में मदद मिलती है।"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:15
 msgid ""
-"This program is written in Rust and Libadwaita and is my first attempt at "
-"creating an application"
-msgstr ""
-"यह प्रोग्राम Rust और Libadwaita में लिखा गया है और यह एप्लिकेशन बनाने का मेरा पहला "
-"प्रयास है"
+"This program is written in Rust and Libadwaita and is my first attempt at creating an "
+"application"
+msgstr "यह प्रोग्राम Rust और Libadwaita में लिखा गया है और यह एप्लिकेशन बनाने का मेरा पहला प्रयास है"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:19
-msgid "Begin screen of application"
-msgstr "एप्लिकेशन की आरंभिक स्क्रीन"
-
-#: data/nl.emphisia.icon.metainfo.xml.in.in:23
 msgid "Main menu in light mode"
 msgstr "लाइट मोड में मुख्य मेनू"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:27
+#: data/nl.emphisia.icon.metainfo.xml.in.in:23
 msgid "Main menu in dark mode"
 msgstr "डार्क मोड में मुख्य मेनू"
 
+#: data/nl.emphisia.icon.metainfo.xml.in.in:30
+msgid ""
+"This is a new major release of Iconic. Featuring many bug fixes and added features. Some "
+"notable ones are:"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:32
+msgid "Drag and drop support"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:33
+msgid "Copy-paste support"
+msgstr ""
+
 #: data/nl.emphisia.icon.metainfo.xml.in.in:34
+msgid "Better file type detection"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:35
+#, fuzzy
+#| msgid "Updated Dutch translation"
+msgid "Updated dutch translations"
+msgstr "डच अनुवाद अद्यतित"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+#, fuzzy
+#| msgid "Added italian translation"
+msgid "Added Hindi translations"
+msgstr "इतालवी अनुवाद जोड़ा गया"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:37
+msgid "Fixed spelling mistakes"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:38
+msgid "Fixed issues with black pixels not converting to monochrome"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
 msgid "Another small update with a few additions and changes"
 msgstr "कुछ अतिरिक्त और परिवर्तनों के साथ एक और छोटा अपडेट"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
 msgid "You can now open containing folder after saving image"
 msgstr "अब आप छवि सहेजने के बाद संबंधित फोल्डर खोल सकते हैं"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:37
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
 msgid "Added italian translation"
 msgstr "इतालवी अनुवाद जोड़ा गया"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:38
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
 msgid "Updated Dutch translation"
 msgstr "डच अनुवाद अद्यतित"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+#: data/nl.emphisia.icon.metainfo.xml.in.in:54
 msgid "This version adds a few small features and fixes some bugs"
 msgstr "इस संस्करण में कुछ छोटी खासियतें जोड़ी गई हैं और कुछ बगों को ठीक किया गया है"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+#: data/nl.emphisia.icon.metainfo.xml.in.in:56
 msgid "The app now shows some errors as pop-ups"
 msgstr "ऐप अब कुछ त्रुटियां पॉप-अप के रूप में दिखाता है"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:47
-msgid "You can now temporarilly open a new folder image"
+#: data/nl.emphisia.icon.metainfo.xml.in.in:57
+#, fuzzy
+#| msgid "You can now temporarilly open a new folder image"
+msgid "You can now temporarily open a new folder image"
 msgstr "अब आप अस्थायी रूप से एक नई फोल्डर छवि खोल सकते हैं"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
 msgid "It now first shows a pop-up when the folder image is not found"
 msgstr "अब जब फोल्डर छवि नहीं मिलती है तो यह सबसे पहले एक पॉप-अप दिखाता है"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:54
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
 msgid "Initial release"
 msgstr "प्रारंभिक रिलीज़"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:73
+#: data/nl.emphisia.icon.metainfo.xml.in.in:83
 msgid "icon"
 msgstr "आइकन"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:74
+#: data/nl.emphisia.icon.metainfo.xml.in.in:84
 msgid "create"
 msgstr "बनाएं"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:75
+#: data/nl.emphisia.icon.metainfo.xml.in.in:85
 msgid "folder icon"
 msgstr "फोल्डर आइकन"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:76
+#: data/nl.emphisia.icon.metainfo.xml.in.in:86
 msgid "svg"
 msgstr "SVG"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:77
+#: data/nl.emphisia.icon.metainfo.xml.in.in:87
 msgid "png"
 msgstr "PNG"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:78
+#: data/nl.emphisia.icon.metainfo.xml.in.in:88
 msgid "gnome"
 msgstr "गनोम"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:79
+#: data/nl.emphisia.icon.metainfo.xml.in.in:89
 msgid "icon create"
 msgstr "आइकन बनाएं"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:80
+#: data/nl.emphisia.icon.metainfo.xml.in.in:90
 msgid "icon creator"
 msgstr "आइकन निर्माता"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:81
+#: data/nl.emphisia.icon.metainfo.xml.in.in:91
 msgid "folder icon creator"
 msgstr "फोल्डर आइकन निर्माता"
 
@@ -174,37 +209,48 @@ msgstr "अनुकूलित करें"
 msgid "Currently set folder icon, click to reset to default"
 msgstr "वर्तमान में निर्धारित फोल्डर आइकन, तयशुदा पर रीसेट करने के लिए क्लिक करें"
 
-#: src/settings/settings.blp:35
+#: src/settings/settings.blp:36
+msgid "Default drag-and-drop action"
+msgstr ""
+
+#: src/settings/settings.blp:37
+msgid ""
+"By default, after dragging and dropping a file, you have to select a layer to paste it to. "
+"Here you can disable that pop-up"
+msgstr ""
+
+#: src/settings/settings.blp:45
+msgid "Always select top layer"
+msgstr ""
+
+#: src/settings/settings.blp:53
+msgid "Always select bottom layer"
+msgstr ""
+
+#: src/settings/settings.blp:63
 msgid "Advanced"
 msgstr "उन्नत"
 
-#: src/settings/settings.blp:38
+#: src/settings/settings.blp:66
 msgid "You can see these options because you have enabled the Devel profile"
 msgstr "आप ये विकल्प इसलिए देख सकते हैं क्योंकि आपने Devel प्रोफाइल सक्षम कर रखी है"
 
-#: src/settings/settings.blp:46
+#: src/settings/settings.blp:74
 msgid "Select size of SVG images"
 msgstr "SVG छवियों का आकार चुनें"
 
-#: src/settings/settings.blp:47
-msgid ""
-"SVG images will by default be converted to a 1024x1024 image. You can adjust "
-"that here"
-msgstr ""
-"SVG छवियां तयशुदा रूप से 1024x1024 छवि में परिवर्तित की जाएंगी। आप इसे यहां समायोजित "
-"कर सकते हैं"
+#: src/settings/settings.blp:75
+msgid "SVG images will by default be converted to a 1024x1024 image. You can adjust that here"
+msgstr "SVG छवियां तयशुदा रूप से 1024x1024 छवि में परिवर्तित की जाएंगी। आप इसे यहां समायोजित कर सकते हैं"
 
-#: src/settings/settings.blp:57
+#: src/settings/settings.blp:85
 msgid "Select size of Thumbnail images"
 msgstr "थंबनेल छवियों का आकार चुनें"
 
-#: src/settings/settings.blp:58
+#: src/settings/settings.blp:86
 msgid ""
-"Thumbnail images will by default be converted to a 255x255 image. You can "
-"adjust that here"
-msgstr ""
-"थंबनेल छवियां तयशुदा रूप से 255x255 छवि में परिवर्तित की जाएंगी। आप इसे यहां समायोजित कर "
-"सकते हैं"
+"Thumbnail images will by default be converted to a 255x255 image. You can adjust that here"
+msgstr "थंबनेल छवियां तयशुदा रूप से 255x255 छवि में परिवर्तित की जाएंगी। आप इसे यहां समायोजित कर सकते हैं"
 
 #: src/window.blp:25 src/window.blp:82
 msgid "Menu"
@@ -215,76 +261,127 @@ msgid "Folder Icon Creator"
 msgstr "फोल्डर आइकन निर्माता"
 
 #: src/window.blp:32
-msgid "Click to Open Image"
+#, fuzzy
+#| msgid "Click to Open Image"
+msgid "Click or Drag to Open Image"
 msgstr "छवि खोलने के लिए क्लिक करें"
 
 #: src/window.blp:43
 msgid "_Open Image"
 msgstr "छवि खोलें (_O)"
 
+#: src/window.blp:167
+msgid "Toggle Monochrome"
+msgstr ""
+
+#: src/window.blp:175
+msgid "Invert"
+msgstr ""
+
+#: src/window.blp:178
+msgid "Color"
+msgstr ""
+
+#: src/window.blp:205
+msgid "Threshold"
+msgstr ""
+
 #: src/window.blp:277
+msgid "_Paste Top Icon from Clipboard"
+msgstr ""
+
+#: src/window.blp:281
 msgid "_Open Top Icon"
 msgstr "शीर्ष आइकन खोलें (_O)"
 
-#: src/window.blp:282
+#: src/window.blp:286
 msgid "_Open Folder Icon"
 msgstr "फोल्डर आइकन खोलें (_O)"
 
-#: src/window.blp:288
+#: src/window.blp:292
 msgid "_Preferences"
 msgstr "प्राथमिकताएं (_P)"
 
-#: src/window.blp:293
+#: src/window.blp:297
 msgid "_Keyboard Shortcuts"
 msgstr "कीबोर्ड शॉर्टकट (_K)"
 
-#: src/window.blp:298
-msgid "_About folder icon maker"
-msgstr "आइकोनिक के बारे में (_A)"
+#: src/window.blp:302
+#, fuzzy
+#| msgid "Iconic"
+msgid "_About Iconic"
+msgstr "आइकोनिक"
 
-#: src/settings/settings.rs:151 src/window.rs:559
+#: src/settings/settings.rs:195 src/window.rs:676
 msgid "Open Document"
 msgstr "दस्तावेज खोलें"
 
-#: src/settings/settings.rs:187 src/window.rs:366
+#: src/settings/settings.rs:251 src/window.rs:550
 msgid "Error"
 msgstr "त्रुटि"
 
-#: src/window.rs:342
+#: src/window.rs:502
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr "निर्धारित फोल्डर आइकन नहीं मिल सका, नया चुनने के लिए 'ठीक है' दबाएं"
 
-#: src/window.rs:370
+#: src/window.rs:557
 msgid "OK"
 msgstr "ठीक है"
 
-#: src/window.rs:389
+#: src/window.rs:583
+msgid "Do you want to load this image to the top or bottom layer?"
+msgstr ""
+
+#: src/window.rs:584
+msgid "Hint: You can disable this pop-up in the settings"
+msgstr ""
+
+#: src/window.rs:586
+msgid "Select layer"
+msgstr ""
+
+#: src/window.rs:591
+msgid "Top"
+msgstr ""
+
+#: src/window.rs:592
+msgid "Bottom"
+msgstr ""
+
+#: src/window.rs:607
 msgid "Save Changes?"
 msgstr "परिवर्तन सहेजें?"
 
-#: src/window.rs:390
-msgid ""
-"Open image contain unsaved changes. Changes which are not saved will be "
-"permanently lost"
-msgstr ""
-"खुली छवि में सहेजे न गए परिवर्तन हैं। जो परिवर्तन सहेजे नहीं गए वे स्थायी रूप से नष्ट हो जाएंगे"
+#: src/window.rs:608
+msgid "Open image contain unsaved changes. Changes which are not saved will be permanently lost"
+msgstr "खुली छवि में सहेजे न गए परिवर्तन हैं। जो परिवर्तन सहेजे नहीं गए वे स्थायी रूप से नष्ट हो जाएंगे"
 
-#: src/window.rs:394
+#: src/window.rs:612
 msgid "Cancel"
 msgstr "रद्द करें"
 
-#: src/window.rs:395
+#: src/window.rs:613
 msgid "Discard"
 msgstr "त्यागें"
 
-#: src/window.rs:397
+#: src/window.rs:615
 msgid "Save"
 msgstr "सहेजें"
 
-#: src/window.rs:457
+#: src/windows/file_handling.rs:133
+msgid "Unsupported file type"
+msgstr ""
+
+#: src/windows/file_handling.rs:201
 msgid "Open Folder"
 msgstr "फोल्डर खोलें"
 
-#: src/window.rs:459
+#: src/windows/file_handling.rs:203
 msgid "File Saved"
 msgstr "फाइल सहेजी गई"
+
+#~ msgid "Begin screen of application"
+#~ msgstr "एप्लिकेशन की आरंभिक स्क्रीन"
+
+#~ msgid "_About folder icon maker"
+#~ msgstr "आइकोनिक के बारे में (_A)"

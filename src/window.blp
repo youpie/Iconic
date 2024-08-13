@@ -164,7 +164,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               }
               Adw.PreferencesGroup {
                 Adw.ExpanderRow monochrome_action_row {
-                  title: _('Toggle Monochrome');
+                  title: _("Toggle Monochrome");
                   [suffix]
                   Switch monochrome_switch{
                     valign: center;
@@ -172,10 +172,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                     active: true;
                   }
                   Adw.SwitchRow monochrome_invert {
-                    title: _('Invert');
+                    title: _("Invert");
                   }
                   Adw.ActionRow {
-                    title: _('Color');
+                    title: _("Color");
                     activatable-widget: monochrome_color;
                     Box {
                       valign: center;
@@ -202,7 +202,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                   }
 
                   Adw.ActionRow {
-                    title: _('Threshold');
+                    title: _("Threshold");
                     Scale threshold_scale {
                     has-origin: true;
                     orientation: horizontal;

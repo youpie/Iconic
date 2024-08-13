@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-13 11:21+0200\n"
-"PO-Revision-Date: 2024-08-13 11:22+0200\n"
+"POT-Creation-Date: 2024-08-13 11:27+0200\n"
+"PO-Revision-Date: 2024-08-13 11:30+0200\n"
 "Last-Translator: Youpie <youplamb@hotmail.nl>\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -193,7 +193,7 @@ msgstr "Opslaan"
 #: src/gtk/help-overlay.blp:29
 msgctxt "shortcut window"
 msgid "Open top image"
-msgstr "_Open bovense afbeelding"
+msgstr "Open bovenste afbeelding"
 
 #: src/gtk/help-overlay.blp:34
 msgctxt "shortcut window"
@@ -211,6 +211,26 @@ msgstr "Aanpassen"
 #: src/settings/settings.blp:29
 msgid "Currently set folder icon, click to reset to default"
 msgstr "Huidig ingestelde folder afbeelding, klik om te resetten"
+
+#: src/settings/settings.blp:36
+msgid "Default drag-and-drop action"
+msgstr "Standaard drag-and-drop action"
+
+#: src/settings/settings.blp:37
+msgid ""
+"By default, after dragging and dropping a file, you have to select a layer "
+"to paste it to. Here you can disable that pop-up"
+msgstr ""
+"Standaard, na het slepen van een bestand, moet je de laag selecteren waar je "
+"het bestand wil plakken. Die pop-up kan je hier uitschakelen"
+
+#: src/settings/settings.blp:45
+msgid "Always select top layer"
+msgstr "Selecteer altijd de bovenste laag"
+
+#: src/settings/settings.blp:53
+msgid "Always select bottom layer"
+msgstr "Selecteer altijd de onderste laag"
 
 #: src/settings/settings.blp:63
 msgid "Advanced"
@@ -260,6 +280,22 @@ msgstr "Klik of Sleep om een afbeelding te openen"
 #: src/window.blp:43
 msgid "_Open Image"
 msgstr "_Open afbeelding"
+
+#: src/window.blp:167
+msgid "Toggle Monochrome"
+msgstr "Monochroom inschakelen"
+
+#: src/window.blp:175
+msgid "Invert"
+msgstr "Omkeren"
+
+#: src/window.blp:178
+msgid "Color"
+msgstr "Kleur"
+
+#: src/window.blp:205
+msgid "Threshold"
+msgstr "Drempel"
 
 #: src/window.blp:277
 msgid "_Paste Top Icon from Clipboard"

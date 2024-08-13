@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-13 11:21+0200\n"
+"POT-Creation-Date: 2024-08-13 11:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -199,6 +199,24 @@ msgstr ""
 msgid "Currently set folder icon, click to reset to default"
 msgstr ""
 
+#: src/settings/settings.blp:36
+msgid "Default drag-and-drop action"
+msgstr ""
+
+#: src/settings/settings.blp:37
+msgid ""
+"By default, after dragging and dropping a file, you have to select a layer "
+"to paste it to. Here you can disable that pop-up"
+msgstr ""
+
+#: src/settings/settings.blp:45
+msgid "Always select top layer"
+msgstr ""
+
+#: src/settings/settings.blp:53
+msgid "Always select bottom layer"
+msgstr ""
+
 #: src/settings/settings.blp:63
 msgid "Advanced"
 msgstr ""
@@ -241,6 +259,22 @@ msgstr ""
 
 #: src/window.blp:43
 msgid "_Open Image"
+msgstr ""
+
+#: src/window.blp:167
+msgid "Toggle Monochrome"
+msgstr ""
+
+#: src/window.blp:175
+msgid "Invert"
+msgstr ""
+
+#: src/window.blp:178
+msgid "Color"
+msgstr ""
+
+#: src/window.blp:205
+msgid "Threshold"
 msgstr ""
 
 #: src/window.blp:277

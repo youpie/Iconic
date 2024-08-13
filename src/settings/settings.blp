@@ -33,8 +33,8 @@ template $PreferencesWindow : Adw.PreferencesWindow {
     }
     Adw.PreferencesGroup {
       Adw.ExpanderRow  default_dnd{
-        title: _('Default drag-and-drop action');
-        subtitle: _('By default, after dragging and dropping a file, you have to select a layer to paste it to. Here you can disable that pop-up');
+        title: _("Default drag-and-drop action");
+        subtitle: _("By default, after dragging and dropping a file, you have to select a layer to paste it to. Here you can disable that pop-up");
         [suffix]
         Switch dnd_switch {
           valign: center;
@@ -42,7 +42,7 @@ template $PreferencesWindow : Adw.PreferencesWindow {
           action-name: "app.dnd_switch";
         }
         Adw.ActionRow  {
-          title: _('Always select top layer');
+          title: _("Always select top layer");
           activatable-widget: radio_button_1;
           Gtk.CheckButton radio_button_1{
             active: true;
@@ -50,7 +50,7 @@ template $PreferencesWindow : Adw.PreferencesWindow {
           }
         }
         Adw.ActionRow  {
-          title: _('Always select bottom layer');
+          title: _("Always select bottom layer");
           activatable-widget: radio_button_2;
           Gtk.CheckButton radio_button_2{
             group: radio_button_1;
