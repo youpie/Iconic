@@ -275,7 +275,7 @@ mod imp {
 
             self.image_preferences.add_controller(drop_target);
             self.main_status_page.add_controller(drop_target_2);
-            self.image_view.add_controller(drag_source)
+            self.image_view.add_controller(drag_source);
         }
 
         fn dispose(&self) {

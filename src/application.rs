@@ -20,7 +20,7 @@
 
 use crate::config::{APP_ICON, VERSION};
 use crate::glib::WeakRef;
-use crate::settings::settings::PreferencesWindow;
+use crate::settings::settings::PreferencesDialog;
 use crate::GtkTestWindow;
 use adw::prelude::AdwDialogExt;
 use adw::subclass::prelude::*;
@@ -135,11 +135,10 @@ impl GtkTestApplication {
     }
 
     fn show_preferences_dialog(&self) {
-        let preferences = PreferencesWindow::new();
+        let preferences = PreferencesDialog::new();
         let window = self.active_window().unwrap();
 
-        preferences.set_transient_for(Some(&window));
-        preferences.present();
+        adw::prelude::AdwDialogExt::present(&preferences,Some(&window));
     }
 
     fn open_function(&self) {

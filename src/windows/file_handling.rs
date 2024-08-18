@@ -88,11 +88,7 @@ impl GtkTestWindow {
         let clipboard_path = PathBuf::from(format!("{}/clipboard.png", cache_path));
         let mut stream = std::fs::File::create(&clipboard_path).unwrap();
         surface.write_to_png(&mut stream).unwrap();
-        imp.top_image_file.lock().unwrap().replace(File::from_path(
-            clipboard_path,
-            svg_render_size,
-            thumbnail_size,
-        ));
+        self.new_iconic_file_creation(None, Some(clipboard_path), svg_render_size, thumbnail_size, true);
         self.check_icon_update();
     }
 
@@ -124,9 +120,9 @@ impl GtkTestWindow {
             Some(x) if x == String::from("image") => {
                 let top_file_selected = self.top_or_bottom_popup().await;
                 match top_file_selected {
-                    Some(true) => self.new_iconic_file_creation(file, svg_render_size, thumbnail_size, true),
-                    Some(false) => self.new_iconic_file_creation(file, svg_render_size, thumbnail_size, false),
-                    _ => self.new_iconic_file_creation(file, svg_render_size, thumbnail_size, true),
+                    Some(true) => self.new_iconic_file_creation(Some(file), None, svg_render_size, thumbnail_size, true),
+                    Some(false) => self.new_iconic_file_creation(Some(file), None, svg_render_size, thumbnail_size, false),
+                    _ => self.new_iconic_file_creation(Some(file), None, svg_render_size, thumbnail_size, true),
                 };
             }
             _ => {
@@ -241,7 +237,7 @@ impl GtkTestWindow {
         let size: i32 = imp.settings.get("svg-render-size");
         match self.open_file_chooser_gtk().await {
             Some(x) => {
-                self.new_iconic_file_creation(x, size, thumbnail_size, false)
+                self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
             }
             None => {
                 imp.toast_overlay.add_toast(adw::Toast::new("Icon reset"));
@@ -261,7 +257,7 @@ impl GtkTestWindow {
                 path,
                 self.imp().settings.get("svg-render-size"),
                 size,
-            ));
+            ).expect("Failed to load folder icon"));
         self.check_icon_update();
     }
 
@@ -273,24 +269,40 @@ impl GtkTestWindow {
         }
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
-        self.new_iconic_file_creation(filename, svg_render_size, size, true);
+        self.new_iconic_file_creation(Some(filename),None, svg_render_size, size, true);
         imp.image_loading_spinner.set_spinning(false);
     }
 
     pub fn new_iconic_file_creation(
         &self,
-        file: gio::File,
+        file: Option<gio::File>,
+        path: Option<PathBuf>,
         svg_render_size: i32,
         thumbnail_render_size: i32,
         change_top_icon: bool,
     ) {
         let imp = self.imp();
-        let new_file = match File::new(file, svg_render_size, thumbnail_render_size) {
-            Ok(x) => Some(x),
-            Err(e) => {
-                self.show_error_popup(&e.to_string(), true, Some(e));
-                None
+        let new_file = if let Some(file_temp) = file {
+            match File::new(file_temp, svg_render_size, thumbnail_render_size) {
+                Ok(x) => Some(x),
+                Err(e) => {
+                    self.show_error_popup(&e.to_string(), true, Some(e));
+                    None
+                }
             }
+        }
+        else if let Some(path_temp) = path{
+            match File::from_path(path_temp, svg_render_size, thumbnail_render_size) {
+                Ok(x) => Some(x),
+                Err(e) => {
+                    self.show_error_popup(&e.to_string(), true, Some(e));
+                    None
+                }
+            }
+        }
+        else {
+            self.show_error_popup(&gettext("No file or path found, this is probably not your fault."), true, None);
+            None
         };
         match new_file {
             Some(file) => {

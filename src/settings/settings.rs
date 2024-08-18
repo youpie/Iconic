@@ -11,15 +11,16 @@ use gtk::*;
 use log::*;
 use std::path::PathBuf;
 use std::{env, fs, path};
+use adw::subclass::prelude::AdwDialogImpl;
 
 mod imp {
     use super::*;
 
-    use adw::subclass::{prelude::PreferencesWindowImpl, window::AdwWindowImpl};
+    use adw::subclass::{prelude::PreferencesDialogImpl};
 
     #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/nl/emphisia/icon/settings/settings.ui")]
-    pub struct PreferencesWindow {
+    pub struct PreferencesDialog {
         #[template_child]
         pub custom: TemplateChild<adw::ActionRow>,
         #[template_child]
@@ -42,10 +43,10 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for PreferencesWindow {
-        const NAME: &'static str = "PreferencesWindow";
-        type Type = super::PreferencesWindow;
-        type ParentType = adw::PreferencesWindow;
+    impl ObjectSubclass for PreferencesDialog {
+        const NAME: &'static str = "PreferencesDialog";
+        type Type = super::PreferencesDialog;
+        type ParentType = adw::PreferencesDialog;
 
         fn new() -> Self {
             Self {
@@ -93,7 +94,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for PreferencesWindow {
+    impl ObjectImpl for PreferencesDialog {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
@@ -108,19 +109,19 @@ mod imp {
         }
     }
 
-    impl WidgetImpl for PreferencesWindow {}
-    impl WindowImpl for PreferencesWindow {}
-    impl AdwWindowImpl for PreferencesWindow {}
-    impl PreferencesWindowImpl for PreferencesWindow {}
+    impl WidgetImpl for PreferencesDialog {}
+    impl WindowImpl for PreferencesDialog {}
+    impl AdwDialogImpl for PreferencesDialog {}
+    impl PreferencesDialogImpl for PreferencesDialog {}
 }
 
 glib::wrapper! {
-    pub struct PreferencesWindow(ObjectSubclass<imp::PreferencesWindow>)
-    @extends gtk::Widget, gtk::Window, adw::Window, adw::PreferencesWindow;
+    pub struct PreferencesDialog(ObjectSubclass<imp::PreferencesDialog>)
+    @extends gtk::Widget, gtk::Window, adw::Dialog, adw::PreferencesDialog;
 }
 
 #[gtk::template_callbacks]
-impl PreferencesWindow {
+impl PreferencesDialog {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         let win = glib::Object::new::<Self>();
@@ -290,6 +291,6 @@ impl PreferencesWindow {
                 let _ = imp.settings.set("default-dnd-action","bottom");
             }
         }
-        // self.imp().settings.set("default-dnd-action"
     }
 }
+

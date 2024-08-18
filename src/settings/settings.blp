@@ -1,8 +1,8 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $PreferencesWindow : Adw.PreferencesWindow {
-  width-request: 526;
+template $PreferencesDialog : Adw.PreferencesDialog {
+  // width-request: 526;
   Adw.PreferencesPage {
     icon-name: "applications-system-symbolic";
     title: _("General");
@@ -64,6 +64,7 @@ template $PreferencesWindow : Adw.PreferencesWindow {
       Label {
         margin-top: 10;
         label: _("You can see these options because you have enabled the Devel profile");
+        wrap: true;
         valign: start;
         styles [
           "subtitle",
