@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-18 13:35+0200\n"
+"POT-Creation-Date: 2024-08-18 14:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: data/nl.emphisia.icon.desktop.in.in:3
 #: data/nl.emphisia.icon.metainfo.xml.in.in:5
-#: data/nl.emphisia.icon.metainfo.xml.in.in:92
+#: data/nl.emphisia.icon.metainfo.xml.in.in:106
 msgid "Iconic"
 msgstr ""
 
@@ -53,107 +53,142 @@ msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:30
 msgid ""
+"A new update to Iconic is here! It does not add many features but features a "
+"lot of improvements under the hood, this means the app will now crash way "
+"less often without any warning. Some changes include:"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:32
+msgid "Added error handling on opening files"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:33
+msgid "Added error handling on saving files"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:34
+msgid "Added donation link"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:35
+msgid "Added pop-up when dragging in files"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+msgid "Updated Dutch translations"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:37
+msgid "Updated it and hi translations (with google translate)"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:39
+msgid "Please report any bugs you see! Many thanks"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+msgid ""
 "This is a new major release of Iconic. Featuring many bug fixes and added "
 "features. Some notable ones are:"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:32
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
 msgid "Drag and drop support"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:33
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
 msgid "Copy-paste support"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:34
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
 msgid "Better file type detection"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:35
+#: data/nl.emphisia.icon.metainfo.xml.in.in:49
 msgid "Updated dutch translations"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+#: data/nl.emphisia.icon.metainfo.xml.in.in:50
 msgid "Added Hindi translations"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:37
+#: data/nl.emphisia.icon.metainfo.xml.in.in:51
 msgid "Fixed spelling mistakes"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:38
+#: data/nl.emphisia.icon.metainfo.xml.in.in:52
 msgid "Fixed issues with black pixels not converting to monochrome"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
 msgid "Another small update with a few additions and changes"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+#: data/nl.emphisia.icon.metainfo.xml.in.in:60
 msgid "You can now open containing folder after saving image"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+#: data/nl.emphisia.icon.metainfo.xml.in.in:61
 msgid "Added italian translation"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
 msgid "Updated Dutch translation"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:54
+#: data/nl.emphisia.icon.metainfo.xml.in.in:68
 msgid "This version adds a few small features and fixes some bugs"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:56
+#: data/nl.emphisia.icon.metainfo.xml.in.in:70
 msgid "The app now shows some errors as pop-ups"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:57
+#: data/nl.emphisia.icon.metainfo.xml.in.in:71
 msgid "You can now temporarily open a new folder image"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+#: data/nl.emphisia.icon.metainfo.xml.in.in:72
 msgid "It now first shows a pop-up when the folder image is not found"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:64
+#: data/nl.emphisia.icon.metainfo.xml.in.in:78
 msgid "Initial release"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:83
+#: data/nl.emphisia.icon.metainfo.xml.in.in:97
 msgid "icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:84
+#: data/nl.emphisia.icon.metainfo.xml.in.in:98
 msgid "create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:85
+#: data/nl.emphisia.icon.metainfo.xml.in.in:99
 msgid "folder icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:86
+#: data/nl.emphisia.icon.metainfo.xml.in.in:100
 msgid "svg"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:87
+#: data/nl.emphisia.icon.metainfo.xml.in.in:101
 msgid "png"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:88
+#: data/nl.emphisia.icon.metainfo.xml.in.in:102
 msgid "gnome"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:89
+#: data/nl.emphisia.icon.metainfo.xml.in.in:103
 msgid "icon create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:90
+#: data/nl.emphisia.icon.metainfo.xml.in.in:104
 msgid "icon creator"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:91
+#: data/nl.emphisia.icon.metainfo.xml.in.in:105
 msgid "folder icon creator"
 msgstr ""
 
@@ -365,6 +400,11 @@ msgstr ""
 
 #: src/window.rs:631
 msgid "Save"
+msgstr ""
+
+#. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
+#: src/application.rs:181
+msgid "translator-credits"
 msgstr ""
 
 #: src/windows/file_handling.rs:129

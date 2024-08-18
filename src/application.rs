@@ -188,3 +188,4 @@ impl GtkTestApplication {
         about.present(Some(&window));
     }
 }
+

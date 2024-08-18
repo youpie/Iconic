@@ -11,4 +11,5 @@ src/window.blp
 src/main.rs
 src/settings/settings.rs
 src/window.rs
+src/application.rs
 src/windows/file_handling.rs

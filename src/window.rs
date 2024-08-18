@@ -178,6 +178,9 @@ mod imp {
                     }
                 ));
             });
+            klass.install_action("app.reset_bottom", None, move |win, _, _| {
+                win.reset_bottom_icon();
+            });
             klass.install_action("app.paste", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
                     #[weak]
@@ -335,7 +338,7 @@ impl GtkTestWindow {
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource, x: f64, y: f64) -> Option<gdk::ContentProvider> {
         let icon = self.imp().generated_image.borrow().clone().unwrap();
         source.set_icon(Some(&self.dynamic_image_to_texture(&icon)),x as i32 ,y as i32);
-        Some(gdk::ContentProvider::for_bytes("image/png", &glib::Bytes::from_owned(icon.into_bytes())))
+        Some(gdk::ContentProvider::for_value(&1.to_value()))
     }
 
     pub fn setup_settings(&self) {

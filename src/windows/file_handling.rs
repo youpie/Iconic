@@ -217,6 +217,11 @@ impl GtkTestWindow {
         Ok(true)
     }
 
+    pub fn reset_bottom_icon(&self){
+        self.imp().toast_overlay.add_toast(adw::Toast::new(&gettext("Icon reset")));
+        self.load_folder_path_from_settings();
+    }
+
     pub async fn load_top_icon(&self) {
         let imp = self.imp();
         match self.open_file_chooser_gtk().await {
@@ -225,7 +230,7 @@ impl GtkTestWindow {
             }
             None => {
                 imp.toast_overlay
-                    .add_toast(adw::Toast::new("Nothing selected"));
+                    .add_toast(adw::Toast::new(&gettext("Nothing selected")));
             }
         };
         self.check_icon_update();
@@ -235,13 +240,13 @@ impl GtkTestWindow {
         let imp = self.imp();
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let size: i32 = imp.settings.get("svg-render-size");
+
         match self.open_file_chooser_gtk().await {
             Some(x) => {
                 self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
             }
             None => {
-                imp.toast_overlay.add_toast(adw::Toast::new("Icon reset"));
-                self.load_folder_path_from_settings();
+                imp.toast_overlay.add_toast(adw::Toast::new(&gettext("Nothing selected")));
             }
         };
     }
@@ -249,7 +254,7 @@ impl GtkTestWindow {
     pub fn load_folder_icon(&self, path: &str) {
         //let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
         let size: i32 = self.imp().settings.get("thumbnail-size");
-        self.new_iconic_file_creation(None, Some(PathBuf::from(path)), size, self.imp().settings.get("svg-render-size"), false);
+        self.new_iconic_file_creation(None, Some(PathBuf::from(path)), self.imp().settings.get("svg-render-size"), size, false);
     }
 
     pub async fn load_top_file(&self, filename: gio::File) {
