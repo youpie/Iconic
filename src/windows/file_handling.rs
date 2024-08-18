@@ -28,14 +28,15 @@ impl GtkTestWindow {
         let clipboard = self.clipboard();
         let imp = self.imp();
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let top_file_selected = self.top_or_bottom_popup().await;
+
         match clipboard
             .read_future(&["image/svg+xml"], glib::Priority::DEFAULT)
             .await
         {
-            Ok((stream, _mime)) => self.clipboard_load_svg(Some(stream)),
+            Ok((stream, _mime)) => self.clipboard_load_svg(Some(stream)).await,
             Err(_) => match clipboard.read_texture_future().await {
                 Ok(Some(texture)) => {
+                    let top_file_selected = self.top_or_bottom_popup().await;
                     imp.stack.set_visible_child_name("stack_loading_page");
 
                     let png_texture = texture.save_to_tiff_bytes();
@@ -60,17 +61,22 @@ impl GtkTestWindow {
                 }
                 Ok(None) => {
                     warn!("No texture found");
+                    imp.toast_overlay.add_toast(adw::Toast::new(&gettext("No texture found")));
                 }
                 Err(err) => {
                     error!("Failed to paste texture {err}");
+                    imp.toast_overlay.add_toast(adw::Toast::new(&gettext("No texture found")));
                 }
             }, // no svg in clipboard
         };
     }
 
-    pub fn clipboard_load_svg(&self, stream: Option<gio::InputStream>) {
+    pub async fn clipboard_load_svg(&self, stream: Option<gio::InputStream>) {
         let imp = self.imp();
-
+        let top_file = match self.top_or_bottom_popup().await {
+            Some(true) => true,
+            _ => false
+        };
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let none_file: Option<&gio::File> = None;
@@ -103,9 +109,8 @@ impl GtkTestWindow {
             Some(clipboard_path),
             svg_render_size,
             thumbnail_size,
-            true,
+            top_file,
         );
-        self.check_icon_update();
     }
 
     pub async fn open_dragged_file(&self, file: gio::File) {
