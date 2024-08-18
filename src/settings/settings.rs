@@ -3,6 +3,7 @@ use crate::glib::clone;
 use crate::Results;
 use adw::prelude::AdwDialogExt;
 use adw::prelude::AlertDialogExt;
+use adw::subclass::prelude::AdwDialogImpl;
 use gettextrs::*;
 use gtk::glib;
 use gtk::prelude::*;
@@ -11,7 +12,6 @@ use gtk::*;
 use log::*;
 use std::path::PathBuf;
 use std::{env, fs, path};
-use adw::subclass::prelude::AdwDialogImpl;
 
 mod imp {
     use super::*;
@@ -35,7 +35,7 @@ mod imp {
         pub default_dnd: TemplateChild<adw::ExpanderRow>,
         #[template_child]
         pub dnd_switch: TemplateChild<gtk::Switch>,
-         #[template_child]
+        #[template_child]
         pub radio_button_1: TemplateChild<gtk::CheckButton>,
         #[template_child]
         pub thumbnail_image_size: TemplateChild<adw::SpinRow>,
@@ -129,13 +129,19 @@ impl PreferencesDialog {
         if PROFILE != "Devel" {
             win.imp().advanced_settings.set_visible(false);
         }
-        win.imp().dnd_switch.set_active(win.imp().settings.boolean("default-dnd-activated"));
+        win.imp()
+            .dnd_switch
+            .set_active(win.imp().settings.boolean("default-dnd-activated"));
         win.dnd_row_expand();
         win.set_path_title();
 
-        win.imp().radio_button_1.connect_toggled(clone!(#[weak (rename_to = this)] win, move |_| {
+        win.imp().radio_button_1.connect_toggled(clone!(
+            #[weak (rename_to = this)]
+            win,
+            move |_| {
                 this.dnd_radio_state();
-        }));
+            }
+        ));
         win
     }
 
@@ -260,7 +266,10 @@ impl PreferencesDialog {
 
     pub fn dnd_row_expand(&self) {
         let switch_state = self.imp().dnd_switch.is_active();
-        let _ = self.imp().settings.set("default-dnd-activated",switch_state);
+        let _ = self
+            .imp()
+            .settings
+            .set("default-dnd-activated", switch_state);
         debug!("Current switch state: {}", switch_state);
         match switch_state {
             true => {
@@ -285,12 +294,11 @@ impl PreferencesDialog {
         debug!("Radio button changed: button 1 is {}", radio_button);
         match radio_button {
             true => {
-                let _ = imp.settings.set("default-dnd-action","top");
+                let _ = imp.settings.set("default-dnd-action", "top");
             }
             false => {
-                let _ = imp.settings.set("default-dnd-action","bottom");
+                let _ = imp.settings.set("default-dnd-action", "bottom");
             }
         }
     }
 }
-

@@ -741,6 +741,7 @@ dependencies = [
  "librsvg",
  "log",
  "pretty_env_logger",
+ "rand",
  "resvg",
  "usvg",
 ]

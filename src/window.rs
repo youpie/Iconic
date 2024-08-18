@@ -29,10 +29,12 @@ use image::*;
 use log::*;
 use std::cell::RefCell;
 use std::env;
+use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use std::error::Error;
+use rand::prelude::*;
+use gio::Cancellable;
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
@@ -90,6 +92,7 @@ mod imp {
         pub saved_file: Arc<Mutex<Option<gio::File>>>,
         pub file_created: RefCell<bool>,
         pub image_saved: RefCell<bool>,
+        pub last_dnd_generated_name: RefCell<Option<gio::File>>,
         pub generated_image: RefCell<Option<DynamicImage>>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
@@ -129,6 +132,7 @@ mod imp {
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
                 default_color: gdk::RGBA::new(0.262745098, 0.552941176, 0.901960784, 1.0),
+                last_dnd_generated_name: RefCell::new(None),
             }
         }
     }
@@ -195,10 +199,10 @@ mod imp {
                     #[weak]
                     win,
                     async move {
-                        match win.save_file().await {
+                        match win.open_save_file_dialog().await {
                             Ok(_) => (),
                             Err(error) => {
-                                win.show_error_popup(&error.to_string(),true, Some(error));
+                                win.show_error_popup(&error.to_string(), true, Some(error));
                             }
                         };
                     }
@@ -268,12 +272,24 @@ mod imp {
             ));
 
             let drag_source = gtk::DragSource::builder()
-            .actions(gdk::DragAction::COPY)
-            .build();
+                .actions(gdk::DragAction::COPY)
+                .build();
 
-            drag_source.connect_prepare(clone!(#[weak (rename_to = win)] obj, #[upgrade_or] None, move |drag, x, y| {
-                win.drag_connect_prepare(drag, x, y)
-            }));
+            drag_source.connect_prepare(clone!(
+                #[weak (rename_to = win)]
+                obj,
+                #[upgrade_or]
+                None,
+                move |drag, _, _| win.drag_connect_prepare(drag)
+            ));
+
+            drag_source.connect_drag_cancel(clone!(
+                #[weak (rename_to = win)]
+                obj,
+                #[upgrade_or]
+                false,
+                move |_, _, drag_cancel_reason| win.drag_connect_cancel(drag_cancel_reason)
+            ));
 
             self.image_preferences.add_controller(drop_target);
             self.main_status_page.add_controller(drop_target_2);
@@ -335,10 +351,68 @@ impl GtkTestWindow {
         win
     }
 
-    pub fn drag_connect_prepare(&self, source: &gtk::DragSource, x: f64, y: f64) -> Option<gdk::ContentProvider> {
-        let icon = self.imp().generated_image.borrow().clone().unwrap();
-        source.set_icon(Some(&self.dynamic_image_to_texture(&icon)),x as i32 ,y as i32);
-        Some(gdk::ContentProvider::for_value(&1.to_value()))
+    pub fn drag_connect_prepare(
+        &self,
+        source: &gtk::DragSource,
+    ) -> Option<gdk::ContentProvider> {
+        let imp = self.imp();
+        let generated_image = imp.generated_image.borrow().clone().unwrap();
+        let file_name = imp.top_image_file.lock().unwrap().clone().unwrap().name;
+        let icon = self.dynamic_image_to_texture(&generated_image.resize(64, 64, imageops::FilterType::Nearest));
+        source.set_icon(Some(&icon), 0 as i32, 0 as i32);
+        let gio_file = self.create_drag_file(&file_name);
+        imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
+        let gio_file_clone = gio_file.clone();
+        glib::spawn_future_local(clone!(
+            #[weak (rename_to = win)]
+            self,
+            async move {
+                win.save_file(gio_file_clone).await.unwrap();
+            }
+        ));
+        Some(gdk::ContentProvider::for_value(&glib::Value::from(&gio_file)))
+    }
+
+    pub fn create_drag_file(&self, file_name: &str) -> gio::File{
+        let data_path = match env::var("XDG_DATA_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".data")
+                    .join("Iconic");
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
+        debug!("data path: {:?}",data_path);
+        let random_number = random::<u64>();
+        let generated_file_name = format!("folder-{}-{}.png",file_name,random_number);
+        debug!("generated_file_name: {}",generated_file_name);
+        let mut file_path = data_path.clone();
+        file_path.push(generated_file_name.clone());
+        debug!("generated file path: {:?}", file_path);
+        let gio_file = gio::File::for_path(file_path);
+        if gio_file.query_exists(None::<&Cancellable>) {
+            warn!("File with name {} already exists, creating new file name", generated_file_name);
+            self.create_drag_file(file_name)
+        }
+        else{
+            info!("File with name {} does not yet exist, using file name", generated_file_name);
+            gio_file
+        }
+    }
+
+    fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool{
+        let imp = self.imp();
+        let gio_file = imp.last_dnd_generated_name.borrow().clone().unwrap();
+        info!("Drag operation cancelled, removing file. Reason: {:?}",reason);
+        match gio_file.delete(None::<&Cancellable>) {
+            Ok(_) => {debug!("Deletion succesfull!");},
+            Err(e) => {warn!("Could not delete drag file, error: {:?}",e);}
+        };
+        false
     }
 
     pub fn setup_settings(&self) {
@@ -519,15 +593,17 @@ impl GtkTestWindow {
             .show_error_popup(
                 &gettext("The set folder icon could not be found, press ok to select a new one"),
                 false,
-                None
+                None,
             )
             .unwrap();
         match &*dialog.clone().choose_future(self).await {
             "OK" => {
                 let new_path = match self.open_file_chooser_gtk().await {
                     Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
-                    None => {//adw::subclass::prelude::ActionGroupImpl::activate_action(&self, "app.quit", None);
-                            String::from("")},
+                    None => {
+                        //adw::subclass::prelude::ActionGroupImpl::activate_action(&self, "app.quit", None);
+                        String::from("")
+                    }
                 };
                 imp.settings
                     .set_string("folder-svg-path", &new_path)
@@ -564,19 +640,26 @@ impl GtkTestWindow {
         (cache_path, file_name)
     }
 
-    pub fn show_error_popup(&self, message: &str, show: bool, error: Option<Box<dyn Error + '_>>) -> Option<adw::AlertDialog> {
+    pub fn show_error_popup(
+        &self,
+        message: &str,
+        show: bool,
+        error: Option<Box<dyn Error + '_>>,
+    ) -> Option<adw::AlertDialog> {
         const RESPONSE_OK: &str = "OK";
         let error_text: &str = &gettext("Error");
         let dialog = adw::AlertDialog::builder()
-            .heading(format!("<span foreground=\"red\"><b>⚠ {error_text}</b></span>"))
+            .heading(format!(
+                "<span foreground=\"red\"><b>⚠ {error_text}</b></span>"
+            ))
             .heading_use_markup(true)
             .body(message)
             .default_response(RESPONSE_OK)
             .build();
         dialog.add_response(RESPONSE_OK, &gettext("OK"));
         match error {
-            Some(ref x) => error!("An error has occured: \"{:?}\"",x),
-            None => error!("An error has occured: \"{}\"",message),
+            Some(ref x) => error!("An error has occured: \"{:?}\"", x),
+            None => error!("An error has occured: \"{}\"", message),
         };
         match show {
             true => {
@@ -594,12 +677,13 @@ impl GtkTestWindow {
             return match dnd_radio_state.as_str() {
                 "top" => Some(true),
                 "bottom" => Some(false),
-                _ => None
+                _ => None,
             };
         }
         const RESPONSE_TOP: &str = "TOP";
         const RESPONSE_BOTTOM: &str = "BOTTOM";
-        let load_question: &str = &gettext("Do you want to load this image to the top or bottom layer?");
+        let load_question: &str =
+            &gettext("Do you want to load this image to the top or bottom layer?");
         let disable_hint: &str = &gettext("Hint: You can disable this pop-up in the settings");
         let dialog = adw::AlertDialog::builder()
             .heading(gettext("Select layer"))
@@ -612,7 +696,7 @@ impl GtkTestWindow {
         dialog.set_response_appearance(RESPONSE_TOP, adw::ResponseAppearance::Suggested);
 
         match &*dialog.clone().choose_future(self).await {
-            RESPONSE_TOP => Some (true),
+            RESPONSE_TOP => Some(true),
             RESPONSE_BOTTOM => Some(false),
             _ => None,
         }
@@ -640,13 +724,11 @@ impl GtkTestWindow {
                 Ok(glib::Propagation::Stop)
             }
             RESPONSE_DISCARD => Ok(glib::Propagation::Proceed),
-            RESPONSE_SAVE => match self.save_file().await {
-                Ok(saved) => {
-                    match saved {
-                        true => Ok(glib::Propagation::Proceed),
-                        false => Ok(glib::Propagation::Stop),
-                    }
-                }
+            RESPONSE_SAVE => match self.open_save_file_dialog().await {
+                Ok(saved) => match saved {
+                    true => Ok(glib::Propagation::Proceed),
+                    false => Ok(glib::Propagation::Stop),
+                },
                 Err(error) => {
                     self.show_error_popup(&error.to_string(), true, Some(error));
                     Ok(glib::Propagation::Stop)
@@ -682,7 +764,9 @@ impl GtkTestWindow {
                         .thumbnail,
                 ),
             ));
-            imp.stack.set_visible_child_name("stack_welcome_page");
+            if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
+                imp.stack.set_visible_child_name("stack_welcome_page");
+            }
         }
     }
 

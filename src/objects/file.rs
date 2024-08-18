@@ -60,13 +60,21 @@ impl File {
         })
     }
 
-    pub fn from_path_string(path: &str, size: i32, thumbnail_size: i32) -> Result<Self, Box<dyn Error>> {
+    pub fn from_path_string(
+        path: &str,
+        size: i32,
+        thumbnail_size: i32,
+    ) -> Result<Self, Box<dyn Error>> {
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(PathBuf::from(path).as_path());
         Self::new(file, size, thumbnail_size)
     }
 
-    pub fn from_path(path: PathBuf, size: i32, thumbnail_size: i32) -> Result<Self, Box<dyn Error>> {
+    pub fn from_path(
+        path: PathBuf,
+        size: i32,
+        thumbnail_size: i32,
+    ) -> Result<Self, Box<dyn Error>> {
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(path);
         Self::new(file, size, thumbnail_size)

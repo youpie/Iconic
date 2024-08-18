@@ -6,8 +6,8 @@ use gtk::glib;
 use image::*;
 use log::*;
 use std::env;
-use std::path::PathBuf;
 use std::error::Error;
+use std::path::PathBuf;
 
 use crate::GtkTestWindow;
 
@@ -28,7 +28,7 @@ impl GtkTestWindow {
         let clipboard = self.clipboard();
         let imp = self.imp();
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-
+        let top_file_selected = self.top_or_bottom_popup().await;
         match clipboard
             .read_future(&["image/svg+xml"], glib::Priority::DEFAULT)
             .await
@@ -42,10 +42,20 @@ impl GtkTestWindow {
                     let image =
                         image::load_from_memory_with_format(&png_texture, image::ImageFormat::Tiff)
                             .unwrap();
-                    imp.top_image_file
-                        .lock()
-                        .unwrap()
-                        .replace(File::from_image(image, thumbnail_size));
+                    match top_file_selected {
+                        Some(true) => {
+                            imp.top_image_file
+                                .lock()
+                                .unwrap()
+                                .replace(File::from_image(image, thumbnail_size));
+                        }
+                        _ => {
+                            imp.folder_image_file
+                                .lock()
+                                .unwrap()
+                                .replace(File::from_image(image, thumbnail_size));
+                        }
+                    }
                     self.check_icon_update();
                 }
                 Ok(None) => {
@@ -88,7 +98,13 @@ impl GtkTestWindow {
         let clipboard_path = PathBuf::from(format!("{}/clipboard.png", cache_path));
         let mut stream = std::fs::File::create(&clipboard_path).unwrap();
         surface.write_to_png(&mut stream).unwrap();
-        self.new_iconic_file_creation(None, Some(clipboard_path), svg_render_size, thumbnail_size, true);
+        self.new_iconic_file_creation(
+            None,
+            Some(clipboard_path),
+            svg_render_size,
+            thumbnail_size,
+            true,
+        );
         self.check_icon_update();
     }
 
@@ -106,7 +122,7 @@ impl GtkTestWindow {
                     return;
                 }
             };
-        imp.stack.set_visible_child_name("stack_loading_page");
+
         debug!("file name: {:?}", file_info.name());
         let mime_type: Option<String> = match file_info.content_type() {
             Some(x) => {
@@ -119,10 +135,32 @@ impl GtkTestWindow {
         match mime_type {
             Some(x) if x == String::from("image") => {
                 let top_file_selected = self.top_or_bottom_popup().await;
+                imp.stack.set_visible_child_name("stack_loading_page");
                 match top_file_selected {
-                    Some(true) => self.new_iconic_file_creation(Some(file), None, svg_render_size, thumbnail_size, true),
-                    Some(false) => self.new_iconic_file_creation(Some(file), None, svg_render_size, thumbnail_size, false),
-                    _ => self.new_iconic_file_creation(Some(file), None, svg_render_size, thumbnail_size, true),
+                    Some(true) => self.new_iconic_file_creation(
+                        Some(file),
+                        None,
+                        svg_render_size,
+                        thumbnail_size,
+                        true,
+                    ),
+                    Some(false) => {
+                        imp.stack.set_visible_child_name("stack_main_page");
+                        self.new_iconic_file_creation(
+                            Some(file),
+                            None,
+                            svg_render_size,
+                            thumbnail_size,
+                            false,
+                        )
+                    }
+                    _ => self.new_iconic_file_creation(
+                        Some(file),
+                        None,
+                        svg_render_size,
+                        thumbnail_size,
+                        true,
+                    ),
                 };
             }
             _ => {
@@ -133,7 +171,7 @@ impl GtkTestWindow {
         self.check_icon_update();
     }
 
-    pub async fn save_file(&self) -> Result<bool, Box<dyn Error + '_>> {
+    pub async fn open_save_file_dialog(&self) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
         if !imp.save_button.is_sensitive() {
             imp.toast_overlay
@@ -148,77 +186,85 @@ impl GtkTestWindow {
             .initial_name(file_name)
             .modal(true)
             .build();
-        let file = file_chooser.save_future(Some(self)).await;
-        match file {
-            Ok(file) => {
-                self.imp().stack.set_visible_child_name("stack_saving_page");
-                imp.saved_file
-                    .lock()
-                    .expect("Could not get file")
-                    .replace(file.clone());
-                imp.image_saved.replace(true);
-                imp.save_button.set_sensitive(false);
-                let base_image = imp
-                    .folder_image_file
-                    .lock()?
-                    .as_ref()
-                    .unwrap()
-                    .dynamic_image
-                    .clone();
-                let top_image = match self.imp().monochrome_switch.state() {
-                    false => imp
-                        .top_image_file
-                        .lock()?
-                        .as_ref()
-                        .unwrap()
-                        .dynamic_image
-                        .clone(),
-                    true => self.to_monochrome(
-                        imp.top_image_file
-                            .lock()?
-                            .as_ref()
-                            .unwrap()
-                            .dynamic_image
-                            .clone(),
-                        imp.threshold_scale.value() as u8,
-                        imp.monochrome_color.rgba(),
-                    ),
-                };
-                let generated_image = self
-                    .generate_image(base_image, top_image, imageops::FilterType::Gaussian)
-                    .await;
-                //let _ = gio::spawn_blocking(move || {
-                    generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)?;
-                //})
-                //.await;
-                self.imp().stack.set_visible_child_name("stack_main_page");
-                imp.toast_overlay.add_toast(
-                    adw::Toast::builder()
-                        .button_label(gettext("Open Folder"))
-                        .action_name("app.open_file_location")
-                        .title(gettext("File Saved"))
-                        .build(),
-                );
-            }
-            Err(e) => {
+        self.imp().stack.set_visible_child_name("stack_saving_page");
+        match file_chooser.save_future(Some(self)).await{
+        Ok(file) => {
+            let saved_file = self.save_file(file).await?;
+            self.imp().stack.set_visible_child_name("stack_main_page");
+            imp.toast_overlay.add_toast(
+                adw::Toast::builder()
+                    .button_label(gettext("Open Folder"))
+                    .action_name("app.open_file_location")
+                    .title(gettext("File Saved"))
+                    .build(),
+            );
+            imp.image_saved.replace(true);
+            imp.save_button.set_sensitive(false);
+            saved_file
+        },
+        Err(e) => {
                 match e.message() {
                     "Dismissed by user" => {
                         imp.toast_overlay
                             .add_toast(adw::Toast::new("File not saved"));
-                       },
+                        return Ok(false);
+                    }
                     _ => {
                         imp.image_saved.replace(false);
                         imp.save_button.set_sensitive(true);
                         return Err(Box::new(e));
                     }
+
                 };
             }
         };
         Ok(true)
     }
 
-    pub fn reset_bottom_icon(&self){
-        self.imp().toast_overlay.add_toast(adw::Toast::new(&gettext("Icon reset")));
+    pub async fn save_file(&self, file: gio::File) -> Result<bool, Box<dyn Error + '_>> {
+        let imp = self.imp();
+
+        imp.saved_file
+            .lock()
+            .expect("Could not get file")
+            .replace(file.clone());
+        let base_image = imp
+            .folder_image_file
+            .lock()?
+            .as_ref()
+            .unwrap()
+            .dynamic_image
+            .clone();
+        let top_image = match self.imp().monochrome_switch.state() {
+            false => imp
+                .top_image_file
+                .lock()?
+                .as_ref()
+                .unwrap()
+                .dynamic_image
+                .clone(),
+            true => self.to_monochrome(
+                imp.top_image_file
+                    .lock()?
+                    .as_ref()
+                    .unwrap()
+                    .dynamic_image
+                    .clone(),
+                imp.threshold_scale.value() as u8,
+                imp.monochrome_color.rgba(),
+            ),
+        };
+        let generated_image = self
+            .generate_image(base_image, top_image, imageops::FilterType::Gaussian)
+            .await;
+        generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)?;
+        Ok(true)
+    }
+
+    pub fn reset_bottom_icon(&self) {
+        self.imp()
+            .toast_overlay
+            .add_toast(adw::Toast::new(&gettext("Icon reset")));
         self.load_folder_path_from_settings();
     }
 
@@ -243,10 +289,12 @@ impl GtkTestWindow {
 
         match self.open_file_chooser_gtk().await {
             Some(x) => {
+                imp.stack.set_visible_child_name("stack_main_page");
                 self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
             }
             None => {
-                imp.toast_overlay.add_toast(adw::Toast::new(&gettext("Nothing selected")));
+                imp.toast_overlay
+                    .add_toast(adw::Toast::new(&gettext("Nothing selected")));
             }
         };
     }
@@ -254,7 +302,13 @@ impl GtkTestWindow {
     pub fn load_folder_icon(&self, path: &str) {
         //let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
         let size: i32 = self.imp().settings.get("thumbnail-size");
-        self.new_iconic_file_creation(None, Some(PathBuf::from(path)), self.imp().settings.get("svg-render-size"), size, false);
+        self.new_iconic_file_creation(
+            None,
+            Some(PathBuf::from(path)),
+            self.imp().settings.get("svg-render-size"),
+            size,
+            false,
+        );
     }
 
     pub async fn load_top_file(&self, filename: gio::File) {
@@ -265,7 +319,7 @@ impl GtkTestWindow {
         }
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
-        self.new_iconic_file_creation(Some(filename),None, svg_render_size, size, true);
+        self.new_iconic_file_creation(Some(filename), None, svg_render_size, size, true);
         imp.image_loading_spinner.set_spinning(false);
     }
 
@@ -286,8 +340,7 @@ impl GtkTestWindow {
                     None
                 }
             }
-        }
-        else if let Some(path_temp) = path{
+        } else if let Some(path_temp) = path {
             match File::from_path(path_temp, svg_render_size, thumbnail_render_size) {
                 Ok(x) => Some(x),
                 Err(e) => {
@@ -295,14 +348,17 @@ impl GtkTestWindow {
                     None
                 }
             }
-        }
-        else {
-            self.show_error_popup(&gettext("No file or path found, this is probably not your fault."), true, None);
+        } else {
+            self.show_error_popup(
+                &gettext("No file or path found, this is probably not your fault."),
+                true,
+                None,
+            );
             None
         };
         match new_file {
             Some(file) => {
-                match change_top_icon{
+                match change_top_icon {
                     true => imp.top_image_file.lock().unwrap().replace(file),
                     false => imp.folder_image_file.lock().unwrap().replace(file),
                 };

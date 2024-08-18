@@ -24,14 +24,13 @@ use crate::settings::settings::PreferencesDialog;
 use crate::GtkTestWindow;
 use adw::prelude::AdwDialogExt;
 use adw::subclass::prelude::*;
+use ashpd::desktop::open_uri::OpenFileRequest;
+use ashpd::url;
+use gettextrs::gettext;
 use gtk::prelude::*;
 use gtk::License;
 use gtk::{gio, glib};
 use std::cell::OnceCell;
-use ashpd::desktop::open_uri::OpenFileRequest;
-use ashpd::url;
-use gettextrs::gettext;
-
 
 mod imp {
     use super::*;
@@ -140,7 +139,7 @@ impl GtkTestApplication {
         let preferences = PreferencesDialog::new();
         let window = self.active_window().unwrap();
 
-        adw::prelude::AdwDialogExt::present(&preferences,Some(&window));
+        adw::prelude::AdwDialogExt::present(&preferences, Some(&window));
     }
 
     fn open_function(&self) {
@@ -151,7 +150,7 @@ impl GtkTestApplication {
         self.activate_action("app.select_folder", None);
     }
 
-    fn donate(&self){
+    fn donate(&self) {
         glib::spawn_future_local(glib::clone!(
             #[weak(rename_to = _win)]
             self,
@@ -176,7 +175,10 @@ impl GtkTestApplication {
             .application_name("Iconic")
             .application_icon(APP_ICON)
             .developer_name("Youpie")
-            .developers(vec!["Youpie https://github.com/youpie","Qustio https://github.com/Qustio"])
+            .developers(vec![
+                "Youpie https://github.com/youpie",
+                "Qustio https://github.com/Qustio",
+            ])
             // Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
             .translator_credits(gettext("translator-credits"))
             .version(VERSION)
@@ -188,4 +190,3 @@ impl GtkTestApplication {
         about.present(Some(&window));
     }
 }
-

@@ -1,5 +1,5 @@
 pub static APP_ID: &str = "nl.emphisia.icon.Devel";
-pub static VERSION: &str = "2024.2.1-8ca2289";
+pub static VERSION: &str = "2024.2.1-79a19ad";
 pub static GETTEXT_PACKAGE: &str = "folder_icon";
 pub static LOCALEDIR: &str = "/app/share/locale";
 pub static PKGDATADIR: &str = "/app/share/folder_icon";
