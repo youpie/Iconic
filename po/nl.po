@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-13 11:27+0200\n"
-"PO-Revision-Date: 2024-08-13 11:30+0200\n"
+"POT-Creation-Date: 2024-08-18 13:35+0200\n"
+"PO-Revision-Date: 2024-08-18 13:37+0200\n"
 "Last-Translator: Youpie <youplamb@hotmail.nl>\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -209,7 +209,7 @@ msgid "Customise"
 msgstr "Aanpassen"
 
 #: src/settings/settings.blp:29
-msgid "Currently set folder icon, click to reset to default"
+msgid "Currently set bottom icon, click to reset to default"
 msgstr "Huidig ingestelde folder afbeelding, klik om te resetten"
 
 #: src/settings/settings.blp:36
@@ -241,11 +241,11 @@ msgid "You can see these options because you have enabled the Devel profile"
 msgstr ""
 "Je kan deze opties zien omdat je het \"Devel\" profiel hebt geactiveerd"
 
-#: src/settings/settings.blp:74
+#: src/settings/settings.blp:75
 msgid "Select size of SVG images"
 msgstr "Selecteer grootte van SVG afbeeldingen"
 
-#: src/settings/settings.blp:75
+#: src/settings/settings.blp:76
 msgid ""
 "SVG images will by default be converted to a 1024x1024 image. You can adjust "
 "that here"
@@ -253,11 +253,11 @@ msgstr ""
 "SVG afbeeldingen worden standaard omgezet naar een 1024x1024 afbeelding. Dat "
 "kan je hier aanpassen"
 
-#: src/settings/settings.blp:85
+#: src/settings/settings.blp:86
 msgid "Select size of Thumbnail images"
 msgstr "Selecteer grootte van Thumbnail afbeeldingen"
 
-#: src/settings/settings.blp:86
+#: src/settings/settings.blp:87
 msgid ""
 "Thumbnail images will by default be converted to a 255x255 image. You can "
 "adjust that here"
@@ -306,64 +306,72 @@ msgid "_Open Top Icon"
 msgstr "_Open bovenste Icoon"
 
 #: src/window.blp:286
-msgid "_Open Folder Icon"
-msgstr "_Open Folder Icoon"
+msgid "_Open Bottom Icon"
+msgstr "_Open onderste Icoon"
 
 #: src/window.blp:292
+msgid "_Reset Bottom Icon"
+msgstr "_Reset onderste Icoon"
+
+#: src/window.blp:298
 msgid "_Preferences"
 msgstr "_Instellingen"
 
-#: src/window.blp:297
+#: src/window.blp:303
 msgid "_Keyboard Shortcuts"
 msgstr "_Sneltoetsen"
 
-#: src/window.blp:302
+#: src/window.blp:308
+msgid "_Donate ❤️"
+msgstr "_Doneer ❤️"
+
+#: src/window.blp:313
 msgid "_About Iconic"
 msgstr "_Over Iconic"
 
-#: src/settings/settings.rs:195 src/window.rs:676
+#: src/settings/settings.rs:196 src/window.rs:692
 msgid "Open Document"
 msgstr "Open Document"
 
-#: src/settings/settings.rs:251 src/window.rs:550
+#: src/settings/settings.rs:252 src/window.rs:566
 msgid "Error"
 msgstr "Fout"
 
-#: src/window.rs:502
+#: src/window.rs:517
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 "De huidig ingestelde folder afbeelding kan niet gevonden worden, druk op OK "
 "om een nieuwe te selecteren"
 
-#: src/window.rs:557
+#: src/window.rs:573
 msgid "OK"
 msgstr "OK"
 
-#: src/window.rs:583
+#: src/window.rs:599
 msgid "Do you want to load this image to the top or bottom layer?"
 msgstr "Wil je deze afbeelding laden naar de bovenste of onderste laag?"
 
-#: src/window.rs:584
+#: src/window.rs:600
 msgid "Hint: You can disable this pop-up in the settings"
 msgstr "Hint: Je kan deze pop-up uitschakelen in de instellingen"
 
-#: src/window.rs:586
+#: src/window.rs:602
 msgid "Select layer"
 msgstr "Selecteer Laag"
 
-#: src/window.rs:591
+#: src/window.rs:607
 msgid "Top"
 msgstr "Boven"
 
-#: src/window.rs:592
+#: src/window.rs:608
 msgid "Bottom"
 msgstr "Onder"
 
-#: src/window.rs:607
+#: src/window.rs:623
 msgid "Save Changes?"
 msgstr "Veranderingen Opslaan?"
 
-#: src/window.rs:608
+#: src/window.rs:624
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
@@ -371,29 +379,36 @@ msgstr ""
 "Open afbeelding bevat niet-opgeslagen veranderingen. Niet opgeslagen "
 "veranderingen gaan permanent verloren"
 
-#: src/window.rs:612
+#: src/window.rs:628
 msgid "Cancel"
 msgstr "Annuleer"
 
-#: src/window.rs:613
+#: src/window.rs:629
 msgid "Discard"
 msgstr "Verwerpen"
 
-#: src/window.rs:615
+#: src/window.rs:631
 msgid "Save"
 msgstr "Opslaan"
 
-#: src/windows/file_handling.rs:133
+#: src/windows/file_handling.rs:129
 msgid "Unsupported file type"
 msgstr "Niet ondersteund bestandstype"
 
-#: src/windows/file_handling.rs:201
+#: src/windows/file_handling.rs:197
 msgid "Open Folder"
 msgstr "Open Folder"
 
-#: src/windows/file_handling.rs:203
+#: src/windows/file_handling.rs:199
 msgid "File Saved"
 msgstr "Bestand Opgeslagen"
+
+#: src/windows/file_handling.rs:295
+msgid "No file or path found, this is probably not your fault."
+msgstr "Geen bestand of pad gevonden, dit is waarschijnlijk niet jouw schuld."
+
+#~ msgid "_Open Folder Icon"
+#~ msgstr "_Open Folder Icoon"
 
 #~ msgid "Begin screen of application"
 #~ msgstr "Begin scherm van het programma"

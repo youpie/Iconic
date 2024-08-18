@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-13 11:27+0200\n"
-"PO-Revision-Date: 2024-08-13 11:31+0200\n"
+"POT-Creation-Date: 2024-08-18 13:35+0200\n"
+"PO-Revision-Date: 2024-08-18 13:37+0200\n"
 "Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"
 "Language-Team: Hindi <indlinux-hindi@lists.sourceforge.net>\n"
 "Language: hi\n"
@@ -206,7 +206,9 @@ msgid "Customise"
 msgstr "अनुकूलित करें"
 
 #: src/settings/settings.blp:29
-msgid "Currently set folder icon, click to reset to default"
+#, fuzzy
+#| msgid "Currently set folder icon, click to reset to default"
+msgid "Currently set bottom icon, click to reset to default"
 msgstr "वर्तमान में निर्धारित फोल्डर आइकन, तयशुदा पर रीसेट करने के लिए क्लिक करें"
 
 #: src/settings/settings.blp:36
@@ -235,19 +237,19 @@ msgstr "उन्नत"
 msgid "You can see these options because you have enabled the Devel profile"
 msgstr "आप ये विकल्प इसलिए देख सकते हैं क्योंकि आपने Devel प्रोफाइल सक्षम कर रखी है"
 
-#: src/settings/settings.blp:74
+#: src/settings/settings.blp:75
 msgid "Select size of SVG images"
 msgstr "SVG छवियों का आकार चुनें"
 
-#: src/settings/settings.blp:75
+#: src/settings/settings.blp:76
 msgid "SVG images will by default be converted to a 1024x1024 image. You can adjust that here"
 msgstr "SVG छवियां तयशुदा रूप से 1024x1024 छवि में परिवर्तित की जाएंगी। आप इसे यहां समायोजित कर सकते हैं"
 
-#: src/settings/settings.blp:85
+#: src/settings/settings.blp:86
 msgid "Select size of Thumbnail images"
 msgstr "थंबनेल छवियों का आकार चुनें"
 
-#: src/settings/settings.blp:86
+#: src/settings/settings.blp:87
 msgid ""
 "Thumbnail images will by default be converted to a 255x255 image. You can adjust that here"
 msgstr "थंबनेल छवियां तयशुदा रूप से 255x255 छवि में परिवर्तित की जाएंगी। आप इसे यहां समायोजित कर सकते हैं"
@@ -295,90 +297,107 @@ msgid "_Open Top Icon"
 msgstr "शीर्ष आइकन खोलें (_O)"
 
 #: src/window.blp:286
-msgid "_Open Folder Icon"
-msgstr "फोल्डर आइकन खोलें (_O)"
+#, fuzzy
+#| msgid "_Open Top Icon"
+msgid "_Open Bottom Icon"
+msgstr "शीर्ष आइकन खोलें (_O)"
 
 #: src/window.blp:292
+msgid "_Reset Bottom Icon"
+msgstr ""
+
+#: src/window.blp:298
 msgid "_Preferences"
 msgstr "प्राथमिकताएं (_P)"
 
-#: src/window.blp:297
+#: src/window.blp:303
 msgid "_Keyboard Shortcuts"
 msgstr "कीबोर्ड शॉर्टकट (_K)"
 
-#: src/window.blp:302
+#: src/window.blp:308
+msgid "_Donate ❤️"
+msgstr ""
+
+#: src/window.blp:313
 #, fuzzy
 #| msgid "Iconic"
 msgid "_About Iconic"
 msgstr "आइकोनिक"
 
-#: src/settings/settings.rs:195 src/window.rs:676
+#: src/settings/settings.rs:196 src/window.rs:692
 msgid "Open Document"
 msgstr "दस्तावेज खोलें"
 
-#: src/settings/settings.rs:251 src/window.rs:550
+#: src/settings/settings.rs:252 src/window.rs:566
 msgid "Error"
 msgstr "त्रुटि"
 
-#: src/window.rs:502
+#: src/window.rs:517
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr "निर्धारित फोल्डर आइकन नहीं मिल सका, नया चुनने के लिए 'ठीक है' दबाएं"
 
-#: src/window.rs:557
+#: src/window.rs:573
 msgid "OK"
 msgstr "ठीक है"
 
-#: src/window.rs:583
+#: src/window.rs:599
 msgid "Do you want to load this image to the top or bottom layer?"
 msgstr ""
 
-#: src/window.rs:584
+#: src/window.rs:600
 msgid "Hint: You can disable this pop-up in the settings"
 msgstr ""
 
-#: src/window.rs:586
+#: src/window.rs:602
 msgid "Select layer"
 msgstr ""
 
-#: src/window.rs:591
+#: src/window.rs:607
 msgid "Top"
 msgstr ""
 
-#: src/window.rs:592
+#: src/window.rs:608
 msgid "Bottom"
 msgstr ""
 
-#: src/window.rs:607
+#: src/window.rs:623
 msgid "Save Changes?"
 msgstr "परिवर्तन सहेजें?"
 
-#: src/window.rs:608
+#: src/window.rs:624
 msgid "Open image contain unsaved changes. Changes which are not saved will be permanently lost"
 msgstr "खुली छवि में सहेजे न गए परिवर्तन हैं। जो परिवर्तन सहेजे नहीं गए वे स्थायी रूप से नष्ट हो जाएंगे"
 
-#: src/window.rs:612
+#: src/window.rs:628
 msgid "Cancel"
 msgstr "रद्द करें"
 
-#: src/window.rs:613
+#: src/window.rs:629
 msgid "Discard"
 msgstr "त्यागें"
 
-#: src/window.rs:615
+#: src/window.rs:631
 msgid "Save"
 msgstr "सहेजें"
 
-#: src/windows/file_handling.rs:133
+#: src/windows/file_handling.rs:129
 msgid "Unsupported file type"
 msgstr ""
 
-#: src/windows/file_handling.rs:201
+#: src/windows/file_handling.rs:197
 msgid "Open Folder"
 msgstr "फोल्डर खोलें"
 
-#: src/windows/file_handling.rs:203
+#: src/windows/file_handling.rs:199
 msgid "File Saved"
 msgstr "फाइल सहेजी गई"
+
+#: src/windows/file_handling.rs:295
+msgid "No file or path found, this is probably not your fault."
+msgstr ""
+
+#~ msgid "_Open Folder Icon"
+#~ msgstr "फोल्डर आइकन खोलें (_O)"
 
 #~ msgid "Begin screen of application"
 #~ msgstr "एप्लिकेशन की आरंभिक स्क्रीन"

@@ -30,6 +30,8 @@ use gtk::{gio, glib};
 use std::cell::OnceCell;
 use ashpd::desktop::open_uri::OpenFileRequest;
 use ashpd::url;
+use gettextrs::gettext;
+
 
 mod imp {
     use super::*;
@@ -174,10 +176,12 @@ impl GtkTestApplication {
             .application_name("Iconic")
             .application_icon(APP_ICON)
             .developer_name("Youpie")
+            .developers(vec!["Youpie https://github.com/youpie","Qustio https://github.com/Qustio"])
+            // Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
+            .translator_credits(gettext("translator-credits"))
             .version(VERSION)
             .issue_url("https://github.com/youpie/Iconic/issues")
             .website("https://github.com/youpie/Iconic")
-            .developers(vec!["Youpie"])
             .license_type(License::Gpl30)
             .copyright("© 2024 YoupDeGamerNL")
             .build();

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-13 11:27+0200\n"
-"PO-Revision-Date: 2024-08-13 11:31+0200\n"
+"POT-Creation-Date: 2024-08-18 13:35+0200\n"
+"PO-Revision-Date: 2024-08-18 13:38+0200\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <LL@li.org>\n"
 "Language: it\n"
@@ -97,7 +97,6 @@ msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:46
 #, fuzzy
-#| msgid "You can now temporarilly open a new folder image"
 msgid "You can now open containing folder after saving image"
 msgstr "Ora puoi aprire temporaneamente una nuova immagine di cartella"
 
@@ -209,7 +208,9 @@ msgid "Customise"
 msgstr "Personalizza"
 
 #: src/settings/settings.blp:29
-msgid "Currently set folder icon, click to reset to default"
+#, fuzzy
+#| msgid "Currently set folder icon, click to reset to default"
+msgid "Currently set bottom icon, click to reset to default"
 msgstr ""
 "Icona della cartella attualmente impostata, fare clic per ripristinare le "
 "impostazioni predefinite"
@@ -241,11 +242,11 @@ msgid "You can see these options because you have enabled the Devel profile"
 msgstr ""
 "Puoi vedere queste opzioni perché hai abilitato il profilo sviluppatore"
 
-#: src/settings/settings.blp:74
+#: src/settings/settings.blp:75
 msgid "Select size of SVG images"
 msgstr "Seleziona la dimensione delle immagini SVG"
 
-#: src/settings/settings.blp:75
+#: src/settings/settings.blp:76
 msgid ""
 "SVG images will by default be converted to a 1024x1024 image. You can adjust "
 "that here"
@@ -253,11 +254,11 @@ msgstr ""
 "Le immagini SVG verranno convertite per impostazione predefinita in "
 "un'immagine 1024x1024. È possibile regolarle qui"
 
-#: src/settings/settings.blp:85
+#: src/settings/settings.blp:86
 msgid "Select size of Thumbnail images"
 msgstr "Seleziona la dimensione delle immagini in miniatura"
 
-#: src/settings/settings.blp:86
+#: src/settings/settings.blp:87
 msgid ""
 "Thumbnail images will by default be converted to a 255x255 image. You can "
 "adjust that here"
@@ -308,66 +309,76 @@ msgid "_Open Top Icon"
 msgstr "_Apri l'icona in alto"
 
 #: src/window.blp:286
-msgid "_Open Folder Icon"
-msgstr "_Apri icona della cartella"
+#, fuzzy
+#| msgid "_Open Top Icon"
+msgid "_Open Bottom Icon"
+msgstr "_Apri l'icona in alto"
 
 #: src/window.blp:292
+msgid "_Reset Bottom Icon"
+msgstr ""
+
+#: src/window.blp:298
 msgid "_Preferences"
 msgstr "_Preferenze"
 
-#: src/window.blp:297
+#: src/window.blp:303
 msgid "_Keyboard Shortcuts"
 msgstr "_Scorciatoie da tastiera"
 
-#: src/window.blp:302
+#: src/window.blp:308
+msgid "_Donate ❤️"
+msgstr ""
+
+#: src/window.blp:313
 #, fuzzy
 #| msgid "Iconic"
 msgid "_About Iconic"
 msgstr "Iconic"
 
-#: src/settings/settings.rs:195 src/window.rs:676
+#: src/settings/settings.rs:196 src/window.rs:692
 msgid "Open Document"
 msgstr "Apri documento"
 
-#: src/settings/settings.rs:251 src/window.rs:550
+#: src/settings/settings.rs:252 src/window.rs:566
 msgid "Error"
 msgstr "Errore"
 
-#: src/window.rs:502
+#: src/window.rs:517
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 "Impossibile trovare l'icona della cartella impostata, premere OK per "
 "selezionarne una nuova"
 
-#: src/window.rs:557
+#: src/window.rs:573
 msgid "OK"
 msgstr "Ok"
 
-#: src/window.rs:583
+#: src/window.rs:599
 msgid "Do you want to load this image to the top or bottom layer?"
 msgstr ""
 
-#: src/window.rs:584
+#: src/window.rs:600
 msgid "Hint: You can disable this pop-up in the settings"
 msgstr ""
 
-#: src/window.rs:586
+#: src/window.rs:602
 msgid "Select layer"
 msgstr ""
 
-#: src/window.rs:591
+#: src/window.rs:607
 msgid "Top"
 msgstr ""
 
-#: src/window.rs:592
+#: src/window.rs:608
 msgid "Bottom"
 msgstr ""
 
-#: src/window.rs:607
+#: src/window.rs:623
 msgid "Save Changes?"
 msgstr "Salvare le modifiche?"
 
-#: src/window.rs:608
+#: src/window.rs:624
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
@@ -375,31 +386,38 @@ msgstr ""
 "L'immagine aperta contiene modifiche non salvate. Le modifiche che non "
 "vengono salvate verranno perdute definitivamente"
 
-#: src/window.rs:612
+#: src/window.rs:628
 msgid "Cancel"
 msgstr "Anulla"
 
-#: src/window.rs:613
+#: src/window.rs:629
 msgid "Discard"
 msgstr "Scarta"
 
-#: src/window.rs:615
+#: src/window.rs:631
 msgid "Save"
 msgstr "Salva"
 
-#: src/windows/file_handling.rs:133
+#: src/windows/file_handling.rs:129
 msgid "Unsupported file type"
 msgstr ""
 
-#: src/windows/file_handling.rs:201
+#: src/windows/file_handling.rs:197
 #, fuzzy
 #| msgid "_Open Folder Icon"
 msgid "Open Folder"
 msgstr "_Apri icona della cartella"
 
-#: src/windows/file_handling.rs:203
+#: src/windows/file_handling.rs:199
 msgid "File Saved"
 msgstr ""
+
+#: src/windows/file_handling.rs:295
+msgid "No file or path found, this is probably not your fault."
+msgstr ""
+
+#~ msgid "_Open Folder Icon"
+#~ msgstr "_Apri icona della cartella"
 
 #~ msgid "Begin screen of application"
 #~ msgstr "Schermata iniziale dell'applicazione"
