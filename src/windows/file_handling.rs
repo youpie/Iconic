@@ -249,16 +249,7 @@ impl GtkTestWindow {
     pub fn load_folder_icon(&self, path: &str) {
         //let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
         let size: i32 = self.imp().settings.get("thumbnail-size");
-        self.imp()
-            .folder_image_file
-            .lock()
-            .unwrap()
-            .replace(File::from_path_string(
-                path,
-                self.imp().settings.get("svg-render-size"),
-                size,
-            ).expect("Failed to load folder icon"));
-        self.check_icon_update();
+        self.new_iconic_file_creation(None, Some(PathBuf::from(path)), size, self.imp().settings.get("svg-render-size"), false);
     }
 
     pub async fn load_top_file(&self, filename: gio::File) {

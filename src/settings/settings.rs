@@ -16,7 +16,7 @@ use adw::subclass::prelude::AdwDialogImpl;
 mod imp {
     use super::*;
 
-    use adw::subclass::{prelude::PreferencesDialogImpl};
+    use adw::subclass::prelude::PreferencesDialogImpl;
 
     #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/nl/emphisia/icon/settings/settings.ui")]

@@ -33,7 +33,6 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::error::Error;
-use gtk::DragSource;
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
