@@ -728,7 +728,7 @@ dependencies = [
 
 [[package]]
 name = "folder_icon"
-version = "2024.2.1"
+version = "2024.8.1"
 dependencies = [
  "ashpd",
  "async-channel",
