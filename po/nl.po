@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-18 14:01+0200\n"
-"PO-Revision-Date: 2024-08-18 14:01+0200\n"
+"POT-Creation-Date: 2024-08-18 17:42+0200\n"
+"PO-Revision-Date: 2024-08-18 17:42+0200\n"
 "Last-Translator: Youpie <youplamb@hotmail.nl>\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -63,38 +63,38 @@ msgid ""
 "lot of improvements under the hood, this means the app will now crash way "
 "less often without any warning. Some changes include:"
 msgstr ""
+"Een nieuwe update van Iconic is aangekomen! Het voegt niet veel nieuwe "
+"functies toe maar bevat wel een hoop verbeteringen onder de kap, dit "
+"betekent dat de app nu veel minder vaak zal crashen zonder waarschuwing. "
+"Veranderingen zijn o.a.:"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:32
-msgid "Added error handling on opening files"
-msgstr ""
+msgid "Added ability to drag icon out of iconic directly"
+msgstr "Mogelijkheid toegevoegd om iconen direct uit iconic te slepen"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:33
-msgid "Added error handling on saving files"
-msgstr ""
+msgid "Added error handling on opening files"
+msgstr "\"error handling\" toegevoegd wanneer bestanden worden geopend"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:34
-#, fuzzy
-#| msgid "Added Hindi translations"
-msgid "Added donation link"
-msgstr "Hindoestaanse vertaling toegevoegd"
+msgid "Added error handling on saving files"
+msgstr "\"error handling\" toegevoegd wanneer bestanden worden opgeslagen"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:35
-msgid "Added pop-up when dragging in files"
-msgstr ""
+msgid "Added donation link"
+msgstr "Donatielink toegevoegd"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:36
-#, fuzzy
-#| msgid "Updated Dutch translation"
+msgid "Added pop-up when dragging in files"
+msgstr "Pop-up toegevoegd wanneer bestanden in worden ingsleept"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:37
 msgid "Updated Dutch translations"
 msgstr "Nederlandse vertaling geupdate"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:37
-msgid "Updated it and hi translations (with google translate)"
-msgstr ""
-
 #: data/nl.emphisia.icon.metainfo.xml.in.in:39
 msgid "Please report any bugs you see! Many thanks"
-msgstr ""
+msgstr "Geef het alsjeblieft door als je bugs ervaart. Heel erg bedankt!"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:44
 msgid ""
@@ -368,49 +368,49 @@ msgstr "_Doneer ❤️"
 msgid "_About Iconic"
 msgstr "_Over Iconic"
 
-#: src/settings/settings.rs:196 src/window.rs:692
+#: src/settings/settings.rs:202 src/window.rs:791
 msgid "Open Document"
 msgstr "Open Document"
 
-#: src/settings/settings.rs:252 src/window.rs:566
+#: src/settings/settings.rs:258 src/window.rs:662
 msgid "Error"
 msgstr "Fout"
 
-#: src/window.rs:517
+#: src/window.rs:606
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 "De huidig ingestelde folder afbeelding kan niet gevonden worden, druk op OK "
 "om een nieuwe te selecteren"
 
-#: src/window.rs:573
+#: src/window.rs:671
 msgid "OK"
 msgstr "OK"
 
-#: src/window.rs:599
+#: src/window.rs:698
 msgid "Do you want to load this image to the top or bottom layer?"
 msgstr "Wil je deze afbeelding laden naar de bovenste of onderste laag?"
 
-#: src/window.rs:600
+#: src/window.rs:699
 msgid "Hint: You can disable this pop-up in the settings"
 msgstr "Hint: Je kan deze pop-up uitschakelen in de instellingen"
 
-#: src/window.rs:602
+#: src/window.rs:701
 msgid "Select layer"
 msgstr "Selecteer Laag"
 
-#: src/window.rs:607
+#: src/window.rs:706
 msgid "Top"
 msgstr "Boven"
 
-#: src/window.rs:608
+#: src/window.rs:707
 msgid "Bottom"
 msgstr "Onder"
 
-#: src/window.rs:623
+#: src/window.rs:722
 msgid "Save Changes?"
 msgstr "Veranderingen Opslaan?"
 
-#: src/window.rs:624
+#: src/window.rs:723
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
@@ -418,38 +418,49 @@ msgstr ""
 "Open afbeelding bevat niet-opgeslagen veranderingen. Niet opgeslagen "
 "veranderingen gaan permanent verloren"
 
-#: src/window.rs:628
+#: src/window.rs:727
 msgid "Cancel"
 msgstr "Annuleer"
 
-#: src/window.rs:629
+#: src/window.rs:728
 msgid "Discard"
 msgstr "Verwerpen"
 
-#: src/window.rs:631
+#: src/window.rs:730
 msgid "Save"
 msgstr "Opslaan"
 
 #. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
-#: src/application.rs:181
+#: src/application.rs:183
 msgid "translator-credits"
 msgstr "Youpie https://github.com/youpie"
 
-#: src/windows/file_handling.rs:129
+#: src/windows/file_handling.rs:167
 msgid "Unsupported file type"
 msgstr "Niet ondersteund bestandstype"
 
-#: src/windows/file_handling.rs:197
+#: src/windows/file_handling.rs:196
 msgid "Open Folder"
 msgstr "Open Folder"
 
-#: src/windows/file_handling.rs:199
+#: src/windows/file_handling.rs:198
 msgid "File Saved"
 msgstr "Bestand Opgeslagen"
 
-#: src/windows/file_handling.rs:295
+#: src/windows/file_handling.rs:267
+msgid "Icon reset"
+msgstr "icoon resetten"
+
+#: src/windows/file_handling.rs:279 src/windows/file_handling.rs:297
+msgid "Nothing selected"
+msgstr "Niks geselecteerd"
+
+#: src/windows/file_handling.rs:353
 msgid "No file or path found, this is probably not your fault."
 msgstr "Geen bestand of pad gevonden, dit is waarschijnlijk niet jouw schuld."
+
+#~ msgid "Updated it and hi translations (with google translate)"
+#~ msgstr "Hi en It vertalingen geupdate (met google translate)"
 
 #~ msgid "_Open Folder Icon"
 #~ msgstr "_Open Folder Icoon"

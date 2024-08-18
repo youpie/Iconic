@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-18 16:51+0200\n"
+"POT-Creation-Date: 2024-08-18 17:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,27 +59,27 @@ msgid ""
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:32
-msgid "Added error handling on opening files"
+msgid "Added ability to drag icon out of iconic directly"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:33
-msgid "Added error handling on saving files"
+msgid "Added error handling on opening files"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:34
-msgid "Added donation link"
+msgid "Added error handling on saving files"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:35
-msgid "Added pop-up when dragging in files"
+msgid "Added donation link"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:36
-msgid "Updated Dutch translations"
+msgid "Added pop-up when dragging in files"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:37
-msgid "Updated it and hi translations (with google translate)"
+msgid "Updated Dutch translations"
 msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:39
@@ -344,61 +344,61 @@ msgstr ""
 msgid "_About Iconic"
 msgstr ""
 
-#: src/settings/settings.rs:202 src/window.rs:779
+#: src/settings/settings.rs:202 src/window.rs:791
 msgid "Open Document"
 msgstr ""
 
-#: src/settings/settings.rs:258 src/window.rs:650
+#: src/settings/settings.rs:258 src/window.rs:662
 msgid "Error"
 msgstr ""
 
-#: src/window.rs:594
+#: src/window.rs:606
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 
-#: src/window.rs:659
+#: src/window.rs:671
 msgid "OK"
 msgstr ""
 
-#: src/window.rs:686
+#: src/window.rs:698
 msgid "Do you want to load this image to the top or bottom layer?"
 msgstr ""
 
-#: src/window.rs:687
+#: src/window.rs:699
 msgid "Hint: You can disable this pop-up in the settings"
 msgstr ""
 
-#: src/window.rs:689
+#: src/window.rs:701
 msgid "Select layer"
 msgstr ""
 
-#: src/window.rs:694
+#: src/window.rs:706
 msgid "Top"
 msgstr ""
 
-#: src/window.rs:695
+#: src/window.rs:707
 msgid "Bottom"
 msgstr ""
 
-#: src/window.rs:710
+#: src/window.rs:722
 msgid "Save Changes?"
 msgstr ""
 
-#: src/window.rs:711
+#: src/window.rs:723
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
 msgstr ""
 
-#: src/window.rs:715
+#: src/window.rs:727
 msgid "Cancel"
 msgstr ""
 
-#: src/window.rs:716
+#: src/window.rs:728
 msgid "Discard"
 msgstr ""
 
-#: src/window.rs:718
+#: src/window.rs:730
 msgid "Save"
 msgstr ""
 
