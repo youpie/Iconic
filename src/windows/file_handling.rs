@@ -198,8 +198,6 @@ impl GtkTestWindow {
                     .title(gettext("File Saved"))
                     .build(),
             );
-            imp.image_saved.replace(true);
-            imp.save_button.set_sensitive(false);
             saved_file
         },
         Err(e) => {
@@ -258,6 +256,8 @@ impl GtkTestWindow {
             .generate_image(base_image, top_image, imageops::FilterType::Gaussian)
             .await;
         generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)?;
+        imp.image_saved.replace(true);
+        imp.save_button.set_sensitive(false);
         Ok(true)
     }
 

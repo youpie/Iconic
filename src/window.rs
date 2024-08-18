@@ -95,6 +95,7 @@ mod imp {
         pub last_dnd_generated_name: RefCell<Option<gio::File>>,
         pub generated_image: RefCell<Option<DynamicImage>>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
+        //pub drop_target_item: RefCell<Option<gtk::DropTarget>>,
         pub settings: gio::Settings,
         pub count: RefCell<i32>,
     }
@@ -133,6 +134,7 @@ mod imp {
                 count: RefCell::new(0),
                 default_color: gdk::RGBA::new(0.262745098, 0.552941176, 0.901960784, 1.0),
                 last_dnd_generated_name: RefCell::new(None),
+                //drop_target_item: RefCell::new(None),
             }
         }
     }
@@ -250,9 +252,8 @@ mod imp {
                 }
             ));
 
-            let drop_target_2 =
-                gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
-            drop_target_2.connect_drop(clone!(
+            let drop_target_2 = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+            drop_target.connect_drop(clone!(
                 #[strong]
                 obj,
                 move |_, value, _, _| {
@@ -271,6 +272,7 @@ mod imp {
                 }
             ));
 
+            //self.drop_target_item.replace(Some(drop_target));
             let drag_source = gtk::DragSource::builder()
                 .actions(gdk::DragAction::COPY)
                 .build();
@@ -283,6 +285,15 @@ mod imp {
                 move |drag, _, _| win.drag_connect_prepare(drag)
             ));
 
+            // drag_source.connect_drag_end(clone!(
+            //     #[weak (rename_to = win)]
+            //     self,
+            //     move|_,_,_| {
+            //     debug!("drag end");
+            //     let drop_target = win.drop_target_item.borrow().clone().unwrap();
+            //     win.main_status_page.add_controller(drop_target);}
+            // ));
+
             drag_source.connect_drag_cancel(clone!(
                 #[weak (rename_to = win)]
                 obj,
@@ -290,9 +301,9 @@ mod imp {
                 false,
                 move |_, _, drag_cancel_reason| win.drag_connect_cancel(drag_cancel_reason)
             ));
+            self.main_status_page.add_controller(drop_target);
+            self.image_preferences.add_controller(drop_target_2);
 
-            self.image_preferences.add_controller(drop_target);
-            self.main_status_page.add_controller(drop_target_2);
             self.image_view.add_controller(drag_source);
         }
 
@@ -356,6 +367,7 @@ impl GtkTestWindow {
         source: &gtk::DragSource,
     ) -> Option<gdk::ContentProvider> {
         let imp = self.imp();
+        //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
         let generated_image = imp.generated_image.borrow().clone().unwrap();
         let file_name = imp.top_image_file.lock().unwrap().clone().unwrap().name;
         let icon = self.dynamic_image_to_texture(&generated_image.resize(64, 64, imageops::FilterType::Nearest));
