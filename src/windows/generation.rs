@@ -44,7 +44,12 @@ impl GtkTestWindow {
         imp.image_view.set_paintable(Some(&texture));
     }
 
-    pub fn to_monochrome(&self, image: DynamicImage, threshold: u8, color: gdk::RGBA) -> DynamicImage {
+    pub fn to_monochrome(
+        &self,
+        image: DynamicImage,
+        threshold: u8,
+        color: gdk::RGBA,
+    ) -> DynamicImage {
         // Convert the image to RGBA8
         let rgba_img = image.to_rgba8();
         // Define a threshold value
@@ -57,7 +62,6 @@ impl GtkTestWindow {
         for (x, y, pixel) in rgba_img.enumerate_pixels() {
             let rgba = pixel.0;
             let luma = 0.299 * rgba[0] as f32 + 0.587 * rgba[1] as f32 + 0.114 * rgba[2] as f32;
-            //println!("{}",rgba[3]);
             if !switch_state {
                 let mono_pixel = if luma >= threshold as f32 && rgba[3] > 0 {
                     Rgba([
@@ -94,7 +98,7 @@ impl GtkTestWindow {
         base_image: image::DynamicImage,
         top_image: image::DynamicImage,
         filter: imageops::FilterType,
-        ) -> DynamicImage {
+    ) -> DynamicImage {
         let imp = self.imp();
         imp.stack.set_visible_child_name("stack_main_page");
         // imp.image_saved.replace(false);
@@ -131,7 +135,7 @@ impl GtkTestWindow {
 
         let texture = glib::spawn_future_local(async move { rx_texture.recv().await.unwrap() });
         let image = texture.await.unwrap();
-        imp.final_image.replace(Some(image.clone()));
+        imp.generated_image.replace(Some(image.clone()));
         image
     }
 
@@ -140,7 +144,7 @@ impl GtkTestWindow {
         dimensions: (u32, u32),
         slider_position: f32,
         filter: imageops::FilterType,
-        ) -> DynamicImage {
+    ) -> DynamicImage {
         let width: f32 = dimensions.0 as f32;
         let height: f32 = dimensions.1 as f32;
         let scale_factor: f32 = (slider_position + 10.0) / 10.0;
@@ -148,5 +152,4 @@ impl GtkTestWindow {
         let new_height: u32 = (height / scale_factor) as u32;
         image.resize(new_width, new_height, filter)
     }
-
 }

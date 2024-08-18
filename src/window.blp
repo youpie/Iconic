@@ -164,7 +164,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               }
               Adw.PreferencesGroup {
                 Adw.ExpanderRow monochrome_action_row {
-                  title: _('Toggle Monochrome');
+                  title: _("Toggle Monochrome");
                   [suffix]
                   Switch monochrome_switch{
                     valign: center;
@@ -172,10 +172,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                     active: true;
                   }
                   Adw.SwitchRow monochrome_invert {
-                    title: _('Invert');
+                    title: _("Invert");
                   }
                   Adw.ActionRow {
-                    title: _('Color');
+                    title: _("Color");
                     activatable-widget: monochrome_color;
                     Box {
                       valign: center;
@@ -202,7 +202,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                   }
 
                   Adw.ActionRow {
-                    title: _('Threshold');
+                    title: _("Threshold");
                     Scale threshold_scale {
                     has-origin: true;
                     orientation: horizontal;
@@ -283,8 +283,14 @@ menu primary_menu {
     }
 
     item {
-      label: _("_Open Folder Icon");
+      label: _("_Open Bottom Icon");
       action: "app.select_folder";
+    }
+  }
+  section {
+    item {
+      label: _("_Reset Bottom Icon");
+      action: "app.reset_bottom";
     }
   }
   section {
@@ -296,6 +302,11 @@ menu primary_menu {
     item {
       label: _("_Keyboard Shortcuts");
       action: "win.show-help-overlay";
+    }
+
+    item {
+      label: _("_Donate ❤️");
+      action: "app.donate";
     }
 
     item {

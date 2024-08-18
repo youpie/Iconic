@@ -20,10 +20,13 @@
 
 use crate::config::{APP_ICON, VERSION};
 use crate::glib::WeakRef;
-use crate::settings::settings::PreferencesWindow;
+use crate::settings::settings::PreferencesDialog;
 use crate::GtkTestWindow;
 use adw::prelude::AdwDialogExt;
 use adw::subclass::prelude::*;
+use ashpd::desktop::open_uri::OpenFileRequest;
+use ashpd::url;
+use gettextrs::gettext;
 use gtk::prelude::*;
 use gtk::License;
 use gtk::{gio, glib};
@@ -101,14 +104,17 @@ impl GtkTestApplication {
         let settings_action = gio::ActionEntry::builder("preferences")
             .activate(move |app: &Self, _, _| app.show_preferences_dialog())
             .build();
-        let open_action = gio::ActionEntry::builder("open")
+        let open_action = gio::ActionEntry::builder("open top")
             .activate(move |app: &Self, _, _| app.open_function())
             .build();
-        let open_folder_action = gio::ActionEntry::builder("open")
+        let open_folder_action = gio::ActionEntry::builder("open folder")
             .activate(move |app: &Self, _, _| app.open_folder_function())
             .build();
-        let paste = gio::ActionEntry::builder("open")
+        let paste_action = gio::ActionEntry::builder("paste")
             .activate(move |app: &Self, _, _| app.paste_image())
+            .build();
+        let donate_action = gio::ActionEntry::builder("donate")
+            .activate(move |app: &Self, _, _| app.donate())
             .build();
         self.add_action_entries([
             quit_action,
@@ -116,7 +122,8 @@ impl GtkTestApplication {
             settings_action,
             open_action,
             open_folder_action,
-            paste,
+            paste_action,
+            donate_action,
         ]);
     }
 
@@ -129,11 +136,10 @@ impl GtkTestApplication {
     }
 
     fn show_preferences_dialog(&self) {
-        let preferences = PreferencesWindow::new();
+        let preferences = PreferencesDialog::new();
         let window = self.active_window().unwrap();
 
-        preferences.set_transient_for(Some(&window));
-        preferences.present();
+        adw::prelude::AdwDialogExt::present(&preferences, Some(&window));
     }
 
     fn open_function(&self) {
@@ -142,6 +148,20 @@ impl GtkTestApplication {
 
     fn open_folder_function(&self) {
         self.activate_action("app.select_folder", None);
+    }
+
+    fn donate(&self) {
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to = _win)]
+            self,
+            async move {
+                let uri = url::Url::parse("https://ko-fi.com/youpie").unwrap();
+                //let root = win.native().unwrap();
+                //let identifier = WindowIdentifier::from_native(&root).await;
+                let request = OpenFileRequest::default();
+                request.send_uri(&uri).await.unwrap();
+            }
+        ));
     }
 
     fn paste_image(&self) {
@@ -155,10 +175,15 @@ impl GtkTestApplication {
             .application_name("Iconic")
             .application_icon(APP_ICON)
             .developer_name("Youpie")
+            .developers(vec![
+                "Youpie https://github.com/youpie",
+                "Qustio https://github.com/Qustio",
+            ])
+            // Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
+            .translator_credits(gettext("translator-credits"))
             .version(VERSION)
             .issue_url("https://github.com/youpie/Iconic/issues")
             .website("https://github.com/youpie/Iconic")
-            .developers(vec!["Youpie"])
             .license_type(License::Gpl30)
             .copyright("© 2024 YoupDeGamerNL")
             .build();

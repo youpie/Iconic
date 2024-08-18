@@ -23,15 +23,18 @@ use crate::objects::file::File;
 use adw::prelude::{AlertDialogExt, AlertDialogExtManual};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
-use gio::*;
 use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
 use image::*;
+use log::*;
 use std::cell::RefCell;
 use std::env;
+use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+use rand::prelude::*;
+use gio::Cancellable;
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
@@ -89,8 +92,10 @@ mod imp {
         pub saved_file: Arc<Mutex<Option<gio::File>>>,
         pub file_created: RefCell<bool>,
         pub image_saved: RefCell<bool>,
-        pub final_image: RefCell<Option<DynamicImage>>,
+        pub last_dnd_generated_name: RefCell<Option<gio::File>>,
+        pub generated_image: RefCell<Option<DynamicImage>>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
+        //pub drop_target_item: RefCell<Option<gtk::DropTarget>>,
         pub settings: gio::Settings,
         pub count: RefCell<i32>,
     }
@@ -115,7 +120,7 @@ mod imp {
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),
                 image_saved: RefCell::new(true),
-                final_image: RefCell::new(None),
+                generated_image: RefCell::new(None),
                 file_created: RefCell::new(false),
                 signals: RefCell::new(vec![]),
                 x_scale: TemplateChild::default(),
@@ -128,6 +133,8 @@ mod imp {
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
                 default_color: gdk::RGBA::new(0.262745098, 0.552941176, 0.901960784, 1.0),
+                last_dnd_generated_name: RefCell::new(None),
+                //drop_target_item: RefCell::new(None),
             }
         }
     }
@@ -177,12 +184,15 @@ mod imp {
                     }
                 ));
             });
+            klass.install_action("app.reset_bottom", None, move |win, _, _| {
+                win.reset_bottom_icon();
+            });
             klass.install_action("app.paste", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
                     #[weak]
                     win,
                     async move {
-                        win.paste().await;
+                        win.paste_from_clipboard().await;
                     }
                 ));
             });
@@ -191,7 +201,12 @@ mod imp {
                     #[weak]
                     win,
                     async move {
-                        win.save_file().await;
+                        match win.open_save_file_dialog().await {
+                            Ok(_) => (),
+                            Err(error) => {
+                                win.show_error_popup(&error.to_string(), true, Some(error));
+                            }
+                        };
                     }
                 ));
             });
@@ -213,7 +228,6 @@ mod imp {
             self.parent_constructed();
 
             let obj = self.obj();
-
             // Devel Profile
             if PROFILE == "Devel" {
                 obj.add_css_class("devel");
@@ -224,7 +238,13 @@ mod imp {
                 obj,
                 move |_, value, _, _| {
                     if let Ok(file) = value.get::<gio::File>() {
-                        obj.set_open_file(file);
+                        glib::spawn_future_local(glib::clone!(
+                            #[weak(rename_to = win)]
+                            obj,
+                            async move {
+                                win.open_dragged_file(file).await;
+                            }
+                        ));
                         true
                     } else {
                         false
@@ -232,22 +252,59 @@ mod imp {
                 }
             ));
 
-            let drop_target_2 =
-                gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
-            drop_target_2.connect_drop(clone!(
+            let drop_target_2 = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+            drop_target.connect_drop(clone!(
                 #[strong]
                 obj,
                 move |_, value, _, _| {
                     if let Ok(file) = value.get::<gio::File>() {
-                        obj.set_open_file(file);
+                        glib::spawn_future_local(glib::clone!(
+                            #[weak(rename_to = win)]
+                            obj,
+                            async move {
+                                win.open_dragged_file(file).await;
+                            }
+                        ));
                         true
                     } else {
                         false
                     }
                 }
             ));
-            self.image_preferences.add_controller(drop_target);
-            self.main_status_page.add_controller(drop_target_2);
+
+            //self.drop_target_item.replace(Some(drop_target));
+            let drag_source = gtk::DragSource::builder()
+                .actions(gdk::DragAction::COPY)
+                .build();
+
+            drag_source.connect_prepare(clone!(
+                #[weak (rename_to = win)]
+                obj,
+                #[upgrade_or]
+                None,
+                move |drag, _, _| win.drag_connect_prepare(drag)
+            ));
+
+            // drag_source.connect_drag_end(clone!(
+            //     #[weak (rename_to = win)]
+            //     self,
+            //     move|_,_,_| {
+            //     debug!("drag end");
+            //     let drop_target = win.drop_target_item.borrow().clone().unwrap();
+            //     win.main_status_page.add_controller(drop_target);}
+            // ));
+
+            drag_source.connect_drag_cancel(clone!(
+                #[weak (rename_to = win)]
+                obj,
+                #[upgrade_or]
+                false,
+                move |_, _, drag_cancel_reason| win.drag_connect_cancel(drag_cancel_reason)
+            ));
+            self.main_status_page.add_controller(drop_target);
+            self.image_preferences.add_controller(drop_target_2);
+
+            self.image_view.add_controller(drag_source);
         }
 
         fn dispose(&self) {
@@ -299,9 +356,75 @@ impl GtkTestWindow {
         imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
         imp.stack.set_visible_child_name("stack_welcome_page");
         imp.reset_color.set_visible(false);
-        win.load_folder_path();
+        win.load_folder_path_from_settings();
         win.setup_settings();
+        win.setup_update();
         win
+    }
+
+    pub fn drag_connect_prepare(
+        &self,
+        source: &gtk::DragSource,
+    ) -> Option<gdk::ContentProvider> {
+        let imp = self.imp();
+        //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
+        let generated_image = imp.generated_image.borrow().clone().unwrap();
+        let file_name = imp.top_image_file.lock().unwrap().clone().unwrap().name;
+        let icon = self.dynamic_image_to_texture(&generated_image.resize(64, 64, imageops::FilterType::Nearest));
+        source.set_icon(Some(&icon), 0 as i32, 0 as i32);
+        let gio_file = self.create_drag_file(&file_name);
+        imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
+        let gio_file_clone = gio_file.clone();
+        glib::spawn_future_local(clone!(
+            #[weak (rename_to = win)]
+            self,
+            async move {
+                win.save_file(gio_file_clone).await.unwrap();
+            }
+        ));
+        Some(gdk::ContentProvider::for_value(&glib::Value::from(&gio_file)))
+    }
+
+    pub fn create_drag_file(&self, file_name: &str) -> gio::File{
+        let data_path = match env::var("XDG_DATA_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".data")
+                    .join("Iconic");
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
+        debug!("data path: {:?}",data_path);
+        let random_number = random::<u64>();
+        let generated_file_name = format!("folder-{}-{}.png",file_name,random_number);
+        debug!("generated_file_name: {}",generated_file_name);
+        let mut file_path = data_path.clone();
+        file_path.push(generated_file_name.clone());
+        debug!("generated file path: {:?}", file_path);
+        let gio_file = gio::File::for_path(file_path);
+        if gio_file.query_exists(None::<&Cancellable>) {
+            warn!("File with name {} already exists, creating new file name", generated_file_name);
+            self.create_drag_file(file_name)
+        }
+        else{
+            info!("File with name {} does not yet exist, using file name", generated_file_name);
+            gio_file
+        }
+    }
+
+    fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool{
+        let imp = self.imp();
+        let gio_file = imp.last_dnd_generated_name.borrow().clone().unwrap();
+        info!("Drag operation cancelled, removing file. Reason: {:?}",reason);
+        match gio_file.delete(None::<&Cancellable>) {
+            Ok(_) => {debug!("Deletion succesfull!");},
+            Err(e) => {warn!("Could not delete drag file, error: {:?}",e);}
+        };
+        false
     }
 
     pub fn setup_settings(&self) {
@@ -345,8 +468,6 @@ impl GtkTestWindow {
     }
 
     pub fn setup_update(&self) {
-        self.imp().save_button.set_sensitive(true);
-        self.imp().image_saved.replace(false);
         self.imp().x_scale.connect_value_changed(clone!(
             #[weak(rename_to = win)]
             self,
@@ -452,18 +573,6 @@ impl GtkTestWindow {
         imp.reset_color.set_visible(false);
     }
 
-    pub fn load_folder_path(&self) {
-        glib::spawn_future_local(glib::clone!(
-            #[weak(rename_to = win)]
-            self,
-            async move {
-                let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
-                let path = win.check_chache_icon(cache_file_name).await;
-                win.load_folder_icon(&path.into_os_string().into_string().unwrap());
-            }
-        ));
-    }
-
     pub async fn check_chache_icon(&self, file_name: &str) -> PathBuf {
         let imp = self.imp();
         let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
@@ -481,31 +590,38 @@ impl GtkTestWindow {
         };
         let folder_icon_cache_path = cache_path.join(file_name);
         if folder_icon_cache_path.exists() {
-            println!("File found in cache at: {:?}", folder_icon_cache_path);
+            info!("File found in cache at: {:?}", folder_icon_cache_path);
             return folder_icon_cache_path;
         }
         if icon_path.exists() {
-            println!(
+            info!(
                 "File not found in cache, copying to: {:?}",
                 folder_icon_cache_path
             );
-            return self.copy_folder_image(&icon_path, &cache_path).0;
+            return self.copy_folder_image_to_cache(&icon_path, &cache_path).0;
         }
-        println!("File not found AT ALL");
-        let dialog = self.show_popup(&gettext(
-            "The set folder icon could not be found, press ok to select a new one"
-        ), false).unwrap();
+        info!("File not found AT ALL");
+        let dialog = self
+            .show_error_popup(
+                &gettext("The set folder icon could not be found, press ok to select a new one"),
+                false,
+                None,
+            )
+            .unwrap();
         match &*dialog.clone().choose_future(self).await {
             "OK" => {
                 let new_path = match self.open_file_chooser_gtk().await {
                     Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
-                    None => String::from(""),
+                    None => {
+                        //adw::subclass::prelude::ActionGroupImpl::activate_action(&self, "app.quit", None);
+                        String::from("")
+                    }
                 };
                 imp.settings
                     .set_string("folder-svg-path", &new_path)
                     .unwrap();
                 let cached_file_name = self
-                    .copy_folder_image(&PathBuf::from(new_path), &cache_path)
+                    .copy_folder_image_to_cache(&PathBuf::from(new_path), &cache_path)
                     .1;
                 imp.settings
                     .set_string("folder-cache-name", &cached_file_name)
@@ -518,7 +634,11 @@ impl GtkTestWindow {
         };
     }
 
-    pub fn copy_folder_image(&self, original_path: &PathBuf, cache_dir: &PathBuf) -> (PathBuf, String) {
+    pub fn copy_folder_image_to_cache(
+        &self,
+        original_path: &PathBuf,
+        cache_dir: &PathBuf,
+    ) -> (PathBuf, String) {
         let file_name = format!(
             "folder.{}",
             original_path.extension().unwrap().to_str().unwrap()
@@ -532,14 +652,27 @@ impl GtkTestWindow {
         (cache_path, file_name)
     }
 
-    pub fn show_popup(&self, message: &str, show: bool) -> Option<adw::AlertDialog> {
+    pub fn show_error_popup(
+        &self,
+        message: &str,
+        show: bool,
+        error: Option<Box<dyn Error + '_>>,
+    ) -> Option<adw::AlertDialog> {
         const RESPONSE_OK: &str = "OK";
+        let error_text: &str = &gettext("Error");
         let dialog = adw::AlertDialog::builder()
-            .heading(gettext("Error"))
+            .heading(format!(
+                "<span foreground=\"red\"><b>⚠ {error_text}</b></span>"
+            ))
+            .heading_use_markup(true)
             .body(message)
             .default_response(RESPONSE_OK)
             .build();
         dialog.add_response(RESPONSE_OK, &gettext("OK"));
+        match error {
+            Some(ref x) => error!("An error has occured: \"{:?}\"", x),
+            None => error!("An error has occured: \"{}\"", message),
+        };
         match show {
             true => {
                 dialog.present(Some(self));
@@ -549,112 +682,36 @@ impl GtkTestWindow {
         }
     }
 
-    pub async fn paste(&self) {
-        let clipboard = self.clipboard();
-        let imp = self.imp();
-        // println!("{:#?}",clipboard.read_future(&["image/*"],glib::Priority::HIGH).await);
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-
-        match clipboard
-            .read_future(&["image/svg+xml"], glib::Priority::DEFAULT)
-            .await
-        {
-            Ok((stream, _mime)) => self.clipboard_load_svg(Some(stream)),
-            Err(_) => match clipboard.read_texture_future().await {
-                Ok(Some(texture)) => {
-                    imp.stack.set_visible_child_name("stack_loading_page");
-
-                    let png_texture = texture.save_to_tiff_bytes();
-                    let image =
-                        image::load_from_memory_with_format(&png_texture, image::ImageFormat::Tiff)
-                            .unwrap();
-                    imp.top_image_file
-                        .lock()
-                        .unwrap()
-                        .replace(File::from_image(image, thumbnail_size));
-                    self.check_icon_update();
-                }
-                Ok(None) => {
-                    println!("No texture found");
-                }
-                Err(err) => {
-                    println!("Failed to paste texture {err}");
-                }
-            }, // no svg in clipboard
-        };
-    }
-
-    pub fn clipboard_load_svg(&self, stream: Option<gio::InputStream>) {
-        let imp = self.imp();
-
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let svg_render_size: i32 = imp.settings.get("svg-render-size");
-        let none_file: Option<&gio::File> = None;
-        let none_cancelable: Option<&Cancellable> = None;
-        let loader = rsvg::Loader::new()
-            .read_stream(&stream.unwrap(), none_file, none_cancelable)
-            .unwrap();
-        let surface =
-            cairo::ImageSurface::create(cairo::Format::ARgb32, svg_render_size, svg_render_size)
-                .unwrap();
-        let cr = cairo::Context::new(&surface).expect("Failed to create a cairo context");
-        let renderer = rsvg::CairoRenderer::new(&loader);
-        renderer
-            .render_document(
-                &cr,
-                &cairo::Rectangle::new(
-                    0.0,
-                    0.0,
-                    f64::from(svg_render_size),
-                    f64::from(svg_render_size),
-                ),
-            )
-            .unwrap();
-        let cache_path = env::var("XDG_CACHE_HOME").unwrap();
-        let clipboard_path = PathBuf::from(format!("{}/clipboard.png", cache_path));
-        let mut stream = std::fs::File::create(&clipboard_path).unwrap();
-        surface.write_to_png(&mut stream).unwrap();
-        imp.top_image_file.lock().unwrap().replace(File::from_path(
-            clipboard_path,
-            svg_render_size,
-            thumbnail_size,
-        ));
-        self.check_icon_update();
-    }
-
-    pub fn set_open_file(&self, file: gio::File) {
-        let imp = self.imp();
-        imp.stack.set_visible_child_name("stack_loading_page");
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let svg_render_size: i32 = imp.settings.get("svg-render-size");
-        let file_info = file
-            .query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE)
-            .unwrap();
-        println!("{:?}", file_info.name());
-        let mime_type: Option<String> = match file_info.content_type() {
-            Some(x) => {
-                let sub_string: Vec<&str> = x.split("/").collect();
-                Some(sub_string.first().unwrap().to_string())
-            }
-            None => None,
-        };
-        println!("{:?}", mime_type);
-        match mime_type {
-            Some(x) if x == String::from("image") => {
-                imp.top_image_file.lock().unwrap().replace(File::new(
-                    file,
-                    svg_render_size,
-                    thumbnail_size,
-                ));
-            }
-            _ => {
-                imp.stack.set_visible_child_name("stack_welcome_page");
-                println!("unsupported file type");
-                self.show_popup(&gettext("Unsupported file type"),true);
-            }
+    pub async fn top_or_bottom_popup(&self) -> Option<bool> {
+        let dnd_switch_state = self.imp().settings.boolean("default-dnd-activated");
+        let dnd_radio_state = self.imp().settings.string("default-dnd-action");
+        if dnd_switch_state {
+            return match dnd_radio_state.as_str() {
+                "top" => Some(true),
+                "bottom" => Some(false),
+                _ => None,
+            };
         }
+        const RESPONSE_TOP: &str = "TOP";
+        const RESPONSE_BOTTOM: &str = "BOTTOM";
+        let load_question: &str =
+            &gettext("Do you want to load this image to the top or bottom layer?");
+        let disable_hint: &str = &gettext("Hint: You can disable this pop-up in the settings");
+        let dialog = adw::AlertDialog::builder()
+            .heading(gettext("Select layer"))
+            .body(format!("{load_question} \n <sub> <span foreground=\"#9A9996\"> {disable_hint}</span> </sub>"))
+            .body_use_markup(true)
+            .default_response(RESPONSE_TOP)
+            .build();
+        dialog.add_response(RESPONSE_TOP, &gettext("Top"));
+        dialog.add_response(RESPONSE_BOTTOM, &gettext("Bottom"));
+        dialog.set_response_appearance(RESPONSE_TOP, adw::ResponseAppearance::Suggested);
 
-        self.check_icon_update();
+        match &*dialog.clone().choose_future(self).await {
+            RESPONSE_TOP => Some(true),
+            RESPONSE_BOTTOM => Some(false),
+            _ => None,
+        }
     }
 
     pub async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
@@ -679,139 +736,18 @@ impl GtkTestWindow {
                 Ok(glib::Propagation::Stop)
             }
             RESPONSE_DISCARD => Ok(glib::Propagation::Proceed),
-            RESPONSE_SAVE => match self.save_file().await {
-                true => Ok(glib::Propagation::Proceed),
-                false => Ok(glib::Propagation::Stop),
+            RESPONSE_SAVE => match self.open_save_file_dialog().await {
+                Ok(saved) => match saved {
+                    true => Ok(glib::Propagation::Proceed),
+                    false => Ok(glib::Propagation::Stop),
+                },
+                Err(error) => {
+                    self.show_error_popup(&error.to_string(), true, Some(error));
+                    Ok(glib::Propagation::Stop)
+                }
             },
             _ => unreachable!(),
         }
-    }
-
-    pub async fn save_file(&self) -> bool {
-        let imp = self.imp();
-        if !imp.save_button.is_sensitive() {
-            imp.toast_overlay
-                .add_toast(adw::Toast::new("Can't save anything"));
-            return false;
-        };
-        let file_name = format!(
-            "folder-{}.png",
-            imp.top_image_file.lock().unwrap().as_ref().unwrap().name
-        );
-        let file_chooser = gtk::FileDialog::builder()
-            .initial_name(file_name)
-            .modal(true)
-            .build();
-        let file = file_chooser.save_future(Some(self)).await;
-        match file {
-            Ok(file) => {
-                self.imp().stack.set_visible_child_name("stack_saving_page");
-                imp.saved_file
-                    .lock()
-                    .expect("Could not get file")
-                    .replace(file.clone());
-                imp.image_saved.replace(true);
-                imp.save_button.set_sensitive(false);
-                let base_image = imp
-                    .folder_image_file
-                    .lock()
-                    .unwrap()
-                    .as_ref()
-                    .unwrap()
-                    .dynamic_image
-                    .clone();
-                let top_image = match self.imp().monochrome_switch.state() {
-                    false => imp
-                        .top_image_file
-                        .lock()
-                        .unwrap()
-                        .as_ref()
-                        .unwrap()
-                        .dynamic_image
-                        .clone(),
-                    true => self.to_monochrome(
-                        imp.top_image_file
-                            .lock()
-                            .unwrap()
-                            .as_ref()
-                            .unwrap()
-                            .dynamic_image
-                            .clone(),
-                        imp.threshold_scale.value() as u8,
-                        imp.monochrome_color.rgba(),
-                    ),
-                };
-                let generated_image = self
-                    .generate_image(base_image, top_image, imageops::FilterType::Gaussian)
-                    .await;
-                let _ = gio::spawn_blocking(move || {
-                    let _ = generated_image.save(file.path().unwrap());
-                })
-                .await;
-                self.imp().stack.set_visible_child_name("stack_main_page");
-                imp.toast_overlay.add_toast(
-                    adw::Toast::builder()
-                        .button_label(gettext("Open Folder"))
-                        .action_name("app.open_file_location")
-                        .title(gettext("File Saved"))
-                        .build(),
-                );
-            }
-            Err(_) => {
-                imp.toast_overlay
-                    .add_toast(adw::Toast::new("File not saved"));
-                return false;
-            }
-        };
-        true
-    }
-
-    pub async fn load_top_icon(&self) {
-        let imp = self.imp();
-        match self.open_file_chooser_gtk().await {
-            Some(x) => {
-                self.load_top_file(x, &imp.top_image_file).await;
-            }
-            None => {
-                imp.toast_overlay
-                    .add_toast(adw::Toast::new("Nothing selected"));
-            }
-        };
-        self.check_icon_update();
-    }
-
-    pub async fn load_temp_folder_icon(&self) {
-        let imp = self.imp();
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let size: i32 = imp.settings.get("svg-render-size");
-        match self.open_file_chooser_gtk().await {
-            Some(x) => {
-                imp.folder_image_file
-                    .lock()
-                    .unwrap()
-                    .replace(File::new(x, size, thumbnail_size));
-                self.check_icon_update();
-            }
-            None => {
-                imp.toast_overlay.add_toast(adw::Toast::new("Icon reset"));
-                self.load_folder_path();
-            }
-        };
-    }
-
-    pub fn load_folder_icon(&self, path: &str) {
-        //let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
-        let size: i32 = self.imp().settings.get("thumbnail-size");
-        self.imp()
-            .folder_image_file
-            .lock()
-            .unwrap()
-            .replace(File::from_path_string(
-                path,
-                self.imp().settings.get("svg-render-size"),
-                size,
-            ));
-        self.check_icon_update();
     }
 
     pub fn check_icon_update(&self) {
@@ -819,7 +755,8 @@ impl GtkTestWindow {
         if imp.top_image_file.lock().unwrap().as_ref() != None
             && imp.folder_image_file.lock().unwrap().as_ref() != None
         {
-            self.setup_update();
+            self.imp().save_button.set_sensitive(true);
+            self.imp().image_saved.replace(false);
             glib::spawn_future_local(glib::clone!(
                 #[weak(rename_to = win)]
                 self,
@@ -827,6 +764,7 @@ impl GtkTestWindow {
                     win.render_to_screen().await;
                 }
             ));
+            imp.stack.set_visible_child_name("stack_main_page");
         } else if imp.folder_image_file.lock().unwrap().as_ref() != None {
             imp.image_view.set_paintable(Some(
                 &self.dynamic_image_to_texture(
@@ -838,6 +776,9 @@ impl GtkTestWindow {
                         .thumbnail,
                 ),
             ));
+            if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
+                imp.stack.set_visible_child_name("stack_welcome_page");
+            }
         }
     }
 
@@ -854,11 +795,11 @@ impl GtkTestWindow {
         let file = dialog.open_future(Some(self)).await;
         match file {
             Ok(x) => {
-                println!("{:#?}", &x.path().unwrap());
+                debug!("{:?}", &x.path().unwrap());
                 Some(x)
             }
             Err(y) => {
-                println!("{:#?}", y);
+                error!("{:?}", y);
                 None
             }
         }
@@ -870,33 +811,8 @@ impl GtkTestWindow {
             gtk::FileLauncher::new(Some(&imp.saved_file.lock().unwrap().clone().unwrap()));
         let win = self.native().and_downcast::<gtk::Window>();
         if let Err(e) = launcher.open_containing_folder_future(win.as_ref()).await {
-            println!("Could not open directory {}", e);
+            error!("Could not open directory {}", e);
         };
-    }
-
-    pub async fn load_top_file(&self, filename: gio::File, file: &Arc<Mutex<Option<File>>>) -> String {
-        let imp = self.imp();
-        imp.image_loading_spinner.set_spinning(true);
-        if imp.stack.visible_child_name() == Some("stack_welcome_page".into()) {
-            imp.stack.set_visible_child_name("stack_loading_page");
-        }
-        let svg_render_size = imp.settings.get("svg-render-size");
-        let size: i32 = imp.settings.get("thumbnail-size");
-        let _ = gio::spawn_blocking(clone!(
-            #[weak]
-            file,
-            move || {
-                file.lock().expect("Could not get file").replace(File::new(
-                    filename,
-                    svg_render_size,
-                    size,
-                ));
-            }
-        ))
-        .await;
-        let file = file.lock().unwrap().clone().unwrap();
-        imp.image_loading_spinner.set_spinning(false);
-        format!("{}{}", file.name, file.extension)
     }
 
     pub fn dynamic_image_to_texture(&self, dynamic_image: &DynamicImage) -> gdk::Texture {
@@ -933,4 +849,3 @@ impl GtkTestWindow {
         self.check_icon_update();
     }
 }
-

@@ -17,5 +17,13 @@
       <default>256</default>
       <summary>Thumbnail render resolution</summary>
     </key>
+    <key name="default-dnd-action" type="s">
+      <default>'top'</default>
+      <summary>Default drag-and-drop action</summary>
+    </key>
+    <key name="default-dnd-activated" type="b">
+      <default>false</default>
+      <summary>Whether or not the default drag-and-drop action is activated</summary>
+    </key>
 	</schema>
 </schemalist>

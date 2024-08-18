@@ -3,47 +3,58 @@ use crate::glib::clone;
 use crate::Results;
 use adw::prelude::AdwDialogExt;
 use adw::prelude::AlertDialogExt;
+use adw::subclass::prelude::AdwDialogImpl;
 use gettextrs::*;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::*;
+use log::*;
 use std::path::PathBuf;
 use std::{env, fs, path};
 
 mod imp {
     use super::*;
 
-    use adw::subclass::{prelude::PreferencesWindowImpl, window::AdwWindowImpl};
+    use adw::subclass::prelude::PreferencesDialogImpl;
 
     #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/nl/emphisia/icon/settings/settings.ui")]
-    pub struct PreferencesWindow {
-        #[template_child()]
+    pub struct PreferencesDialog {
+        #[template_child]
         pub custom: TemplateChild<adw::ActionRow>,
-        #[template_child()]
+        #[template_child]
         pub select_folder: TemplateChild<gtk::Button>,
-        #[template_child()]
+        #[template_child]
         pub custom1: TemplateChild<adw::ActionRow>,
-        #[template_child()]
+        #[template_child]
         pub svg_image_size: TemplateChild<adw::SpinRow>,
-        #[template_child()]
+        #[template_child]
         pub advanced_settings: TemplateChild<adw::PreferencesGroup>,
-        #[template_child()]
+        #[template_child]
+        pub default_dnd: TemplateChild<adw::ExpanderRow>,
+        #[template_child]
+        pub dnd_switch: TemplateChild<gtk::Switch>,
+        #[template_child]
+        pub radio_button_1: TemplateChild<gtk::CheckButton>,
+        #[template_child]
         pub thumbnail_image_size: TemplateChild<adw::SpinRow>,
         pub settings: gio::Settings,
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for PreferencesWindow {
-        const NAME: &'static str = "PreferencesWindow";
-        type Type = super::PreferencesWindow;
-        type ParentType = adw::PreferencesWindow;
+    impl ObjectSubclass for PreferencesDialog {
+        const NAME: &'static str = "PreferencesDialog";
+        type Type = super::PreferencesDialog;
+        type ParentType = adw::PreferencesDialog;
 
         fn new() -> Self {
             Self {
                 custom: TemplateChild::default(),
                 select_folder: TemplateChild::default(),
+                default_dnd: TemplateChild::default(),
+                dnd_switch: TemplateChild::default(),
+                radio_button_1: TemplateChild::default(),
                 custom1: TemplateChild::default(),
                 svg_image_size: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
@@ -73,6 +84,9 @@ mod imp {
                     }
                 ));
             });
+            klass.install_action("app.dnd_switch", None, move |win, _, _| {
+                win.dnd_row_expand();
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -80,7 +94,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for PreferencesWindow {
+    impl ObjectImpl for PreferencesDialog {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
@@ -95,19 +109,19 @@ mod imp {
         }
     }
 
-    impl WidgetImpl for PreferencesWindow {}
-    impl WindowImpl for PreferencesWindow {}
-    impl AdwWindowImpl for PreferencesWindow {}
-    impl PreferencesWindowImpl for PreferencesWindow {}
+    impl WidgetImpl for PreferencesDialog {}
+    impl WindowImpl for PreferencesDialog {}
+    impl AdwDialogImpl for PreferencesDialog {}
+    impl PreferencesDialogImpl for PreferencesDialog {}
 }
 
 glib::wrapper! {
-    pub struct PreferencesWindow(ObjectSubclass<imp::PreferencesWindow>)
-    @extends gtk::Widget, gtk::Window, adw::Window, adw::PreferencesWindow;
+    pub struct PreferencesDialog(ObjectSubclass<imp::PreferencesDialog>)
+    @extends gtk::Widget, gtk::Window, adw::Dialog, adw::PreferencesDialog;
 }
 
 #[gtk::template_callbacks]
-impl PreferencesWindow {
+impl PreferencesDialog {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         let win = glib::Object::new::<Self>();
@@ -115,7 +129,19 @@ impl PreferencesWindow {
         if PROFILE != "Devel" {
             win.imp().advanced_settings.set_visible(false);
         }
+        win.imp()
+            .dnd_switch
+            .set_active(win.imp().settings.boolean("default-dnd-activated"));
+        win.dnd_row_expand();
         win.set_path_title();
+
+        win.imp().radio_button_1.connect_toggled(clone!(
+            #[weak (rename_to = this)]
+            win,
+            move |_| {
+                this.dnd_radio_state();
+            }
+        ));
         win
     }
 
@@ -127,7 +153,7 @@ impl PreferencesWindow {
             self,
             move |_| {
                 let value = win.imp().svg_image_size.value() as i32;
-                println!("{}", value);
+                debug!("{}", value);
                 let _ = win.imp().settings.set("svg-render-size", value);
             }
         ));
@@ -140,7 +166,7 @@ impl PreferencesWindow {
             self,
             move |_| {
                 let value = win.imp().thumbnail_image_size.value() as i32;
-                println!("{}", value);
+                debug!("{}", value);
                 let _ = win.imp().settings.set("thumbnail-size", value);
             }
         ));
@@ -181,12 +207,12 @@ impl PreferencesWindow {
 
                 match file {
                     Ok(x) => {
-                        println!("{:#?}", &x.path().unwrap());
+                        info!("{:#?}", &x.path().unwrap());
                         let path: &str = &x.path().unwrap().into_os_string().into_string().unwrap();
                         win.can_error(win.set_path(path));
                     }
                     Err(y) => {
-                        println!("{:#?}", y);
+                        warn!("{:#?}", y);
                     }
                 }
             }
@@ -236,5 +262,43 @@ impl PreferencesWindow {
             dialog.add_response(RESPONSE_OK, "ok");
             dialog.present(Some(self))
         });
+    }
+
+    pub fn dnd_row_expand(&self) {
+        let switch_state = self.imp().dnd_switch.is_active();
+        let _ = self
+            .imp()
+            .settings
+            .set("default-dnd-activated", switch_state);
+        debug!("Current switch state: {}", switch_state);
+        match switch_state {
+            true => {
+                self.imp()
+                    .default_dnd
+                    .set_property("enable_expansion", false);
+                self.imp()
+                    .default_dnd
+                    .set_property("enable_expansion", true);
+            }
+            false => {
+                self.imp()
+                    .default_dnd
+                    .set_property("enable_expansion", false);
+            }
+        };
+    }
+
+    pub fn dnd_radio_state(&self) {
+        let imp = self.imp();
+        let radio_button = imp.radio_button_1.is_active();
+        debug!("Radio button changed: button 1 is {}", radio_button);
+        match radio_button {
+            true => {
+                let _ = imp.settings.set("default-dnd-action", "top");
+            }
+            false => {
+                let _ = imp.settings.set("default-dnd-action", "bottom");
+            }
+        }
     }
 }

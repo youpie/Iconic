@@ -1,8 +1,8 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $PreferencesWindow : Adw.PreferencesWindow {
-  width-request: 526;
+template $PreferencesDialog : Adw.PreferencesDialog {
+  // width-request: 526;
   Adw.PreferencesPage {
     icon-name: "applications-system-symbolic";
     title: _("General");
@@ -11,7 +11,7 @@ template $PreferencesWindow : Adw.PreferencesWindow {
       title: _("Customise");
 
       Adw.ActionRow custom {
-        title: "Select folder icon";
+        title: "Select bottom icon";
         activatable-widget: select_folder;
         Button select_folder {
           margin-top: 10;
@@ -26,9 +26,37 @@ template $PreferencesWindow : Adw.PreferencesWindow {
         }
       }
       Adw.ActionRow custom1 {
-        subtitle: _("Currently set folder icon, click to reset to default");
+        subtitle: _("Currently set bottom icon, click to reset to default");
         activatable: true;
         action-name: "app.reset_location";
+      }
+    }
+    Adw.PreferencesGroup {
+      Adw.ExpanderRow  default_dnd{
+        title: _("Default drag-and-drop action");
+        subtitle: _("By default, after dragging and dropping a file, you have to select a layer to paste it to. Here you can disable that pop-up");
+        [suffix]
+        Switch dnd_switch {
+          valign: center;
+          active: false;
+          action-name: "app.dnd_switch";
+        }
+        Adw.ActionRow  {
+          title: _("Always select top layer");
+          activatable-widget: radio_button_1;
+          Gtk.CheckButton radio_button_1{
+            active: true;
+            valign: center;
+          }
+        }
+        Adw.ActionRow  {
+          title: _("Always select bottom layer");
+          activatable-widget: radio_button_2;
+          Gtk.CheckButton radio_button_2{
+            group: radio_button_1;
+            valign: center;
+          }
+        }
       }
     }
     Adw.PreferencesGroup advanced_settings{
@@ -36,6 +64,7 @@ template $PreferencesWindow : Adw.PreferencesWindow {
       Label {
         margin-top: 10;
         label: _("You can see these options because you have enabled the Devel profile");
+        wrap: true;
         valign: start;
         styles [
           "subtitle",

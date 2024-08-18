@@ -25,6 +25,20 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2024.8.1" date="2024-08-18" type="stable">
+      <description>
+        <p>A new update to Iconic is here! It does not add many features but features a lot of improvements under the hood, this means the app will now crash way less often without any warning. Some changes include:</p>
+        <ul>
+          <li>Added ability to drag icon out of iconic directly</li>
+          <li>Added error handling on opening files</li>
+          <li>Added error handling on saving files</li>
+          <li>Added donation link</li>
+          <li>Added pop-up when dragging in files</li>
+          <li>Updated Dutch translations</li>
+        </ul>
+        <p>Please report any bugs you see! Many thanks</p>
+      </description>
+    </release>
     <release version="2024.2.0" date="2024-08-11" type="stable">
       <description>
         <p>This is a new major release of Iconic. Featuring many bug fixes and added features. Some notable ones are:</p>
