@@ -16,7 +16,7 @@ These are ideas I want to implement.
     - [X] Automatically load the folder Icon*
     - [X] Support SVG's*
     - [X] Drag and drop
-    - [ ] Proper error handling
+    - [X] Proper error handling
     - [X] Add threading
         - [X] Loading images*
             - [ ] Loading dragged images
@@ -41,12 +41,12 @@ These are ideas I want to implement.
     - [X] Automatically place icon in right position
     - [ ] Add guide grid or something
     - [ ] Ability to directly set image of folder (if even possible)
-        - [ ] Ability to drag generated image from iconic window to nautulis  
+        - [X] Ability to drag generated image from iconic window to nautulis  
 - [ ] Clean up code
 - [ ] Add comments
 - [X] Correct flatpak manifest*
 - [X] Think of better name
-- [ ] Add dontation link :)
+- [X] Add dontation link :)
 
 ## Contributing 🤝
 This program is mostly meant as practise for me so I want to solve most problems by myself. So the best will be to create an issue if you encounter any.

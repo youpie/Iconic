@@ -253,7 +253,7 @@ mod imp {
             ));
 
             let drop_target_2 = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
-            drop_target.connect_drop(clone!(
+            drop_target_2.connect_drop(clone!(
                 #[strong]
                 obj,
                 move |_, value, _, _| {

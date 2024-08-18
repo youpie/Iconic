@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-18 17:42+0200\n"
-"PO-Revision-Date: 2024-08-18 17:49+0200\n"
+"POT-Creation-Date: 2024-08-18 18:10+0200\n"
+"PO-Revision-Date: 2024-08-18 18:11+0200\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <LL@li.org>\n"
 "Language: it\n"
@@ -433,30 +433,34 @@ msgstr "Salva"
 msgid "translator-credits"
 msgstr ""
 
-#: src/windows/file_handling.rs:167
+#: src/windows/file_handling.rs:64 src/windows/file_handling.rs:68
+msgid "No texture found"
+msgstr ""
+
+#: src/windows/file_handling.rs:172
 msgid "Unsupported file type"
 msgstr ""
 
-#: src/windows/file_handling.rs:196
+#: src/windows/file_handling.rs:201
 #, fuzzy
 #| msgid "_Open Folder Icon"
 msgid "Open Folder"
 msgstr "_Apri icona della cartella"
 
-#: src/windows/file_handling.rs:198
+#: src/windows/file_handling.rs:203
 msgid "File Saved"
 msgstr ""
 
-#: src/windows/file_handling.rs:267
+#: src/windows/file_handling.rs:272
 #, fuzzy
 msgid "Icon reset"
 msgstr "Ripristina icona"
 
-#: src/windows/file_handling.rs:279 src/windows/file_handling.rs:297
+#: src/windows/file_handling.rs:284 src/windows/file_handling.rs:302
 msgid "Nothing selected"
 msgstr ""
 
-#: src/windows/file_handling.rs:353
+#: src/windows/file_handling.rs:358
 msgid "No file or path found, this is probably not your fault."
 msgstr ""
 
