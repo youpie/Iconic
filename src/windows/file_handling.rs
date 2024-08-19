@@ -193,19 +193,20 @@ impl GtkTestWindow {
             .build();
         self.imp().stack.set_visible_child_name("stack_saving_page");
         match file_chooser.save_future(Some(self)).await{
-        Ok(file) => {
-            let saved_file = self.save_file(file).await?;
-            self.imp().stack.set_visible_child_name("stack_main_page");
-            imp.toast_overlay.add_toast(
-                adw::Toast::builder()
-                    .button_label(gettext("Open Folder"))
-                    .action_name("app.open_file_location")
-                    .title(gettext("File Saved"))
-                    .build(),
-            );
-            saved_file
-        },
-        Err(e) => {
+            Ok(file) => {
+                let saved_file = self.save_file(file).await?;
+                self.imp().stack.set_visible_child_name("stack_main_page");
+                imp.toast_overlay.add_toast(
+                    adw::Toast::builder()
+                        .button_label(gettext("Open Folder"))
+                        .action_name("app.open_file_location")
+                        .title(gettext("File Saved"))
+                        .build(),
+                );
+                saved_file
+            },
+            Err(e) => {
+                self.imp().stack.set_visible_child_name("stack_main_page");
                 match e.message() {
                     "Dismissed by user" => {
                         imp.toast_overlay
