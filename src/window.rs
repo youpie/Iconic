@@ -386,6 +386,7 @@ impl GtkTestWindow {
     }
 
     pub fn create_drag_file(&self, file_name: &str) -> gio::File{
+        let imp = self.imp();
         let data_path = match env::var("XDG_DATA_HOME") {
             Ok(value) => PathBuf::from(value),
             Err(_) => {
@@ -398,6 +399,10 @@ impl GtkTestWindow {
                 config_dir
             }
         };
+        let x_scale_val = imp.x_scale.value();
+        let y_scale_val = imp.y_scale.value();
+        let zoom_val = imp.size.value();
+        let
         debug!("data path: {:?}",data_path);
         let random_number = random::<u64>();
         let generated_file_name = format!("folder-{}-{}.png",file_name,random_number);

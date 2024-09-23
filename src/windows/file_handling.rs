@@ -329,6 +329,7 @@ impl GtkTestWindow {
         imp.image_loading_spinner.set_spinning(false);
     }
 
+    // Creates a new folder_icon::File from a gio::file or path
     pub fn new_iconic_file_creation(
         &self,
         file: Option<gio::File>,

@@ -11,42 +11,42 @@ This application is my first attempt at creating an application using Rust and L
 
 ## Todo 📝
 These are ideas I want to implement.
-- [X] Create Icon*
 - [ ] Add features
-    - [X] Automatically load the folder Icon*
-    - [X] Support SVG's*
-    - [X] Drag and drop
-    - [X] Proper error handling
-    - [X] Add threading
-        - [X] Loading images*
-            - [ ] Loading dragged images
-        - [X] Saving images*
+    - [ ] Add threading
+        - [ ] Loading dragged images
         - [ ] Making images monochrome
-    - [X] Start Screen
+            - Monochrome images get recreated every time the preview is updated. Slows down quite a lot on slower systems, i could also
+            - [ ] Just not recreate monochrome images every preview update
     - [ ] Export to SVG
-    - [X] Change folder image in preferences
-    - [X] Add warning if closing with unsaved changes*
-    - [X] Convert top image to Greyscale*
-        - [X] Slider for threshhold
-        - [X] Select color* 
-    - [X] Add key shortcuts*
-        - [X] Save
-        - [X] Open 
+        - This would probably require a full rewrite of the image generation system. Using cairo or something, but I originally didn't use cairo as I did not understand it, and good examples were really scarse 
     - [ ] Rounded corner option for top image
-    - [X] Load image folder on start*
-    - [X] Ability to save and load settings
-    - [X] Add ability to temporarily change folder icon*
-    - [X] Loading symbolic icons directly
-        - [ ] Add symbolic icon picker (like [Icon Library](https://gitlab.gnome.org/World/design/icon-library))
-    - [X] Automatically place icon in right position
     - [ ] Add guide grid or something
-    - [ ] Ability to directly set image of folder (if even possible)
-        - [X] Ability to drag generated image from iconic window to nautulis  
+    - [ ] Multiple folder colors
+        - [ ] according to gnome 47 accent color?
+            - [ ] SVG manipulation?
+            - [ ] Or just packing the images in with iconic
+        - [ ] Option in settings
+    - [ ] Regenerate all (d&d'ed) images automatically
+        - This way its possible to regenerate all images, when for example the accent color changes (I assume if the image that nautulus has set as folder image is changed but filename stays the same, it will change in nautulis)
+        - [ ] Save dragged images with metadata about top layer
+        - [ ] Store all used top layer images in cache
+            - This will use a lot of cache size, so
+            - [ ] Allow users to turn it off (opt-in/-out on first launch?)
+            - [ ] Inform users 
+            - [ ] Do not store too large images
+        - [ ] Detect current accent color
+    - [ ] Create guide when first starting iconic, to show users dragging and dropping images is possible
+    - [ ] Refer users to icon library, so they know where to find many good icons   
+- [ ] Update main app to gnome 47 runtime
+- [ ] Add credits for applications I used to learn in the "about iconic"
+- [ ] Move donation link to About iconic (issue #8)
+- [ ] Make donation link just point to a random charity
 - [ ] Clean up code
+    - I feel like a lot of code is not up to "standards" like rust conventions and stuff, So I need to do some research into that. 
 - [ ] Add comments
-- [X] Correct flatpak manifest*
-- [X] Think of better name
-- [X] Add dontation link :)
+    - I struggled a lot learning it all, So adding comments, especially at points I got stuck, might help other devs also wanting to learn 
+- [ ] Reduce file size
+    - I the app is about 17 mb's, way to much for such a simple app imo. I might use a lot of large libs (Like cairo) only for a single purpose, so possibly that could be improved.
 
 ## Contributing 🤝
 This program is mostly meant as practise for me so I want to solve most problems by myself. So the best will be to create an issue if you encounter any.
