@@ -27,4 +27,4 @@ features = ["gnome_45"]
 [dependencies.adw]
 package = "libadwaita"
 version = "0.7"
-features = ["v1_5"]
+features = ["v1_6"]

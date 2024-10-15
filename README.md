@@ -41,6 +41,7 @@ These are ideas I want to implement.
 - [ ] Add credits for applications I used to learn in the "about iconic"
 - [ ] Move donation link to About iconic (issue #8)
 - [ ] Make donation link just point to a random charity
+- [ ] Improve accessibility
 - [ ] Clean up code
     - I feel like a lot of code is not up to "standards" like rust conventions and stuff, So I need to do some research into that. 
 - [ ] Add comments

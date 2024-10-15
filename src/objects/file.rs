@@ -129,6 +129,7 @@ impl File {
         Ok(Self::pixmap_to_image(pixmap))
     }
 
+    // Adds hash of file to file name
     fn create_file_name(name: &str, image: &DynamicImage) -> String {
         let mut hasher = DefaultHasher::new();
         let _ = image.as_rgb8().hash(&mut hasher);
