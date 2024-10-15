@@ -1,6 +1,6 @@
 [package]
 name = "folder_icon"
-version = "2024.8.1"
+version = "2024.10.1"
 edition = "2021"
 
 [dependencies]

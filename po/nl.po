@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-08-18 18:10+0200\n"
-"PO-Revision-Date: 2024-08-18 18:10+0200\n"
+"POT-Creation-Date: 2024-10-15 13:12+0200\n"
+"PO-Revision-Date: 2024-10-15 13:14+0200\n"
 "Last-Translator: Youpie <youplamb@hotmail.nl>\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #: data/nl.emphisia.icon.desktop.in.in:3
 #: data/nl.emphisia.icon.metainfo.xml.in.in:5
-#: data/nl.emphisia.icon.metainfo.xml.in.in:106
+#: data/nl.emphisia.icon.metainfo.xml.in.in:117
 msgid "Iconic"
 msgstr "Iconic"
 
@@ -59,6 +59,32 @@ msgstr "Hoofdmenu in dark mode"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:30
 msgid ""
+"This update to iconic is mostly just a version bump. However I do have some "
+"fun features I want to try and implement. If it is possible, idk yet. But I "
+"have already started working on it."
+msgstr ""
+"Deze versie van Iconic is vooral een versie update. Ik heb wel wat leuke "
+"nieuwe features die ik wil toevoegen. Of het mogelijk is weet ik nog niet, "
+"maar ik ben al wel begonnen eraan te werken"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:31
+msgid "Biggest changes"
+msgstr "De grootste veranderingen van deze update:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:33
+msgid "Updated to gnome 47"
+msgstr "Geupdate naar gnome 47"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:34
+msgid "Using new loading animation"
+msgstr "Nieuwe laden animatie"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:35
+msgid "Using new buttons in settings"
+msgstr "Nieuwe knopjes in de instellingen"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:41
+msgid ""
 "A new update to Iconic is here! It does not add many features but features a "
 "lot of improvements under the hood, this means the app will now crash way "
 "less often without any warning. Some changes include:"
@@ -68,35 +94,35 @@ msgstr ""
 "betekent dat de app nu veel minder vaak zal crashen zonder waarschuwing. "
 "Veranderingen zijn o.a.:"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:32
+#: data/nl.emphisia.icon.metainfo.xml.in.in:43
 msgid "Added ability to drag icon out of iconic directly"
 msgstr "Mogelijkheid toegevoegd om iconen direct uit iconic te slepen"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:33
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
 msgid "Added error handling on opening files"
 msgstr "\"error handling\" toegevoegd wanneer bestanden worden geopend"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:34
+#: data/nl.emphisia.icon.metainfo.xml.in.in:45
 msgid "Added error handling on saving files"
 msgstr "\"error handling\" toegevoegd wanneer bestanden worden opgeslagen"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:35
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
 msgid "Added donation link"
 msgstr "Donatielink toegevoegd"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
 msgid "Added pop-up when dragging in files"
 msgstr "Pop-up toegevoegd wanneer bestanden in worden ingsleept"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:37
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
 msgid "Updated Dutch translations"
 msgstr "Nederlandse vertaling geupdate"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:39
+#: data/nl.emphisia.icon.metainfo.xml.in.in:50
 msgid "Please report any bugs you see! Many thanks"
 msgstr "Geef het alsjeblieft door als je bugs ervaart. Heel erg bedankt!"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+#: data/nl.emphisia.icon.metainfo.xml.in.in:55
 msgid ""
 "This is a new major release of Iconic. Featuring many bug fixes and added "
 "features. Some notable ones are:"
@@ -104,108 +130,108 @@ msgstr ""
 "Dit is een grote update voor Iconic. Er zijn veel bugs opgelost en functies "
 "toegevoegd:"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+#: data/nl.emphisia.icon.metainfo.xml.in.in:57
 msgid "Drag and drop support"
 msgstr "Ondersteuning voor drag-and-drop"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
 msgid "Copy-paste support"
 msgstr "Kopieer en plak ondersteuning"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+#: data/nl.emphisia.icon.metainfo.xml.in.in:59
 msgid "Better file type detection"
 msgstr "Betere bestandstype herkenning"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:49
+#: data/nl.emphisia.icon.metainfo.xml.in.in:60
 msgid "Updated dutch translations"
 msgstr "Nederlandse vertaling geupdate"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:50
+#: data/nl.emphisia.icon.metainfo.xml.in.in:61
 msgid "Added Hindi translations"
 msgstr "Hindoestaanse vertaling toegevoegd"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
 msgid "Fixed spelling mistakes"
 msgstr "Spelfouten weggehaald"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:52
+#: data/nl.emphisia.icon.metainfo.xml.in.in:63
 msgid "Fixed issues with black pixels not converting to monochrome"
 msgstr ""
 "Een probleem opgelost waar zwarte pixels niet zichtbaar waren in monochroom "
 "modus"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+#: data/nl.emphisia.icon.metainfo.xml.in.in:69
 msgid "Another small update with a few additions and changes"
 msgstr ""
 "Een nieuwe kleine update met een paar kleine toevoegingen en veranderingen"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:60
+#: data/nl.emphisia.icon.metainfo.xml.in.in:71
 msgid "You can now open containing folder after saving image"
 msgstr "Je kan nu de folder openen waar de nieuwe afbeelding is opgeslagen"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:61
+#: data/nl.emphisia.icon.metainfo.xml.in.in:72
 msgid "Added italian translation"
 msgstr "Italiaanse vertaling toegevoegd"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:62
+#: data/nl.emphisia.icon.metainfo.xml.in.in:73
 msgid "Updated Dutch translation"
 msgstr "Nederlandse vertaling geupdate"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:68
+#: data/nl.emphisia.icon.metainfo.xml.in.in:79
 msgid "This version adds a few small features and fixes some bugs"
 msgstr "Deze versie voegt een paar kleine dingen toe en fixt was bugs"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:70
+#: data/nl.emphisia.icon.metainfo.xml.in.in:81
 msgid "The app now shows some errors as pop-ups"
 msgstr "De app laat nu een paar fouten zien als pop-ups"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:71
+#: data/nl.emphisia.icon.metainfo.xml.in.in:82
 msgid "You can now temporarily open a new folder image"
 msgstr "Je kan nu tijdelijk een nieuwe folder afbeelding openen"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:72
+#: data/nl.emphisia.icon.metainfo.xml.in.in:83
 msgid "It now first shows a pop-up when the folder image is not found"
 msgstr ""
 "Er wordt nu eerst een pop-up getoont als de folder afbeelding niet is "
 "gevonden"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:78
+#: data/nl.emphisia.icon.metainfo.xml.in.in:89
 msgid "Initial release"
 msgstr "Eerste versie"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:97
+#: data/nl.emphisia.icon.metainfo.xml.in.in:108
 msgid "icon"
 msgstr "icoon"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:98
+#: data/nl.emphisia.icon.metainfo.xml.in.in:109
 msgid "create"
 msgstr "maken"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:99
+#: data/nl.emphisia.icon.metainfo.xml.in.in:110
 msgid "folder icon"
 msgstr "folder icoon"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:100
+#: data/nl.emphisia.icon.metainfo.xml.in.in:111
 msgid "svg"
 msgstr "svg"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:101
+#: data/nl.emphisia.icon.metainfo.xml.in.in:112
 msgid "png"
 msgstr "png"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:102
+#: data/nl.emphisia.icon.metainfo.xml.in.in:113
 msgid "gnome"
 msgstr "gnome"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:103
+#: data/nl.emphisia.icon.metainfo.xml.in.in:114
 msgid "icon create"
 msgstr "icoon maken"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:104
+#: data/nl.emphisia.icon.metainfo.xml.in.in:115
 msgid "icon creator"
 msgstr "icoon maker"
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:105
+#: data/nl.emphisia.icon.metainfo.xml.in.in:116
 msgid "folder icon creator"
 msgstr "folder icoon maker"
 
@@ -247,15 +273,23 @@ msgstr "Algemeen"
 msgid "Customise"
 msgstr "Aanpassen"
 
-#: src/settings/settings.blp:29
-msgid "Currently set bottom icon, click to reset to default"
-msgstr "Huidig ingestelde folder afbeelding, klik om te resetten"
+#: src/settings/settings.blp:13
+msgid "Currently set bottom icon"
+msgstr "_Huidig ingestelde onderste Icoon"
 
-#: src/settings/settings.blp:36
+#: src/settings/settings.blp:16
+msgid "Select bottom icon"
+msgstr "_Selecteer onderste Icoon"
+
+#: src/settings/settings.blp:21
+msgid "Reset bottom icon"
+msgstr "_Reset onderste Icoon"
+
+#: src/settings/settings.blp:31
 msgid "Default drag-and-drop action"
 msgstr "Standaard drag-and-drop action"
 
-#: src/settings/settings.blp:37
+#: src/settings/settings.blp:32
 msgid ""
 "By default, after dragging and dropping a file, you have to select a layer "
 "to paste it to. Here you can disable that pop-up"
@@ -263,28 +297,28 @@ msgstr ""
 "Standaard, na het slepen van een bestand, moet je de laag selecteren waar je "
 "het bestand wil plakken. Die pop-up kan je hier uitschakelen"
 
-#: src/settings/settings.blp:45
+#: src/settings/settings.blp:40
 msgid "Always select top layer"
 msgstr "Selecteer altijd de bovenste laag"
 
-#: src/settings/settings.blp:53
+#: src/settings/settings.blp:48
 msgid "Always select bottom layer"
 msgstr "Selecteer altijd de onderste laag"
 
-#: src/settings/settings.blp:63
+#: src/settings/settings.blp:58
 msgid "Advanced"
 msgstr "Geadvanceerd"
 
-#: src/settings/settings.blp:66
+#: src/settings/settings.blp:61
 msgid "You can see these options because you have enabled the Devel profile"
 msgstr ""
 "Je kan deze opties zien omdat je het \"Devel\" profiel hebt geactiveerd"
 
-#: src/settings/settings.blp:75
+#: src/settings/settings.blp:70
 msgid "Select size of SVG images"
 msgstr "Selecteer grootte van SVG afbeeldingen"
 
-#: src/settings/settings.blp:76
+#: src/settings/settings.blp:71
 msgid ""
 "SVG images will by default be converted to a 1024x1024 image. You can adjust "
 "that here"
@@ -292,11 +326,11 @@ msgstr ""
 "SVG afbeeldingen worden standaard omgezet naar een 1024x1024 afbeelding. Dat "
 "kan je hier aanpassen"
 
-#: src/settings/settings.blp:86
+#: src/settings/settings.blp:81
 msgid "Select size of Thumbnail images"
 msgstr "Selecteer grootte van Thumbnail afbeeldingen"
 
-#: src/settings/settings.blp:87
+#: src/settings/settings.blp:82
 msgid ""
 "Thumbnail images will by default be converted to a 255x255 image. You can "
 "adjust that here"
@@ -320,97 +354,97 @@ msgstr "Klik of Sleep om een afbeelding te openen"
 msgid "_Open Image"
 msgstr "_Open afbeelding"
 
-#: src/window.blp:167
+#: src/window.blp:168
 msgid "Toggle Monochrome"
 msgstr "Monochroom inschakelen"
 
-#: src/window.blp:175
+#: src/window.blp:176
 msgid "Invert"
 msgstr "Omkeren"
 
-#: src/window.blp:178
+#: src/window.blp:179
 msgid "Color"
 msgstr "Kleur"
 
-#: src/window.blp:205
+#: src/window.blp:206
 msgid "Threshold"
 msgstr "Drempel"
 
-#: src/window.blp:277
+#: src/window.blp:276
 msgid "_Paste Top Icon from Clipboard"
 msgstr "_Plak Bovenste Icoon uit Klemboord"
 
-#: src/window.blp:281
+#: src/window.blp:280
 msgid "_Open Top Icon"
 msgstr "_Open bovenste Icoon"
 
-#: src/window.blp:286
+#: src/window.blp:285
 msgid "_Open Bottom Icon"
 msgstr "_Open onderste Icoon"
 
-#: src/window.blp:292
+#: src/window.blp:291
 msgid "_Reset Bottom Icon"
 msgstr "_Reset onderste Icoon"
 
-#: src/window.blp:298
+#: src/window.blp:297
 msgid "_Preferences"
 msgstr "_Instellingen"
 
-#: src/window.blp:303
+#: src/window.blp:302
 msgid "_Keyboard Shortcuts"
 msgstr "_Sneltoetsen"
 
-#: src/window.blp:308
+#: src/window.blp:307
 msgid "_Donate ❤️"
 msgstr "_Doneer ❤️"
 
-#: src/window.blp:313
+#: src/window.blp:312
 msgid "_About Iconic"
 msgstr "_Over Iconic"
 
-#: src/settings/settings.rs:202 src/window.rs:791
+#: src/settings/settings.rs:196 src/window.rs:811
 msgid "Open Document"
 msgstr "Open Document"
 
-#: src/settings/settings.rs:258 src/window.rs:662
+#: src/settings/settings.rs:252 src/window.rs:682
 msgid "Error"
 msgstr "Fout"
 
-#: src/window.rs:606
+#: src/window.rs:626
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 "De huidig ingestelde folder afbeelding kan niet gevonden worden, druk op OK "
 "om een nieuwe te selecteren"
 
-#: src/window.rs:671
+#: src/window.rs:691
 msgid "OK"
 msgstr "OK"
 
-#: src/window.rs:698
+#: src/window.rs:718
 msgid "Do you want to load this image to the top or bottom layer?"
 msgstr "Wil je deze afbeelding laden naar de bovenste of onderste laag?"
 
-#: src/window.rs:699
+#: src/window.rs:719
 msgid "Hint: You can disable this pop-up in the settings"
 msgstr "Hint: Je kan deze pop-up uitschakelen in de instellingen"
 
-#: src/window.rs:701
+#: src/window.rs:721
 msgid "Select layer"
 msgstr "Selecteer Laag"
 
-#: src/window.rs:706
+#: src/window.rs:726
 msgid "Top"
 msgstr "Boven"
 
-#: src/window.rs:707
+#: src/window.rs:727
 msgid "Bottom"
 msgstr "Onder"
 
-#: src/window.rs:722
+#: src/window.rs:742
 msgid "Save Changes?"
 msgstr "Veranderingen Opslaan?"
 
-#: src/window.rs:723
+#: src/window.rs:743
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
@@ -418,15 +452,15 @@ msgstr ""
 "Open afbeelding bevat niet-opgeslagen veranderingen. Niet opgeslagen "
 "veranderingen gaan permanent verloren"
 
-#: src/window.rs:727
+#: src/window.rs:747
 msgid "Cancel"
 msgstr "Annuleer"
 
-#: src/window.rs:728
+#: src/window.rs:748
 msgid "Discard"
 msgstr "Verwerpen"
 
-#: src/window.rs:730
+#: src/window.rs:750
 msgid "Save"
 msgstr "Opslaan"
 
@@ -451,17 +485,20 @@ msgstr "Open Folder"
 msgid "File Saved"
 msgstr "Bestand Opgeslagen"
 
-#: src/windows/file_handling.rs:272
+#: src/windows/file_handling.rs:273
 msgid "Icon reset"
 msgstr "icoon resetten"
 
-#: src/windows/file_handling.rs:284 src/windows/file_handling.rs:302
+#: src/windows/file_handling.rs:286 src/windows/file_handling.rs:305
 msgid "Nothing selected"
 msgstr "Niks geselecteerd"
 
-#: src/windows/file_handling.rs:358
+#: src/windows/file_handling.rs:360
 msgid "No file or path found, this is probably not your fault."
 msgstr "Geen bestand of pad gevonden, dit is waarschijnlijk niet jouw schuld."
+
+#~ msgid "Currently set bottom icon, click to reset to default"
+#~ msgstr "Huidig ingestelde folder afbeelding, klik om te resetten"
 
 #~ msgid "Updated it and hi translations (with google translate)"
 #~ msgstr "Hi en It vertalingen geupdate (met google translate)"
