@@ -9,26 +9,21 @@ template $PreferencesDialog : Adw.PreferencesDialog {
 
     Adw.PreferencesGroup {
       title: _("Customise");
-
-      Adw.ActionRow custom {
-        title: "Select bottom icon";
-        activatable-widget: select_folder;
-        Button select_folder {
-          margin-top: 10;
-          margin-bottom: 10;
-          Adw.ButtonContent top_icon_content{
-            icon-name: "folder-open-symbolic";
-          }
-          action-name: "app.select_folder";
-          styles [
-            "flat",
-          ]
-        }
+      Adw.ActionRow current_botton {
+        subtitle: _("Currently set bottom icon");
       }
-      Adw.ActionRow custom1 {
-        subtitle: _("Currently set bottom icon, click to reset to default");
-        activatable: true;
+      Adw.ButtonRow select_default_bottom {
+        title: _("Select bottom icon");
+        action-name: "app.select_folder";
+        start-icon-name : "folder-open-symbolic";
+      }
+      Adw.ButtonRow reset_default_bottom {
+        title: _("Reset bottom icon");
         action-name: "app.reset_location";
+        start-icon-name: "edit-undo-symbolic";
+        styles [
+          "destructive-action",
+        ]
       }
     }
     Adw.PreferencesGroup {

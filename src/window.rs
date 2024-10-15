@@ -68,7 +68,7 @@ mod imp {
         #[template_child]
         pub stack: TemplateChild<gtk::Stack>,
         #[template_child]
-        pub image_loading_spinner: TemplateChild<gtk::Spinner>,
+        pub image_loading_spinner: TemplateChild<adw::Spinner>,
         #[template_child]
         pub monochrome_action_row: TemplateChild<adw::ExpanderRow>,
         #[template_child]
@@ -386,6 +386,7 @@ impl GtkTestWindow {
     }
 
     pub fn create_drag_file(&self, file_name: &str) -> gio::File{
+        let imp = self.imp();
         let data_path = match env::var("XDG_DATA_HOME") {
             Ok(value) => PathBuf::from(value),
             Err(_) => {
@@ -400,20 +401,39 @@ impl GtkTestWindow {
         };
         debug!("data path: {:?}",data_path);
         let random_number = random::<u64>();
-        let generated_file_name = format!("folder-{}-{}.png",file_name,random_number);
+        let properties_string = self.create_image_properties_string();
+        let generated_file_name = format!("folder-{}-{}.png",properties_string,file_name);
         debug!("generated_file_name: {}",generated_file_name);
         let mut file_path = data_path.clone();
         file_path.push(generated_file_name.clone());
         debug!("generated file path: {:?}", file_path);
         let gio_file = gio::File::for_path(file_path);
-        if gio_file.query_exists(None::<&Cancellable>) {
-            warn!("File with name {} already exists, creating new file name", generated_file_name);
-            self.create_drag_file(file_name)
-        }
-        else{
-            info!("File with name {} does not yet exist, using file name", generated_file_name);
-            gio_file
-        }
+        // if gio_file.query_exists(None::<&Cancellable>) {
+        //     warn!("File with name {} already exists, creating new file name", generated_file_name);
+        //     self.create_drag_file(file_name)
+        // }
+        // else{
+        //     info!("File with name {} does not yet exist, using file name", generated_file_name);
+        //     gio_file
+        // }
+        gio_file
+    }
+
+    /* This function is used to create a string with all properties applied to the current image.
+    This makes it possible to completely recreate the image if the top image is still available
+    */
+    fn create_image_properties_string(&self) -> String {
+        let imp = self.imp();
+        let x_scale_val = imp.x_scale.value();
+        let y_scale_val = imp.y_scale.value();
+        let zoom_val = imp.size.value();
+        let is_monochrome = imp.monochrome_switch.is_active() as u8;
+        let monochrome_slider = imp.threshold_scale.value();
+        let monochrome_color_val = imp.monochrome_color.rgba().to_string();
+        let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
+        let combined_string = format!("{}-{}-{}-{}-{}-{}-{}",x_scale_val,y_scale_val,zoom_val,is_monochrome,monochrome_slider,monochrome_color_val,monochrome_inverted);
+        debug!("{}",&combined_string);
+        combined_string
     }
 
     fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool{

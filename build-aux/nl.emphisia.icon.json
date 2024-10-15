@@ -1,9 +1,9 @@
 {
     "app-id" : "nl.emphisia.icon",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "46",
+    "runtime-version" : "47",
     "sdk" : "org.gnome.Sdk",
-    "runtime-version" : "46",
+    "runtime-version" : "47",
     "sdk-extensions" : [
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],

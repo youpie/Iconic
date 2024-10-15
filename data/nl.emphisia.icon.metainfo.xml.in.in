@@ -25,6 +25,17 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2024.10.1" date="2024-10-15" type="stable">
+      <description>
+        <p>This update to iconic is mostly just a version bump. However I do have some fun features I want to try and implement. If it is possible, idk yet. But I have already started working on it.</p>
+        <p>Biggest changes</p>
+        <ul>
+          <li>Updated to gnome 47</li>
+          <li>Using new loading animation</li>
+          <li>Using new buttons in settings</li>
+        </ul>
+      </description>
+    </release>
     <release version="2024.8.1" date="2024-08-18" type="stable">
       <description>
         <p>A new update to Iconic is here! It does not add many features but features a lot of improvements under the hood, this means the app will now crash way less often without any warning. Some changes include:</p>

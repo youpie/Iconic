@@ -22,11 +22,7 @@ mod imp {
     #[template(resource = "/nl/emphisia/icon/settings/settings.ui")]
     pub struct PreferencesDialog {
         #[template_child]
-        pub custom: TemplateChild<adw::ActionRow>,
-        #[template_child]
-        pub select_folder: TemplateChild<gtk::Button>,
-        #[template_child]
-        pub custom1: TemplateChild<adw::ActionRow>,
+        pub current_botton: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub svg_image_size: TemplateChild<adw::SpinRow>,
         #[template_child]
@@ -50,12 +46,10 @@ mod imp {
 
         fn new() -> Self {
             Self {
-                custom: TemplateChild::default(),
-                select_folder: TemplateChild::default(),
                 default_dnd: TemplateChild::default(),
                 dnd_switch: TemplateChild::default(),
                 radio_button_1: TemplateChild::default(),
-                custom1: TemplateChild::default(),
+                current_botton: TemplateChild::default(),
                 svg_image_size: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 advanced_settings: TemplateChild::default(),
@@ -186,7 +180,7 @@ impl PreferencesDialog {
 
     fn set_path_title(&self) {
         let current_path = &self.imp().settings.string("folder-svg-path");
-        self.imp().custom1.set_property("title", current_path);
+        self.imp().current_botton.set_property("title", current_path);
     }
 
     fn select_path_filechooser(&self) {

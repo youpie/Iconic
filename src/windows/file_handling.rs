@@ -276,6 +276,7 @@ impl GtkTestWindow {
 
     pub async fn load_top_icon(&self) {
         let imp = self.imp();
+        imp.image_loading_spinner.set_visible(true);
         match self.open_file_chooser_gtk().await {
             Some(x) => {
                 self.load_top_file(x).await;
@@ -285,6 +286,7 @@ impl GtkTestWindow {
                     .add_toast(adw::Toast::new(&gettext("Nothing selected")));
             }
         };
+        imp.image_loading_spinner.set_visible(false);
         self.check_icon_update();
     }
 
@@ -319,16 +321,15 @@ impl GtkTestWindow {
 
     pub async fn load_top_file(&self, filename: gio::File) {
         let imp = self.imp();
-        imp.image_loading_spinner.set_spinning(true);
         if imp.stack.visible_child_name() == Some("stack_welcome_page".into()) {
             imp.stack.set_visible_child_name("stack_loading_page");
         }
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
         self.new_iconic_file_creation(Some(filename), None, svg_render_size, size, true);
-        imp.image_loading_spinner.set_spinning(false);
     }
 
+    // Creates a new folder_icon::File from a gio::file or path
     pub fn new_iconic_file_creation(
         &self,
         file: Option<gio::File>,

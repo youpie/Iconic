@@ -118,12 +118,13 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                         vexpand: true;
                       }
                       [overlay]
-                      Spinner image_loading_spinner{
+                      Adw.Spinner image_loading_spinner{
                         valign: center;
                         halign: center;
                         width-request: 50;
                         height-request: 50;
-                        spinning: false;
+                        visible: false;
+
                       }
                     }
                     Scale x_scale {
@@ -233,12 +234,11 @@ template $GtkTestWindow : Adw.ApplicationWindow {
           orientation: vertical;
           spacing: 12;
 
-          Spinner {
+          Adw.Spinner {
             valign: center;
             halign: center;
             height-request: 32;
             width-request: 32;
-            spinning: true;
           }
           Label {
             label: "Saving...";
@@ -257,12 +257,11 @@ template $GtkTestWindow : Adw.ApplicationWindow {
         Box {
           orientation: vertical;
           spacing: 12;
-          Spinner {
+          Adw.Spinner {
             valign: center;
             halign: center;
             height-request: 32;
             width-request: 32;
-            spinning: true;
           }
         }
       };
