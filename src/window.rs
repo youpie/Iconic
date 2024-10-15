@@ -401,20 +401,22 @@ impl GtkTestWindow {
         };
         debug!("data path: {:?}",data_path);
         let random_number = random::<u64>();
-        let generated_file_name = format!("folder-{}-{}.png",file_name,random_number);
+        let properties_string = self.create_image_properties_string();
+        let generated_file_name = format!("folder-{}-{}.png",properties_string,file_name);
         debug!("generated_file_name: {}",generated_file_name);
         let mut file_path = data_path.clone();
         file_path.push(generated_file_name.clone());
         debug!("generated file path: {:?}", file_path);
         let gio_file = gio::File::for_path(file_path);
-        if gio_file.query_exists(None::<&Cancellable>) {
-            warn!("File with name {} already exists, creating new file name", generated_file_name);
-            self.create_drag_file(file_name)
-        }
-        else{
-            info!("File with name {} does not yet exist, using file name", generated_file_name);
-            gio_file
-        }
+        // if gio_file.query_exists(None::<&Cancellable>) {
+        //     warn!("File with name {} already exists, creating new file name", generated_file_name);
+        //     self.create_drag_file(file_name)
+        // }
+        // else{
+        //     info!("File with name {} does not yet exist, using file name", generated_file_name);
+        //     gio_file
+        // }
+        gio_file
     }
 
     /* This function is used to create a string with all properties applied to the current image.
@@ -429,7 +431,9 @@ impl GtkTestWindow {
         let monochrome_slider = imp.threshold_scale.value();
         let monochrome_color_val = imp.monochrome_color.rgba().to_string();
         let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
-        "test".to_string()
+        let combined_string = format!("{}-{}-{}-{}-{}-{}-{}",x_scale_val,y_scale_val,zoom_val,is_monochrome,monochrome_slider,monochrome_color_val,monochrome_inverted);
+        debug!("{}",&combined_string);
+        combined_string
     }
 
     fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool{

@@ -277,7 +277,6 @@ impl GtkTestWindow {
     pub async fn load_top_icon(&self) {
         let imp = self.imp();
         imp.image_loading_spinner.set_visible(true);
-        imp.image_loading_spinner.activate();
         match self.open_file_chooser_gtk().await {
             Some(x) => {
                 self.load_top_file(x).await;
@@ -287,8 +286,8 @@ impl GtkTestWindow {
                     .add_toast(adw::Toast::new(&gettext("Nothing selected")));
             }
         };
-        self.check_icon_update();
         imp.image_loading_spinner.set_visible(false);
+        self.check_icon_update();
     }
 
     pub async fn load_temp_folder_icon(&self) {
