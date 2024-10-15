@@ -402,7 +402,6 @@ impl GtkTestWindow {
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();
-        let
         debug!("data path: {:?}",data_path);
         let random_number = random::<u64>();
         let generated_file_name = format!("folder-{}-{}.png",file_name,random_number);

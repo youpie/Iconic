@@ -8,6 +8,7 @@ use resvg::usvg::{Options, Tree};
 use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
+use std::hash::{DefaultHasher, Hash, Hasher};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
@@ -39,7 +40,7 @@ impl File {
             image::open(temp_path.clone().into_os_string())?
         };
         let name_no_extension = file_name.replace(&file_extension, "");
-
+        let combined_file_name = Self::create_file_name(&name_no_extension, &dynamic_image);
         let thumbnail = if file_extension == ".svg" {
             let path = &temp_path.as_os_str().to_str().unwrap();
             Self::load_svg(path, thumbnail_size)?
@@ -54,7 +55,7 @@ impl File {
             files: Some(file),
             path: temp_path.into(),
             extension: mime_type.unwrap().into(),
-            name: name_no_extension,
+            name: combined_file_name,
             dynamic_image,
             thumbnail,
         })
@@ -86,11 +87,12 @@ impl File {
             thumbnail_size as u32,
             imageops::FilterType::Nearest,
         );
+        let filename = Self::create_file_name("pasted", &image);
         Self {
             files: None,
             path: "".into(),
             extension: ".dynamic".to_string(),
-            name: "pasted".to_string(),
+            name: filename,
             dynamic_image: image,
             thumbnail,
         }
@@ -125,6 +127,13 @@ impl File {
             &mut pixmap.as_mut(),
         );
         Ok(Self::pixmap_to_image(pixmap))
+    }
+
+    fn create_file_name(name: &str, image: &DynamicImage) -> String {
+        let mut hasher = DefaultHasher::new();
+        let _ = image.as_rgb8().hash(&mut hasher);
+        let file_hash = (hasher.finish() as i128 + i64::MAX as i128) as u64;
+        format!("{}-{}", name,file_hash)
     }
 
     fn pixmap_to_image(pixmap: Pixmap) -> DynamicImage {
