@@ -28,7 +28,7 @@ use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
 use image::*;
 use log::*;
-use rand::prelude::*;
+// use rand::prelude::*;
 use std::cell::RefCell;
 use std::env;
 use std::error::Error;
@@ -183,6 +183,9 @@ mod imp {
                         win.load_temp_folder_icon().await;
                     }
                 ));
+            });
+            klass.install_action("app.open_bottom_icon", None, move |win, _, _| {
+                win.check_icon_update();
             });
             klass.install_action("app.reset_bottom", None, move |win, _, _| {
                 win.reset_bottom_icon();
@@ -390,7 +393,7 @@ impl GtkTestWindow {
     }
 
     pub fn create_drag_file(&self, file_name: &str) -> gio::File {
-        let imp = self.imp();
+        // let imp = self.imp();
         let data_path = match env::var("XDG_DATA_HOME") {
             Ok(value) => PathBuf::from(value),
             Err(_) => {
@@ -404,7 +407,7 @@ impl GtkTestWindow {
             }
         };
         debug!("data path: {:?}", data_path);
-        let random_number = random::<u64>();
+        // let random_number = random::<u64>();
         let properties_string = self.create_image_properties_string();
         let generated_file_name = format!("folder-{}-{}.png", properties_string, file_name);
         debug!("generated_file_name: {}", generated_file_name);
@@ -725,6 +728,7 @@ impl GtkTestWindow {
     pub async fn top_or_bottom_popup(&self) -> Option<bool> {
         let dnd_switch_state = self.imp().settings.boolean("default-dnd-activated");
         let dnd_radio_state = self.imp().settings.string("default-dnd-action");
+        debug!("radio button state: {}", dnd_radio_state);
         if dnd_switch_state {
             return match dnd_radio_state.as_str() {
                 "top" => Some(true),
@@ -790,13 +794,26 @@ impl GtkTestWindow {
         }
     }
 
+    // This checks if the main page, or welcome screen needs to be shown. And adds ability to loads just a bottom file
     pub fn check_icon_update(&self) {
         let imp = self.imp();
         if imp.top_image_file.lock().unwrap().as_ref() != None
             && imp.bottom_image_file.lock().unwrap().as_ref() != None
         {
-            self.imp().save_button.set_sensitive(true);
-            self.imp().image_saved.replace(false);
+            if imp
+                .top_image_file
+                .lock()
+                .unwrap()
+                .as_ref()
+                .unwrap()
+                .dynamic_image
+                .width()
+                > 1
+            {
+                self.enable_disable_top_control(true);
+            }
+            imp.save_button.set_sensitive(true);
+            imp.image_saved.replace(false);
             glib::spawn_future_local(glib::clone!(
                 #[weak(rename_to = win)]
                 self,
@@ -806,16 +823,21 @@ impl GtkTestWindow {
             ));
             imp.stack.set_visible_child_name("stack_main_page");
         } else if imp.bottom_image_file.lock().unwrap().as_ref() != None {
-            imp.image_view.set_paintable(Some(
-                &self.dynamic_image_to_texture(
-                    &imp.bottom_image_file
-                        .lock()
-                        .unwrap()
-                        .as_ref()
-                        .unwrap()
-                        .thumbnail,
-                ),
+            let folder_bottom_name = imp
+                .bottom_image_file
+                .lock()
+                .unwrap()
+                .clone()
+                .unwrap()
+                .filename;
+            debug!("Loaded temporary image for render");
+            let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
+            imp.top_image_file.lock().unwrap().replace(File::from_image(
+                empty_image,
+                1,
+                &folder_bottom_name,
             ));
+            self.enable_disable_top_control(false);
             if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
                 imp.stack.set_visible_child_name("stack_welcome_page");
             }
@@ -853,6 +875,17 @@ impl GtkTestWindow {
         if let Err(e) = launcher.open_containing_folder_future(win.as_ref()).await {
             error!("Could not open directory {}", e);
         };
+    }
+
+    pub fn enable_disable_top_control(&self, enable: bool) {
+        let imp = self.imp();
+        imp.x_scale.set_sensitive(enable);
+        imp.y_scale.set_sensitive(enable);
+        imp.scale_row.set_sensitive(enable);
+        imp.threshold_scale.set_sensitive(enable);
+        imp.monochrome_color.set_sensitive(enable);
+        imp.monochrome_invert.set_sensitive(enable);
+        imp.monochrome_switch.set_sensitive(enable);
     }
 
     pub fn dynamic_image_to_texture(&self, dynamic_image: &DynamicImage) -> gdk::Texture {

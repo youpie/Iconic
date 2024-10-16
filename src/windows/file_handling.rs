@@ -5,7 +5,6 @@ use gio::*;
 use gtk::glib;
 use image::*;
 use log::*;
-use std::borrow::Borrow;
 use std::env;
 use std::error::Error;
 use std::path::PathBuf;
@@ -57,7 +56,6 @@ impl GtkTestWindow {
                                 .lock()
                                 .unwrap()
                                 .replace(File::from_image(image.clone(), thumbnail_size, "pasted"));
-                            self.create_single_layer_icon();
                         }
                     }
                     self.check_icon_update();
@@ -156,17 +154,13 @@ impl GtkTestWindow {
                     ),
                     Some(false) => {
                         imp.stack.set_visible_child_name("stack_main_page");
-                        let image_file = self.new_iconic_file_creation(
+                        self.new_iconic_file_creation(
                             Some(file),
                             None,
                             svg_render_size,
                             thumbnail_size,
                             false,
-                        );
-                        if image_file.is_some() {
-                            self.create_single_layer_icon();
-                        }
-                        image_file
+                        )
                     }
                     _ => self.new_iconic_file_creation(
                         Some(file),
@@ -312,29 +306,6 @@ impl GtkTestWindow {
                     .add_toast(adw::Toast::new(&gettext("Nothing selected")));
             }
         };
-    }
-
-    // If only the bottom layer has an image and the user tries to export, the program crashes. And this is not good!!
-    pub fn create_single_layer_icon(&self) {
-        let imp = self.imp();
-        let generated_image = imp.generated_image.clone();
-        let folder_bottom_name = imp
-            .bottom_image_file
-            .lock()
-            .unwrap()
-            .clone()
-            .unwrap()
-            .filename;
-        if !generated_image.borrow().is_some() {
-            debug!("Loaded temporary image for render");
-            let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
-            imp.top_image_file.lock().unwrap().replace(File::from_image(
-                empty_image,
-                1,
-                &folder_bottom_name,
-            ));
-            imp.image_saved.replace(false);
-        }
     }
 
     pub fn load_folder_icon(&self, path: &str) {

@@ -180,7 +180,9 @@ impl PreferencesDialog {
 
     fn set_path_title(&self) {
         let current_path = &self.imp().settings.string("folder-svg-path");
-        self.imp().current_botton.set_property("title", current_path);
+        self.imp()
+            .current_botton
+            .set_property("title", current_path);
     }
 
     fn select_path_filechooser(&self) {
@@ -288,9 +290,11 @@ impl PreferencesDialog {
         debug!("Radio button changed: button 1 is {}", radio_button);
         match radio_button {
             true => {
+                debug!("set default to top");
                 let _ = imp.settings.set("default-dnd-action", "top");
             }
             false => {
+                debug!("set default to bottom");
                 let _ = imp.settings.set("default-dnd-action", "bottom");
             }
         }

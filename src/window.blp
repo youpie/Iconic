@@ -35,7 +35,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
             child:
             Box {
               orientation: vertical;
-              spacing: 12;
+              spacing: 20;
 
               Button open_top_icon {
                 valign: center;
@@ -45,6 +45,16 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                 action-name: "app.open_top_icon";
                 styles [
                   "suggested-action",
+                  "pill",
+                ]
+              }
+              Button open_bottom_icon {
+                valign: center;
+                halign: center;
+                label: _("_Open Bottom Layer");
+                use-underline: true;
+                action-name: "app.open_bottom_icon";
+                styles [
                   "pill",
                 ]
               }
@@ -241,7 +251,7 @@ template $GtkTestWindow : Adw.ApplicationWindow {
             width-request: 32;
           }
           Label {
-            label: "Saving...";
+            label: _("Saving...");
             margin-bottom: 40;
             styles [
               "subtitle",
