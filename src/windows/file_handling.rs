@@ -5,6 +5,7 @@ use gio::*;
 use gtk::glib;
 use image::*;
 use log::*;
+use std::borrow::Borrow;
 use std::env;
 use std::error::Error;
 use std::path::PathBuf;
@@ -45,17 +46,18 @@ impl GtkTestWindow {
                             .unwrap();
                     match top_file_selected {
                         Some(true) => {
-                            imp.top_image_file
-                                .lock()
-                                .unwrap()
-                                .replace(File::from_image(image, thumbnail_size));
+                            imp.top_image_file.lock().unwrap().replace(File::from_image(
+                                image,
+                                thumbnail_size,
+                                "pasted",
+                            ));
                         }
                         _ => {
-                            imp.folder_image_file
+                            imp.bottom_image_file
                                 .lock()
                                 .unwrap()
-                                .replace(File::from_image(image.clone(), thumbnail_size));
-                            self.create_single_layer_icon(image);
+                                .replace(File::from_image(image.clone(), thumbnail_size, "pasted"));
+                            self.create_single_layer_icon();
                         }
                     }
                     self.check_icon_update();
@@ -162,9 +164,7 @@ impl GtkTestWindow {
                             false,
                         );
                         if image_file.is_some() {
-                            self.create_single_layer_icon(
-                                image_file.clone().unwrap().dynamic_image,
-                            );
+                            self.create_single_layer_icon();
                         }
                         image_file
                     }
@@ -194,7 +194,7 @@ impl GtkTestWindow {
         };
         let file_name = format!(
             "folder-{}.png",
-            imp.top_image_file.lock()?.as_ref().unwrap().name
+            imp.top_image_file.lock()?.as_ref().unwrap().filename
         );
         let file_chooser = gtk::FileDialog::builder()
             .initial_name(file_name)
@@ -241,7 +241,7 @@ impl GtkTestWindow {
             .expect("Could not get file")
             .replace(file.clone());
         let base_image = imp
-            .folder_image_file
+            .bottom_image_file
             .lock()?
             .as_ref()
             .unwrap()
@@ -302,7 +302,6 @@ impl GtkTestWindow {
         let imp = self.imp();
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let size: i32 = imp.settings.get("svg-render-size");
-        debug!("Loaded temporary image");
         match self.open_file_chooser_gtk().await {
             Some(x) => {
                 imp.stack.set_visible_child_name("stack_main_page");
@@ -316,12 +315,25 @@ impl GtkTestWindow {
     }
 
     // If only the bottom layer has an image and the user tries to export, the program crashes. And this is not good!!
-    pub fn create_single_layer_icon(&self, image: DynamicImage) {
+    pub fn create_single_layer_icon(&self) {
         let imp = self.imp();
-        let generated_image = imp.generated_image.borrow();
-        if !generated_image.as_ref().is_some() {
-            debug!("Loaded temporary image");
-            imp.generated_image.replace(Some(image));
+        let generated_image = imp.generated_image.clone();
+        let folder_bottom_name = imp
+            .bottom_image_file
+            .lock()
+            .unwrap()
+            .clone()
+            .unwrap()
+            .filename;
+        if !generated_image.borrow().is_some() {
+            debug!("Loaded temporary image for render");
+            let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
+            imp.top_image_file.lock().unwrap().replace(File::from_image(
+                empty_image,
+                1,
+                &folder_bottom_name,
+            ));
+            imp.image_saved.replace(false);
         }
     }
 
@@ -347,7 +359,8 @@ impl GtkTestWindow {
         self.new_iconic_file_creation(Some(filename), None, svg_render_size, size, true);
     }
 
-    // Creates a new folder_icon::File from a gio::file or path
+    // Creates a new folder_icon::File from a gio::file, path or dynamicimage.
+    // Will show an error if none are provided
     pub fn new_iconic_file_creation(
         &self,
         file: Option<gio::File>,
@@ -385,7 +398,7 @@ impl GtkTestWindow {
             Some(file) => {
                 match change_top_icon {
                     true => imp.top_image_file.lock().unwrap().replace(file),
-                    false => imp.folder_image_file.lock().unwrap().replace(file),
+                    false => imp.bottom_image_file.lock().unwrap().replace(file),
                 };
                 self.check_icon_update();
             }

@@ -86,7 +86,7 @@ mod imp {
         #[template_child]
         pub image_preferences: TemplateChild<adw::Clamp>,
 
-        pub folder_image_file: Arc<Mutex<Option<File>>>,
+        pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: gdk::RGBA,
         pub top_image_file: Arc<Mutex<Option<File>>>,
         pub saved_file: Arc<Mutex<Option<gio::File>>>,
@@ -116,7 +116,7 @@ mod imp {
                 scale_row: TemplateChild::default(),
                 monochrome_switch: TemplateChild::default(),
                 image_preferences: TemplateChild::default(),
-                folder_image_file: Arc::new(Mutex::new(None)),
+                bottom_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),
                 image_saved: RefCell::new(true),
@@ -367,7 +367,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
         let generated_image = imp.generated_image.borrow().clone().unwrap();
-        let file_name = imp.top_image_file.lock().unwrap().clone().unwrap().name;
+        let file_name = imp.top_image_file.lock().unwrap().clone().unwrap().filename;
         let icon = self.dynamic_image_to_texture(&generated_image.resize(
             64,
             64,
@@ -793,7 +793,7 @@ impl GtkTestWindow {
     pub fn check_icon_update(&self) {
         let imp = self.imp();
         if imp.top_image_file.lock().unwrap().as_ref() != None
-            && imp.folder_image_file.lock().unwrap().as_ref() != None
+            && imp.bottom_image_file.lock().unwrap().as_ref() != None
         {
             self.imp().save_button.set_sensitive(true);
             self.imp().image_saved.replace(false);
@@ -805,10 +805,10 @@ impl GtkTestWindow {
                 }
             ));
             imp.stack.set_visible_child_name("stack_main_page");
-        } else if imp.folder_image_file.lock().unwrap().as_ref() != None {
+        } else if imp.bottom_image_file.lock().unwrap().as_ref() != None {
             imp.image_view.set_paintable(Some(
                 &self.dynamic_image_to_texture(
-                    &imp.folder_image_file
+                    &imp.bottom_image_file
                         .lock()
                         .unwrap()
                         .as_ref()
