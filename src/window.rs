@@ -23,18 +23,18 @@ use crate::objects::file::File;
 use adw::prelude::{AlertDialogExt, AlertDialogExtManual};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
+use gio::Cancellable;
 use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
 use image::*;
 use log::*;
+use rand::prelude::*;
 use std::cell::RefCell;
 use std::env;
 use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use rand::prelude::*;
-use gio::Cancellable;
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
@@ -252,7 +252,8 @@ mod imp {
                 }
             ));
 
-            let drop_target_2 = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+            let drop_target_2 =
+                gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
             drop_target_2.connect_drop(clone!(
                 #[strong]
                 obj,
@@ -362,15 +363,16 @@ impl GtkTestWindow {
         win
     }
 
-    pub fn drag_connect_prepare(
-        &self,
-        source: &gtk::DragSource,
-    ) -> Option<gdk::ContentProvider> {
+    pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
         let imp = self.imp();
         //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
         let generated_image = imp.generated_image.borrow().clone().unwrap();
         let file_name = imp.top_image_file.lock().unwrap().clone().unwrap().name;
-        let icon = self.dynamic_image_to_texture(&generated_image.resize(64, 64, imageops::FilterType::Nearest));
+        let icon = self.dynamic_image_to_texture(&generated_image.resize(
+            64,
+            64,
+            imageops::FilterType::Nearest,
+        ));
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
         let gio_file = self.create_drag_file(&file_name);
         imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
@@ -382,10 +384,12 @@ impl GtkTestWindow {
                 win.save_file(gio_file_clone).await.unwrap();
             }
         ));
-        Some(gdk::ContentProvider::for_value(&glib::Value::from(&gio_file)))
+        Some(gdk::ContentProvider::for_value(&glib::Value::from(
+            &gio_file,
+        )))
     }
 
-    pub fn create_drag_file(&self, file_name: &str) -> gio::File{
+    pub fn create_drag_file(&self, file_name: &str) -> gio::File {
         let imp = self.imp();
         let data_path = match env::var("XDG_DATA_HOME") {
             Ok(value) => PathBuf::from(value),
@@ -399,11 +403,11 @@ impl GtkTestWindow {
                 config_dir
             }
         };
-        debug!("data path: {:?}",data_path);
+        debug!("data path: {:?}", data_path);
         let random_number = random::<u64>();
         let properties_string = self.create_image_properties_string();
-        let generated_file_name = format!("folder-{}-{}.png",properties_string,file_name);
-        debug!("generated_file_name: {}",generated_file_name);
+        let generated_file_name = format!("folder-{}-{}.png", properties_string, file_name);
+        debug!("generated_file_name: {}", generated_file_name);
         let mut file_path = data_path.clone();
         file_path.push(generated_file_name.clone());
         debug!("generated file path: {:?}", file_path);
@@ -431,18 +435,34 @@ impl GtkTestWindow {
         let monochrome_slider = imp.threshold_scale.value();
         let monochrome_color_val = imp.monochrome_color.rgba().to_string();
         let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
-        let combined_string = format!("{}-{}-{}-{}-{}-{}-{}",x_scale_val,y_scale_val,zoom_val,is_monochrome,monochrome_slider,monochrome_color_val,monochrome_inverted);
-        debug!("{}",&combined_string);
+        let combined_string = format!(
+            "{}-{}-{}-{}-{}-{}-{}",
+            x_scale_val,
+            y_scale_val,
+            zoom_val,
+            is_monochrome,
+            monochrome_slider,
+            monochrome_color_val,
+            monochrome_inverted
+        );
+        debug!("{}", &combined_string);
         combined_string
     }
 
-    fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool{
+    fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool {
         let imp = self.imp();
         let gio_file = imp.last_dnd_generated_name.borrow().clone().unwrap();
-        info!("Drag operation cancelled, removing file. Reason: {:?}",reason);
+        info!(
+            "Drag operation cancelled, removing file. Reason: {:?}",
+            reason
+        );
         match gio_file.delete(None::<&Cancellable>) {
-            Ok(_) => {debug!("Deletion succesfull!");},
-            Err(e) => {warn!("Could not delete drag file, error: {:?}",e);}
+            Ok(_) => {
+                debug!("Deletion succesfull!");
+            }
+            Err(e) => {
+                warn!("Could not delete drag file, error: {:?}", e);
+            }
         };
         false
     }

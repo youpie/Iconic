@@ -54,18 +54,21 @@ impl GtkTestWindow {
                             imp.folder_image_file
                                 .lock()
                                 .unwrap()
-                                .replace(File::from_image(image, thumbnail_size));
+                                .replace(File::from_image(image.clone(), thumbnail_size));
+                            self.create_single_layer_icon(image);
                         }
                     }
                     self.check_icon_update();
                 }
                 Ok(None) => {
                     warn!("No texture found");
-                    imp.toast_overlay.add_toast(adw::Toast::new(&gettext("No texture found")));
+                    imp.toast_overlay
+                        .add_toast(adw::Toast::new(&gettext("No texture found")));
                 }
                 Err(err) => {
                     error!("Failed to paste texture {err}");
-                    imp.toast_overlay.add_toast(adw::Toast::new(&gettext("No texture found")));
+                    imp.toast_overlay
+                        .add_toast(adw::Toast::new(&gettext("No texture found")));
                 }
             }, // no svg in clipboard
         };
@@ -75,7 +78,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         let top_file = match self.top_or_bottom_popup().await {
             Some(true) => true,
-            _ => false
+            _ => false,
         };
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
@@ -151,13 +154,19 @@ impl GtkTestWindow {
                     ),
                     Some(false) => {
                         imp.stack.set_visible_child_name("stack_main_page");
-                        self.new_iconic_file_creation(
+                        let image_file = self.new_iconic_file_creation(
                             Some(file),
                             None,
                             svg_render_size,
                             thumbnail_size,
                             false,
-                        )
+                        );
+                        if image_file.is_some() {
+                            self.create_single_layer_icon(
+                                image_file.clone().unwrap().dynamic_image,
+                            );
+                        }
+                        image_file
                     }
                     _ => self.new_iconic_file_creation(
                         Some(file),
@@ -192,7 +201,7 @@ impl GtkTestWindow {
             .modal(true)
             .build();
         self.imp().stack.set_visible_child_name("stack_saving_page");
-        match file_chooser.save_future(Some(self)).await{
+        match file_chooser.save_future(Some(self)).await {
             Ok(file) => {
                 let saved_file = self.save_file(file).await?;
                 self.imp().stack.set_visible_child_name("stack_main_page");
@@ -204,7 +213,7 @@ impl GtkTestWindow {
                         .build(),
                 );
                 saved_file
-            },
+            }
             Err(e) => {
                 self.imp().stack.set_visible_child_name("stack_main_page");
                 match e.message() {
@@ -218,7 +227,6 @@ impl GtkTestWindow {
                         imp.save_button.set_sensitive(true);
                         return Err(Box::new(e));
                     }
-
                 };
             }
         };
@@ -294,17 +302,27 @@ impl GtkTestWindow {
         let imp = self.imp();
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let size: i32 = imp.settings.get("svg-render-size");
-
+        debug!("Loaded temporary image");
         match self.open_file_chooser_gtk().await {
             Some(x) => {
                 imp.stack.set_visible_child_name("stack_main_page");
-                self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
+                self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false);
             }
             None => {
                 imp.toast_overlay
                     .add_toast(adw::Toast::new(&gettext("Nothing selected")));
             }
         };
+    }
+
+    // If only the bottom layer has an image and the user tries to export, the program crashes. And this is not good!!
+    pub fn create_single_layer_icon(&self, image: DynamicImage) {
+        let imp = self.imp();
+        let generated_image = imp.generated_image.borrow();
+        if !generated_image.as_ref().is_some() {
+            debug!("Loaded temporary image");
+            imp.generated_image.replace(Some(image));
+        }
     }
 
     pub fn load_folder_icon(&self, path: &str) {
@@ -337,7 +355,7 @@ impl GtkTestWindow {
         svg_render_size: i32,
         thumbnail_render_size: i32,
         change_top_icon: bool,
-    ) {
+    ) -> Option<File> {
         let imp = self.imp();
         let new_file = if let Some(file_temp) = file {
             match File::new(file_temp, svg_render_size, thumbnail_render_size) {
@@ -363,7 +381,7 @@ impl GtkTestWindow {
             );
             None
         };
-        match new_file {
+        match new_file.clone() {
             Some(file) => {
                 match change_top_icon {
                     true => imp.top_image_file.lock().unwrap().replace(file),
@@ -375,5 +393,6 @@ impl GtkTestWindow {
                 self.check_icon_update();
             }
         }
+        new_file
     }
 }
