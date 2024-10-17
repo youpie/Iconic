@@ -290,11 +290,9 @@ impl PreferencesDialog {
         debug!("Radio button changed: button 1 is {}", radio_button);
         match radio_button {
             true => {
-                debug!("set default to top");
                 let _ = imp.settings.set("default-dnd-action", "top");
             }
             false => {
-                debug!("set default to bottom");
                 let _ = imp.settings.set("default-dnd-action", "bottom");
             }
         }
