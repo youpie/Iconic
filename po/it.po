@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
 "POT-Creation-Date: 2024-08-18 18:10+0200\n"
-"PO-Revision-Date: 2024-08-18 18:11+0200\n"
+"PO-Revision-Date: 2024-10-16 17:11+0200\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <LL@li.org>\n"
 "Language: it\n"
@@ -61,85 +61,89 @@ msgid ""
 "lot of improvements under the hood, this means the app will now crash way "
 "less often without any warning. Some changes include:"
 msgstr ""
+"Un nuovo aggiornamento di Iconic è qui! Non aggiunge molte funzionalità, ma presenta "
+"molti miglioramenti sotto il cofano, il che significa che ora l'app si bloccherà molto "
+"meno spesso senza alcun preavviso. Alcune modifiche includono:"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:32
 msgid "Added ability to drag icon out of iconic directly"
-msgstr ""
+msgstr "Aggiunta la possibilità di trascinare l'icona fuori dall'iconic direttamente"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:33
 msgid "Added error handling on opening files"
-msgstr ""
+msgstr "Aggiunta la gestione degli errori all'apertura dei file"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:34
 msgid "Added error handling on saving files"
-msgstr ""
+msgstr "Aggiunta gestione degli errori durante il salvataggio dei file"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:35
 msgid "Added donation link"
-msgstr ""
+msgstr "Aggiunto link per donazioni"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:36
 msgid "Added pop-up when dragging in files"
-msgstr ""
+msgstr "Aggiunto pop-up durante il trascinamento dei file"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:37
 msgid "Updated Dutch translations"
-msgstr ""
+msgstr "Traduzione olandese aggiornate"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:39
 msgid "Please report any bugs you see! Many thanks"
-msgstr ""
+msgstr "Segnalateci tutti i bug che vedete! Grazie mille"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:44
 msgid ""
 "This is a new major release of Iconic. Featuring many bug fixes and added "
 "features. Some notable ones are:"
 msgstr ""
+"Questa è una nuova versione importante di Iconic. Con molte correzioni di bug e "
+"funzionalità aggiunte. Alcune degne di nota sono:"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:46
 msgid "Drag and drop support"
-msgstr ""
+msgstr "Supporto drag and drop"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:47
 msgid "Copy-paste support"
-msgstr ""
+msgstr "Supporto copia-incolla"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:48
 msgid "Better file type detection"
-msgstr ""
+msgstr "Migliore rilevamento del tipo di file"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:49
 msgid "Updated dutch translations"
-msgstr ""
+msgstr "Traduzione olandese aggiornata"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:50
 msgid "Added Hindi translations"
-msgstr ""
+msgstr "Aggiunte traduzioni in hindi"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:51
 msgid "Fixed spelling mistakes"
-msgstr ""
+msgstr "Errori di ortografia corretti"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:52
 msgid "Fixed issues with black pixels not converting to monochrome"
-msgstr ""
+msgstr "Risolti i problemi con i pixel neri che non venivano convertiti in monocromatico"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:58
 msgid "Another small update with a few additions and changes"
-msgstr ""
+msgstr "Un altro piccolo aggiornamento con alcune aggiunte e modifiche"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:60
-#, fuzzy
 msgid "You can now open containing folder after saving image"
-msgstr "Ora puoi aprire temporaneamente una nuova immagine di cartella"
+msgstr "Ora puoi aprire la cartella contenente l'immagine dopo averla salvata"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:61
 msgid "Added italian translation"
-msgstr ""
+msgstr "Aggiunta traduzione italiana"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:62
 msgid "Updated Dutch translation"
-msgstr ""
+msgstr "Aggiornato traduzione olandese"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:68
 msgid "This version adds a few small features and fixes some bugs"
@@ -151,7 +155,6 @@ msgid "The app now shows some errors as pop-ups"
 msgstr "L'app ora mostra alcuni errori come popup"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:71
-#, fuzzy
 #| msgid "You can now temporarilly open a new folder image"
 msgid "You can now temporarily open a new folder image"
 msgstr "Ora puoi aprire temporaneamente una nuova immagine di cartella"
@@ -180,7 +183,7 @@ msgstr "icona cartella"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:100
 msgid "svg"
-msgstr ""
+msgstr "svg"
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:101
 msgid "png"
@@ -241,30 +244,30 @@ msgid "Customise"
 msgstr "Personalizza"
 
 #: src/settings/settings.blp:29
-#, fuzzy
 #| msgid "Currently set folder icon, click to reset to default"
 msgid "Currently set bottom icon, click to reset to default"
 msgstr ""
-"Icona della cartella attualmente impostata, fare clic per ripristinare le "
-"impostazioni predefinite"
+"Icona in basso attualmente impostata, fare clic per ripristinare l'impostazione predefinita"
 
 #: src/settings/settings.blp:36
 msgid "Default drag-and-drop action"
-msgstr ""
+msgstr "Azione predefinita di trascinamento della selezione"
 
 #: src/settings/settings.blp:37
 msgid ""
 "By default, after dragging and dropping a file, you have to select a layer "
 "to paste it to. Here you can disable that pop-up"
 msgstr ""
+"Di default, dopo aver trascinato e rilasciato un file, devi selezionare un livello "
+"su cui incollarlo. Qui puoi disattivare quel pop-up"
 
 #: src/settings/settings.blp:45
 msgid "Always select top layer"
-msgstr ""
+msgstr "Seleziona sempre lo strato superiore"
 
 #: src/settings/settings.blp:53
 msgid "Always select bottom layer"
-msgstr ""
+msgstr "Seleziona sempre lo strato inferiore"
 
 #: src/settings/settings.blp:63
 msgid "Advanced"
@@ -308,7 +311,6 @@ msgid "Folder Icon Creator"
 msgstr "Creatore di icone di cartelle"
 
 #: src/window.blp:32
-#, fuzzy
 msgid "Click or Drag to Open Image"
 msgstr "Fare clic o trascinare per aprire l'immagine"
 
@@ -318,36 +320,35 @@ msgstr "_Apri immagine"
 
 #: src/window.blp:167
 msgid "Toggle Monochrome"
-msgstr ""
+msgstr "Attiva monocromatico"
 
 #: src/window.blp:175
 msgid "Invert"
-msgstr ""
+msgstr "Inverti"
 
 #: src/window.blp:178
 msgid "Color"
-msgstr ""
+msgstr "Colore"
 
 #: src/window.blp:205
 msgid "Threshold"
-msgstr ""
+msgstr "Soglia"
 
 #: src/window.blp:277
 msgid "_Paste Top Icon from Clipboard"
-msgstr ""
+msgstr "_Incolla l'icona in alto dagli appunti"
 
 #: src/window.blp:281
 msgid "_Open Top Icon"
 msgstr "_Apri l'icona in alto"
 
 #: src/window.blp:286
-#, fuzzy
 msgid "_Open Bottom Icon"
-msgstr "_Apri l'icona in fondo"
+msgstr "_Apri icona in basso"
 
 #: src/window.blp:292
 msgid "_Reset Bottom Icon"
-msgstr ""
+msgstr "_Reimposta icona in basso"
 
 #: src/window.blp:298
 msgid "_Preferences"
@@ -359,12 +360,11 @@ msgstr "_Scorciatoie da tastiera"
 
 #: src/window.blp:308
 msgid "_Donate ❤️"
-msgstr ""
+msgstr "_Donazione ❤️"
 
 #: src/window.blp:313
-#, fuzzy
 msgid "_About Iconic"
-msgstr "Di Iconic"
+msgstr "Informazioni su Iconic"
 
 #: src/settings/settings.rs:202 src/window.rs:791
 msgid "Open Document"
@@ -386,23 +386,23 @@ msgstr "Ok"
 
 #: src/window.rs:698
 msgid "Do you want to load this image to the top or bottom layer?"
-msgstr ""
+msgstr "Vuoi caricare questa immagine sul livello superiore o inferiore?"
 
 #: src/window.rs:699
 msgid "Hint: You can disable this pop-up in the settings"
-msgstr ""
+msgstr "Suggerimento: puoi disattivare questo pop-up nelle impostazioni"
 
 #: src/window.rs:701
 msgid "Select layer"
-msgstr ""
+msgstr "Seleziona livello"
 
 #: src/window.rs:706
 msgid "Top"
-msgstr ""
+msgstr "Alto"
 
 #: src/window.rs:707
 msgid "Bottom"
-msgstr ""
+msgstr "Basso"
 
 #: src/window.rs:722
 msgid "Save Changes?"
@@ -431,38 +431,36 @@ msgstr "Salva"
 #. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
 #: src/application.rs:183
 msgid "translator-credits"
-msgstr ""
+msgstr "Albano Battistella"
 
 #: src/windows/file_handling.rs:64 src/windows/file_handling.rs:68
 msgid "No texture found"
-msgstr ""
+msgstr "Nessuna texture trovata"
 
 #: src/windows/file_handling.rs:172
 msgid "Unsupported file type"
-msgstr ""
+msgstr "Tipo di file non supportato"
 
 #: src/windows/file_handling.rs:201
-#, fuzzy
 #| msgid "_Open Folder Icon"
 msgid "Open Folder"
-msgstr "_Apri icona della cartella"
+msgstr "Apri cartella"
 
 #: src/windows/file_handling.rs:203
 msgid "File Saved"
-msgstr ""
+msgstr "File salvato"
 
 #: src/windows/file_handling.rs:272
-#, fuzzy
 msgid "Icon reset"
-msgstr "Ripristina icona"
+msgstr "Reimpostazione dell'icona"
 
 #: src/windows/file_handling.rs:284 src/windows/file_handling.rs:302
 msgid "Nothing selected"
-msgstr ""
+msgstr "Niente di selezionato"
 
 #: src/windows/file_handling.rs:358
 msgid "No file or path found, this is probably not your fault."
-msgstr ""
+msgstr "Nessun file o percorso trovato, probabilmente non è colpa tua."
 
 #~ msgid "_Open Folder Icon"
 #~ msgstr "_Apri icona della cartella"
