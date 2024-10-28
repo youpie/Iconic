@@ -4,6 +4,7 @@ use crate::Results;
 use adw::prelude::AdwDialogExt;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::ComboRowExt;
+use adw::prelude::ExpanderRowExt;
 use adw::subclass::prelude::AdwDialogImpl;
 use gettextrs::*;
 use gtk::glib;
@@ -33,13 +34,17 @@ mod imp {
         #[template_child]
         pub dnd_switch: TemplateChild<gtk::Switch>,
         #[template_child]
-        pub radio_button_1: TemplateChild<gtk::CheckButton>,
+        pub radio_button_top: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub radio_button_bottom: TemplateChild<gtk::CheckButton>,
         #[template_child]
         pub thumbnail_image_size: TemplateChild<adw::SpinRow>,
         #[template_child]
         pub select_bottom_color: TemplateChild<adw::ComboRow>,
         #[template_child]
         pub use_builtin_icons_button: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub use_external_icon_button: TemplateChild<gtk::CheckButton>,
         #[template_child]
         pub use_external_icon_expander: TemplateChild<adw::ExpanderRow>,
         #[template_child]
@@ -59,7 +64,8 @@ mod imp {
             Self {
                 default_dnd: TemplateChild::default(),
                 dnd_switch: TemplateChild::default(),
-                radio_button_1: TemplateChild::default(),
+                radio_button_top: TemplateChild::default(),
+                radio_button_bottom: TemplateChild::default(),
                 current_botton: TemplateChild::default(),
                 svg_image_size: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
@@ -67,6 +73,7 @@ mod imp {
                 thumbnail_image_size: TemplateChild::default(),
                 select_bottom_color: TemplateChild::default(),
                 use_builtin_icons_button: TemplateChild::default(),
+                use_external_icon_button: TemplateChild::default(),
                 use_external_icon_expander: TemplateChild::default(),
                 use_builtin_icons_expander: TemplateChild::default(),
                 use_system_color: TemplateChild::default(),
@@ -143,30 +150,20 @@ impl PreferencesDialog {
         win.imp()
             .dnd_switch
             .set_active(win.imp().settings.boolean("default-dnd-activated"));
+        if imp.settings.string("selected-accent-color") == "None" {
+            imp.use_system_color.set_active(true);
+        }
+        if imp.settings.boolean("manual-bottom-image-selection") {
+            imp.use_external_icon_button.set_active(true);
+        }
+        if imp.settings.string("default-dnd-action") == "bottom" {
+            imp.radio_button_bottom.set_active(true);
+        }
+        imp.select_bottom_color
+            .set_selected(imp.settings.int("selected-accent-color-index") as u32);
         win.dnd_row_expand();
         win.set_path_title();
         win.bottom_image_expander();
-        debug!("{}", imp.settings.string("selected-accent-color"));
-        if imp
-            .settings
-            .string("selected-accent-color")
-            .split(' ')
-            .nth(0)
-            .unwrap()
-            == "None"
-        {
-            imp.use_system_color.set_active(true);
-        }
-        imp.select_bottom_color.set_selected(
-            imp.settings
-                .string("selected-accent-color")
-                .split(' ')
-                .last()
-                .unwrap()
-                .parse()
-                .unwrap(),
-        );
-
         win.disable_color_dropdown();
         win
     }
@@ -210,7 +207,7 @@ impl PreferencesDialog {
             }
         ));
 
-        imp.radio_button_1.connect_toggled(clone!(
+        imp.radio_button_top.connect_toggled(clone!(
             #[weak (rename_to = this)]
             self,
             move |_| {
@@ -232,11 +229,7 @@ impl PreferencesDialog {
         match switch_state {
             true => {
                 imp.select_bottom_color.set_sensitive(false);
-                let current_value = imp.settings.string("selected-accent-color");
-                let current_index = current_value.split(' ').last().unwrap();
-                let _ = imp
-                    .settings
-                    .set("selected-accent-color", format!("None {}", current_index));
+                let _ = imp.settings.set("selected-accent-color", "None");
             }
             false => {
                 imp.select_bottom_color.set_sensitive(true);
@@ -253,10 +246,10 @@ impl PreferencesDialog {
         let selected_index = imp.select_bottom_color.selected() as usize;
         let selected_color = color_vec[selected_index];
         debug!("Selected accent color: {selected_color}");
-        let _ = imp.settings.set(
-            "selected-accent-color",
-            format!("{} {}", selected_color, selected_index),
-        );
+        let _ = imp.settings.set("selected-accent-color", selected_color);
+        let _ = imp
+            .settings
+            .set("selected-accent-color-index", selected_index as i32);
     }
 
     fn reset_location_fn(&self) {
@@ -380,6 +373,9 @@ impl PreferencesDialog {
     fn bottom_image_expander(&self) {
         let imp = self.imp();
         let button_1_active = imp.use_builtin_icons_button.is_active();
+        let _ = imp
+            .settings
+            .set("manual-bottom-image-selection", !button_1_active);
         match button_1_active {
             true => {
                 self.imp()
@@ -388,6 +384,7 @@ impl PreferencesDialog {
                 self.imp()
                     .use_external_icon_expander
                     .set_property("enable_expansion", false);
+                imp.use_builtin_icons_expander.set_expanded(true);
             }
             false => {
                 self.imp()
@@ -396,13 +393,14 @@ impl PreferencesDialog {
                 self.imp()
                     .use_external_icon_expander
                     .set_property("enable_expansion", true);
+                imp.use_external_icon_expander.set_expanded(true);
             }
         };
     }
 
     pub fn dnd_radio_state(&self) {
         let imp = self.imp();
-        let radio_button = imp.radio_button_1.is_active();
+        let radio_button = imp.radio_button_top.is_active();
         debug!("Radio button changed: button 1 is {}", radio_button);
         match radio_button {
             true => {

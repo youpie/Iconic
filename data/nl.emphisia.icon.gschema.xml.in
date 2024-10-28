@@ -26,8 +26,16 @@
       <summary>Whether or not the default drag-and-drop action is activated</summary>
     </key>
     <key name="selected-accent-color" type="s">
-      <default>'None 0'</default>
-      <summary>The accent color the user has selected, string is empty is automatic change is selected</summary>
+      <default>'None'</default>
+      <summary>The accent color the user has selected in words, string is "None" if automatic change is selected</summary>
+    </key>
+    <key name="selected-accent-color-index" type="i">
+      <default>0</default>
+      <summary>The accent color the user has selected as index for row</summary>
+    </key>
+    <key name="manual-bottom-image-selection" type="b">
+      <default>false</default>
+      <summary>If true, the user has set a custom image for the bottom</summary>
     </key>
 	</schema>
 </schemalist>
