@@ -8,7 +8,7 @@ impl GtkTestWindow {
     pub async fn render_to_screen(&self) {
         let imp = self.imp();
         let base = imp
-            .folder_image_file
+            .bottom_image_file
             .lock()
             .unwrap()
             .as_ref()

@@ -17,11 +17,34 @@ impl GtkTestWindow {
             #[weak(rename_to = win)]
             self,
             async move {
-                let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
-                let path = win.check_chache_icon(cache_file_name).await;
+                let imp = win.imp();
+                let path;
+                if imp.settings.boolean("manual-bottom-image-selection") {
+                    let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
+                    path = win.check_chache_icon(cache_file_name).await;
+                } else {
+                    path = win.load_built_in_bottom_icon().await;
+                    if !imp.reset_color.is_visible() {
+                        win.reset_colors();
+                    }
+                }
                 win.load_folder_icon(&path.into_os_string().into_string().unwrap());
             }
         ));
+    }
+
+    pub async fn load_built_in_bottom_icon(&self) -> PathBuf {
+        let style_manager = adw::StyleManager::default();
+        let current_accent_color = self.get_accent_color_and_dialog();
+        let folder_color_name = match current_accent_color.as_str() {
+            "None" => format!("{:?}", style_manager.accent_color()),
+            x => x.to_string(),
+        };
+        let folder_path = PathBuf::from(format!(
+            "/app/share/folder_icon/folders/folder_{}.svg",
+            folder_color_name
+        ));
+        folder_path
     }
 
     pub async fn paste_from_clipboard(&self) {
@@ -45,27 +68,30 @@ impl GtkTestWindow {
                             .unwrap();
                     match top_file_selected {
                         Some(true) => {
-                            imp.top_image_file
-                                .lock()
-                                .unwrap()
-                                .replace(File::from_image(image, thumbnail_size));
+                            imp.top_image_file.lock().unwrap().replace(File::from_image(
+                                image,
+                                thumbnail_size,
+                                "pasted",
+                            ));
                         }
                         _ => {
-                            imp.folder_image_file
+                            imp.bottom_image_file
                                 .lock()
                                 .unwrap()
-                                .replace(File::from_image(image, thumbnail_size));
+                                .replace(File::from_image(image.clone(), thumbnail_size, "pasted"));
                         }
                     }
                     self.check_icon_update();
                 }
                 Ok(None) => {
                     warn!("No texture found");
-                    imp.toast_overlay.add_toast(adw::Toast::new(&gettext("No texture found")));
+                    imp.toast_overlay
+                        .add_toast(adw::Toast::new(&gettext("No texture found")));
                 }
                 Err(err) => {
                     error!("Failed to paste texture {err}");
-                    imp.toast_overlay.add_toast(adw::Toast::new(&gettext("No texture found")));
+                    imp.toast_overlay
+                        .add_toast(adw::Toast::new(&gettext("No texture found")));
                 }
             }, // no svg in clipboard
         };
@@ -75,7 +101,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         let top_file = match self.top_or_bottom_popup().await {
             Some(true) => true,
-            _ => false
+            _ => false,
         };
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
@@ -142,13 +168,15 @@ impl GtkTestWindow {
                 let top_file_selected = self.top_or_bottom_popup().await;
                 imp.stack.set_visible_child_name("stack_loading_page");
                 match top_file_selected {
-                    Some(true) => self.new_iconic_file_creation(
-                        Some(file),
-                        None,
-                        svg_render_size,
-                        thumbnail_size,
-                        true,
-                    ),
+                    Some(true) => {
+                        self.new_iconic_file_creation(
+                            Some(file),
+                            None,
+                            svg_render_size,
+                            thumbnail_size,
+                            true,
+                        );
+                    }
                     Some(false) => {
                         imp.stack.set_visible_child_name("stack_main_page");
                         self.new_iconic_file_creation(
@@ -157,15 +185,9 @@ impl GtkTestWindow {
                             svg_render_size,
                             thumbnail_size,
                             false,
-                        )
+                        );
                     }
-                    _ => self.new_iconic_file_creation(
-                        Some(file),
-                        None,
-                        svg_render_size,
-                        thumbnail_size,
-                        true,
-                    ),
+                    _ => (),
                 };
             }
             _ => {
@@ -185,14 +207,14 @@ impl GtkTestWindow {
         };
         let file_name = format!(
             "folder-{}.png",
-            imp.top_image_file.lock()?.as_ref().unwrap().name
+            imp.top_image_file.lock()?.as_ref().unwrap().filename
         );
         let file_chooser = gtk::FileDialog::builder()
             .initial_name(file_name)
             .modal(true)
             .build();
         self.imp().stack.set_visible_child_name("stack_saving_page");
-        match file_chooser.save_future(Some(self)).await{
+        match file_chooser.save_future(Some(self)).await {
             Ok(file) => {
                 let saved_file = self.save_file(file).await?;
                 self.imp().stack.set_visible_child_name("stack_main_page");
@@ -204,7 +226,7 @@ impl GtkTestWindow {
                         .build(),
                 );
                 saved_file
-            },
+            }
             Err(e) => {
                 self.imp().stack.set_visible_child_name("stack_main_page");
                 match e.message() {
@@ -218,7 +240,6 @@ impl GtkTestWindow {
                         imp.save_button.set_sensitive(true);
                         return Err(Box::new(e));
                     }
-
                 };
             }
         };
@@ -233,7 +254,7 @@ impl GtkTestWindow {
             .expect("Could not get file")
             .replace(file.clone());
         let base_image = imp
-            .folder_image_file
+            .bottom_image_file
             .lock()?
             .as_ref()
             .unwrap()
@@ -294,11 +315,10 @@ impl GtkTestWindow {
         let imp = self.imp();
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let size: i32 = imp.settings.get("svg-render-size");
-
         match self.open_file_chooser_gtk().await {
             Some(x) => {
                 imp.stack.set_visible_child_name("stack_main_page");
-                self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
+                self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false);
             }
             None => {
                 imp.toast_overlay
@@ -329,7 +349,8 @@ impl GtkTestWindow {
         self.new_iconic_file_creation(Some(filename), None, svg_render_size, size, true);
     }
 
-    // Creates a new folder_icon::File from a gio::file or path
+    // Creates a new folder_icon::File from a gio::file, path or dynamicimage.
+    // Will show an error if none are provided
     pub fn new_iconic_file_creation(
         &self,
         file: Option<gio::File>,
@@ -337,7 +358,7 @@ impl GtkTestWindow {
         svg_render_size: i32,
         thumbnail_render_size: i32,
         change_top_icon: bool,
-    ) {
+    ) -> Option<File> {
         let imp = self.imp();
         let new_file = if let Some(file_temp) = file {
             match File::new(file_temp, svg_render_size, thumbnail_render_size) {
@@ -363,11 +384,11 @@ impl GtkTestWindow {
             );
             None
         };
-        match new_file {
+        match new_file.clone() {
             Some(file) => {
                 match change_top_icon {
                     true => imp.top_image_file.lock().unwrap().replace(file),
-                    false => imp.folder_image_file.lock().unwrap().replace(file),
+                    false => imp.bottom_image_file.lock().unwrap().replace(file),
                 };
                 self.check_icon_update();
             }
@@ -375,5 +396,6 @@ impl GtkTestWindow {
                 self.check_icon_update();
             }
         }
+        new_file
     }
 }

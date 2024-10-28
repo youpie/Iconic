@@ -37,6 +37,8 @@ appdata_file = i18n.merge_file(
   install_dir: datadir / 'metainfo'
 )
 
+
+
 # GSchema
 gschema_conf = configuration_data()
 gschema_conf.set('app-id', application_id)
@@ -47,6 +49,8 @@ configure_file(
   install: true,
   install_dir: datadir / 'glib-2.0' / 'schemas'
 )
+
+
 
 appstreamcli = find_program('appstreamcli', required: false, disabler: true)
 test('Validate appstream file', appstreamcli,
@@ -60,3 +64,5 @@ compile_schemas = find_program('glib-compile-schemas', required: false, disabler
 test('Validate schema file',
      compile_schemas,
      args: ['--strict', '--dry-run', meson.current_source_dir()])
+
+install_subdir('folders', install_dir: get_option('datadir')/'folder_icon')

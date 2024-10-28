@@ -1,30 +1,30 @@
 {
-    "app-id" : "nl.emphisia.icon.Devel",
-    "runtime" : "org.gnome.Platform",
+    "app-id": "nl.emphisia.icon.Devel",
+    "runtime": "org.gnome.Platform",
     "runtime-version": "47",
-    "sdk" : "org.gnome.Sdk",
-    "sdk-extensions" : [
+    "sdk": "org.gnome.Sdk",
+    "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
-    "command" : "folder_icon",
-    "finish-args" : [
+    "command": "folder_icon",
+    "finish-args": [
         "--share=ipc",
         "--socket=fallback-x11",
         "--device=dri",
         "--env=RUST_LOG=folder_icon=debug",
         "--socket=wayland"
     ],
-    "build-options" : {
-        "append-path" : "/usr/lib/sdk/rust-stable/bin",
-        "build-args" : [
+    "build-options": {
+        "append-path": "/usr/lib/sdk/rust-stable/bin",
+        "build-args": [
             "--share=network"
         ],
-        "env" : {
-            "RUST_BACKTRACE" : "1",
-            "RUST_LOG" : "folder_icon=debug"
+        "env": {
+            "RUST_BACKTRACE": "1",
+            "RUST_LOG": "folder_icon=debug"
         }
     },
-    "cleanup" : [
+    "cleanup": [
         "/include",
         "/lib/pkgconfig",
         "/man",
@@ -35,30 +35,32 @@
         "*.la",
         "*.a"
     ],
-    "modules" : [
-    	{
+    "modules": [
+        {
             "name": "blueprint-compiler",
             "buildsystem": "meson",
-            "cleanup": ["*"],
+            "cleanup": [
+                "*"
+            ],
             "sources": [
                 {
-                "type": "git",
-                "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
-                "tag": "v0.12.0"
+                    "type": "git",
+                    "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
+                    "tag": "v0.12.0"
                 }
             ]
         },
         {
-            "name" : "folder_icon",
-            "builddir" : true,
-            "buildsystem" : "meson",
+            "name": "folder_icon",
+            "builddir": true,
+            "buildsystem": "meson",
             "config-opts": [
                 "-Dprofile=development"
             ],
-            "sources" : [
+            "sources": [
                 {
-                    "type" : "dir",
-                    "path" : "../"
+                    "type": "dir",
+                    "path": "../"
                 }
             ]
         }

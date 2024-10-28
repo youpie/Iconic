@@ -25,5 +25,29 @@
       <default>false</default>
       <summary>Whether or not the default drag-and-drop action is activated</summary>
     </key>
+    <key name="selected-accent-color" type="s">
+      <default>'None'</default>
+      <summary>The accent color the user has selected in words, string is "None" if automatic change is selected</summary>
+    </key>
+    <key name="selected-accent-color-index" type="i">
+      <default>0</default>
+      <summary>The accent color the user has selected as index for row</summary>
+    </key>
+    <key name="previous-system-accent-color" type="s">
+      <default>'Blue'</default>
+      <summary>This is the accent color of the system, the last time it was checked</summary>
+    </key>
+    <key name="manual-bottom-image-selection" type="b">
+      <default>false</default>
+      <summary>If true, the user has set a custom image for the bottom</summary>
+    </key>
+    <key name="accent-color-popup-shown" type="b">
+      <default>false</default>
+      <summary>If true, the pop-up informing the user that the folder color has been adjusted automatically has already been shown</summary>
+    </key>
+    <key name="drag-and-drop-popup-shown" type="b">
+      <default>false</default>
+      <summary>If true, the pop-up informing the user that it is possible to drag images straight out of iconic has already been shown</summary>
+    </key>
 	</schema>
 </schemalist>

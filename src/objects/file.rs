@@ -7,17 +7,18 @@ use resvg::tiny_skia::Pixmap;
 use resvg::usvg::{Options, Tree};
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
 use std::hash::{DefaultHasher, Hash, Hasher};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
     pub files: Option<gio::File>,
     pub path: PathBuf,
-    pub name: String,
+    pub filename: String,
     pub extension: String,
     pub dynamic_image: DynamicImage,
     pub thumbnail: DynamicImage,
+    pub hash: u64,
 }
 
 impl File {
@@ -40,7 +41,7 @@ impl File {
             image::open(temp_path.clone().into_os_string())?
         };
         let name_no_extension = file_name.replace(&file_extension, "");
-        let combined_file_name = Self::create_file_name(&name_no_extension, &dynamic_image);
+        let hash = Self::create_hash(&dynamic_image);
         let thumbnail = if file_extension == ".svg" {
             let path = &temp_path.as_os_str().to_str().unwrap();
             Self::load_svg(path, thumbnail_size)?
@@ -55,9 +56,10 @@ impl File {
             files: Some(file),
             path: temp_path.into(),
             extension: mime_type.unwrap().into(),
-            name: combined_file_name,
+            filename: name_no_extension,
             dynamic_image,
             thumbnail,
+            hash,
         })
     }
 
@@ -81,18 +83,19 @@ impl File {
         Self::new(file, size, thumbnail_size)
     }
 
-    pub fn from_image(image: DynamicImage, thumbnail_size: i32) -> Self {
+    pub fn from_image(image: DynamicImage, thumbnail_size: i32, filename: &str) -> Self {
         let thumbnail = image.clone().resize(
             thumbnail_size as u32,
             thumbnail_size as u32,
             imageops::FilterType::Nearest,
         );
-        let filename = Self::create_file_name("pasted", &image);
+        let hash = Self::create_hash(&image);
         Self {
             files: None,
             path: "".into(),
             extension: ".dynamic".to_string(),
-            name: filename,
+            filename: filename.to_string(),
+            hash,
             dynamic_image: image,
             thumbnail,
         }
@@ -130,11 +133,10 @@ impl File {
     }
 
     // Adds hash of file to file name
-    fn create_file_name(name: &str, image: &DynamicImage) -> String {
+    fn create_hash(image: &DynamicImage) -> u64 {
         let mut hasher = DefaultHasher::new();
         let _ = image.as_rgb8().hash(&mut hasher);
-        let file_hash = (hasher.finish() as i128 + i64::MAX as i128) as u64;
-        format!("{}-{}", name,file_hash)
+        hasher.finish()
     }
 
     fn pixmap_to_image(pixmap: Pixmap) -> DynamicImage {

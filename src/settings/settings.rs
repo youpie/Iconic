@@ -3,6 +3,8 @@ use crate::glib::clone;
 use crate::Results;
 use adw::prelude::AdwDialogExt;
 use adw::prelude::AlertDialogExt;
+use adw::prelude::ComboRowExt;
+use adw::prelude::ExpanderRowExt;
 use adw::subclass::prelude::AdwDialogImpl;
 use gettextrs::*;
 use gtk::glib;
@@ -32,9 +34,23 @@ mod imp {
         #[template_child]
         pub dnd_switch: TemplateChild<gtk::Switch>,
         #[template_child]
-        pub radio_button_1: TemplateChild<gtk::CheckButton>,
+        pub radio_button_top: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub radio_button_bottom: TemplateChild<gtk::CheckButton>,
         #[template_child]
         pub thumbnail_image_size: TemplateChild<adw::SpinRow>,
+        #[template_child]
+        pub select_bottom_color: TemplateChild<adw::ComboRow>,
+        #[template_child]
+        pub use_builtin_icons_button: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub use_external_icon_button: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub use_external_icon_expander: TemplateChild<adw::ExpanderRow>,
+        #[template_child]
+        pub use_builtin_icons_expander: TemplateChild<adw::ExpanderRow>,
+        #[template_child]
+        pub use_system_color: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
     }
 
@@ -48,12 +64,19 @@ mod imp {
             Self {
                 default_dnd: TemplateChild::default(),
                 dnd_switch: TemplateChild::default(),
-                radio_button_1: TemplateChild::default(),
+                radio_button_top: TemplateChild::default(),
+                radio_button_bottom: TemplateChild::default(),
                 current_botton: TemplateChild::default(),
                 svg_image_size: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 advanced_settings: TemplateChild::default(),
                 thumbnail_image_size: TemplateChild::default(),
+                select_bottom_color: TemplateChild::default(),
+                use_builtin_icons_button: TemplateChild::default(),
+                use_external_icon_button: TemplateChild::default(),
+                use_external_icon_expander: TemplateChild::default(),
+                use_builtin_icons_expander: TemplateChild::default(),
+                use_system_color: TemplateChild::default(),
             }
         }
 
@@ -79,7 +102,7 @@ mod imp {
                 ));
             });
             klass.install_action("app.dnd_switch", None, move |win, _, _| {
-                win.dnd_row_expand();
+                win.dnd_row_expand(false);
             });
         }
 
@@ -119,30 +142,37 @@ impl PreferencesDialog {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         let win = glib::Object::new::<Self>();
-        win.setup_settings();
+        let imp = win.imp();
         if PROFILE != "Devel" {
             win.imp().advanced_settings.set_visible(false);
         }
         win.imp()
             .dnd_switch
             .set_active(win.imp().settings.boolean("default-dnd-activated"));
-        win.dnd_row_expand();
+        if imp.settings.string("selected-accent-color") == "None" {
+            imp.use_system_color.set_active(true);
+        }
+        if imp.settings.boolean("manual-bottom-image-selection") {
+            imp.use_external_icon_button.set_active(true);
+        }
+        if imp.settings.string("default-dnd-action") == "bottom" {
+            imp.radio_button_bottom.set_active(true);
+        }
+        imp.select_bottom_color
+            .set_selected(imp.settings.int("selected-accent-color-index") as u32);
+        win.dnd_row_expand(true);
         win.set_path_title();
-
-        win.imp().radio_button_1.connect_toggled(clone!(
-            #[weak (rename_to = this)]
-            win,
-            move |_| {
-                this.dnd_radio_state();
-            }
-        ));
+        win.bottom_image_expander(true);
+        win.disable_color_dropdown(true);
+        win.setup_settings();
         win
     }
 
     fn setup_settings(&self) {
-        let current_value: i32 = self.imp().settings.get("svg-render-size");
-        self.imp().svg_image_size.set_value(current_value as f64);
-        self.imp().svg_image_size.connect_changed(clone!(
+        let imp = self.imp();
+        let current_value: i32 = imp.settings.get("svg-render-size");
+        imp.svg_image_size.set_value(current_value as f64);
+        imp.svg_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
@@ -151,11 +181,9 @@ impl PreferencesDialog {
                 let _ = win.imp().settings.set("svg-render-size", value);
             }
         ));
-        let current_value: i32 = self.imp().settings.get("thumbnail-size");
-        self.imp()
-            .thumbnail_image_size
-            .set_value(current_value as f64);
-        self.imp().thumbnail_image_size.connect_changed(clone!(
+        let current_value: i32 = imp.settings.get("thumbnail-size");
+        imp.thumbnail_image_size.set_value(current_value as f64);
+        imp.thumbnail_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
@@ -164,6 +192,68 @@ impl PreferencesDialog {
                 let _ = win.imp().settings.set("thumbnail-size", value);
             }
         ));
+        imp.use_builtin_icons_button.connect_toggled(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.bottom_image_expander(false);
+            }
+        ));
+        imp.select_bottom_color.connect_selected_item_notify(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.get_selected_accent_color(false);
+            }
+        ));
+
+        imp.radio_button_top.connect_toggled(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.dnd_radio_state();
+            }
+        ));
+        imp.use_system_color.connect_active_notify(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.disable_color_dropdown(false);
+            }
+        ));
+    }
+
+    fn disable_color_dropdown(&self, init: bool) {
+        let imp = self.imp();
+        let switch_state = imp.use_system_color.is_active();
+        match switch_state {
+            true => {
+                imp.select_bottom_color.set_sensitive(false);
+                if !init {
+                    let _ = imp.settings.set("selected-accent-color", "None");
+                }
+            }
+            false => {
+                imp.select_bottom_color.set_sensitive(true);
+                self.get_selected_accent_color(init);
+            }
+        };
+    }
+
+    fn get_selected_accent_color(&self, init: bool) {
+        let color_vec = vec![
+            "Blue", "Teal", "Green", "Yellow", "Orange", "Red", "Pink", "Purple", "Slate",
+        ];
+        let imp = self.imp();
+        let selected_index = imp.select_bottom_color.selected() as usize;
+        let selected_color = color_vec[selected_index];
+        debug!("Selected accent color: {selected_color}");
+        if !init {
+            let _ = imp.settings.set("selected-accent-color", selected_color);
+            let _ = imp
+                .settings
+                .set("selected-accent-color-index", selected_index as i32);
+        }
     }
 
     fn reset_location_fn(&self) {
@@ -180,7 +270,9 @@ impl PreferencesDialog {
 
     fn set_path_title(&self) {
         let current_path = &self.imp().settings.string("folder-svg-path");
-        self.imp().current_botton.set_property("title", current_path);
+        self.imp()
+            .current_botton
+            .set_property("title", current_path);
     }
 
     fn select_path_filechooser(&self) {
@@ -258,12 +350,14 @@ impl PreferencesDialog {
         });
     }
 
-    pub fn dnd_row_expand(&self) {
+    pub fn dnd_row_expand(&self, init: bool) {
         let switch_state = self.imp().dnd_switch.is_active();
-        let _ = self
-            .imp()
-            .settings
-            .set("default-dnd-activated", switch_state);
+        if !init {
+            let _ = self
+                .imp()
+                .settings
+                .set("default-dnd-activated", switch_state);
+        }
         debug!("Current switch state: {}", switch_state);
         match switch_state {
             true => {
@@ -282,9 +376,39 @@ impl PreferencesDialog {
         };
     }
 
+    fn bottom_image_expander(&self, init: bool) {
+        let imp = self.imp();
+        let button_1_active = imp.use_builtin_icons_button.is_active();
+        if !init {
+            let _ = imp
+                .settings
+                .set("manual-bottom-image-selection", !button_1_active);
+        }
+        match button_1_active {
+            true => {
+                self.imp()
+                    .use_builtin_icons_expander
+                    .set_property("enable_expansion", true);
+                self.imp()
+                    .use_external_icon_expander
+                    .set_property("enable_expansion", false);
+                imp.use_builtin_icons_expander.set_expanded(true);
+            }
+            false => {
+                self.imp()
+                    .use_builtin_icons_expander
+                    .set_property("enable_expansion", false);
+                self.imp()
+                    .use_external_icon_expander
+                    .set_property("enable_expansion", true);
+                imp.use_external_icon_expander.set_expanded(true);
+            }
+        };
+    }
+
     pub fn dnd_radio_state(&self) {
         let imp = self.imp();
-        let radio_button = imp.radio_button_1.is_active();
+        let radio_button = imp.radio_button_top.is_active();
         debug!("Radio button changed: button 1 is {}", radio_button);
         match radio_button {
             true => {
