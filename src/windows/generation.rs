@@ -42,6 +42,7 @@ impl GtkTestWindow {
                 .await,
         );
         imp.image_view.set_paintable(Some(&texture));
+        imp.image_view.queue_draw();
     }
 
     pub fn to_monochrome(
