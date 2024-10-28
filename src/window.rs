@@ -28,7 +28,6 @@ use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
 use image::*;
 use log::*;
-// use rand::prelude::*;
 use std::cell::RefCell;
 use std::env;
 use std::error::Error;
@@ -204,6 +203,7 @@ mod imp {
                     #[weak]
                     win,
                     async move {
+                        win.drag_and_drop_information_dialog();
                         match win.open_save_file_dialog().await {
                             Ok(_) => (),
                             Err(error) => {
@@ -471,6 +471,7 @@ impl GtkTestWindow {
     }
 
     pub fn setup_settings(&self) {
+        let imp = self.imp();
         let update_folder = glib::clone!(
             #[weak(rename_to = win)]
             self,
@@ -506,20 +507,15 @@ impl GtkTestWindow {
             }
         ));
 
-        self.imp()
-            .settings
+        imp.settings
             .connect_changed(Some("folder-svg-path"), update_folder.clone());
-        self.imp()
-            .settings
+        imp.settings
             .connect_changed(Some("selected-accent-color"), update_folder.clone());
-        self.imp()
-            .settings
+        imp.settings
             .connect_changed(Some("manual-bottom-image-selection"), update_folder.clone());
-        self.imp()
-            .settings
+        imp.settings
             .connect_changed(Some("svg-render-size"), resize_folder.clone());
-        self.imp()
-            .settings
+        imp.settings
             .connect_changed(Some("thumbnail-size"), reload_thumbnails.clone());
     }
 
@@ -746,8 +742,8 @@ impl GtkTestWindow {
         {
             const RESPONSE_OK: &str = "OK";
             let dialog = adw::AlertDialog::builder()
-                .heading(&gettext("Accent color changed!"))
-                .body(&gettext("The system accent color has been changed, iconic has automatically changed the color of the folder.\nIf you do not want this, you can turn this off in the settings"))
+                .heading(&gettext("Accent color changed"))
+                .body(&gettext("The system accent color has been changed, Iconic has automatically changed the color of the folder.\nIf you do not want this, you can turn this off in the settings"))
                 .default_response(RESPONSE_OK)
                 .build();
             dialog.add_response(RESPONSE_OK, &gettext("OK"));
@@ -755,6 +751,22 @@ impl GtkTestWindow {
             let _ = imp.settings.set("accent-color-popup-shown", true);
         }
         accent_color
+    }
+
+    pub fn drag_and_drop_information_dialog(&self) {
+        let imp = self.imp();
+        if imp.settings.boolean("drag-and-drop-popup-shown") {
+            ()
+        }
+        const RESPONSE_OK: &str = "OK";
+        let dialog = adw::AlertDialog::builder()
+                .heading(&gettext("Drag and drop"))
+                .body(&gettext("Did you know that it is possible to drag the folder image straight out of Iconic and drop it into nautilus' property window.\nNo need to save!"))
+                .default_response(RESPONSE_OK)
+                .build();
+        dialog.add_response(RESPONSE_OK, &gettext("OK"));
+        dialog.present(Some(self));
+        let _ = imp.settings.set("drag-and-drop-popup-shown", true);
     }
 
     pub async fn top_or_bottom_popup(&self) -> Option<bool> {
