@@ -3,6 +3,7 @@ use crate::glib::clone;
 use crate::Results;
 use adw::prelude::AdwDialogExt;
 use adw::prelude::AlertDialogExt;
+use adw::prelude::ComboRowExt;
 use adw::subclass::prelude::AdwDialogImpl;
 use gettextrs::*;
 use gtk::glib;
@@ -35,6 +36,8 @@ mod imp {
         pub radio_button_1: TemplateChild<gtk::CheckButton>,
         #[template_child]
         pub thumbnail_image_size: TemplateChild<adw::SpinRow>,
+        #[template_child]
+        pub select_bottom_color: TemplateChild<adw::ComboRow>,
         pub settings: gio::Settings,
     }
 
@@ -54,6 +57,7 @@ mod imp {
                 settings: gio::Settings::new(APP_ID),
                 advanced_settings: TemplateChild::default(),
                 thumbnail_image_size: TemplateChild::default(),
+                select_bottom_color: TemplateChild::default(),
             }
         }
 
@@ -136,11 +140,13 @@ impl PreferencesDialog {
                 this.dnd_radio_state();
             }
         ));
+        win.get_selected_accent_color();
         win
     }
 
     fn setup_settings(&self) {
         let current_value: i32 = self.imp().settings.get("svg-render-size");
+
         self.imp().svg_image_size.set_value(current_value as f64);
         self.imp().svg_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
@@ -164,6 +170,15 @@ impl PreferencesDialog {
                 let _ = win.imp().settings.set("thumbnail-size", value);
             }
         ));
+    }
+
+    fn get_selected_accent_color(&self) {
+        let imp = self.imp();
+        let selected = imp.select_bottom_color.selected_item();
+        debug!("Selected color: {:?}", selected);
+        let style_manager = adw::StyleManager::default();
+        let accent_color = adw::StyleManager::accent_color(&style_manager);
+        debug!("Selected accent color: {:?}", accent_color);
     }
 
     fn reset_location_fn(&self) {

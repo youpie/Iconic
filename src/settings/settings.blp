@@ -9,22 +9,59 @@ template $PreferencesDialog : Adw.PreferencesDialog {
 
     Adw.PreferencesGroup {
       title: _("Customise");
-      Adw.ActionRow current_botton {
+      Adw.ExpanderRow use_builtin_icons_expander {
+        title: _("Use a built-in bottom image");
+        [suffix]
+        CheckButton use_builtin_icons_button{
+          valign: center;
+          active: true;
+        }
+        Adw.SwitchRow use_system_color {
+          title: _("Use system accent color");
+        }
+        Adw.ComboRow select_bottom_color {
+          title: _("Select folder color");
+          action-name: "app.accent_color";
+          model: StringList {
+            strings [
+              _("Blue"),
+              _("Red"),
+              _("Green"),
+              _("Orange"),
+              _("Pink"),
+              _("Teal"),
+              _("Yellow"),
+              _("Gray"),
+              _("Purple")
+            ]
+          };
+        }
+      }
+      Adw.ExpanderRow use_external_icon_expander {
+        title: _("Select your own bottom image");
+        [suffix]
+        CheckButton use_external_icon_button {
+          valign: center;
+          group: use_builtin_icons_button;
+        }
+        Adw.ActionRow current_botton {
         subtitle: _("Currently set bottom icon");
+        }
+        Adw.ButtonRow select_default_bottom {
+          title: _("Select bottom icon");
+          action-name: "app.select_folder";
+          start-icon-name : "folder-open-symbolic";
+        }
+        Adw.ButtonRow reset_default_bottom {
+          title: _("Reset bottom icon");
+          action-name: "app.reset_location";
+          start-icon-name: "edit-undo-symbolic";
+          styles [
+            "destructive-action",
+          ]
+        }
       }
-      Adw.ButtonRow select_default_bottom {
-        title: _("Select bottom icon");
-        action-name: "app.select_folder";
-        start-icon-name : "folder-open-symbolic";
-      }
-      Adw.ButtonRow reset_default_bottom {
-        title: _("Reset bottom icon");
-        action-name: "app.reset_location";
-        start-icon-name: "edit-undo-symbolic";
-        styles [
-          "destructive-action",
-        ]
-      }
+      
     }
     Adw.PreferencesGroup {
       Adw.ExpanderRow  default_dnd{

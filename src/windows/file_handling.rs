@@ -145,13 +145,15 @@ impl GtkTestWindow {
                 let top_file_selected = self.top_or_bottom_popup().await;
                 imp.stack.set_visible_child_name("stack_loading_page");
                 match top_file_selected {
-                    Some(true) => self.new_iconic_file_creation(
-                        Some(file),
-                        None,
-                        svg_render_size,
-                        thumbnail_size,
-                        true,
-                    ),
+                    Some(true) => {
+                        self.new_iconic_file_creation(
+                            Some(file),
+                            None,
+                            svg_render_size,
+                            thumbnail_size,
+                            true,
+                        );
+                    }
                     Some(false) => {
                         imp.stack.set_visible_child_name("stack_main_page");
                         self.new_iconic_file_creation(
@@ -160,15 +162,9 @@ impl GtkTestWindow {
                             svg_render_size,
                             thumbnail_size,
                             false,
-                        )
+                        );
                     }
-                    _ => self.new_iconic_file_creation(
-                        Some(file),
-                        None,
-                        svg_render_size,
-                        thumbnail_size,
-                        true,
-                    ),
+                    _ => (),
                 };
             }
             _ => {
