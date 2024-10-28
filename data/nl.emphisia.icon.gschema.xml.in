@@ -2,7 +2,7 @@
 <schemalist gettext-domain="gtk_test">
 	<schema id="@app-id@" path="/nl/emphisia/icon/">
 	  <key name="folder-svg-path" type="s">
-      <default>"/app/share/folder_icon/folders/folder_green.svg"</default>
+      <default>"/run/host/share/icons/Adwaita/scalable/places/folder.svg"</default>
       <summary>Folder SVG Path</summary>
     </key>
 	  <key name="folder-cache-name" type="s">
