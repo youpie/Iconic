@@ -38,6 +38,14 @@ mod imp {
         pub thumbnail_image_size: TemplateChild<adw::SpinRow>,
         #[template_child]
         pub select_bottom_color: TemplateChild<adw::ComboRow>,
+        #[template_child]
+        pub use_builtin_icons_button: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub use_external_icon_expander: TemplateChild<adw::ExpanderRow>,
+        #[template_child]
+        pub use_builtin_icons_expander: TemplateChild<adw::ExpanderRow>,
+        #[template_child]
+        pub use_system_color: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
     }
 
@@ -58,6 +66,10 @@ mod imp {
                 advanced_settings: TemplateChild::default(),
                 thumbnail_image_size: TemplateChild::default(),
                 select_bottom_color: TemplateChild::default(),
+                use_builtin_icons_button: TemplateChild::default(),
+                use_external_icon_expander: TemplateChild::default(),
+                use_builtin_icons_expander: TemplateChild::default(),
+                use_system_color: TemplateChild::default(),
             }
         }
 
@@ -123,6 +135,7 @@ impl PreferencesDialog {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         let win = glib::Object::new::<Self>();
+        let imp = win.imp();
         win.setup_settings();
         if PROFILE != "Devel" {
             win.imp().advanced_settings.set_visible(false);
@@ -132,23 +145,37 @@ impl PreferencesDialog {
             .set_active(win.imp().settings.boolean("default-dnd-activated"));
         win.dnd_row_expand();
         win.set_path_title();
+        win.bottom_image_expander();
+        debug!("{}", imp.settings.string("selected-accent-color"));
+        if imp
+            .settings
+            .string("selected-accent-color")
+            .split(' ')
+            .nth(0)
+            .unwrap()
+            == "None"
+        {
+            imp.use_system_color.set_active(true);
+        }
+        imp.select_bottom_color.set_selected(
+            imp.settings
+                .string("selected-accent-color")
+                .split(' ')
+                .last()
+                .unwrap()
+                .parse()
+                .unwrap(),
+        );
 
-        win.imp().radio_button_1.connect_toggled(clone!(
-            #[weak (rename_to = this)]
-            win,
-            move |_| {
-                this.dnd_radio_state();
-            }
-        ));
-        win.get_selected_accent_color();
+        win.disable_color_dropdown();
         win
     }
 
     fn setup_settings(&self) {
-        let current_value: i32 = self.imp().settings.get("svg-render-size");
-
-        self.imp().svg_image_size.set_value(current_value as f64);
-        self.imp().svg_image_size.connect_changed(clone!(
+        let imp = self.imp();
+        let current_value: i32 = imp.settings.get("svg-render-size");
+        imp.svg_image_size.set_value(current_value as f64);
+        imp.svg_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
@@ -157,11 +184,9 @@ impl PreferencesDialog {
                 let _ = win.imp().settings.set("svg-render-size", value);
             }
         ));
-        let current_value: i32 = self.imp().settings.get("thumbnail-size");
-        self.imp()
-            .thumbnail_image_size
-            .set_value(current_value as f64);
-        self.imp().thumbnail_image_size.connect_changed(clone!(
+        let current_value: i32 = imp.settings.get("thumbnail-size");
+        imp.thumbnail_image_size.set_value(current_value as f64);
+        imp.thumbnail_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
@@ -170,15 +195,68 @@ impl PreferencesDialog {
                 let _ = win.imp().settings.set("thumbnail-size", value);
             }
         ));
+        imp.use_builtin_icons_button.connect_toggled(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.bottom_image_expander();
+            }
+        ));
+        imp.select_bottom_color.connect_selected_item_notify(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.get_selected_accent_color();
+            }
+        ));
+
+        imp.radio_button_1.connect_toggled(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.dnd_radio_state();
+            }
+        ));
+        imp.use_system_color.connect_active_notify(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.disable_color_dropdown();
+            }
+        ));
+    }
+
+    fn disable_color_dropdown(&self) {
+        let imp = self.imp();
+        let switch_state = imp.use_system_color.is_active();
+        match switch_state {
+            true => {
+                imp.select_bottom_color.set_sensitive(false);
+                let current_value = imp.settings.string("selected-accent-color");
+                let current_index = current_value.split(' ').last().unwrap();
+                let _ = imp
+                    .settings
+                    .set("selected-accent-color", format!("None {}", current_index));
+            }
+            false => {
+                imp.select_bottom_color.set_sensitive(true);
+                self.get_selected_accent_color();
+            }
+        };
     }
 
     fn get_selected_accent_color(&self) {
+        let color_vec = vec![
+            "Blue", "Teal", "Green", "Yellow", "orange", "Red", "Pink", "Purple", "Slate",
+        ];
         let imp = self.imp();
-        let selected = imp.select_bottom_color.selected_item();
-        debug!("Selected color: {:?}", selected);
-        let style_manager = adw::StyleManager::default();
-        let accent_color = adw::StyleManager::accent_color(&style_manager);
-        debug!("Selected accent color: {:?}", accent_color);
+        let selected_index = imp.select_bottom_color.selected() as usize;
+        let selected_color = color_vec[selected_index];
+        debug!("Selected accent color: {selected_color}");
+        let _ = imp.settings.set(
+            "selected-accent-color",
+            format!("{} {}", selected_color, selected_index),
+        );
     }
 
     fn reset_location_fn(&self) {
@@ -295,6 +373,29 @@ impl PreferencesDialog {
                 self.imp()
                     .default_dnd
                     .set_property("enable_expansion", false);
+            }
+        };
+    }
+
+    fn bottom_image_expander(&self) {
+        let imp = self.imp();
+        let button_1_active = imp.use_builtin_icons_button.is_active();
+        match button_1_active {
+            true => {
+                self.imp()
+                    .use_builtin_icons_expander
+                    .set_property("enable_expansion", true);
+                self.imp()
+                    .use_external_icon_expander
+                    .set_property("enable_expansion", false);
+            }
+            false => {
+                self.imp()
+                    .use_builtin_icons_expander
+                    .set_property("enable_expansion", false);
+                self.imp()
+                    .use_external_icon_expander
+                    .set_property("enable_expansion", true);
             }
         };
     }

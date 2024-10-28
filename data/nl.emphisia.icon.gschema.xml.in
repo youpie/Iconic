@@ -25,5 +25,9 @@
       <default>false</default>
       <summary>Whether or not the default drag-and-drop action is activated</summary>
     </key>
+    <key name="selected-accent-color" type="s">
+      <default>'None 0'</default>
+      <summary>The accent color the user has selected, string is empty is automatic change is selected</summary>
+    </key>
 	</schema>
 </schemalist>

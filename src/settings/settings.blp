@@ -21,18 +21,17 @@ template $PreferencesDialog : Adw.PreferencesDialog {
         }
         Adw.ComboRow select_bottom_color {
           title: _("Select folder color");
-          action-name: "app.accent_color";
           model: StringList {
             strings [
               _("Blue"),
-              _("Red"),
-              _("Green"),
-              _("Orange"),
-              _("Pink"),
               _("Teal"),
+              _("Green"),
               _("Yellow"),
-              _("Gray"),
-              _("Purple")
+              _("Orange"),
+              _("Red"),
+              _("Pink"),
+              _("Purple"),
+              _("Slate"),
             ]
           };
         }
