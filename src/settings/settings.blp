@@ -10,7 +10,7 @@ template $PreferencesDialog : Adw.PreferencesDialog {
     Adw.PreferencesGroup {
       title: _("Customise");
       Adw.ExpanderRow use_builtin_icons_expander {
-        title: _("Use a built-in bottom image");
+        title: _("Use a built-in bottom icon");
         [suffix]
         CheckButton use_builtin_icons_button{
           valign: center;
@@ -20,7 +20,7 @@ template $PreferencesDialog : Adw.PreferencesDialog {
           title: _("Use system accent color");
         }
         Adw.ComboRow select_bottom_color {
-          title: _("Select folder color");
+          title: _("Manually select folder color");
           model: StringList {
             strings [
               _("Blue"),
@@ -37,7 +37,7 @@ template $PreferencesDialog : Adw.PreferencesDialog {
         }
       }
       Adw.ExpanderRow use_external_icon_expander {
-        title: _("Select your own bottom image");
+        title: _("Use custom bottom icon");
         [suffix]
         CheckButton use_external_icon_button {
           valign: center;
