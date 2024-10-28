@@ -738,6 +738,25 @@ impl GtkTestWindow {
         }
     }
 
+    pub fn get_accent_color_and_dialog(&self) -> String {
+        let imp = self.imp();
+        let accent_color = format!("{:?}", adw::StyleManager::default().accent_color());
+        if !imp.settings.boolean("accent-color-popup-shown")
+            && accent_color != imp.settings.string("previous-system-accent-color")
+        {
+            const RESPONSE_OK: &str = "OK";
+            let dialog = adw::AlertDialog::builder()
+                .heading(&gettext("Accent color changed!"))
+                .body(&gettext("The system accent color has been changed, iconic has automatically changed the color of the folder.\nIf you do not want this, you can turn this off in the settings"))
+                .default_response(RESPONSE_OK)
+                .build();
+            dialog.add_response(RESPONSE_OK, &gettext("OK"));
+            dialog.present(Some(self));
+            let _ = imp.settings.set("accent-color-popup-shown", true);
+        }
+        accent_color
+    }
+
     pub async fn top_or_bottom_popup(&self) -> Option<bool> {
         let dnd_switch_state = self.imp().settings.boolean("default-dnd-activated");
         let dnd_radio_state = self.imp().settings.string("default-dnd-action");

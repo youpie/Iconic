@@ -33,7 +33,8 @@ impl GtkTestWindow {
     pub async fn load_built_in_bottom_icon(&self) -> PathBuf {
         let imp = self.imp();
         let style_manager = adw::StyleManager::default();
-        let folder_color_name = match imp.settings.string("selected-accent-color").as_str() {
+        let current_accent_color = self.get_accent_color_and_dialog();
+        let folder_color_name = match current_accent_color.as_str() {
             "None" => format!("{:?}", style_manager.accent_color()),
             x => x.to_string(),
         };
