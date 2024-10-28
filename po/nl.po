@@ -275,15 +275,15 @@ msgstr "Aanpassen"
 
 #: src/settings/settings.blp:13
 msgid "Currently set bottom icon"
-msgstr "_Huidig ingestelde onderste Icoon"
+msgstr "Huidig ingestelde onderste Icoon"
 
 #: src/settings/settings.blp:16
 msgid "Select bottom icon"
-msgstr "_Selecteer onderste Icoon"
+msgstr "Selecteer onderste Icoon"
 
 #: src/settings/settings.blp:21
 msgid "Reset bottom icon"
-msgstr "_Reset onderste Icoon"
+msgstr "Reset onderste Icoon"
 
 #: src/settings/settings.blp:31
 msgid "Default drag-and-drop action"
