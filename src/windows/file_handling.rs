@@ -24,6 +24,9 @@ impl GtkTestWindow {
                     path = win.check_chache_icon(cache_file_name).await;
                 } else {
                     path = win.load_built_in_bottom_icon().await;
+                    if !imp.reset_color.is_visible() {
+                        win.reset_colors();
+                    }
                 }
                 win.load_folder_icon(&path.into_os_string().into_string().unwrap());
             }

@@ -29,15 +29,19 @@ use gtk::{gdk, glib};
 use image::*;
 use log::*;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::env;
 use std::error::Error;
 use std::fs;
+use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
 mod imp {
+    use std::collections::HashMap;
+
     use super::*;
 
     #[derive(Debug, gtk::CompositeTemplate)]
@@ -86,7 +90,7 @@ mod imp {
         pub image_preferences: TemplateChild<adw::Clamp>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
-        pub default_color: gdk::RGBA,
+        pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
         pub top_image_file: Arc<Mutex<Option<File>>>,
         pub saved_file: Arc<Mutex<Option<gio::File>>>,
         pub file_created: RefCell<bool>,
@@ -131,7 +135,7 @@ mod imp {
                 image_loading_spinner: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
-                default_color: gdk::RGBA::new(0.262745098, 0.552941176, 0.901960784, 1.0),
+                default_color: RefCell::new(HashMap::new()),
                 last_dnd_generated_name: RefCell::new(None),
                 //drop_target_item: RefCell::new(None),
             }
@@ -351,6 +355,18 @@ impl GtkTestWindow {
         if PROFILE == "Devel" {
             imp.main_status_page.set_icon_name(Some(APP_ICON));
         }
+        imp.default_color.replace(HashMap::from([
+            ("Blue".to_string(), win.create_rgba(67, 141, 230)),
+            ("Teal".to_string(), win.create_rgba(33, 144, 164)),
+            ("Green".to_string(), win.create_rgba(38, 162, 105)),
+            ("Yellow".to_string(), win.create_rgba(200, 136, 0)),
+            ("Orange".to_string(), win.create_rgba(237, 91, 0)),
+            ("Red".to_string(), win.create_rgba(230, 45, 66)),
+            ("Pink".to_string(), win.create_rgba(212, 95, 151)),
+            ("Purple".to_string(), win.create_rgba(145, 65, 172)),
+            ("Slate".to_string(), win.create_rgba(111, 131, 150)),
+        ]));
+
         imp.save_button.set_sensitive(false);
         imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
@@ -366,6 +382,12 @@ impl GtkTestWindow {
         win
     }
 
+    fn create_rgba(&self, r: u8, g: u8, b: u8) -> gdk::RGBA {
+        let r_float = 1.0 / 255.0 * r as f32;
+        let g_float = 1.0 / 255.0 * g as f32;
+        let b_float = 1.0 / 255.0 * b as f32;
+        gdk::RGBA::new(r_float, g_float, b_float, 1.0)
+    }
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
         let imp = self.imp();
         //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
@@ -589,12 +611,16 @@ impl GtkTestWindow {
                     win,
                     async move {
                         let imp = win.imp();
-                        if imp.monochrome_color.rgba() != imp.default_color.clone() {
+                        debug!("ran");
+                        if imp.monochrome_color.rgba() != win.get_default_color() {
                             imp.reset_color.set_visible(true);
                         }
                         imp.image_saved.replace(false);
                         imp.save_button.set_sensitive(true);
-                        win.render_to_screen().await;
+                        // TODO: I do not like this approach, but it works
+                        if imp.stack.visible_child_name() == Some("stack_main_page".into()) {
+                            win.render_to_screen().await;
+                        }
                     }
                 ));
             }
@@ -619,10 +645,30 @@ impl GtkTestWindow {
     pub fn reset_colors(&self) {
         let imp = self.imp();
         imp.reset_color.set_visible(false);
-
-        imp.monochrome_color.set_rgba(&imp.default_color.clone());
-        self.check_icon_update();
+        imp.monochrome_color.set_rgba(&self.get_default_color());
+        //self.check_icon_update();
         imp.reset_color.set_visible(false);
+    }
+
+    pub fn get_default_color(&self) -> gdk::RGBA {
+        let imp = self.imp();
+        let accent_color;
+        let selected_accent_color = imp.settings.string("selected-accent-color");
+        if selected_accent_color == "None" {
+            accent_color = self.get_accent_color_and_dialog();
+        } else if imp.settings.boolean("manual-bottom-image-selection") {
+            accent_color = "Blue".to_string();
+        } else {
+            accent_color = selected_accent_color.into();
+        }
+        let color = imp
+            .default_color
+            .borrow()
+            .get(&accent_color)
+            .unwrap()
+            .clone();
+        debug!("Found color: {:?}", &color);
+        color
     }
 
     pub async fn check_chache_icon(&self, file_name: &str) -> PathBuf {
