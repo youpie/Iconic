@@ -474,9 +474,8 @@ impl GtkTestWindow {
         let update_folder = glib::clone!(
             #[weak(rename_to = win)]
             self,
-            move |_: &gio::Settings, setting: &str| {
-                let path: &str = &win.imp().settings.string(setting);
-                win.load_folder_icon(path);
+            move |_: &gio::Settings, _: &str| {
+                win.load_folder_path_from_settings();
             }
         );
 
@@ -499,9 +498,23 @@ impl GtkTestWindow {
             }
         );
 
+        adw::StyleManager::default().connect_accent_color_notify(glib::clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_| {
+                win.load_folder_path_from_settings();
+            }
+        ));
+
         self.imp()
             .settings
             .connect_changed(Some("folder-svg-path"), update_folder.clone());
+        self.imp()
+            .settings
+            .connect_changed(Some("selected-accent-color"), update_folder.clone());
+        self.imp()
+            .settings
+            .connect_changed(Some("manual-bottom-image-selection"), update_folder.clone());
         self.imp()
             .settings
             .connect_changed(Some("svg-render-size"), resize_folder.clone());

@@ -17,11 +17,31 @@ impl GtkTestWindow {
             #[weak(rename_to = win)]
             self,
             async move {
-                let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
-                let path = win.check_chache_icon(cache_file_name).await;
+                let imp = win.imp();
+                let path;
+                if imp.settings.boolean("manual-bottom-image-selection") {
+                    let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
+                    path = win.check_chache_icon(cache_file_name).await;
+                } else {
+                    path = win.load_built_in_bottom_icon().await;
+                }
                 win.load_folder_icon(&path.into_os_string().into_string().unwrap());
             }
         ));
+    }
+
+    pub async fn load_built_in_bottom_icon(&self) -> PathBuf {
+        let imp = self.imp();
+        let style_manager = adw::StyleManager::default();
+        let folder_color_name = match imp.settings.string("selected-accent-color").as_str() {
+            "None" => format!("{:?}", style_manager.accent_color()),
+            x => x.to_string(),
+        };
+        let folder_path = PathBuf::from(format!(
+            "/app/share/folder_icon/folders/folder_{}.svg",
+            folder_color_name
+        ));
+        folder_path
     }
 
     pub async fn paste_from_clipboard(&self) {

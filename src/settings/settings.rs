@@ -102,7 +102,7 @@ mod imp {
                 ));
             });
             klass.install_action("app.dnd_switch", None, move |win, _, _| {
-                win.dnd_row_expand();
+                win.dnd_row_expand(false);
             });
         }
 
@@ -143,7 +143,6 @@ impl PreferencesDialog {
     pub fn new() -> Self {
         let win = glib::Object::new::<Self>();
         let imp = win.imp();
-        win.setup_settings();
         if PROFILE != "Devel" {
             win.imp().advanced_settings.set_visible(false);
         }
@@ -161,10 +160,11 @@ impl PreferencesDialog {
         }
         imp.select_bottom_color
             .set_selected(imp.settings.int("selected-accent-color-index") as u32);
-        win.dnd_row_expand();
+        win.dnd_row_expand(true);
         win.set_path_title();
-        win.bottom_image_expander();
-        win.disable_color_dropdown();
+        win.bottom_image_expander(true);
+        win.disable_color_dropdown(true);
+        win.setup_settings();
         win
     }
 
@@ -196,14 +196,14 @@ impl PreferencesDialog {
             #[weak (rename_to = this)]
             self,
             move |_| {
-                this.bottom_image_expander();
+                this.bottom_image_expander(false);
             }
         ));
         imp.select_bottom_color.connect_selected_item_notify(clone!(
             #[weak (rename_to = this)]
             self,
             move |_| {
-                this.get_selected_accent_color();
+                this.get_selected_accent_color(false);
             }
         ));
 
@@ -218,38 +218,42 @@ impl PreferencesDialog {
             #[weak (rename_to = this)]
             self,
             move |_| {
-                this.disable_color_dropdown();
+                this.disable_color_dropdown(false);
             }
         ));
     }
 
-    fn disable_color_dropdown(&self) {
+    fn disable_color_dropdown(&self, init: bool) {
         let imp = self.imp();
         let switch_state = imp.use_system_color.is_active();
         match switch_state {
             true => {
                 imp.select_bottom_color.set_sensitive(false);
-                let _ = imp.settings.set("selected-accent-color", "None");
+                if !init {
+                    let _ = imp.settings.set("selected-accent-color", "None");
+                }
             }
             false => {
                 imp.select_bottom_color.set_sensitive(true);
-                self.get_selected_accent_color();
+                self.get_selected_accent_color(init);
             }
         };
     }
 
-    fn get_selected_accent_color(&self) {
+    fn get_selected_accent_color(&self, init: bool) {
         let color_vec = vec![
-            "Blue", "Teal", "Green", "Yellow", "orange", "Red", "Pink", "Purple", "Slate",
+            "Blue", "Teal", "Green", "Yellow", "Orange", "Red", "Pink", "Purple", "Slate",
         ];
         let imp = self.imp();
         let selected_index = imp.select_bottom_color.selected() as usize;
         let selected_color = color_vec[selected_index];
         debug!("Selected accent color: {selected_color}");
-        let _ = imp.settings.set("selected-accent-color", selected_color);
-        let _ = imp
-            .settings
-            .set("selected-accent-color-index", selected_index as i32);
+        if !init {
+            let _ = imp.settings.set("selected-accent-color", selected_color);
+            let _ = imp
+                .settings
+                .set("selected-accent-color-index", selected_index as i32);
+        }
     }
 
     fn reset_location_fn(&self) {
@@ -346,12 +350,14 @@ impl PreferencesDialog {
         });
     }
 
-    pub fn dnd_row_expand(&self) {
+    pub fn dnd_row_expand(&self, init: bool) {
         let switch_state = self.imp().dnd_switch.is_active();
-        let _ = self
-            .imp()
-            .settings
-            .set("default-dnd-activated", switch_state);
+        if !init {
+            let _ = self
+                .imp()
+                .settings
+                .set("default-dnd-activated", switch_state);
+        }
         debug!("Current switch state: {}", switch_state);
         match switch_state {
             true => {
@@ -370,12 +376,14 @@ impl PreferencesDialog {
         };
     }
 
-    fn bottom_image_expander(&self) {
+    fn bottom_image_expander(&self, init: bool) {
         let imp = self.imp();
         let button_1_active = imp.use_builtin_icons_button.is_active();
-        let _ = imp
-            .settings
-            .set("manual-bottom-image-selection", !button_1_active);
+        if !init {
+            let _ = imp
+                .settings
+                .set("manual-bottom-image-selection", !button_1_active);
+        }
         match button_1_active {
             true => {
                 self.imp()
