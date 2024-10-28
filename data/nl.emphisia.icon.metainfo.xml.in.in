@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <component type="desktop-application">
-  <!--Created with jdAppStreamEdit 9.1-->
+  <!--Created with jdAppStreamEdit 9.2-->
   <id>@app-id@</id>
   <name>Iconic</name>
   <summary>Easily add icons on top of folders</summary>
@@ -20,11 +20,26 @@
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true</image>
     </screenshot>
     <screenshot>
+      <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light%20alt.png?raw=true</image>
+    </screenshot>
+    <screenshot>
       <caption>Main menu in dark mode</caption>
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20dark.png?raw=true</image>
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2024.10.2" date="2024-10-29" type="stable">
+      <description>
+        <p>This is a nice big update to Iconic making it way more colorfull and better for gnome 47. Features include</p>
+        <ul>
+          <li>Custom accent color folders</li>
+          <li>Accent color detection</li>
+          <li>Updated settings</li>
+          <li>Bug fixes!</li>
+        </ul>
+        <p>As always, please let me know if you encounter any bugs!</p>
+      </description>
+    </release>
     <release version="2024.10.1" date="2024-10-15" type="stable">
       <description>
         <p>This update to iconic is mostly just a version bump. However I do have some fun features I want to try and implement. If it is possible, idk yet. But I have already started working on it.</p>
