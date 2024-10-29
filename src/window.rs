@@ -802,7 +802,7 @@ impl GtkTestWindow {
     pub fn drag_and_drop_information_dialog(&self) {
         let imp = self.imp();
         if imp.settings.boolean("drag-and-drop-popup-shown") {
-            ()
+            return ();
         }
         const RESPONSE_OK: &str = "OK";
         let dialog = adw::AlertDialog::builder()

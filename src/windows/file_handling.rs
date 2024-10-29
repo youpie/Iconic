@@ -28,16 +28,17 @@ impl GtkTestWindow {
                         win.reset_colors();
                     }
                 }
+                info!("Loading path: {:?}", &path);
                 win.load_folder_icon(&path.into_os_string().into_string().unwrap());
             }
         ));
     }
 
     pub async fn load_built_in_bottom_icon(&self) -> PathBuf {
-        let style_manager = adw::StyleManager::default();
-        let current_accent_color = self.get_accent_color_and_dialog();
-        let folder_color_name = match current_accent_color.as_str() {
-            "None" => format!("{:?}", style_manager.accent_color()),
+        let imp = self.imp();
+        let current_set_accent_color = imp.settings.string("selected-accent-color");
+        let folder_color_name = match current_set_accent_color.as_str() {
+            "None" => self.get_accent_color_and_dialog(),
             x => x.to_string(),
         };
         let folder_path = PathBuf::from(format!(
