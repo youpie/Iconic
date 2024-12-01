@@ -127,6 +127,10 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                         hexpand: true;
                         vexpand: true;
                       }
+                      PopoverMenu popover_image {
+                        name: "popover_image";
+                        menu-model: image_menu;
+                      }
                       [overlay]
                       Adw.Spinner image_loading_spinner{
                         valign: center;
@@ -280,6 +284,8 @@ template $GtkTestWindow : Adw.ApplicationWindow {
   //styles ["devel"]
 }
 
+
+
 menu primary_menu {
   section {
   item {
@@ -320,6 +326,20 @@ menu primary_menu {
 
     item {
       label: _("_About Iconic");
+      action: "app.about";
+    }
+  }
+}
+
+menu image_menu {
+  section {
+    item {
+      label: _("Keyboard Shortcuts");
+      action: "app.shortcuts";
+    }
+
+    item {
+      label: _("About Workbench");
       action: "app.about";
     }
   }
