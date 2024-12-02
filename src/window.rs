@@ -466,6 +466,7 @@ impl GtkTestWindow {
     */
     fn create_image_properties_string(&self) -> String {
         let imp = self.imp();
+        let is_default_color = 1;
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();
@@ -474,7 +475,8 @@ impl GtkTestWindow {
         let monochrome_color_val = imp.monochrome_color.rgba().to_string();
         let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
         let combined_string = format!(
-            "{}-{}-{}-{}-{}-{}-{}",
+            "{}-{}-{}-{}-{}-{}-{}-{}",
+            is_default_color,
             x_scale_val,
             y_scale_val,
             zoom_val,

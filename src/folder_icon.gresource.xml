@@ -4,5 +4,6 @@
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     <file preprocess="xml-stripblanks">settings/settings.ui</file>
+    <file preprocess="xml-stripblanks">../data/icons/update-symbolic.svg</file>
   </gresource>
 </gresources>
