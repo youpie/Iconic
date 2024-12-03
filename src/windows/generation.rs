@@ -1,6 +1,7 @@
 use adw::{prelude::*, subclass::prelude::*};
 use gtk::{gdk, glib};
 use image::*;
+use log::*;
 
 use crate::GtkTestWindow;
 
@@ -41,6 +42,8 @@ impl GtkTestWindow {
                 .generate_image(base, top_image, imageops::FilterType::Nearest)
                 .await,
         );
+
+        error!("set paintable");
         imp.image_view.set_paintable(Some(&texture));
         imp.image_view.queue_draw();
     }

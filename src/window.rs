@@ -88,8 +88,6 @@ mod imp {
         pub main_status_page: TemplateChild<adw::StatusPage>,
         #[template_child]
         pub image_preferences: TemplateChild<adw::Clamp>,
-        #[template_child]
-        pub popover_image: TemplateChild<gtk::PopoverMenu>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
@@ -121,7 +119,6 @@ mod imp {
                 scale_row: TemplateChild::default(),
                 monochrome_switch: TemplateChild::default(),
                 image_preferences: TemplateChild::default(),
-                popover_image: TemplateChild::default(),
                 bottom_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),
@@ -369,17 +366,6 @@ impl GtkTestWindow {
             ("Purple".to_string(), win.create_rgba(145, 65, 172)),
             ("Slate".to_string(), win.create_rgba(111, 131, 150)),
         ]));
-
-        let gesture = GestureClick::new();
-        gesture.set_button(3); // Right-click (button 3)
-        gesture.connect_pressed(clone!(
-            #[weak (rename_to = window)]
-            win,
-            move |_, _, _, _| {
-                window.imp().popover_image.popup();
-            }
-        ));
-        imp.image_view.add_controller(gesture);
         imp.save_button.set_sensitive(false);
         imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
@@ -392,6 +378,7 @@ impl GtkTestWindow {
         win.load_folder_path_from_settings();
         win.setup_settings();
         win.setup_update();
+        win.regenerate_icons();
         win
     }
 
@@ -405,14 +392,14 @@ impl GtkTestWindow {
         let imp = self.imp();
         //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
         let generated_image = imp.generated_image.borrow().clone().unwrap();
-        let file_name = imp.top_image_file.lock().unwrap().clone().unwrap().filename;
+        let file_hash = imp.top_image_file.lock().unwrap().clone().unwrap().hash;
         let icon = self.dynamic_image_to_texture(&generated_image.resize(
             64,
             64,
             imageops::FilterType::Nearest,
         ));
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
-        let gio_file = self.create_drag_file(&file_name);
+        let gio_file = self.create_drag_file(file_hash);
         imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
         let gio_file_clone = gio_file.clone();
         glib::spawn_future_local(clone!(
@@ -427,24 +414,13 @@ impl GtkTestWindow {
         )))
     }
 
-    pub fn create_drag_file(&self, file_name: &str) -> gio::File {
+    pub fn create_drag_file(&self, file_hash: u64) -> gio::File {
         // let imp = self.imp();
-        let data_path = match env::var("XDG_DATA_HOME") {
-            Ok(value) => PathBuf::from(value),
-            Err(_) => {
-                let config_dir = PathBuf::from(env::var("HOME").unwrap())
-                    .join(".data")
-                    .join("Iconic");
-                if !config_dir.exists() {
-                    fs::create_dir(&config_dir).unwrap();
-                }
-                config_dir
-            }
-        };
+        let data_path = self.get_data_path();
         debug!("data path: {:?}", data_path);
         // let random_number = random::<u64>();
         let properties_string = self.create_image_properties_string();
-        let generated_file_name = format!("folder-{}-{}.png", properties_string, file_name);
+        let generated_file_name = format!("folder_new-{}-{}.png", properties_string, file_hash);
         debug!("generated_file_name: {}", generated_file_name);
         let mut file_path = data_path.clone();
         file_path.push(generated_file_name.clone());
@@ -466,7 +442,11 @@ impl GtkTestWindow {
     */
     fn create_image_properties_string(&self) -> String {
         let imp = self.imp();
-        let is_default_color = 1;
+        let is_default_color = imp.settings.boolean("manual-bottom-image-selection") as usize;
+        let follows_accent_color = match imp.settings.string("selected-accent-color").as_str() {
+            "None" => 1,
+            _ => 0,
+        };
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();
@@ -475,8 +455,9 @@ impl GtkTestWindow {
         let monochrome_color_val = imp.monochrome_color.rgba().to_string();
         let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
         let combined_string = format!(
-            "{}-{}-{}-{}-{}-{}-{}-{}",
+            "{}-{}-{}-{}-{}-{}-{}-{}-{}",
             is_default_color,
+            follows_accent_color,
             x_scale_val,
             y_scale_val,
             zoom_val,
@@ -750,6 +731,22 @@ impl GtkTestWindow {
             }
         };
         cache_path
+    }
+
+    pub fn get_data_path(&self) -> PathBuf {
+        let data_path = match env::var("XDG_DATA_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".data")
+                    .join("nl.emphisia.icon");
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
+        data_path
     }
 
     pub fn copy_folder_image_to_cache(

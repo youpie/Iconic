@@ -58,4 +58,20 @@ impl GtkTestWindow {
         }
         Ok(())
     }
+
+    pub fn regenerate_icons(&self) -> GenResult<()> {
+        let imp = self.imp();
+        let data_path = self.get_data_path();
+        for file in fs::read_dir(data_path).unwrap() {
+            let file_name = file?.file_name();
+            debug!("File found: {:?}", file_name);
+            let file_name_str = file_name.to_str().unwrap().to_string();
+            let mut file_properties = file_name_str.split("-");
+            if file_properties.nth(0).unwrap_or("folder") != "folder_new" {
+                warn!("File not supported for regeneration");
+                continue;
+            }
+        }
+        Ok(())
+    }
 }
