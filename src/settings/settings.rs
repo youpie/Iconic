@@ -53,6 +53,8 @@ mod imp {
         pub regenerate_icons: TemplateChild<adw::ButtonRow>,
         #[template_child]
         pub use_system_color: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub store_top_images: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
     }
 
@@ -80,6 +82,7 @@ mod imp {
                 use_builtin_icons_expander: TemplateChild::default(),
                 use_system_color: TemplateChild::default(),
                 regenerate_icons: TemplateChild::default(),
+                store_top_images: TemplateChild::default(),
             }
         }
 
@@ -176,6 +179,9 @@ impl PreferencesDialog {
     fn setup_settings(&self) {
         let imp = self.imp();
         let current_value: i32 = imp.settings.get("svg-render-size");
+        imp.settings
+            .bind("store-top-in-cache", &*imp.store_top_images, "active")
+            .build();
         imp.svg_image_size.set_value(current_value as f64);
         imp.svg_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
@@ -323,7 +329,7 @@ impl PreferencesDialog {
             Err(_) => {
                 let config_dir = PathBuf::from(env::var("HOME").unwrap())
                     .join(".cache")
-                    .join("Iconic");
+                    .join("nl.emphisia.icon");
                 if !config_dir.exists() {
                     fs::create_dir(&config_dir).unwrap();
                 }

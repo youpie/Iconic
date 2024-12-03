@@ -370,7 +370,14 @@ impl GtkTestWindow {
                         return None;
                     }
                 };
-            self.store_top_image_in_cache(&iconic_file, &file_temp);
+            if change_top_icon {
+                match self.store_top_image_in_cache(&iconic_file, &file_temp) {
+                    Err(x) => {
+                        self.show_error_popup("", true, Some(x));
+                    }
+                    _ => (),
+                };
+            }
             Some(iconic_file)
         } else if let Some(path_temp) = path {
             let file_temp = gio::File::for_path(path_temp);
@@ -383,7 +390,14 @@ impl GtkTestWindow {
                         return None;
                     }
                 };
-            self.store_top_image_in_cache(&iconic_file, &file_temp);
+            if change_top_icon {
+                match self.store_top_image_in_cache(&iconic_file, &file_temp) {
+                    Err(x) => {
+                        self.show_error_popup("", true, Some(x));
+                    }
+                    _ => (),
+                };
+            }
             Some(iconic_file)
         } else {
             self.show_error_popup(

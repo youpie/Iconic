@@ -42,6 +42,7 @@ impl File {
         };
         let name_no_extension = file_name.replace(&file_extension, "");
         let hash = Self::create_hash(&dynamic_image);
+        debug!("hash of created file: {}", hash);
         let thumbnail = if file_extension == ".svg" {
             let path = &temp_path.as_os_str().to_str().unwrap();
             Self::load_svg(path, thumbnail_size)?
@@ -135,7 +136,7 @@ impl File {
     // Adds hash of file to file name
     fn create_hash(image: &DynamicImage) -> u64 {
         let mut hasher = DefaultHasher::new();
-        let _ = image.as_rgb8().hash(&mut hasher);
+        let _ = image.as_bytes().hash(&mut hasher);
         hasher.finish()
     }
 
