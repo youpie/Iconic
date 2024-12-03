@@ -49,5 +49,9 @@
       <default>false</default>
       <summary>If true, the pop-up informing the user that it is possible to drag images straight out of iconic has already been shown</summary>
     </key>
+    <key name="store-top-in-cache" type="b">
+      <default>false</default>
+      <summary>If true, iconic will store top images in chache</summary>
+    </key>
 	</schema>
 </schemalist>

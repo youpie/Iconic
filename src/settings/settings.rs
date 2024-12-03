@@ -50,6 +50,8 @@ mod imp {
         #[template_child]
         pub use_builtin_icons_expander: TemplateChild<adw::ExpanderRow>,
         #[template_child]
+        pub regenerate_icons: TemplateChild<adw::ButtonRow>,
+        #[template_child]
         pub use_system_color: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
     }
@@ -77,6 +79,7 @@ mod imp {
                 use_external_icon_expander: TemplateChild::default(),
                 use_builtin_icons_expander: TemplateChild::default(),
                 use_system_color: TemplateChild::default(),
+                regenerate_icons: TemplateChild::default(),
             }
         }
 
@@ -160,6 +163,8 @@ impl PreferencesDialog {
         }
         imp.select_bottom_color
             .set_selected(imp.settings.int("selected-accent-color-index") as u32);
+        imp.regenerate_icons
+            .set_start_icon_name(Some("software-update-available-symbolic"));
         win.dnd_row_expand(true);
         win.set_path_title();
         win.bottom_image_expander(true);
