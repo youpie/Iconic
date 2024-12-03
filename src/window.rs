@@ -202,6 +202,15 @@ mod imp {
                     }
                 ));
             });
+            klass.install_action("app.regenerate", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    win,
+                    async move {
+                        win.regenerate_icons().await;
+                    }
+                ));
+            });
             klass.install_action("app.save_button", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
                     #[weak]
@@ -378,11 +387,10 @@ impl GtkTestWindow {
         win.load_folder_path_from_settings();
         win.setup_settings();
         win.setup_update();
-        win.regenerate_icons();
         win
     }
 
-    fn create_rgba(&self, r: u8, g: u8, b: u8) -> gdk::RGBA {
+    pub fn create_rgba(&self, r: u8, g: u8, b: u8) -> gdk::RGBA {
         let r_float = 1.0 / 255.0 * r as f32;
         let g_float = 1.0 / 255.0 * g as f32;
         let b_float = 1.0 / 255.0 * b as f32;
@@ -442,28 +450,31 @@ impl GtkTestWindow {
     */
     fn create_image_properties_string(&self) -> String {
         let imp = self.imp();
-        let is_default_color = imp.settings.boolean("manual-bottom-image-selection") as usize;
-        let follows_accent_color = match imp.settings.string("selected-accent-color").as_str() {
-            "None" => 1,
-            _ => 0,
-        };
+        let is_default = (!imp.settings.boolean("manual-bottom-image-selection")
+            && imp.settings.string("selected-accent-color").as_str() == "None")
+            as usize;
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();
         let is_monochrome = imp.monochrome_switch.is_active() as u8;
         let monochrome_slider = imp.threshold_scale.value();
-        let monochrome_color_val = imp.monochrome_color.rgba().to_string();
+        let monochrome_red_val = imp.monochrome_color.rgba().red().to_string();
+        let monochrome_green_val = imp.monochrome_color.rgba().green().to_string();
+        let monochrome_blue_val = imp.monochrome_color.rgba().blue().to_string();
         let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
+        let is_default_monochrome = imp.monochrome_color.rgba() == self.get_default_color();
+        debug!("is default? {}", is_default_monochrome);
         let combined_string = format!(
-            "{}-{}-{}-{}-{}-{}-{}-{}-{}",
-            is_default_color,
-            follows_accent_color,
+            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
+            is_default,
             x_scale_val,
             y_scale_val,
             zoom_val,
             is_monochrome,
             monochrome_slider,
-            monochrome_color_val,
+            monochrome_red_val,
+            monochrome_green_val,
+            monochrome_blue_val,
             monochrome_inverted
         );
         debug!("{}", &combined_string);
