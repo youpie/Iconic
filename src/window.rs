@@ -689,18 +689,7 @@ impl GtkTestWindow {
     pub async fn check_chache_icon(&self, file_name: &str) -> PathBuf {
         let imp = self.imp();
         let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
-        let cache_path = match env::var("XDG_CACHE_HOME") {
-            Ok(value) => PathBuf::from(value),
-            Err(_) => {
-                let config_dir = PathBuf::from(env::var("HOME").unwrap())
-                    .join(".cache")
-                    .join("Iconic");
-                if !config_dir.exists() {
-                    fs::create_dir(&config_dir).unwrap();
-                }
-                config_dir
-            }
-        };
+        let cache_path = self.get_cache_path();
         let folder_icon_cache_path = cache_path.join(file_name);
         if folder_icon_cache_path.exists() {
             info!("File found in cache at: {:?}", folder_icon_cache_path);
@@ -745,6 +734,22 @@ impl GtkTestWindow {
             }
             _ => unreachable!(),
         };
+    }
+
+    pub fn get_cache_path(&self) -> PathBuf {
+        let cache_path = match env::var("XDG_CACHE_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".cache")
+                    .join(format!("nl.emphisia.icon"));
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
+        cache_path
     }
 
     pub fn copy_folder_image_to_cache(

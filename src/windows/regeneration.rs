@@ -20,19 +20,7 @@ impl GtkTestWindow {
             return ();
         }
         //create folder inside cache
-        let cache_path = match env::var("XDG_CACHE_HOME") {
-            Ok(value) => PathBuf::from(value),
-            Err(_) => {
-                let config_dir = PathBuf::from(env::var("HOME").unwrap())
-                    .join(".cache")
-                    .join("Iconic");
-                if !config_dir.exists() {
-                    fs::create_dir(&config_dir).unwrap();
-                }
-                config_dir
-            }
-        };
-        let cache_path = cache_path.join("top_images");
+        let cache_path = self.get_cache_path().join("top_images");
         debug!("{:?}", cache_path)
     }
 }
