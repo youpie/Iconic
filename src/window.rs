@@ -88,6 +88,8 @@ mod imp {
         pub main_status_page: TemplateChild<adw::StatusPage>,
         #[template_child]
         pub image_preferences: TemplateChild<adw::Clamp>,
+        #[template_child]
+        pub regeneration_progress: TemplateChild<gtk::ProgressBar>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
@@ -133,6 +135,7 @@ mod imp {
                 main_status_page: TemplateChild::default(),
                 monochrome_invert: TemplateChild::default(),
                 image_loading_spinner: TemplateChild::default(),
+                regeneration_progress: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
                 default_color: RefCell::new(HashMap::new()),
@@ -207,7 +210,17 @@ mod imp {
                     #[weak]
                     win,
                     async move {
-                        win.regenerate_icons().await;
+                        let imp = win.imp();
+                        let previous_stack = imp.stack.visible_child_name().unwrap();
+                        debug!("previous stack {}", previous_stack);
+                        imp.stack.set_visible_child_name("regenerating_page");
+                        match win.regenerate_icons().await {
+                            Ok(_) => (),
+                            Err(x) => {
+                                win.show_error_popup(&format!("{}", x), true, None);
+                            }
+                        };
+                        imp.stack.set_visible_child_name(&previous_stack);
                     }
                 ));
             });
@@ -375,6 +388,11 @@ impl GtkTestWindow {
             ("Purple".to_string(), win.create_rgba(145, 65, 172)),
             ("Slate".to_string(), win.create_rgba(111, 131, 150)),
         ]));
+        win.setup_defaults();
+        win
+    }
+    pub fn setup_defaults(&self) {
+        let imp = self.imp();
         imp.save_button.set_sensitive(false);
         imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
@@ -384,10 +402,9 @@ impl GtkTestWindow {
         imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
         imp.stack.set_visible_child_name("stack_welcome_page");
         imp.reset_color.set_visible(false);
-        win.load_folder_path_from_settings();
-        win.setup_settings();
-        win.setup_update();
-        win
+        self.load_folder_path_from_settings();
+        self.setup_settings();
+        self.setup_update();
     }
 
     pub fn create_rgba(&self, r: u8, g: u8, b: u8) -> gdk::RGBA {
@@ -465,7 +482,7 @@ impl GtkTestWindow {
         let is_default_monochrome = imp.monochrome_color.rgba() == self.get_default_color();
         debug!("is default? {}", is_default_monochrome);
         let combined_string = format!(
-            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
+            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
             is_default,
             x_scale_val,
             y_scale_val,
@@ -475,7 +492,8 @@ impl GtkTestWindow {
             monochrome_red_val,
             monochrome_green_val,
             monochrome_blue_val,
-            monochrome_inverted
+            monochrome_inverted,
+            is_default_monochrome
         );
         debug!("{}", &combined_string);
         combined_string

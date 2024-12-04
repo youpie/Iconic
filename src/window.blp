@@ -74,6 +74,73 @@ template $GtkTestWindow: Adw.ApplicationWindow {
     }
 
     StackPage {
+      name: "regenerating_page";
+
+      child: Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+          title-widget: Adw.WindowTitle {
+            title: "Iconic";
+          };
+
+          [end]
+          MenuButton {
+            primary: true;
+            icon-name: "open-menu-symbolic";
+            tooltip-text: _("Menu");
+            menu-model: primary_menu;
+          }
+        }
+
+        content: Adw.Clamp {
+          width-request: 300;
+
+          child: Box {
+            valign: center;
+            halign: center;
+            orientation: vertical;
+            spacing: 20;
+
+            Adw.Spinner {
+              valign: center;
+              halign: center;
+              width-request: 50;
+              height-request: 50;
+              visible: true;
+            }
+
+            Label {
+              margin-top: 10;
+              label: _("Regenerating");
+              wrap: true;
+              valign: center;
+
+              styles [
+                "heading"
+              ]
+            }
+
+            Label {
+              label: _("Iconic is regenerating the previously generated icons");
+              wrap: true;
+              valign: center;
+
+              styles [
+                "subtitle"
+              ]
+            }
+
+            ProgressBar regeneration_progress {
+              fraction: 0.0;
+              show-text: true;
+              margin-bottom: 24;
+            }
+          };
+        };
+      };
+    }
+
+    StackPage {
       name: "stack_main_page";
 
       child: Adw.ToastOverlay toast_overlay {

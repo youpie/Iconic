@@ -1,4 +1,5 @@
 use adw::prelude::FileExt;
+use error::UnsupportedError;
 use gio::{Cancellable, FileQueryInfoFlags};
 use gtk::gio;
 use image::*;
@@ -38,7 +39,14 @@ impl File {
             let path = &temp_path.as_os_str().to_str().unwrap();
             Self::load_svg(path, size)?
         } else {
-            image::open(temp_path.clone().into_os_string())?
+            match image::open(temp_path.clone().into_os_string()) {
+                Err(_) => {
+                    let mut image = ImageReader::open(temp_path.clone().into_os_string())?;
+                    image.set_format(ImageFormat::Png);
+                    image.decode()?
+                }
+                Ok(x) => x,
+            }
         };
         let name_no_extension = file_name.replace(&file_extension, "");
         let hash = Self::create_hash(&dynamic_image);

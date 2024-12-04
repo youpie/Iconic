@@ -104,7 +104,7 @@ impl GtkTestWindow {
         filter: imageops::FilterType,
     ) -> DynamicImage {
         let imp = self.imp();
-        imp.stack.set_visible_child_name("stack_main_page");
+        //imp.stack.set_visible_child_name("stack_main_page");
         // imp.image_saved.replace(false);
         // imp.save_button.set_sensitive(true);
         let (tx_texture, rx_texture) = async_channel::bounded(1);

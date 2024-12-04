@@ -69,11 +69,14 @@ impl GtkTestWindow {
                             .unwrap();
                     match top_file_selected {
                         Some(true) => {
-                            imp.top_image_file.lock().unwrap().replace(File::from_image(
-                                image,
-                                thumbnail_size,
-                                "pasted",
-                            ));
+                            let iconic_file = File::from_image(image, thumbnail_size, "pasted");
+                            match self.store_top_image_in_cache(&iconic_file, None) {
+                                Err(x) => {
+                                    self.show_error_popup(&x.to_string(), true, None);
+                                }
+                                _ => (),
+                            };
+                            imp.top_image_file.lock().unwrap().replace(iconic_file);
                         }
                         _ => {
                             imp.bottom_image_file
@@ -371,7 +374,7 @@ impl GtkTestWindow {
                     }
                 };
             if change_top_icon {
-                match self.store_top_image_in_cache(&iconic_file, &file_temp) {
+                match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
                     Err(x) => {
                         self.show_error_popup("", true, Some(x));
                     }
@@ -391,7 +394,7 @@ impl GtkTestWindow {
                     }
                 };
             if change_top_icon {
-                match self.store_top_image_in_cache(&iconic_file, &file_temp) {
+                match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
                     Err(x) => {
                         self.show_error_popup("", true, Some(x));
                     }

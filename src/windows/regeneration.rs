@@ -15,7 +15,7 @@ impl GtkTestWindow {
     pub fn store_top_image_in_cache(
         &self,
         file: &File,
-        original_file: &gio::File,
+        original_file: Option<&gio::File>,
     ) -> GenResult<()> {
         let imp = self.imp();
         if !imp.settings.boolean("store-top-in-cache") {
@@ -50,14 +50,18 @@ impl GtkTestWindow {
         // SVG's are often very small in size, so if it is an SVG. Save that image. Otherwise store the dynamic image.
         // I do not know how this code below works, but it does. So I am not touching it
         // TODO implement async?
-        if file.extension == "image/svg+xml" {
+        if file.extension == "image/svg+xml" && original_file != None {
             let new_file = gio::File::for_path(file_path);
             let filestream = new_file.open_readwrite(gio::Cancellable::NONE).unwrap();
             let test = filestream.output_stream();
-            let buffer = original_file.load_bytes(gio::Cancellable::NONE).unwrap();
+            let buffer = original_file
+                .unwrap()
+                .load_bytes(gio::Cancellable::NONE)
+                .unwrap();
             test.write_bytes(&buffer.0, gio::Cancellable::NONE).unwrap();
         } else {
-            file.dynamic_image.save(file_path)?;
+            file.dynamic_image
+                .save_with_format(file_path, ImageFormat::Png)?;
         }
         Ok(())
     }
@@ -65,13 +69,18 @@ impl GtkTestWindow {
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
         let data_path = self.get_data_path();
-        for file in fs::read_dir(data_path).unwrap() {
+        let files = fs::read_dir(&data_path).unwrap();
+        let files_n = fs::read_dir(&data_path).unwrap().count();
+        let step_size = 1.0 / files_n as f64;
+        for file in files {
             let current_file = file?;
             let file_name = current_file.file_name();
             let file_path = current_file.path();
             debug!("File found: {:?}", file_name);
             let file_name_str = file_name.to_str().unwrap().to_string();
             let mut file_properties = file_name_str.split("-");
+            imp.regeneration_progress
+                .set_fraction(imp.regeneration_progress.fraction() + step_size);
             if file_properties.nth(0).unwrap_or("folder") != "folder_new" {
                 warn!("File not supported for regeneration");
                 continue;
@@ -81,6 +90,14 @@ impl GtkTestWindow {
                 warn!("Non-default image, not converting");
                 continue;
             }
+            let hash = properties_list[11].split(".").nth(0).unwrap();
+            let mut top_image_path = self.get_cache_path().join("top_images");
+            top_image_path.push(hash);
+
+            if !top_image_path.exists() {
+                warn!("Top image file not found");
+                continue;
+            }
 
             debug!("properties list: {:?}", properties_list);
             let current_accent_color = self.get_accent_color_and_dialog();
@@ -88,14 +105,16 @@ impl GtkTestWindow {
                 "/app/share/folder_icon/folders/folder_{}.svg",
                 &current_accent_color
             ));
-            let hash = properties_list[10].split(".").nth(0).unwrap();
-            let mut top_image_path = self.get_cache_path().join("top_images");
-            top_image_path.push(hash);
+
+            let top_image = self.create_top_image_for_generation(
+                properties_list.clone(),
+                File::from_path(top_image_path, 1024, 255)?.dynamic_image,
+            );
             self.set_properties(properties_list);
             let generated_image = self
                 .generate_image(
                     File::from_path(bottom_image_path, 1024, 255)?.dynamic_image,
-                    File::from_path(top_image_path, 1024, 255)?.dynamic_image,
+                    top_image,
                     imageops::FilterType::Gaussian,
                 )
                 .await;
@@ -118,7 +137,23 @@ impl GtkTestWindow {
             .set_active(properties[9].parse::<usize>().unwrap() != 0);
     }
 
-    // fn create_top_image(&self, properties: Vec<&str>, top_image: DynamicImage) -> DynamicImage {
-    //     self.to_monochrome(top_image, properties[5].parse().unwrap(), color)
-    // }
+    fn create_top_image_for_generation(
+        &self,
+        properties: Vec<&str>,
+        top_image: DynamicImage,
+    ) -> DynamicImage {
+        let color = match properties[10] {
+            "false" => RGBA::new(
+                properties[6].parse().unwrap(),
+                properties[7].parse().unwrap(),
+                properties[8].parse().unwrap(),
+                1.0,
+            ),
+            _ => self.get_default_color(),
+        };
+        match properties[4] {
+            "1" => self.to_monochrome(top_image, properties[5].parse().unwrap(), color),
+            _ => top_image,
+        }
+    }
 }
