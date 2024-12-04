@@ -59,6 +59,8 @@ mod imp {
         #[template_child]
         pub image_view: TemplateChild<gtk::Picture>,
         #[template_child]
+        pub regeneration_image_view: TemplateChild<gtk::Picture>,
+        #[template_child]
         pub save_button: TemplateChild<gtk::Button>,
         #[template_child]
         pub x_scale: TemplateChild<gtk::Scale>,
@@ -115,6 +117,7 @@ mod imp {
                 toast_overlay: TemplateChild::default(),
                 open_top_icon: TemplateChild::default(),
                 image_view: TemplateChild::default(),
+                regeneration_image_view: TemplateChild::default(),
                 save_button: TemplateChild::default(),
                 threshold_scale: TemplateChild::default(),
                 reset_color: TemplateChild::default(),

@@ -75,46 +75,18 @@ impl GtkTestWindow {
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
         let data_path = self.get_data_path();
-        let files: fs::ReadDir = fs::read_dir(&data_path).unwrap();
-        let mut compatible_files: Vec<fs::DirEntry> = vec![];
-        for file in files {
-            let current_file = file?;
-            let file_name = current_file.file_name();
-            debug!("File found: {:?}", file_name);
-            let file_name_str = file_name.to_str().unwrap().to_string();
-            let mut file_properties = file_name_str.split("-");
-            // imp.regeneration_progress
-            //     .set_fraction(imp.regeneration_progress.fraction() + step_size);
-            if file_properties.nth(0).unwrap_or("folder") != "folder_new" {
-                warn!("File not supported for regeneration");
-                continue;
-            }
-            let properties_list: Vec<&str> = file_properties.into_iter().collect();
-            if !(properties_list[0].parse::<usize>().unwrap() != 0) {
-                warn!("Non-default image, not converting");
-                continue;
-            }
-            let hash = properties_list[11].split(".").nth(0).unwrap();
-            let mut top_image_path = self.get_cache_path().join("top_images");
-            top_image_path.push(hash);
-
-            if !top_image_path.exists() {
-                warn!("Top image file not found");
-                continue;
-            }
-            compatible_files.push(current_file);
-        }
+        let compatible_files = self.find_regeneratable_icons(data_path)?;
+        imp.regeneration_progress.set_fraction(0.0);
         let files_n = compatible_files.len();
         let step_size = 1.0 / files_n as f64;
         let mut file_index: usize = 0;
         for file in compatible_files {
             file_index += 1;
             self.progress_animation(step_size);
-            self.file_progress_indicator(file_index, files_n);
             let file_name = file.file_name();
             let file_path = file.path();
-            let file_name_str = file_name.to_str().unwrap().to_string();
-            let file_properties = file_name_str.split("-");
+            let file_name = file_name.to_str().unwrap().to_string();
+            let file_properties = file_name.split("-");
             let properties_list: Vec<&str> = file_properties.into_iter().collect();
             debug!("properties list: {:?}", properties_list);
             let current_accent_color = self.get_accent_color_and_dialog();
@@ -142,12 +114,51 @@ impl GtkTestWindow {
             })
             .await??
             .dynamic_image;
+            self.image_animation(false);
             let generated_image = self
                 .generate_image(bottom_image_file, top_image, imageops::FilterType::Gaussian)
                 .await;
+            let pixbuf = self.dynamic_image_to_texture(&generated_image);
+            imp.regeneration_image_view.set_paintable(Some(&pixbuf));
+            imp.regeneration_image_view.queue_draw();
+            self.image_animation(true);
+            self.file_progress_indicator(file_index, files_n);
             tokio::task::spawn_blocking(move || generated_image.save(file_path)).await??;
         }
         Ok(())
+    }
+
+    fn find_regeneratable_icons(&self, dir: PathBuf) -> GenResult<Vec<fs::DirEntry>> {
+        let mut regeneratable: Vec<fs::DirEntry> = vec![];
+        let files: fs::ReadDir = fs::read_dir(&dir).unwrap();
+        for file in files {
+            let current_file = file?;
+            let file_name = current_file.file_name();
+            debug!("File found: {:?}", file_name);
+            let file_name_str = file_name.to_str().unwrap().to_string();
+            let mut file_properties = file_name_str.split("-");
+            // imp.regeneration_progress
+            //     .set_fraction(imp.regeneration_progress.fraction() + step_size);
+            if file_properties.nth(0).unwrap_or("folder") != "folder_new" {
+                warn!("File not supported for regeneration");
+                continue;
+            }
+            let properties_list: Vec<&str> = file_properties.into_iter().collect();
+            if !(properties_list[0].parse::<usize>().unwrap() != 0) {
+                warn!("Non-default image, not converting");
+                continue;
+            }
+            let hash = properties_list[11].split(".").nth(0).unwrap();
+            let mut top_image_path = self.get_cache_path().join("top_images");
+            top_image_path.push(hash);
+
+            if !top_image_path.exists() {
+                warn!("Top image file not found");
+                continue;
+            }
+            regeneratable.push(current_file);
+        }
+        Ok(regeneratable)
     }
 
     fn set_properties(&self, properties: Vec<&str>) -> GenResult<()> {
@@ -195,6 +206,27 @@ impl GtkTestWindow {
             .value_from(imp.regeneration_progress.fraction())
             .value_to(imp.regeneration_progress.fraction() + step_size)
             .duration(600)
+            .easing(adw::Easing::EaseInOutCubic)
+            .build()
+            .play();
+        debug!("Animation done ");
+    }
+
+    fn image_animation(&self, increase: bool) {
+        let (start, end) = match increase {
+            true => (0.0, 1.0),
+            false => (1.0, 0.0),
+        };
+        let imp = self.imp();
+        debug!("Starting animation");
+        let target =
+            adw::PropertyAnimationTarget::new(&imp.regeneration_image_view.to_owned(), "opacity");
+        adw::TimedAnimation::builder()
+            .target(&target)
+            .widget(&imp.regeneration_image_view.to_owned())
+            .value_from(start)
+            .value_to(end)
+            .duration(200)
             .easing(adw::Easing::EaseInOutCubic)
             .build()
             .play();

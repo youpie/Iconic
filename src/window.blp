@@ -7,153 +7,162 @@ template $GtkTestWindow: Adw.ApplicationWindow {
   width-request: 400;
   height-request: 650;
 
-  content: Stack stack {
-    transition-type: crossfade;
+  content: Adw.ToastOverlay toast_overlay {
+    Stack stack {
+      transition-type: crossfade;
 
-    StackPage {
-      name: "stack_welcome_page";
+      StackPage {
+        name: "stack_welcome_page";
 
-      child: Adw.ToolbarView {
-        [top]
-        Adw.HeaderBar {
-          title-widget: Adw.WindowTitle {
-            title: "Iconic";
-          };
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle {
+              title: "Iconic";
+            };
 
-          [end]
-          MenuButton {
-            primary: true;
-            icon-name: "open-menu-symbolic";
-            tooltip-text: _("Menu");
-            menu-model: primary_menu;
+            [end]
+            MenuButton {
+              primary: true;
+              icon-name: "open-menu-symbolic";
+              tooltip-text: _("Menu");
+              menu-model: primary_menu;
+            }
           }
-        }
 
-        Adw.StatusPage main_status_page {
-          icon-name: "nl.emphisia.icon";
-          title: _("Folder Icon Creator");
-          description: _("Click or Drag to Open Image");
-          hexpand: true;
-          vexpand: true;
+          Adw.StatusPage main_status_page {
+            icon-name: "nl.emphisia.icon";
+            title: _("Folder Icon Creator");
+            description: _("Click or Drag to Open Image");
+            hexpand: true;
+            vexpand: true;
 
-          child: Box {
-            orientation: vertical;
-            spacing: 20;
+            child: Box {
+              orientation: vertical;
+              spacing: 20;
 
-            Button open_top_icon {
-              valign: center;
-              halign: center;
-              label: _("_Open Image");
-              use-underline: true;
-              action-name: "app.open_top_icon";
+              Button open_top_icon {
+                valign: center;
+                halign: center;
+                label: _("_Open Image");
+                use-underline: true;
+                action-name: "app.open_top_icon";
 
-              styles [
-                "suggested-action",
-                "pill",
-              ]
-            }
+                styles [
+                  "suggested-action",
+                  "pill",
+                ]
+              }
 
-            Button open_bottom_icon {
-              valign: center;
-              halign: center;
-              label: _("_Show Bottom Layer");
-              use-underline: true;
-              action-name: "app.open_bottom_icon";
+              Button open_bottom_icon {
+                valign: center;
+                halign: center;
+                label: _("_Show Bottom Layer");
+                use-underline: true;
+                action-name: "app.open_bottom_icon";
 
-              styles [
-                "pill",
-              ]
-            }
-          };
+                styles [
+                  "pill",
+                ]
+              }
+            };
 
-          styles [
-            "icon-dropshadow"
-          ]
-        }
-      };
-    }
-
-    StackPage {
-      name: "regenerating_page";
-
-      child: Adw.ToolbarView {
-        [top]
-        Adw.HeaderBar {
-          title-widget: Adw.WindowTitle {
-            title: "Iconic";
-          };
-
-          [end]
-          MenuButton {
-            primary: true;
-            icon-name: "open-menu-symbolic";
-            tooltip-text: _("Menu");
-            menu-model: primary_menu;
+            styles [
+              "icon-dropshadow"
+            ]
           }
-        }
+        };
+      }
 
-        content: Adw.Clamp {
-          width-request: 300;
+      StackPage {
+        name: "regenerating_page";
 
-          child: Box {
-            valign: center;
-            halign: center;
-            orientation: vertical;
-            spacing: 20;
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle {
+              title: "Iconic";
+            };
 
-            Adw.Spinner {
-              valign: center;
-              halign: center;
-              width-request: 50;
-              height-request: 50;
-              visible: true;
+            [end]
+            MenuButton {
+              primary: true;
+              icon-name: "open-menu-symbolic";
+              tooltip-text: _("Menu");
+              menu-model: primary_menu;
             }
+          }
 
-            Label {
-              margin-top: 10;
-              label: _("Regenerating");
-              wrap: true;
-              valign: center;
+          content: Adw.Clamp {
+            width-request: 300;
 
-              styles [
-                "heading"
-              ]
-            }
+            Adw.PreferencesPage {
+              Adw.PreferencesGroup {
+                Box {
+                  Picture regeneration_image_view {
+                    vexpand: true;
+                    hexpand: true;
+                    width-request: 200;
+                    height-request: 200;
+                    content-fit: contain;
+                    can-shrink: true;
+                  }
+                }
+              }
 
-            Label {
-              label: _("Iconic is regenerating the previously generated icons");
-              wrap: true;
-              valign: center;
+              Adw.PreferencesGroup {
+                Box {
+                  orientation: vertical;
+                  height-request: 20;
+                  spacing: 20;
 
-              styles [
-                "subtitle"
-              ]
-            }
+                  Label {
+                    margin-top: 10;
+                    label: _("Regenerating");
+                    wrap: true;
+                    valign: center;
 
-            ProgressBar regeneration_progress {
-              fraction: 0.0;
-              show-text: true;
-            }
+                    styles [
+                      "heading"
+                    ]
+                  }
 
-            Label regeneration_file {
-              label: "File x/x";
-              wrap: true;
-              valign: center;
+                  Label {
+                    label: _("Iconic is regenerating the previously generated icons");
+                    wrap: true;
+                    valign: center;
 
-              styles [
-                "subtitle"
-              ]
+                    styles [
+                      "subtitle"
+                    ]
+                  }
+
+                  ProgressBar regeneration_progress {
+                    fraction: 0.0;
+                    show-text: true;
+                    width-request: 50;
+                  }
+
+                  Label regeneration_file {
+                    label: "File x/x";
+                    wrap: true;
+                    valign: center;
+
+                    styles [
+                      "subtitle"
+                    ]
+                  }
+                }
+              }
             }
           };
         };
-      };
-    }
+      }
 
-    StackPage {
-      name: "stack_main_page";
+      StackPage {
+        name: "stack_main_page";
 
-      child: Adw.ToastOverlay toast_overlay {
-        Adw.ToolbarView toolbar {
+        child: Adw.ToolbarView toolbar {
           [top]
           Adw.HeaderBar header_bar {
             Button save_button {
@@ -350,59 +359,58 @@ template $GtkTestWindow: Adw.ApplicationWindow {
               }
             }
           };
-        }
-      };
-    }
+        };
+      }
 
-    StackPage {
-      name: "stack_saving_page";
+      StackPage {
+        name: "stack_saving_page";
 
-      child: Adw.StatusPage {
-        Box {
-          orientation: vertical;
-          spacing: 12;
+        child: Adw.StatusPage {
+          Box {
+            orientation: vertical;
+            spacing: 12;
 
-          Adw.Spinner {
-            valign: center;
-            halign: center;
-            height-request: 32;
-            width-request: 32;
+            Adw.Spinner {
+              valign: center;
+              halign: center;
+              height-request: 32;
+              width-request: 32;
+            }
+
+            Label {
+              label: _("Saving...");
+              margin-bottom: 40;
+
+              styles [
+                "subtitle",
+              ]
+            }
           }
+        };
+      }
 
-          Label {
-            label: _("Saving...");
-            margin-bottom: 40;
+      StackPage {
+        name: "stack_loading_page";
 
-            styles [
-              "subtitle",
-            ]
+        child: Adw.StatusPage {
+          Box {
+            orientation: vertical;
+            spacing: 12;
+
+            Adw.Spinner {
+              valign: center;
+              halign: center;
+              height-request: 32;
+              width-request: 32;
+            }
           }
-        }
-      };
-    }
-
-    StackPage {
-      name: "stack_loading_page";
-
-      child: Adw.StatusPage {
-        Box {
-          orientation: vertical;
-          spacing: 12;
-
-          Adw.Spinner {
-            valign: center;
-            halign: center;
-            height-request: 32;
-            width-request: 32;
-          }
-        }
-      };
+        };
+      }
     }
   };
-
-  // styles ["devel"]
 }
 
+// styles ["devel"]
 menu primary_menu {
   section {
     item {
