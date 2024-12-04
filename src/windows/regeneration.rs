@@ -2,12 +2,14 @@ use crate::objects::file::File;
 use crate::GtkTestWindow;
 
 use adw::{prelude::*, subclass::prelude::*};
+use gettextrs::gettext;
 use gtk::gdk::RGBA;
 use gtk::gio;
 use image::*;
 use log::*;
 use std::fs;
 use std::path::PathBuf;
+use tokio;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -66,21 +68,23 @@ impl GtkTestWindow {
         Ok(())
     }
 
+    /*
+    This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
+    It is currently incredibly slow, but it does work.
+    After I added the animation, it got only more ugly. But the animation looks nice :)*/
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
         let data_path = self.get_data_path();
-        let files = fs::read_dir(&data_path).unwrap();
-        let files_n = fs::read_dir(&data_path).unwrap().count();
-        let step_size = 1.0 / files_n as f64;
+        let files: fs::ReadDir = fs::read_dir(&data_path).unwrap();
+        let mut compatible_files: Vec<fs::DirEntry> = vec![];
         for file in files {
             let current_file = file?;
             let file_name = current_file.file_name();
-            let file_path = current_file.path();
             debug!("File found: {:?}", file_name);
             let file_name_str = file_name.to_str().unwrap().to_string();
             let mut file_properties = file_name_str.split("-");
-            imp.regeneration_progress
-                .set_fraction(imp.regeneration_progress.fraction() + step_size);
+            // imp.regeneration_progress
+            //     .set_fraction(imp.regeneration_progress.fraction() + step_size);
             if file_properties.nth(0).unwrap_or("folder") != "folder_new" {
                 warn!("File not supported for regeneration");
                 continue;
@@ -98,43 +102,66 @@ impl GtkTestWindow {
                 warn!("Top image file not found");
                 continue;
             }
-
+            compatible_files.push(current_file);
+        }
+        let files_n = compatible_files.len();
+        let step_size = 1.0 / files_n as f64;
+        let mut file_index: usize = 0;
+        for file in compatible_files {
+            file_index += 1;
+            self.progress_animation(step_size);
+            self.file_progress_indicator(file_index, files_n);
+            let file_name = file.file_name();
+            let file_path = file.path();
+            let file_name_str = file_name.to_str().unwrap().to_string();
+            let file_properties = file_name_str.split("-");
+            let properties_list: Vec<&str> = file_properties.into_iter().collect();
             debug!("properties list: {:?}", properties_list);
             let current_accent_color = self.get_accent_color_and_dialog();
             let bottom_image_path = PathBuf::from(format!(
                 "/app/share/folder_icon/folders/folder_{}.svg",
                 &current_accent_color
             ));
-
-            let top_image = self.create_top_image_for_generation(
-                properties_list.clone(),
-                File::from_path(top_image_path, 1024, 255)?.dynamic_image,
+            let hash = properties_list[12].split(".").nth(0).unwrap();
+            let mut top_image_path = self.get_cache_path().join("top_images");
+            top_image_path.push(hash);
+            let top_image_file = tokio::task::spawn_blocking(move || {
+                File::from_path(top_image_path, 512, 0).unwrap()
+            })
+            .await?
+            .dynamic_image;
+            let top_image =
+                self.create_top_image_for_generation(properties_list.clone(), top_image_file);
+            self.set_properties(properties_list)?;
+            debug!(
+                "Creating top icon succesful, now creating bottom icon {:?}",
+                bottom_image_path
             );
-            self.set_properties(properties_list);
+            let bottom_image_file = tokio::task::spawn_blocking(move || {
+                File::from_path(bottom_image_path, 1024, 0).unwrap()
+            })
+            .await?
+            .dynamic_image;
             let generated_image = self
-                .generate_image(
-                    File::from_path(bottom_image_path, 1024, 255)?.dynamic_image,
-                    top_image,
-                    imageops::FilterType::Gaussian,
-                )
+                .generate_image(bottom_image_file, top_image, imageops::FilterType::Gaussian)
                 .await;
-            generated_image.save(file_path)?;
+            tokio::task::spawn_blocking(move || generated_image.save(file_path)).await??;
         }
         Ok(())
     }
 
-    fn set_properties(&self, properties: Vec<&str>) {
+    fn set_properties(&self, properties: Vec<&str>) -> GenResult<()> {
         let imp = self.imp();
-        imp.x_scale.set_value(properties[1].parse().unwrap());
-        imp.y_scale.set_value(properties[2].parse().unwrap());
-        imp.size.set_value(properties[3].parse().unwrap());
+        imp.x_scale.set_value(properties[2].parse()?);
+        imp.y_scale.set_value(properties[3].parse()?);
+        imp.size.set_value(properties[4].parse()?);
         imp.monochrome_switch
-            .set_active(properties[4].parse::<usize>().unwrap() != 0);
-        imp.threshold_scale
-            .set_value(properties[5].parse().unwrap());
+            .set_active(properties[5].parse::<usize>()? != 0);
+        imp.threshold_scale.set_value(properties[6].parse()?);
         // imp.monochrome_color.set_rgba(&self.get_default_color());
         imp.monochrome_invert
-            .set_active(properties[9].parse::<usize>().unwrap() != 0);
+            .set_active(properties[10].parse::<usize>()? != 0);
+        Ok(())
     }
 
     fn create_top_image_for_generation(
@@ -144,16 +171,40 @@ impl GtkTestWindow {
     ) -> DynamicImage {
         let color = match properties[10] {
             "false" => RGBA::new(
-                properties[6].parse().unwrap(),
                 properties[7].parse().unwrap(),
                 properties[8].parse().unwrap(),
+                properties[9].parse().unwrap(),
                 1.0,
             ),
             _ => self.get_default_color(),
         };
-        match properties[4] {
+        match properties[5] {
             "1" => self.to_monochrome(top_image, properties[5].parse().unwrap(), color),
             _ => top_image,
         }
+    }
+
+    fn progress_animation(&self, step_size: f64) {
+        let imp = self.imp();
+        debug!("Starting animation");
+        let target =
+            adw::PropertyAnimationTarget::new(&imp.regeneration_progress.to_owned(), "fraction");
+        adw::TimedAnimation::builder()
+            .target(&target)
+            .widget(&imp.regeneration_progress.to_owned())
+            .value_from(imp.regeneration_progress.fraction())
+            .value_to(imp.regeneration_progress.fraction() + step_size)
+            .duration(600)
+            .easing(adw::Easing::EaseInOutCubic)
+            .build()
+            .play();
+        debug!("Animation done ");
+    }
+
+    fn file_progress_indicator(&self, file_index: usize, total_files: usize) {
+        let imp = self.imp();
+        let file_string = gettext("File");
+        imp.regeneration_file
+            .set_label(&format!("{} {}/{}", file_string, file_index, total_files));
     }
 }

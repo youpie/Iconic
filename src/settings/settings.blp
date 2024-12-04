@@ -79,14 +79,6 @@ template $PreferencesDialog: Adw.PreferencesDialog {
         subtitle: _("If you change your system accent color, and want to regenerate the icons, turn this on");
       }
 
-      Adw.ButtonRow regenerate_icons {
-        title: _("Regerate Icons");
-
-        styles [
-          "suggested-action"
-        ]
-      }
-
       Adw.ActionRow cache_size {
         title: _("Current cache used");
         subtitle: "100 MB";
@@ -94,7 +86,8 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
       Adw.ButtonRow reset_top_cache {
         title: _("Remove all cached images");
-        start-icon-name: "edit-undo-symbolic";
+        start-icon-name: "user-trash-symbolic";
+        activated => $on_buttonrow_activated();
 
         styles [
           "destructive-action",

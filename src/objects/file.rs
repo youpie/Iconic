@@ -51,16 +51,19 @@ impl File {
         let name_no_extension = file_name.replace(&file_extension, "");
         let hash = Self::create_hash(&dynamic_image);
         debug!("hash of created file: {}", hash);
-        let thumbnail = if file_extension == ".svg" {
-            let path = &temp_path.as_os_str().to_str().unwrap();
-            Self::load_svg(path, thumbnail_size)?
-        } else {
-            dynamic_image.clone().resize(
-                thumbnail_size as u32,
-                thumbnail_size as u32,
-                imageops::FilterType::Nearest,
-            )
-        };
+        let mut thumbnail = DynamicImage::new_rgb8(0, 0);
+        if thumbnail_size > 0 {
+            thumbnail = if file_extension == ".svg" {
+                let path = &temp_path.as_os_str().to_str().unwrap();
+                Self::load_svg(path, thumbnail_size)?
+            } else {
+                dynamic_image.clone().resize(
+                    thumbnail_size as u32,
+                    thumbnail_size as u32,
+                    imageops::FilterType::Nearest,
+                )
+            };
+        }
         Ok(Self {
             files: Some(file),
             path: temp_path.into(),

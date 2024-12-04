@@ -133,7 +133,16 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             ProgressBar regeneration_progress {
               fraction: 0.0;
               show-text: true;
-              margin-bottom: 24;
+            }
+
+            Label regeneration_file {
+              label: "File x/x";
+              wrap: true;
+              valign: center;
+
+              styles [
+                "subtitle"
+              ]
             }
           };
         };

@@ -1,11 +1,12 @@
 use crate::config::{APP_ID, PROFILE};
 use crate::glib::clone;
 use crate::Results;
-use adw::prelude::AdwDialogExt;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::ComboRowExt;
 use adw::prelude::ExpanderRowExt;
+use adw::prelude::{ActionRowExt, AdwDialogExt};
 use adw::subclass::prelude::AdwDialogImpl;
+use fs_extra;
 use gettextrs::*;
 use gtk::glib;
 use gtk::prelude::*;
@@ -50,11 +51,11 @@ mod imp {
         #[template_child]
         pub use_builtin_icons_expander: TemplateChild<adw::ExpanderRow>,
         #[template_child]
-        pub regenerate_icons: TemplateChild<adw::ButtonRow>,
-        #[template_child]
         pub use_system_color: TemplateChild<adw::SwitchRow>,
         #[template_child]
         pub store_top_images: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub cache_size: TemplateChild<adw::ActionRow>,
         pub settings: gio::Settings,
     }
 
@@ -81,8 +82,8 @@ mod imp {
                 use_external_icon_expander: TemplateChild::default(),
                 use_builtin_icons_expander: TemplateChild::default(),
                 use_system_color: TemplateChild::default(),
-                regenerate_icons: TemplateChild::default(),
                 store_top_images: TemplateChild::default(),
+                cache_size: TemplateChild::default(),
             }
         }
 
@@ -166,14 +167,18 @@ impl PreferencesDialog {
         }
         imp.select_bottom_color
             .set_selected(imp.settings.int("selected-accent-color-index") as u32);
-        imp.regenerate_icons
-            .set_start_icon_name(Some("software-update-available-symbolic"));
         win.dnd_row_expand(true);
         win.set_path_title();
         win.bottom_image_expander(true);
         win.disable_color_dropdown(true);
         win.setup_settings();
+        win.get_file_size();
         win
+    }
+
+    #[template_callback]
+    fn on_buttonrow_activated() {
+        debug!("REMOVING CACHE");
     }
 
     fn setup_settings(&self) {
@@ -249,6 +254,16 @@ impl PreferencesDialog {
                 self.get_selected_accent_color(init);
             }
         };
+    }
+
+    fn get_file_size(&self) {
+        let imp = self.imp();
+        let mut path = self.get_cache_path();
+        path.push("top_images");
+        let file_size = fs_extra::dir::get_size(path).unwrap();
+        let file_size_float: f64 = file_size as f64 / 1000000.0;
+        imp.cache_size
+            .set_subtitle(&format!("{:.2} MB", file_size_float));
     }
 
     fn get_selected_accent_color(&self, init: bool) {
@@ -429,5 +444,22 @@ impl PreferencesDialog {
                 let _ = imp.settings.set("default-dnd-action", "bottom");
             }
         }
+    }
+
+    pub fn get_cache_path(&self) -> PathBuf {
+        let cache_path = match env::var("XDG_CACHE_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".cache")
+                    .join(format!("nl.emphisia.icon"));
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
+        debug!("cache path {:?}", cache_path);
+        cache_path
     }
 }

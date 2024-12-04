@@ -90,6 +90,8 @@ mod imp {
         pub image_preferences: TemplateChild<adw::Clamp>,
         #[template_child]
         pub regeneration_progress: TemplateChild<gtk::ProgressBar>,
+        #[template_child]
+        pub regeneration_file: TemplateChild<gtk::Label>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
@@ -136,6 +138,7 @@ mod imp {
                 monochrome_invert: TemplateChild::default(),
                 image_loading_spinner: TemplateChild::default(),
                 regeneration_progress: TemplateChild::default(),
+                regeneration_file: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
                 default_color: RefCell::new(HashMap::new()),
@@ -221,6 +224,8 @@ mod imp {
                             }
                         };
                         imp.stack.set_visible_child_name(&previous_stack);
+                        imp.toast_overlay
+                            .add_toast(adw::Toast::new(&gettext("Regeneration sucessful")));
                     }
                 ));
             });
@@ -640,11 +645,12 @@ impl GtkTestWindow {
                         if imp.monochrome_color.rgba() != win.get_default_color() {
                             imp.reset_color.set_visible(true);
                         }
-                        imp.image_saved.replace(false);
-                        imp.save_button.set_sensitive(true);
+
                         // TODO: I do not like this approach, but it works
                         if imp.stack.visible_child_name() == Some("stack_main_page".into()) {
                             win.render_to_screen().await;
+                            imp.image_saved.replace(false);
+                            imp.save_button.set_sensitive(true);
                         }
                     }
                 ));
@@ -759,6 +765,7 @@ impl GtkTestWindow {
                 config_dir
             }
         };
+        debug!("cache path {:?}", cache_path);
         cache_path
     }
 
