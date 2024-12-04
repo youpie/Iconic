@@ -126,9 +126,9 @@ impl GtkTestWindow {
             let mut top_image_path = self.get_cache_path().join("top_images");
             top_image_path.push(hash);
             let top_image_file = tokio::task::spawn_blocking(move || {
-                File::from_path(top_image_path, 512, 0).unwrap()
+                File::from_path(top_image_path, 512, 0).map_err(|err| err.to_string())
             })
-            .await?
+            .await??
             .dynamic_image;
             let top_image =
                 self.create_top_image_for_generation(properties_list.clone(), top_image_file);
@@ -138,9 +138,9 @@ impl GtkTestWindow {
                 bottom_image_path
             );
             let bottom_image_file = tokio::task::spawn_blocking(move || {
-                File::from_path(bottom_image_path, 1024, 0).unwrap()
+                File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
             })
-            .await?
+            .await??
             .dynamic_image;
             let generated_image = self
                 .generate_image(bottom_image_file, top_image, imageops::FilterType::Gaussian)

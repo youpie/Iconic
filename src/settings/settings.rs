@@ -180,42 +180,6 @@ impl PreferencesDialog {
         win
     }
 
-    async fn on_buttonrow_activated(&self) {
-        const RESPONSE_REMOVE: &str = "remove";
-        const RESPONSE_CANCEL: &str = "cancel";
-        let dialog = adw::AlertDialog::builder()
-        .heading(format!(
-            "<span foreground=\"red\"><b>Confirm Cache Removal</b></span>"
-        ))
-        .heading_use_markup(true)
-            .body(&gettext("Are you sure you want to clear the cache? \n Clearing the cache means you probably won't be able to regenerate a lot of images."))
-            .default_response(RESPONSE_CANCEL)
-            .build();
-        dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
-        dialog.set_response_appearance(RESPONSE_CANCEL, adw::ResponseAppearance::Default);
-        dialog.add_response(RESPONSE_REMOVE, &gettext("Remove"));
-        dialog.set_response_appearance(RESPONSE_REMOVE, adw::ResponseAppearance::Destructive);
-
-        match &*dialog.clone().choose_future(self).await {
-            RESPONSE_CANCEL => {
-                dialog.close();
-            }
-            RESPONSE_REMOVE => {
-                self.can_error(self.remove_cache_folder());
-                self.get_file_size();
-            }
-            _ => unreachable!(),
-        }
-    }
-
-    fn remove_cache_folder(&self) -> Results<()> {
-        let mut path = self.get_cache_path();
-        path.push("top_images");
-        fs::remove_dir_all(&path)?;
-        fs::create_dir(&path)?;
-        Ok(())
-    }
-
     fn setup_settings(&self) {
         let imp = self.imp();
         let current_value: i32 = imp.settings.get("svg-render-size");
@@ -411,6 +375,43 @@ impl PreferencesDialog {
             dialog.add_response(RESPONSE_OK, "ok");
             dialog.present(Some(self))
         });
+    }
+
+    async fn on_buttonrow_activated(&self) {
+        const RESPONSE_REMOVE: &str = "remove";
+        const RESPONSE_CANCEL: &str = "cancel";
+        let dialog = adw::AlertDialog::builder()
+        .heading(format!(
+            "<span foreground=\"red\"><b>Confirm Cache Removal</b></span>"
+        ))
+        .heading_use_markup(true)
+            .body(&gettext("Are you sure you want to clear the cache? \n Clearing the cache means you probably won't be able to regenerate a lot of images."))
+            .default_response(RESPONSE_CANCEL)
+            .build();
+        dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
+        dialog.set_response_appearance(RESPONSE_CANCEL, adw::ResponseAppearance::Default);
+        dialog.add_response(RESPONSE_REMOVE, &gettext("Remove"));
+        dialog.set_response_appearance(RESPONSE_REMOVE, adw::ResponseAppearance::Destructive);
+
+        match &*dialog.clone().choose_future(self).await {
+            RESPONSE_CANCEL => {
+                dialog.close();
+            }
+            RESPONSE_REMOVE => {
+                self.can_error(self.remove_cache_folder());
+                self.get_file_size();
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    // This might turn out bad, but iconic does not have file persmission so it is probably fine :D
+    fn remove_cache_folder(&self) -> Results<()> {
+        let mut path = self.get_cache_path();
+        path.push("top_images");
+        fs::remove_dir_all(&path)?;
+        fs::create_dir(&path)?;
+        Ok(())
     }
 
     pub fn dnd_row_expand(&self, init: bool) {
