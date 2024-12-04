@@ -2,6 +2,7 @@ use crate::config::{APP_ID, PROFILE};
 use crate::glib::clone;
 use crate::Results;
 use adw::prelude::AlertDialogExt;
+use adw::prelude::AlertDialogExtManual;
 use adw::prelude::ComboRowExt;
 use adw::prelude::ExpanderRowExt;
 use adw::prelude::{ActionRowExt, AdwDialogExt};
@@ -56,6 +57,8 @@ mod imp {
         pub store_top_images: TemplateChild<adw::SwitchRow>,
         #[template_child]
         pub cache_size: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub reset_top_cache: TemplateChild<adw::ButtonRow>,
         pub settings: gio::Settings,
     }
 
@@ -84,6 +87,7 @@ mod imp {
                 use_system_color: TemplateChild::default(),
                 store_top_images: TemplateChild::default(),
                 cache_size: TemplateChild::default(),
+                reset_top_cache: TemplateChild::default(),
             }
         }
 
@@ -176,9 +180,40 @@ impl PreferencesDialog {
         win
     }
 
-    #[template_callback]
-    fn on_buttonrow_activated() {
-        debug!("REMOVING CACHE");
+    async fn on_buttonrow_activated(&self) {
+        const RESPONSE_REMOVE: &str = "remove";
+        const RESPONSE_CANCEL: &str = "cancel";
+        let dialog = adw::AlertDialog::builder()
+        .heading(format!(
+            "<span foreground=\"red\"><b>Confirm Cache Removal</b></span>"
+        ))
+        .heading_use_markup(true)
+            .body(&gettext("Are you sure you want to clear the cache? \n Clearing the cache means you probably won't be able to regenerate a lot of images."))
+            .default_response(RESPONSE_CANCEL)
+            .build();
+        dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
+        dialog.set_response_appearance(RESPONSE_CANCEL, adw::ResponseAppearance::Default);
+        dialog.add_response(RESPONSE_REMOVE, &gettext("Remove"));
+        dialog.set_response_appearance(RESPONSE_REMOVE, adw::ResponseAppearance::Destructive);
+
+        match &*dialog.clone().choose_future(self).await {
+            RESPONSE_CANCEL => {
+                dialog.close();
+            }
+            RESPONSE_REMOVE => {
+                self.can_error(self.remove_cache_folder());
+                self.get_file_size();
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    fn remove_cache_folder(&self) -> Results<()> {
+        let mut path = self.get_cache_path();
+        path.push("top_images");
+        fs::remove_dir_all(&path)?;
+        fs::create_dir(&path)?;
+        Ok(())
     }
 
     fn setup_settings(&self) {
@@ -235,6 +270,19 @@ impl PreferencesDialog {
             self,
             move |_| {
                 this.disable_color_dropdown(false);
+            }
+        ));
+        imp.reset_top_cache.connect_activated(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                glib::spawn_future_local(clone!(
+                    #[weak (rename_to = win)]
+                    this,
+                    async move {
+                        win.on_buttonrow_activated().await;
+                    }
+                ));
             }
         ));
     }
@@ -339,18 +387,7 @@ impl PreferencesDialog {
     }
 
     fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) -> Results<()> {
-        let cache_dir = match env::var("XDG_CACHE_HOME") {
-            Ok(value) => PathBuf::from(value),
-            Err(_) => {
-                let config_dir = PathBuf::from(env::var("HOME").unwrap())
-                    .join(".cache")
-                    .join("nl.emphisia.icon");
-                if !config_dir.exists() {
-                    fs::create_dir(&config_dir).unwrap();
-                }
-                config_dir
-            }
-        };
+        let cache_dir = self.get_cache_path();
         let file_name = format!(
             "folder.{}",
             original_path.extension().unwrap().to_str().unwrap()
