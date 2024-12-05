@@ -9,6 +9,7 @@ use image::*;
 use log::*;
 use std::fs;
 use std::path::PathBuf;
+use std::time::Duration;
 use tokio;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -72,12 +73,26 @@ impl GtkTestWindow {
     This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
     It is currently incredibly slow, but it does work.
     After I added the animation, it got only more ugly. But the animation looks nice :)*/
-    pub async fn regenerate_icons(&self) -> GenResult<()> {
+    pub async fn regenerate_icons(&self, delay: bool) -> GenResult<()> {
         let imp = self.imp();
         let data_path = self.get_data_path();
-        let compatible_files = self.find_regeneratable_icons(data_path)?;
+        let mut incompatible_files_n: u32 = 0;
+        let compatible_files =
+            self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
         imp.regeneration_progress.set_fraction(0.0);
         let files_n = compatible_files.len();
+        if files_n == 0 && delay {
+            self.show_error_popup(
+                &format!(
+                    "{}{}{}",
+                    gettext("All "),
+                    incompatible_files_n,
+                    gettext(" files are not compatible for regeneration")
+                ),
+                true,
+                None,
+            );
+        }
         let step_size = 1.0 / files_n as f64;
         let mut file_index: usize = 0;
         for file in compatible_files {
@@ -98,7 +113,7 @@ impl GtkTestWindow {
             let mut top_image_path = self.get_cache_path().join("top_images");
             top_image_path.push(hash);
             let top_image_file = tokio::task::spawn_blocking(move || {
-                File::from_path(top_image_path, 512, 0).map_err(|err| err.to_string())
+                File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
             })
             .await??
             .dynamic_image;
@@ -115,23 +130,34 @@ impl GtkTestWindow {
             .await??
             .dynamic_image;
             self.image_animation(false);
+            if delay {
+                tokio::time::sleep(Duration::from_millis(200)).await;
+            }
             let generated_image = self
                 .generate_image(bottom_image_file, top_image, imageops::FilterType::Gaussian)
                 .await;
             let pixbuf = self.dynamic_image_to_texture(&generated_image);
             imp.regeneration_image_view.set_paintable(Some(&pixbuf));
             imp.regeneration_image_view.queue_draw();
-            self.image_animation(true);
             self.file_progress_indicator(file_index, files_n);
+            self.image_animation(true);
+            if delay {
+                tokio::time::sleep(Duration::from_millis(400)).await; //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
+            }
             tokio::task::spawn_blocking(move || generated_image.save(file_path)).await??;
         }
         Ok(())
     }
 
-    fn find_regeneratable_icons(&self, dir: PathBuf) -> GenResult<Vec<fs::DirEntry>> {
+    fn find_regeneratable_icons(
+        &self,
+        dir: PathBuf,
+        incompatible_files: &mut u32,
+    ) -> GenResult<Vec<fs::DirEntry>> {
         let mut regeneratable: Vec<fs::DirEntry> = vec![];
         let files: fs::ReadDir = fs::read_dir(&dir).unwrap();
         for file in files {
+            *incompatible_files += 1;
             let current_file = file?;
             let file_name = current_file.file_name();
             debug!("File found: {:?}", file_name);
@@ -156,6 +182,7 @@ impl GtkTestWindow {
                 warn!("Top image file not found");
                 continue;
             }
+            *incompatible_files -= 1;
             regeneratable.push(current_file);
         }
         Ok(regeneratable)
@@ -205,7 +232,7 @@ impl GtkTestWindow {
             .widget(&imp.regeneration_progress.to_owned())
             .value_from(imp.regeneration_progress.fraction())
             .value_to(imp.regeneration_progress.fraction() + step_size)
-            .duration(600)
+            .duration(500)
             .easing(adw::Easing::EaseInOutCubic)
             .build()
             .play();

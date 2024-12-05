@@ -67,7 +67,11 @@ Wow documentation is really hard to understand so I used few programs as inspira
 - Obfuscate - https://gitlab.gnome.org/World/obfuscate
 - Loupe - https://gitlab.gnome.org/GNOME/loupe
 
-## Icon credits
+### Icon credits
 The icon is just a few already existing icons added together, the following are used:
 - Gnome text editor - https://gitlab.gnome.org/GNOME/gnome-text-editor
 - Adwaita icons - https://gitlab.gnome.org/GNOME/adwaita-icon-theme
+
+### Folder credits
+The folders/colors used in Iconic (Except the pink one as I like my own one better) are taken from 
+- Adwaita-Colors - https://github.com/dpejoh/Adwaita-colors/tree/main

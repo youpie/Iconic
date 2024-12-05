@@ -36,6 +36,7 @@ use std::fs;
 use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
@@ -220,16 +221,16 @@ mod imp {
                         let previous_stack = imp.stack.visible_child_name().unwrap();
                         debug!("previous stack {}", previous_stack);
                         imp.stack.set_visible_child_name("regenerating_page");
-                        match win.regenerate_icons().await {
+                        match win.regenerate_icons(true).await {
                             Ok(_) => (),
                             Err(x) => {
                                 win.show_error_popup(&format!("{}", x), true, None);
                             }
                         };
-                        win.load_folder_path_from_settings();
 
-                        imp.toast_overlay
-                            .add_toast(adw::Toast::new(&gettext("Regeneration sucessful")));
+                        imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                            "Regeneration sucessful, restart nautilus",
+                        )));
                         imp.stack.set_visible_child_name(&previous_stack);
                         debug!("Done generating");
                     }
@@ -409,6 +410,11 @@ impl GtkTestWindow {
         imp.size.add_mark(24.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
         imp.stack.set_visible_child_name("stack_welcome_page");
+        self.check_regeneration_needed();
+        let _ = imp.settings.set_string(
+            "previous-system-accent-color",
+            &self.get_accent_color_and_dialog(),
+        );
         imp.reset_color.set_visible(false);
         self.load_folder_path_from_settings();
         self.setup_settings();
@@ -517,6 +523,29 @@ impl GtkTestWindow {
         false
     }
 
+    fn check_regeneration_needed(&self) -> bool {
+        let imp = self.imp();
+        let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
+        let current_accent = self.get_accent_color_and_dialog();
+        // error!("previous {previous_accent} current {current_accent}");
+        if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
+            glib::spawn_future_local(glib::clone!(
+                #[weak(rename_to = win)]
+                self,
+                async move {
+                    match win.regenerate_icons(false).await {
+                        Ok(_) => info!("Regeneration succesfull!"),
+                        Err(x) => {
+                            error!("{}", x.to_string());
+                        }
+                    };
+                }
+            ));
+            return true;
+        }
+        false
+    }
+
     fn drag_connect_end(&self) {
         debug!("drag end");
         self.drag_and_drop_regeneration_popup();
@@ -556,9 +585,14 @@ impl GtkTestWindow {
             self,
             move |_| {
                 if win.imp().stack.visible_child_name() != Some("regenerating_page".into()) {
-                    error!("Reloading folder image");
+                    // error!("Reloading folder image");
+                    win.check_regeneration_needed();
                     win.load_folder_path_from_settings();
                 }
+                let _ = win.imp().settings.set_string(
+                    "previous-system-accent-color",
+                    &win.get_accent_color_and_dialog(),
+                );
             }
         ));
 

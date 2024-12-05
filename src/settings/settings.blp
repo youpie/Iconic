@@ -79,6 +79,11 @@ template $PreferencesDialog: Adw.PreferencesDialog {
         subtitle: _("If you change your system accent color, and want to regenerate the icons, turn this on");
       }
 
+      Adw.SwitchRow automatic_regeneration {
+        title: _("Regenerate automatically");
+        subtitle: _("If you want to automatically regenerate images after changing accent color, turn this on");
+      }
+
       Adw.ActionRow cache_size {
         title: _("Current cache used");
         subtitle: "100 MB";

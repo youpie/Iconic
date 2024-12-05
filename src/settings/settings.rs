@@ -56,6 +56,8 @@ mod imp {
         #[template_child]
         pub store_top_images: TemplateChild<adw::SwitchRow>,
         #[template_child]
+        pub automatic_regeneration: TemplateChild<adw::SwitchRow>,
+        #[template_child]
         pub cache_size: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub reset_top_cache: TemplateChild<adw::ButtonRow>,
@@ -86,6 +88,7 @@ mod imp {
                 use_builtin_icons_expander: TemplateChild::default(),
                 use_system_color: TemplateChild::default(),
                 store_top_images: TemplateChild::default(),
+                automatic_regeneration: TemplateChild::default(),
                 cache_size: TemplateChild::default(),
                 reset_top_cache: TemplateChild::default(),
             }
@@ -185,6 +188,13 @@ impl PreferencesDialog {
         let current_value: i32 = imp.settings.get("svg-render-size");
         imp.settings
             .bind("store-top-in-cache", &*imp.store_top_images, "active")
+            .build();
+        imp.settings
+            .bind(
+                "automatic-regeneration",
+                &*imp.automatic_regeneration,
+                "active",
+            )
             .build();
         imp.svg_image_size.set_value(current_value as f64);
         imp.svg_image_size.connect_changed(clone!(

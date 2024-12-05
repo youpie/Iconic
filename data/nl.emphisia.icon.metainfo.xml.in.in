@@ -12,12 +12,16 @@
   <update_contact>youpie@emphisia.nl</update_contact>
   <description>
     <p>This program allows an easy and intuitive way to add an icon on top of a folder to help you differentiate it better.</p>
+    <p>This program works best in combination with the app "Icon library" found on flathub and "Adwaita Colors" found on github</p>
     <p>This program is written in Rust and Libadwaita and is my first attempt at creating an application</p>
   </description>
   <screenshots>
     <screenshot type="default">
       <caption>Main menu in light mode</caption>
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true</image>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Regeneration.png?raw=true</image>
     </screenshot>
     <screenshot>
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light%20alt.png?raw=true</image>
@@ -28,6 +32,12 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2024.12.1" date="2024-12-05" type="stable">
+      <description>
+        <p>A really big update for Iconic! You are now able to regenerate images with the correct accent color after you change it. This makes the app really nice to combine with "Adwaita-Colors"</p>
+        <p>In Gnome 48, using static images in natilus might change. If that is the case I will retire the app. But for now I will keep working on the app!</p>
+      </description>
+    </release>
     <release version="2024.10.2" date="2024-10-29" type="stable">
       <description>
         <p>This is a nice big update to Iconic making it way more colorfull and better for gnome 47. Features include</p>
