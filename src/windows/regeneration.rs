@@ -146,6 +146,7 @@ impl GtkTestWindow {
             }
             tokio::task::spawn_blocking(move || generated_image.save(file_path)).await??;
         }
+        self.default_sliders();
         Ok(())
     }
 
@@ -193,9 +194,9 @@ impl GtkTestWindow {
         imp.x_scale.set_value(properties[2].parse()?);
         imp.y_scale.set_value(properties[3].parse()?);
         imp.size.set_value(properties[4].parse()?);
-        imp.monochrome_switch
-            .set_active(properties[5].parse::<usize>()? != 0);
-        imp.threshold_scale.set_value(properties[6].parse()?);
+        // imp.monochrome_switch
+        //     .set_active(properties[5].parse::<usize>()? != 0);
+        // imp.threshold_scale.set_value(properties[6].parse()?);
         // imp.monochrome_color.set_rgba(&self.get_default_color());
         imp.monochrome_invert
             .set_active(properties[10].parse::<usize>()? != 0);

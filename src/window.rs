@@ -398,27 +398,34 @@ impl GtkTestWindow {
             ("Slate".to_string(), win.create_rgba(99, 118, 146)),
         ]));
         win.setup_defaults();
+
         win
     }
-    pub fn setup_defaults(&self) {
+
+    pub fn default_sliders(&self) {
         let imp = self.imp();
-        imp.save_button.set_sensitive(false);
         imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         imp.y_scale.set_value(9.447);
         imp.size.set_value(24.0);
         imp.size.add_mark(24.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
-        imp.stack.set_visible_child_name("stack_welcome_page");
+    }
+
+    pub fn setup_defaults(&self) {
+        let imp = self.imp();
+        imp.save_button.set_sensitive(false);
+        self.default_sliders();
+        imp.reset_color.set_visible(false);
         self.check_regeneration_needed();
         let _ = imp.settings.set_string(
             "previous-system-accent-color",
             &self.get_accent_color_and_dialog(),
         );
-        imp.reset_color.set_visible(false);
-        self.load_folder_path_from_settings();
+        imp.stack.set_visible_child_name("stack_welcome_page");
         self.setup_settings();
         self.setup_update();
+        self.load_folder_path_from_settings();
     }
 
     pub fn create_rgba(&self, r: u8, g: u8, b: u8) -> gdk::RGBA {
