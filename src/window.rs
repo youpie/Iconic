@@ -226,9 +226,12 @@ mod imp {
                                 win.show_error_popup(&format!("{}", x), true, None);
                             }
                         };
-                        imp.stack.set_visible_child_name(&previous_stack);
+                        win.load_folder_path_from_settings();
+
                         imp.toast_overlay
                             .add_toast(adw::Toast::new(&gettext("Regeneration sucessful")));
+                        imp.stack.set_visible_child_name(&previous_stack);
+                        debug!("Done generating");
                     }
                 ));
             });
@@ -323,14 +326,11 @@ mod imp {
                 move |drag, _, _| win.drag_connect_prepare(drag)
             ));
 
-            // drag_source.connect_drag_end(clone!(
-            //     #[weak (rename_to = win)]
-            //     self,
-            //     move|_,_,_| {
-            //     debug!("drag end");
-            //     let drop_target = win.drop_target_item.borrow().clone().unwrap();
-            //     win.main_status_page.add_controller(drop_target);}
-            // ));
+            drag_source.connect_drag_end(clone!(
+                #[weak (rename_to = win)]
+                obj,
+                move |_, _, _| win.drag_connect_end()
+            ));
 
             drag_source.connect_drag_cancel(clone!(
                 #[weak (rename_to = win)]
@@ -459,14 +459,6 @@ impl GtkTestWindow {
         file_path.push(generated_file_name.clone());
         debug!("generated file path: {:?}", file_path);
         let gio_file = gio::File::for_path(file_path);
-        // if gio_file.query_exists(None::<&Cancellable>) {
-        //     warn!("File with name {} already exists, creating new file name", generated_file_name);
-        //     self.create_drag_file(file_name)
-        // }
-        // else{
-        //     info!("File with name {} does not yet exist, using file name", generated_file_name);
-        //     gio_file
-        // }
         gio_file
     }
 
@@ -525,6 +517,11 @@ impl GtkTestWindow {
         false
     }
 
+    fn drag_connect_end(&self) {
+        debug!("drag end");
+        self.drag_and_drop_regeneration_popup();
+    }
+
     pub fn setup_settings(&self) {
         let imp = self.imp();
         let update_folder = glib::clone!(
@@ -558,7 +555,10 @@ impl GtkTestWindow {
             #[weak(rename_to = win)]
             self,
             move |_| {
-                win.load_folder_path_from_settings();
+                if win.imp().stack.visible_child_name() != Some("regenerating_page".into()) {
+                    error!("Reloading folder image");
+                    win.load_folder_path_from_settings();
+                }
             }
         ));
 

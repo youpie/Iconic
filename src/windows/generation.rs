@@ -43,7 +43,7 @@ impl GtkTestWindow {
                 .await,
         );
 
-        error!("set paintable");
+        debug!("setting paintable");
         imp.image_view.set_paintable(Some(&texture));
         imp.image_view.queue_draw();
     }

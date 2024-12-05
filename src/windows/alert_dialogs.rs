@@ -116,6 +116,21 @@ impl GtkTestWindow {
         accent_color
     }
 
+    pub fn drag_and_drop_regeneration_popup(&self) {
+        let imp = self.imp();
+        if !imp.settings.boolean("regeneration-hint-shown") {
+            const RESPONSE_OK: &str = "OK";
+            let dialog = adw::AlertDialog::builder()
+                .heading(&gettext("Regenerating Icons"))
+                .body(&gettext("If you drag and drop icons and change your accent color. It is then possible to regenerate the images by pressing \"regenerate\" in the menu or by pressing ctrl+R"))
+                .default_response(RESPONSE_OK)
+                .build();
+            dialog.add_response(RESPONSE_OK, &gettext("OK"));
+            dialog.present(Some(self));
+            let _ = imp.settings.set("regeneration-hint-shown", true);
+        }
+    }
+
     pub fn show_error_popup(
         &self,
         message: &str,
