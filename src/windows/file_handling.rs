@@ -69,11 +69,14 @@ impl GtkTestWindow {
                             .unwrap();
                     match top_file_selected {
                         Some(true) => {
-                            imp.top_image_file.lock().unwrap().replace(File::from_image(
-                                image,
-                                thumbnail_size,
-                                "pasted",
-                            ));
+                            let iconic_file = File::from_image(image, thumbnail_size, "pasted");
+                            match self.store_top_image_in_cache(&iconic_file, None) {
+                                Err(x) => {
+                                    self.show_error_popup(&x.to_string(), true, None);
+                                }
+                                _ => (),
+                            };
+                            imp.top_image_file.lock().unwrap().replace(iconic_file);
                         }
                         _ => {
                             imp.bottom_image_file
@@ -362,21 +365,43 @@ impl GtkTestWindow {
     ) -> Option<File> {
         let imp = self.imp();
         let new_file = if let Some(file_temp) = file {
-            match File::new(file_temp, svg_render_size, thumbnail_render_size) {
-                Ok(x) => Some(x),
-                Err(e) => {
-                    self.show_error_popup(&e.to_string(), true, Some(e));
-                    None
-                }
+            let iconic_file =
+                match File::new(file_temp.clone(), svg_render_size, thumbnail_render_size) {
+                    Ok(x) => x,
+                    Err(e) => {
+                        self.show_error_popup(&e.to_string(), true, Some(e));
+                        return None;
+                    }
+                };
+            if change_top_icon {
+                match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
+                    Err(x) => {
+                        self.show_error_popup("", true, Some(x));
+                    }
+                    _ => (),
+                };
             }
+            Some(iconic_file)
         } else if let Some(path_temp) = path {
-            match File::from_path(path_temp, svg_render_size, thumbnail_render_size) {
-                Ok(x) => Some(x),
-                Err(e) => {
-                    self.show_error_popup(&e.to_string(), true, Some(e));
-                    None
-                }
+            let file_temp = gio::File::for_path(path_temp);
+
+            let iconic_file =
+                match File::new(file_temp.clone(), svg_render_size, thumbnail_render_size) {
+                    Ok(x) => x,
+                    Err(e) => {
+                        self.show_error_popup(&e.to_string(), true, Some(e));
+                        return None;
+                    }
+                };
+            if change_top_icon {
+                match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
+                    Err(x) => {
+                        self.show_error_popup("", true, Some(x));
+                    }
+                    _ => (),
+                };
             }
+            Some(iconic_file)
         } else {
             self.show_error_popup(
                 &gettext("No file or path found, this is probably not your fault."),

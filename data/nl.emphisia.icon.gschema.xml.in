@@ -49,5 +49,17 @@
       <default>false</default>
       <summary>If true, the pop-up informing the user that it is possible to drag images straight out of iconic has already been shown</summary>
     </key>
+    <key name="store-top-in-cache" type="b">
+      <default>false</default>
+      <summary>If true, iconic will store top images in chache</summary>
+    </key>
+    <key name="automatic-regeneration" type="b">
+      <default>false</default>
+      <summary>Whether to regenerate images automatically</summary>
+    </key>
+    <key name="regeneration-hint-shown" type="b">
+      <default>false</default>
+      <summary>If true, the pop-up informing the user that it is possible to regenerate images has already been shown</summary>
+    </key>
 	</schema>
 </schemalist>

@@ -1,11 +1,13 @@
 use crate::config::{APP_ID, PROFILE};
 use crate::glib::clone;
 use crate::Results;
-use adw::prelude::AdwDialogExt;
 use adw::prelude::AlertDialogExt;
+use adw::prelude::AlertDialogExtManual;
 use adw::prelude::ComboRowExt;
 use adw::prelude::ExpanderRowExt;
+use adw::prelude::{ActionRowExt, AdwDialogExt};
 use adw::subclass::prelude::AdwDialogImpl;
+use fs_extra;
 use gettextrs::*;
 use gtk::glib;
 use gtk::prelude::*;
@@ -51,6 +53,14 @@ mod imp {
         pub use_builtin_icons_expander: TemplateChild<adw::ExpanderRow>,
         #[template_child]
         pub use_system_color: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub store_top_images: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub automatic_regeneration: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub cache_size: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub reset_top_cache: TemplateChild<adw::ButtonRow>,
         pub settings: gio::Settings,
     }
 
@@ -77,6 +87,10 @@ mod imp {
                 use_external_icon_expander: TemplateChild::default(),
                 use_builtin_icons_expander: TemplateChild::default(),
                 use_system_color: TemplateChild::default(),
+                store_top_images: TemplateChild::default(),
+                automatic_regeneration: TemplateChild::default(),
+                cache_size: TemplateChild::default(),
+                reset_top_cache: TemplateChild::default(),
             }
         }
 
@@ -165,12 +179,23 @@ impl PreferencesDialog {
         win.bottom_image_expander(true);
         win.disable_color_dropdown(true);
         win.setup_settings();
+        win.get_file_size();
         win
     }
 
     fn setup_settings(&self) {
         let imp = self.imp();
         let current_value: i32 = imp.settings.get("svg-render-size");
+        imp.settings
+            .bind("store-top-in-cache", &*imp.store_top_images, "active")
+            .build();
+        imp.settings
+            .bind(
+                "automatic-regeneration",
+                &*imp.automatic_regeneration,
+                "active",
+            )
+            .build();
         imp.svg_image_size.set_value(current_value as f64);
         imp.svg_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
@@ -221,6 +246,19 @@ impl PreferencesDialog {
                 this.disable_color_dropdown(false);
             }
         ));
+        imp.reset_top_cache.connect_activated(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                glib::spawn_future_local(clone!(
+                    #[weak (rename_to = win)]
+                    this,
+                    async move {
+                        win.on_buttonrow_activated().await;
+                    }
+                ));
+            }
+        ));
     }
 
     fn disable_color_dropdown(&self, init: bool) {
@@ -238,6 +276,16 @@ impl PreferencesDialog {
                 self.get_selected_accent_color(init);
             }
         };
+    }
+
+    fn get_file_size(&self) {
+        let imp = self.imp();
+        let mut path = self.get_cache_path();
+        path.push("top_images");
+        let file_size = fs_extra::dir::get_size(path).unwrap_or(9999);
+        let file_size_float: f64 = file_size as f64 / 1000000.0;
+        imp.cache_size
+            .set_subtitle(&format!("{:.2} MB", file_size_float));
     }
 
     fn get_selected_accent_color(&self, init: bool) {
@@ -313,18 +361,7 @@ impl PreferencesDialog {
     }
 
     fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) -> Results<()> {
-        let cache_dir = match env::var("XDG_CACHE_HOME") {
-            Ok(value) => PathBuf::from(value),
-            Err(_) => {
-                let config_dir = PathBuf::from(env::var("HOME").unwrap())
-                    .join(".cache")
-                    .join("Iconic");
-                if !config_dir.exists() {
-                    fs::create_dir(&config_dir).unwrap();
-                }
-                config_dir
-            }
-        };
+        let cache_dir = self.get_cache_path();
         let file_name = format!(
             "folder.{}",
             original_path.extension().unwrap().to_str().unwrap()
@@ -348,6 +385,43 @@ impl PreferencesDialog {
             dialog.add_response(RESPONSE_OK, "ok");
             dialog.present(Some(self))
         });
+    }
+
+    async fn on_buttonrow_activated(&self) {
+        const RESPONSE_REMOVE: &str = "remove";
+        const RESPONSE_CANCEL: &str = "cancel";
+        let dialog = adw::AlertDialog::builder()
+        .heading(format!(
+            "<span foreground=\"red\"><b>Confirm Cache Removal</b></span>"
+        ))
+        .heading_use_markup(true)
+            .body(&gettext("Are you sure you want to clear the cache? \n Clearing the cache means you probably won't be able to regenerate a lot of images."))
+            .default_response(RESPONSE_CANCEL)
+            .build();
+        dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
+        dialog.set_response_appearance(RESPONSE_CANCEL, adw::ResponseAppearance::Default);
+        dialog.add_response(RESPONSE_REMOVE, &gettext("Remove"));
+        dialog.set_response_appearance(RESPONSE_REMOVE, adw::ResponseAppearance::Destructive);
+
+        match &*dialog.clone().choose_future(self).await {
+            RESPONSE_CANCEL => {
+                dialog.close();
+            }
+            RESPONSE_REMOVE => {
+                self.can_error(self.remove_cache_folder());
+                self.get_file_size();
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    // This might turn out bad, but iconic does not have file persmission so it is probably fine :D
+    fn remove_cache_folder(&self) -> Results<()> {
+        let mut path = self.get_cache_path();
+        path.push("top_images");
+        fs::remove_dir_all(&path)?;
+        fs::create_dir(&path)?;
+        Ok(())
     }
 
     pub fn dnd_row_expand(&self, init: bool) {
@@ -418,5 +492,22 @@ impl PreferencesDialog {
                 let _ = imp.settings.set("default-dnd-action", "bottom");
             }
         }
+    }
+
+    pub fn get_cache_path(&self) -> PathBuf {
+        let cache_path = match env::var("XDG_CACHE_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".cache")
+                    .join(format!("nl.emphisia.icon"));
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
+        debug!("cache path {:?}", cache_path);
+        cache_path
     }
 }

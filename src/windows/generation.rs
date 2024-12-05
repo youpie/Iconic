@@ -1,6 +1,7 @@
 use adw::{prelude::*, subclass::prelude::*};
 use gtk::{gdk, glib};
 use image::*;
+use log::*;
 
 use crate::GtkTestWindow;
 
@@ -41,6 +42,8 @@ impl GtkTestWindow {
                 .generate_image(base, top_image, imageops::FilterType::Nearest)
                 .await,
         );
+
+        debug!("setting paintable");
         imp.image_view.set_paintable(Some(&texture));
         imp.image_view.queue_draw();
     }
@@ -101,7 +104,7 @@ impl GtkTestWindow {
         filter: imageops::FilterType,
     ) -> DynamicImage {
         let imp = self.imp();
-        imp.stack.set_visible_child_name("stack_main_page");
+        //imp.stack.set_visible_child_name("stack_main_page");
         // imp.image_saved.replace(false);
         // imp.save_button.set_sensitive(true);
         let (tx_texture, rx_texture) = async_channel::bounded(1);

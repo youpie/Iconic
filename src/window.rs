@@ -25,7 +25,7 @@ use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::Cancellable;
 use gtk::gdk_pixbuf::Pixbuf;
-use gtk::{gdk, glib};
+use gtk::{gdk, glib, GestureClick};
 use image::*;
 use log::*;
 use std::cell::RefCell;
@@ -36,6 +36,7 @@ use std::fs;
 use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
@@ -58,6 +59,8 @@ mod imp {
         pub open_top_icon: TemplateChild<gtk::Button>,
         #[template_child]
         pub image_view: TemplateChild<gtk::Picture>,
+        #[template_child]
+        pub regeneration_image_view: TemplateChild<gtk::Picture>,
         #[template_child]
         pub save_button: TemplateChild<gtk::Button>,
         #[template_child]
@@ -88,6 +91,10 @@ mod imp {
         pub main_status_page: TemplateChild<adw::StatusPage>,
         #[template_child]
         pub image_preferences: TemplateChild<adw::Clamp>,
+        #[template_child]
+        pub regeneration_progress: TemplateChild<gtk::ProgressBar>,
+        #[template_child]
+        pub regeneration_file: TemplateChild<gtk::Label>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
@@ -111,6 +118,7 @@ mod imp {
                 toast_overlay: TemplateChild::default(),
                 open_top_icon: TemplateChild::default(),
                 image_view: TemplateChild::default(),
+                regeneration_image_view: TemplateChild::default(),
                 save_button: TemplateChild::default(),
                 threshold_scale: TemplateChild::default(),
                 reset_color: TemplateChild::default(),
@@ -133,6 +141,8 @@ mod imp {
                 main_status_page: TemplateChild::default(),
                 monochrome_invert: TemplateChild::default(),
                 image_loading_spinner: TemplateChild::default(),
+                regeneration_progress: TemplateChild::default(),
+                regeneration_file: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
                 default_color: RefCell::new(HashMap::new()),
@@ -199,6 +209,30 @@ mod imp {
                     win,
                     async move {
                         win.paste_from_clipboard().await;
+                    }
+                ));
+            });
+            klass.install_action("app.regenerate", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    win,
+                    async move {
+                        let imp = win.imp();
+                        let previous_stack = imp.stack.visible_child_name().unwrap();
+                        debug!("previous stack {}", previous_stack);
+                        imp.stack.set_visible_child_name("regenerating_page");
+                        match win.regenerate_icons(true).await {
+                            Ok(_) => (),
+                            Err(x) => {
+                                win.show_error_popup(&format!("{}", x), true, None);
+                            }
+                        };
+
+                        imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                            "Regeneration sucessful, restart nautilus",
+                        )));
+                        imp.stack.set_visible_child_name(&previous_stack);
+                        debug!("Done generating");
                     }
                 ));
             });
@@ -293,14 +327,11 @@ mod imp {
                 move |drag, _, _| win.drag_connect_prepare(drag)
             ));
 
-            // drag_source.connect_drag_end(clone!(
-            //     #[weak (rename_to = win)]
-            //     self,
-            //     move|_,_,_| {
-            //     debug!("drag end");
-            //     let drop_target = win.drop_target_item.borrow().clone().unwrap();
-            //     win.main_status_page.add_controller(drop_target);}
-            // ));
+            drag_source.connect_drag_end(clone!(
+                #[weak (rename_to = win)]
+                obj,
+                move |_, _, _| win.drag_connect_end()
+            ));
 
             drag_source.connect_drag_cancel(clone!(
                 #[weak (rename_to = win)]
@@ -357,32 +388,47 @@ impl GtkTestWindow {
         }
         imp.default_color.replace(HashMap::from([
             ("Blue".to_string(), win.create_rgba(67, 141, 230)),
-            ("Teal".to_string(), win.create_rgba(33, 144, 164)),
-            ("Green".to_string(), win.create_rgba(38, 162, 105)),
-            ("Yellow".to_string(), win.create_rgba(200, 136, 0)),
-            ("Orange".to_string(), win.create_rgba(237, 91, 0)),
-            ("Red".to_string(), win.create_rgba(230, 45, 66)),
+            ("Teal".to_string(), win.create_rgba(18, 158, 176)),
+            ("Green".to_string(), win.create_rgba(61, 158, 79)),
+            ("Yellow".to_string(), win.create_rgba(203, 147, 26)),
+            ("Orange".to_string(), win.create_rgba(241, 119, 56)),
+            ("Red".to_string(), win.create_rgba(232, 64, 83)),
             ("Pink".to_string(), win.create_rgba(212, 95, 151)),
-            ("Purple".to_string(), win.create_rgba(145, 65, 172)),
-            ("Slate".to_string(), win.create_rgba(111, 131, 150)),
+            ("Purple".to_string(), win.create_rgba(149, 74, 181)),
+            ("Slate".to_string(), win.create_rgba(99, 118, 146)),
         ]));
+        win.setup_defaults();
 
-        imp.save_button.set_sensitive(false);
+        win
+    }
+
+    pub fn default_sliders(&self) {
+        let imp = self.imp();
         imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
         imp.y_scale.set_value(9.447);
         imp.size.set_value(24.0);
         imp.size.add_mark(24.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
-        imp.stack.set_visible_child_name("stack_welcome_page");
-        imp.reset_color.set_visible(false);
-        win.load_folder_path_from_settings();
-        win.setup_settings();
-        win.setup_update();
-        win
     }
 
-    fn create_rgba(&self, r: u8, g: u8, b: u8) -> gdk::RGBA {
+    pub fn setup_defaults(&self) {
+        let imp = self.imp();
+        imp.save_button.set_sensitive(false);
+        self.default_sliders();
+        imp.reset_color.set_visible(false);
+        self.check_regeneration_needed();
+        let _ = imp.settings.set_string(
+            "previous-system-accent-color",
+            &self.get_accent_color_and_dialog(),
+        );
+        imp.stack.set_visible_child_name("stack_welcome_page");
+        self.setup_settings();
+        self.setup_update();
+        self.load_folder_path_from_settings();
+    }
+
+    pub fn create_rgba(&self, r: u8, g: u8, b: u8) -> gdk::RGBA {
         let r_float = 1.0 / 255.0 * r as f32;
         let g_float = 1.0 / 255.0 * g as f32;
         let b_float = 1.0 / 255.0 * b as f32;
@@ -392,14 +438,14 @@ impl GtkTestWindow {
         let imp = self.imp();
         //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
         let generated_image = imp.generated_image.borrow().clone().unwrap();
-        let file_name = imp.top_image_file.lock().unwrap().clone().unwrap().filename;
+        let file_hash = imp.top_image_file.lock().unwrap().clone().unwrap().hash;
         let icon = self.dynamic_image_to_texture(&generated_image.resize(
             64,
             64,
             imageops::FilterType::Nearest,
         ));
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
-        let gio_file = self.create_drag_file(&file_name);
+        let gio_file = self.create_drag_file(file_hash);
         imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
         let gio_file_clone = gio_file.clone();
         glib::spawn_future_local(clone!(
@@ -414,37 +460,18 @@ impl GtkTestWindow {
         )))
     }
 
-    pub fn create_drag_file(&self, file_name: &str) -> gio::File {
+    pub fn create_drag_file(&self, file_hash: u64) -> gio::File {
         // let imp = self.imp();
-        let data_path = match env::var("XDG_DATA_HOME") {
-            Ok(value) => PathBuf::from(value),
-            Err(_) => {
-                let config_dir = PathBuf::from(env::var("HOME").unwrap())
-                    .join(".data")
-                    .join("Iconic");
-                if !config_dir.exists() {
-                    fs::create_dir(&config_dir).unwrap();
-                }
-                config_dir
-            }
-        };
+        let data_path = self.get_data_path();
         debug!("data path: {:?}", data_path);
         // let random_number = random::<u64>();
         let properties_string = self.create_image_properties_string();
-        let generated_file_name = format!("folder-{}-{}.png", properties_string, file_name);
+        let generated_file_name = format!("folder_new-{}-{}.png", properties_string, file_hash);
         debug!("generated_file_name: {}", generated_file_name);
         let mut file_path = data_path.clone();
         file_path.push(generated_file_name.clone());
         debug!("generated file path: {:?}", file_path);
         let gio_file = gio::File::for_path(file_path);
-        // if gio_file.query_exists(None::<&Cancellable>) {
-        //     warn!("File with name {} already exists, creating new file name", generated_file_name);
-        //     self.create_drag_file(file_name)
-        // }
-        // else{
-        //     info!("File with name {} does not yet exist, using file name", generated_file_name);
-        //     gio_file
-        // }
         gio_file
     }
 
@@ -453,22 +480,33 @@ impl GtkTestWindow {
     */
     fn create_image_properties_string(&self) -> String {
         let imp = self.imp();
+        let is_default = (!imp.settings.boolean("manual-bottom-image-selection")
+            && imp.settings.string("selected-accent-color").as_str() == "None")
+            as usize;
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();
         let is_monochrome = imp.monochrome_switch.is_active() as u8;
         let monochrome_slider = imp.threshold_scale.value();
-        let monochrome_color_val = imp.monochrome_color.rgba().to_string();
+        let monochrome_red_val = imp.monochrome_color.rgba().red().to_string();
+        let monochrome_green_val = imp.monochrome_color.rgba().green().to_string();
+        let monochrome_blue_val = imp.monochrome_color.rgba().blue().to_string();
         let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
+        let is_default_monochrome = imp.monochrome_color.rgba() == self.get_default_color();
+        debug!("is default? {}", is_default_monochrome);
         let combined_string = format!(
-            "{}-{}-{}-{}-{}-{}-{}",
+            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
+            is_default,
             x_scale_val,
             y_scale_val,
             zoom_val,
             is_monochrome,
             monochrome_slider,
-            monochrome_color_val,
-            monochrome_inverted
+            monochrome_red_val,
+            monochrome_green_val,
+            monochrome_blue_val,
+            monochrome_inverted,
+            is_default_monochrome
         );
         debug!("{}", &combined_string);
         combined_string
@@ -490,6 +528,34 @@ impl GtkTestWindow {
             }
         };
         false
+    }
+
+    fn check_regeneration_needed(&self) -> bool {
+        let imp = self.imp();
+        let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
+        let current_accent = self.get_accent_color_and_dialog();
+        // error!("previous {previous_accent} current {current_accent}");
+        if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
+            glib::spawn_future_local(glib::clone!(
+                #[weak(rename_to = win)]
+                self,
+                async move {
+                    match win.regenerate_icons(false).await {
+                        Ok(_) => info!("Regeneration succesfull!"),
+                        Err(x) => {
+                            error!("{}", x.to_string());
+                        }
+                    };
+                }
+            ));
+            return true;
+        }
+        false
+    }
+
+    fn drag_connect_end(&self) {
+        debug!("drag end");
+        self.drag_and_drop_regeneration_popup();
     }
 
     pub fn setup_settings(&self) {
@@ -525,7 +591,15 @@ impl GtkTestWindow {
             #[weak(rename_to = win)]
             self,
             move |_| {
-                win.load_folder_path_from_settings();
+                if win.imp().stack.visible_child_name() != Some("regenerating_page".into()) {
+                    // error!("Reloading folder image");
+                    win.check_regeneration_needed();
+                    win.load_folder_path_from_settings();
+                }
+                let _ = win.imp().settings.set_string(
+                    "previous-system-accent-color",
+                    &win.get_accent_color_and_dialog(),
+                );
             }
         ));
 
@@ -615,11 +689,12 @@ impl GtkTestWindow {
                         if imp.monochrome_color.rgba() != win.get_default_color() {
                             imp.reset_color.set_visible(true);
                         }
-                        imp.image_saved.replace(false);
-                        imp.save_button.set_sensitive(true);
+
                         // TODO: I do not like this approach, but it works
                         if imp.stack.visible_child_name() == Some("stack_main_page".into()) {
                             win.render_to_screen().await;
+                            imp.image_saved.replace(false);
+                            imp.save_button.set_sensitive(true);
                         }
                     }
                 ));
@@ -674,18 +749,7 @@ impl GtkTestWindow {
     pub async fn check_chache_icon(&self, file_name: &str) -> PathBuf {
         let imp = self.imp();
         let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
-        let cache_path = match env::var("XDG_CACHE_HOME") {
-            Ok(value) => PathBuf::from(value),
-            Err(_) => {
-                let config_dir = PathBuf::from(env::var("HOME").unwrap())
-                    .join(".cache")
-                    .join("Iconic");
-                if !config_dir.exists() {
-                    fs::create_dir(&config_dir).unwrap();
-                }
-                config_dir
-            }
-        };
+        let cache_path = self.get_cache_path();
         let folder_icon_cache_path = cache_path.join(file_name);
         if folder_icon_cache_path.exists() {
             info!("File found in cache at: {:?}", folder_icon_cache_path);
@@ -732,6 +796,39 @@ impl GtkTestWindow {
         };
     }
 
+    pub fn get_cache_path(&self) -> PathBuf {
+        let cache_path = match env::var("XDG_CACHE_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".cache")
+                    .join(format!("nl.emphisia.icon"));
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
+        debug!("cache path {:?}", cache_path);
+        cache_path
+    }
+
+    pub fn get_data_path(&self) -> PathBuf {
+        let data_path = match env::var("XDG_DATA_HOME") {
+            Ok(value) => PathBuf::from(value),
+            Err(_) => {
+                let config_dir = PathBuf::from(env::var("HOME").unwrap())
+                    .join(".data")
+                    .join("nl.emphisia.icon");
+                if !config_dir.exists() {
+                    fs::create_dir(&config_dir).unwrap();
+                }
+                config_dir
+            }
+        };
+        data_path
+    }
+
     pub fn copy_folder_image_to_cache(
         &self,
         original_path: &PathBuf,
@@ -748,140 +845,6 @@ impl GtkTestWindow {
         let cache_path = cache_dir.join(file_name.clone());
         fs::copy(original_path, cache_path.clone()).unwrap();
         (cache_path, file_name)
-    }
-
-    pub fn show_error_popup(
-        &self,
-        message: &str,
-        show: bool,
-        error: Option<Box<dyn Error + '_>>,
-    ) -> Option<adw::AlertDialog> {
-        const RESPONSE_OK: &str = "OK";
-        let error_text: &str = &gettext("Error");
-        let dialog = adw::AlertDialog::builder()
-            .heading(format!(
-                "<span foreground=\"red\"><b>⚠ {error_text}</b></span>"
-            ))
-            .heading_use_markup(true)
-            .body(message)
-            .default_response(RESPONSE_OK)
-            .build();
-        dialog.add_response(RESPONSE_OK, &gettext("OK"));
-        match error {
-            Some(ref x) => error!("An error has occured: \"{:?}\"", x),
-            None => error!("An error has occured: \"{}\"", message),
-        };
-        match show {
-            true => {
-                dialog.present(Some(self));
-                None
-            }
-            false => Some(dialog),
-        }
-    }
-
-    pub fn get_accent_color_and_dialog(&self) -> String {
-        let imp = self.imp();
-        let accent_color = format!("{:?}", adw::StyleManager::default().accent_color());
-        if !imp.settings.boolean("accent-color-popup-shown")
-            && accent_color != imp.settings.string("previous-system-accent-color")
-        {
-            const RESPONSE_OK: &str = "OK";
-            let dialog = adw::AlertDialog::builder()
-                .heading(&gettext("Accent color changed"))
-                .body(&gettext("The system accent color has been changed, Iconic has automatically changed the color of the folder.\nIf you do not want this, you can turn this off in the settings"))
-                .default_response(RESPONSE_OK)
-                .build();
-            dialog.add_response(RESPONSE_OK, &gettext("OK"));
-            dialog.present(Some(self));
-            let _ = imp.settings.set("accent-color-popup-shown", true);
-        }
-        accent_color
-    }
-
-    pub fn drag_and_drop_information_dialog(&self) {
-        let imp = self.imp();
-        if imp.settings.boolean("drag-and-drop-popup-shown") {
-            return ();
-        }
-        const RESPONSE_OK: &str = "OK";
-        let dialog = adw::AlertDialog::builder()
-                .heading(&gettext("Drag and drop"))
-                .body(&gettext("Did you know that it is possible to drag the folder image straight out of Iconic and drop it into nautilus' property window.\nNo need to save!"))
-                .default_response(RESPONSE_OK)
-                .build();
-        dialog.add_response(RESPONSE_OK, &gettext("OK"));
-        dialog.present(Some(self));
-        let _ = imp.settings.set("drag-and-drop-popup-shown", true);
-    }
-
-    pub async fn top_or_bottom_popup(&self) -> Option<bool> {
-        let dnd_switch_state = self.imp().settings.boolean("default-dnd-activated");
-        let dnd_radio_state = self.imp().settings.string("default-dnd-action");
-        debug!("radio button state: {}", dnd_radio_state);
-        if dnd_switch_state {
-            return match dnd_radio_state.as_str() {
-                "top" => Some(true),
-                "bottom" => Some(false),
-                _ => None,
-            };
-        }
-        const RESPONSE_TOP: &str = "TOP";
-        const RESPONSE_BOTTOM: &str = "BOTTOM";
-        let load_question: &str =
-            &gettext("Do you want to load this image to the top or bottom layer?");
-        let disable_hint: &str = &gettext("Hint: You can disable this pop-up in the settings");
-        let dialog = adw::AlertDialog::builder()
-            .heading(gettext("Select layer"))
-            .body(format!("{load_question} \n <sub> <span foreground=\"#9A9996\"> {disable_hint}</span> </sub>"))
-            .body_use_markup(true)
-            .default_response(RESPONSE_TOP)
-            .build();
-        dialog.add_response(RESPONSE_TOP, &gettext("Top"));
-        dialog.add_response(RESPONSE_BOTTOM, &gettext("Bottom"));
-        dialog.set_response_appearance(RESPONSE_TOP, adw::ResponseAppearance::Suggested);
-
-        match &*dialog.clone().choose_future(self).await {
-            RESPONSE_TOP => Some(true),
-            RESPONSE_BOTTOM => Some(false),
-            _ => None,
-        }
-    }
-
-    pub async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
-        const RESPONSE_CANCEL: &str = "cancel";
-        const RESPONSE_DISCARD: &str = "discard";
-        const RESPONSE_SAVE: &str = "save";
-        let dialog = adw::AlertDialog::builder()
-            .heading(gettext("Save Changes?"))
-            .body(gettext("Open image contain unsaved changes. Changes which are not saved will be permanently lost"))
-            .close_response(RESPONSE_CANCEL)
-            .default_response(RESPONSE_SAVE)
-            .build();
-        dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
-        dialog.add_response(RESPONSE_DISCARD, &gettext("Discard"));
-        dialog.set_response_appearance(RESPONSE_DISCARD, adw::ResponseAppearance::Destructive);
-        dialog.add_response(RESPONSE_SAVE, &gettext("Save"));
-        dialog.set_response_appearance(RESPONSE_SAVE, adw::ResponseAppearance::Suggested);
-
-        match &*dialog.clone().choose_future(self).await {
-            RESPONSE_CANCEL => {
-                dialog.close();
-                Ok(glib::Propagation::Stop)
-            }
-            RESPONSE_DISCARD => Ok(glib::Propagation::Proceed),
-            RESPONSE_SAVE => match self.open_save_file_dialog().await {
-                Ok(saved) => match saved {
-                    true => Ok(glib::Propagation::Proceed),
-                    false => Ok(glib::Propagation::Stop),
-                },
-                Err(error) => {
-                    self.show_error_popup(&error.to_string(), true, Some(error));
-                    Ok(glib::Propagation::Stop)
-                }
-            },
-            _ => unreachable!(),
-        }
     }
 
     // This checks if the main page, or welcome screen needs to be shown. And adds ability to loads just a bottom file

@@ -1,4 +1,5 @@
 use adw::prelude::FileExt;
+use error::UnsupportedError;
 use gio::{Cancellable, FileQueryInfoFlags};
 use gtk::gio;
 use image::*;
@@ -38,20 +39,31 @@ impl File {
             let path = &temp_path.as_os_str().to_str().unwrap();
             Self::load_svg(path, size)?
         } else {
-            image::open(temp_path.clone().into_os_string())?
+            match image::open(temp_path.clone().into_os_string()) {
+                Err(_) => {
+                    let mut image = ImageReader::open(temp_path.clone().into_os_string())?;
+                    image.set_format(ImageFormat::Png);
+                    image.decode()?
+                }
+                Ok(x) => x,
+            }
         };
         let name_no_extension = file_name.replace(&file_extension, "");
         let hash = Self::create_hash(&dynamic_image);
-        let thumbnail = if file_extension == ".svg" {
-            let path = &temp_path.as_os_str().to_str().unwrap();
-            Self::load_svg(path, thumbnail_size)?
-        } else {
-            dynamic_image.clone().resize(
-                thumbnail_size as u32,
-                thumbnail_size as u32,
-                imageops::FilterType::Nearest,
-            )
-        };
+        debug!("hash of created file: {}", hash);
+        let mut thumbnail = DynamicImage::new_rgb8(0, 0);
+        if thumbnail_size > 0 {
+            thumbnail = if file_extension == ".svg" {
+                let path = &temp_path.as_os_str().to_str().unwrap();
+                Self::load_svg(path, thumbnail_size)?
+            } else {
+                dynamic_image.clone().resize(
+                    thumbnail_size as u32,
+                    thumbnail_size as u32,
+                    imageops::FilterType::Nearest,
+                )
+            };
+        }
         Ok(Self {
             files: Some(file),
             path: temp_path.into(),
@@ -135,7 +147,7 @@ impl File {
     // Adds hash of file to file name
     fn create_hash(image: &DynamicImage) -> u64 {
         let mut hasher = DefaultHasher::new();
-        let _ = image.as_rgb8().hash(&mut hasher);
+        let _ = image.as_bytes().hash(&mut hasher);
         hasher.finish()
     }
 

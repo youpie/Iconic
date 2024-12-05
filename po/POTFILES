@@ -8,8 +8,10 @@ src/gtk/help-overlay.blp
 src/settings/settings.blp
 src/window.blp
 # RUST files
+src/application.rs
 src/main.rs
 src/settings/settings.rs
 src/window.rs
-src/application.rs
+src/windows/alert_dialogs.rs
 src/windows/file_handling.rs
+src/windows/regeneration.rs

@@ -1,23 +1,26 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $GtkTestWindow : Adw.ApplicationWindow {
+template $GtkTestWindow: Adw.ApplicationWindow {
   default-width: 400;
   default-height: 650;
   width-request: 400;
   height-request: 650;
-  content:
-  Stack stack{
-    transition-type: crossfade;
-    StackPage {
-      name: "stack_welcome_page";
-      child:
-        Adw.ToolbarView  {
+
+  content: Adw.ToastOverlay toast_overlay {
+    Stack stack {
+      transition-type: crossfade;
+
+      StackPage {
+        name: "stack_welcome_page";
+
+        child: Adw.ToolbarView {
           [top]
-          Adw.HeaderBar  {
+          Adw.HeaderBar {
             title-widget: Adw.WindowTitle {
               title: "Iconic";
             };
+
             [end]
             MenuButton {
               primary: true;
@@ -26,14 +29,15 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               menu-model: primary_menu;
             }
           }
+
           Adw.StatusPage main_status_page {
             icon-name: "nl.emphisia.icon";
             title: _("Folder Icon Creator");
             description: _("Click or Drag to Open Image");
             hexpand: true;
             vexpand: true;
-            child:
-            Box {
+
+            child: Box {
               orientation: vertical;
               spacing: 20;
 
@@ -43,48 +47,43 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                 label: _("_Open Image");
                 use-underline: true;
                 action-name: "app.open_top_icon";
+
                 styles [
                   "suggested-action",
                   "pill",
                 ]
               }
+
               Button open_bottom_icon {
                 valign: center;
                 halign: center;
                 label: _("_Show Bottom Layer");
                 use-underline: true;
                 action-name: "app.open_bottom_icon";
+
                 styles [
                   "pill",
                 ]
               }
             };
-          styles ["icon-dropshadow"]
-        }
-      };
-    }
 
+            styles [
+              "icon-dropshadow"
+            ]
+          }
+        };
+      }
 
-    StackPage {
-      name: "stack_main_page";
-      child:
-      Adw.ToastOverlay toast_overlay {
-        Adw.ToolbarView toolbar {
+      StackPage {
+        name: "regenerating_page";
+
+        child: Adw.ToolbarView {
           [top]
-          Adw.HeaderBar header_bar {
-            Button save_button{
-              Adw.ButtonContent save_button_content{
-                label: "Save";
-                icon-name: "media-floppy-symbolic";
-              }
-              margin-start: 5;
-              sensitive: false;
-              action-name: "app.save_button";
-              styles ["suggested-action"]
-            }
+          Adw.HeaderBar {
             title-widget: Adw.WindowTitle {
               title: "Iconic";
             };
+
             [end]
             MenuButton {
               primary: true;
@@ -92,32 +91,136 @@ template $GtkTestWindow : Adw.ApplicationWindow {
               tooltip-text: _("Menu");
               menu-model: primary_menu;
             }
-
           }
-          content:
-          Adw.Clamp image_preferences {
+
+          content: Adw.Clamp {
             width-request: 300;
 
             Adw.PreferencesPage {
               Adw.PreferencesGroup {
-                Box{
+                Box {
+                  Picture regeneration_image_view {
+                    vexpand: true;
+                    hexpand: true;
+                    width-request: 200;
+                    height-request: 200;
+                    content-fit: contain;
+                    can-shrink: true;
+                  }
+                }
+              }
+
+              Adw.PreferencesGroup {
+                Box {
+                  orientation: vertical;
+                  height-request: 20;
+                  spacing: 20;
+
+                  Label {
+                    margin-top: 10;
+                    label: _("Regenerating");
+                    wrap: true;
+                    valign: center;
+
+                    styles [
+                      "heading"
+                    ]
+                  }
+
+                  Label {
+                    label: _("Iconic is regenerating the previously generated icons");
+                    wrap: true;
+                    valign: center;
+
+                    styles [
+                      "subtitle"
+                    ]
+                  }
+
+                  ProgressBar regeneration_progress {
+                    fraction: 0.0;
+                    show-text: true;
+                    width-request: 50;
+                  }
+
+                  Label regeneration_file {
+                    label: "File x/x";
+                    wrap: true;
+                    valign: center;
+
+                    styles [
+                      "subtitle"
+                    ]
+                  }
+                }
+              }
+            }
+          };
+        };
+      }
+
+      StackPage {
+        name: "stack_main_page";
+
+        child: Adw.ToolbarView toolbar {
+          [top]
+          Adw.HeaderBar header_bar {
+            Button save_button {
+              Adw.ButtonContent save_button_content {
+                label: "Save";
+                icon-name: "document-save-symbolic";
+              }
+
+              margin-start: 5;
+              sensitive: false;
+              action-name: "app.save_button";
+
+              styles [
+                "suggested-action"
+              ]
+            }
+
+            title-widget: Adw.WindowTitle {
+              title: "Iconic";
+            };
+
+            [end]
+            MenuButton {
+              primary: true;
+              icon-name: "open-menu-symbolic";
+              tooltip-text: _("Menu");
+              menu-model: primary_menu;
+            }
+          }
+
+          content: Adw.Clamp image_preferences {
+            width-request: 300;
+
+            Adw.PreferencesPage {
+              Adw.PreferencesGroup {
+                Box {
                   orientation: horizontal;
+
                   Scale y_scale {
                     has-origin: false;
                     orientation: vertical;
+
                     adjustment: Adjustment percentage2 {
                       lower: -50;
                       upper: 50;
                       step-increment: 1;
                     };
+
                     vexpand: true;
                     digits: 0;
                     // draw-value: true;
                     // value-pos: left;
                   }
-                  Box{
+
+                  Box {
                     orientation: vertical;
-                    Overlay{
+
+                    Overlay {
                       Picture image_view {
                         valign: center;
                         halign: center;
@@ -127,84 +230,104 @@ template $GtkTestWindow : Adw.ApplicationWindow {
                         hexpand: true;
                         vexpand: true;
                       }
+
                       [overlay]
-                      Adw.Spinner image_loading_spinner{
+                      Adw.Spinner image_loading_spinner {
                         valign: center;
                         halign: center;
                         width-request: 50;
                         height-request: 50;
                         visible: false;
-
                       }
                     }
+
                     Scale x_scale {
                       has-origin: false;
                       orientation: horizontal;
+
                       adjustment: Adjustment percentage {
                         lower: -50;
                         upper: 50;
                         step-increment: 1;
-                        };
+                      };
+
                       hexpand: true;
-                      //vexpand: true;
+                      // vexpand: true;
                       digits: 0;
                       // draw-value: true;
                       // value-pos: top;
                     }
                   }
-                  styles ["card",]
+
+                  styles [
+                    "card",
+                  ]
                 }
               }
 
-              Adw.PreferencesGroup{
-                Adw.ActionRow scale_row{
+              Adw.PreferencesGroup {
+                Adw.ActionRow scale_row {
                   title: "Scale";
+
                   Scale size {
                     has-origin: true;
                     orientation: horizontal;
+
                     adjustment: Adjustment percentage3 {
                       lower: 0;
                       upper: 50;
                       step-increment: 1;
                     };
+
                     hexpand: true;
                     vexpand: true;
                     digits: 1;
                   }
                 }
               }
+
               Adw.PreferencesGroup {
                 Adw.ExpanderRow monochrome_action_row {
                   title: _("Toggle Monochrome");
+
                   [suffix]
-                  Switch monochrome_switch{
+                  Switch monochrome_switch {
                     valign: center;
                     action-name: "app.monochrome_switch";
                     active: true;
                   }
+
                   Adw.SwitchRow monochrome_invert {
                     title: _("Invert");
                   }
+
                   Adw.ActionRow {
                     title: _("Color");
                     activatable-widget: monochrome_color;
+
                     Box {
                       valign: center;
+
                       Button reset_color {
                         halign: start;
                         visible: false;
-                        Adw.ButtonContent top_icon_content{
+
+                        Adw.ButtonContent top_icon_content {
                           icon-name: "edit-undo-symbolic";
                         }
+
                         action-name: "app.reset_color";
+
                         styles [
                           "flat",
                         ]
                       }
+
                       ColorDialogButton monochrome_color {
                         halign: end;
                         margin-start: 5;
                         rgba: "#438DE6FF";
+
                         dialog: ColorDialog {
                           with-alpha: false;
                         };
@@ -214,78 +337,87 @@ template $GtkTestWindow : Adw.ApplicationWindow {
 
                   Adw.ActionRow {
                     title: _("Threshold");
+
                     Scale threshold_scale {
-                    has-origin: true;
-                    orientation: horizontal;
-                    adjustment: Adjustment threshold_value {
-                      lower: 0;
-                      upper: 255;
-                      step-increment: 1;
-                    };
-                    hexpand: true;
-                    vexpand: true;
-                    digits: 0;
-                    draw-value: true;
-                    value-pos: left;
+                      has-origin: true;
+                      orientation: horizontal;
+
+                      adjustment: Adjustment threshold_value {
+                        lower: 0;
+                        upper: 255;
+                        step-increment: 1;
+                      };
+
+                      hexpand: true;
+                      vexpand: true;
+                      digits: 0;
+                      draw-value: true;
+                      value-pos: left;
                     }
                   }
                 }
               }
             }
           };
-        }
-      };
-    }
-    StackPage {
-      name: "stack_saving_page";
-      child:
-      Adw.StatusPage {
-        Box {
-          orientation: vertical;
-          spacing: 12;
+        };
+      }
 
-          Adw.Spinner {
-            valign: center;
-            halign: center;
-            height-request: 32;
-            width-request: 32;
+      StackPage {
+        name: "stack_saving_page";
+
+        child: Adw.StatusPage {
+          Box {
+            orientation: vertical;
+            spacing: 12;
+
+            Adw.Spinner {
+              valign: center;
+              halign: center;
+              height-request: 32;
+              width-request: 32;
+            }
+
+            Label {
+              label: _("Saving...");
+              margin-bottom: 40;
+
+              styles [
+                "subtitle",
+              ]
+            }
           }
-          Label {
-            label: _("Saving...");
-            margin-bottom: 40;
-            styles [
-              "subtitle",
-            ]
+        };
+      }
+
+      StackPage {
+        name: "stack_loading_page";
+
+        child: Adw.StatusPage {
+          Box {
+            orientation: vertical;
+            spacing: 12;
+
+            Adw.Spinner {
+              valign: center;
+              halign: center;
+              height-request: 32;
+              width-request: 32;
+            }
           }
-        }
-      };
-    }
-    StackPage {
-      name: "stack_loading_page";
-      child:
-      Adw.StatusPage {
-        Box {
-          orientation: vertical;
-          spacing: 12;
-          Adw.Spinner {
-            valign: center;
-            halign: center;
-            height-request: 32;
-            width-request: 32;
-          }
-        }
-      };
+        };
+      }
     }
   };
-  //styles ["devel"]
 }
 
+// styles ["devel"]
 menu primary_menu {
   section {
-  item {
+    item {
       label: _("_Paste Top Icon from Clipboard");
       action: "app.paste";
     }
+
     item {
       label: _("_Open Top Icon");
       action: "app.open_top_icon";
@@ -296,12 +428,19 @@ menu primary_menu {
       action: "app.select_folder";
     }
   }
+
   section {
     item {
       label: _("_Reset Bottom Icon");
       action: "app.reset_bottom";
     }
+
+    item {
+      label: _("_Regenerate Icons");
+      action: "app.regenerate";
+    }
   }
+
   section {
     item {
       label: _("_Preferences");
@@ -320,6 +459,20 @@ menu primary_menu {
 
     item {
       label: _("_About Iconic");
+      action: "app.about";
+    }
+  }
+}
+
+menu image_menu {
+  section {
+    item {
+      label: _("Keyboard Shortcuts");
+      action: "app.shortcuts";
+    }
+
+    item {
+      label: _("About Workbench");
       action: "app.about";
     }
   }
