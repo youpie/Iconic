@@ -133,6 +133,7 @@ impl GtkTestApplication {
         self.set_accels_for_action("app.quit", &["<primary>q"]);
         self.set_accels_for_action("app.select_folder", &["<primary><shift>o"]);
         self.set_accels_for_action("app.paste", &["<primary>v"]);
+        self.set_accels_for_action("app.regeneration", &["<primary>r"]);
     }
 
     fn show_preferences_dialog(&self) {

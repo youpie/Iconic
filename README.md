@@ -21,23 +21,23 @@ These are ideas I want to implement.
         - This would probably require a full rewrite of the image generation system. Using cairo or something, but I originally didn't use cairo as I did not understand it, and good examples were really scarse 
     - [ ] Rounded corner option for top image
     - [ ] Add guide grid or something
-    - [ ] Multiple folder colors
-        - [ ] according to gnome 47 accent color?
+    - [X] Multiple folder colors
+        - [x] according to gnome 47 accent color?
             - [ ] SVG manipulation?
-            - [ ] Or just packing the images in with iconic
-        - [ ] Option in settings
-    - [ ] Regenerate all (d&d'ed) images automatically
+            - [X] Or just packing the images in with iconic
+        - [x] Option in settings
+    - [x] Regenerate all (d&d'ed) images automatically
         - This way its possible to regenerate all images, when for example the accent color changes (I assume if the image that nautulus has set as folder image is changed but filename stays the same, it will change in nautulis)
-        - [ ] Save dragged images with metadata about top layer
-        - [ ] Store all used top layer images in cache
+        - [x] Save dragged images with metadata about top layer
+        - [x] Store all used top layer images in cache
             - This will use a lot of cache size, so
-            - [ ] Allow users to turn it off (opt-in/-out on first launch?)
+            - [X] Allow users to turn it off (opt-in/-out on first launch?)
             - [ ] Inform users 
-            - [ ] Do not store too large images
-        - [ ] Detect current accent color
+            - [X] Do not store too large images
+        - [X] Detect current accent color
     - [ ] Create guide when first starting iconic, to show users dragging and dropping images is possible
     - [ ] Refer users to icon library, so they know where to find many good icons   
-- [ ] Update main app to gnome 47 runtime
+- [X] Update main app to gnome 47 runtime
 - [ ] Add credits for applications I used to learn in the "about iconic"
 - [ ] Move donation link to About iconic (issue #8)
 - [ ] Make donation link just point to a random charity

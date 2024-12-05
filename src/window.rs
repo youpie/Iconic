@@ -387,14 +387,14 @@ impl GtkTestWindow {
         }
         imp.default_color.replace(HashMap::from([
             ("Blue".to_string(), win.create_rgba(67, 141, 230)),
-            ("Teal".to_string(), win.create_rgba(33, 144, 164)),
-            ("Green".to_string(), win.create_rgba(38, 162, 105)),
-            ("Yellow".to_string(), win.create_rgba(200, 136, 0)),
-            ("Orange".to_string(), win.create_rgba(237, 91, 0)),
-            ("Red".to_string(), win.create_rgba(230, 45, 66)),
+            ("Teal".to_string(), win.create_rgba(18, 158, 176)),
+            ("Green".to_string(), win.create_rgba(61, 158, 79)),
+            ("Yellow".to_string(), win.create_rgba(203, 147, 26)),
+            ("Orange".to_string(), win.create_rgba(241, 119, 56)),
+            ("Red".to_string(), win.create_rgba(232, 64, 83)),
             ("Pink".to_string(), win.create_rgba(212, 95, 151)),
-            ("Purple".to_string(), win.create_rgba(145, 65, 172)),
-            ("Slate".to_string(), win.create_rgba(111, 131, 150)),
+            ("Purple".to_string(), win.create_rgba(149, 74, 181)),
+            ("Slate".to_string(), win.create_rgba(99, 118, 146)),
         ]));
         win.setup_defaults();
         win
