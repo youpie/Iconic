@@ -9,7 +9,7 @@ use std::env;
 use std::error::Error;
 use std::path::PathBuf;
 
-use crate::GtkTestWindow;
+use crate::{GtkTestWindow, RUNTIME};
 
 impl GtkTestWindow {
     pub fn load_folder_path_from_settings(&self) {
@@ -44,9 +44,7 @@ impl GtkTestWindow {
         let custom_primary_color = imp.settings.string("primary-folder-color");
         let custom_secondary_color = imp.settings.string("secondary-folder-color");
         let folder_svg_file =
-            tokio::fs::read_to_string("/app/share/folder_icon/folders/folder_Custom.svg")
-                .await
-                .unwrap();
+            std::fs::read_to_string("/app/share/folder_icon/folders/folder_Custom.svg").unwrap();
         let folder_svg_lines = folder_svg_file.lines();
         let new_custom_folder: String = folder_svg_lines
             .map(|row| {
@@ -60,7 +58,11 @@ impl GtkTestWindow {
         let new_custom_folder_bytes = new_custom_folder.as_bytes().to_owned();
         let mut cache_location = self.get_cache_path();
         cache_location.push("custom_folder.svg");
-        tokio::fs::write(&cache_location, new_custom_folder_bytes)
+        let cache_location_clone = cache_location.clone();
+        RUNTIME
+            .spawn_blocking(move || {
+                let _ = std::fs::write(&cache_location_clone, new_custom_folder_bytes);
+            })
             .await
             .unwrap();
         cache_location
@@ -102,11 +104,12 @@ impl GtkTestWindow {
                     match top_file_selected {
                         Some(true) => {
                             imp.temp_image_loaded.replace(true);
-                            let iconic_file = tokio::task::spawn_blocking(move || {
-                                File::from_image(image, thumbnail_size, "pasted")
-                            })
-                            .await
-                            .unwrap();
+                            let iconic_file = RUNTIME
+                                .spawn_blocking(move || {
+                                    File::from_image(image, thumbnail_size, "pasted")
+                                })
+                                .await
+                                .unwrap();
                             match self.store_top_image_in_cache(&iconic_file, None) {
                                 Err(x) => {
                                     self.show_error_popup(&x.to_string(), true, None);
@@ -117,11 +120,12 @@ impl GtkTestWindow {
                         }
                         _ => {
                             imp.bottom_image_file.lock().unwrap().replace(
-                                tokio::task::spawn_blocking(move || {
-                                    File::from_image(image.clone(), thumbnail_size, "pasted")
-                                })
-                                .await
-                                .unwrap(),
+                                RUNTIME
+                                    .spawn_blocking(move || {
+                                        File::from_image(image.clone(), thumbnail_size, "pasted")
+                                    })
+                                    .await
+                                    .unwrap(),
                             );
                         }
                     }
@@ -321,10 +325,11 @@ impl GtkTestWindow {
         let generated_image = self
             .generate_image(base_image, top_image, imageops::FilterType::Gaussian)
             .await;
-        let _ = tokio::task::spawn_blocking(move || {
-            generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)
-        })
-        .await?;
+        let _ = RUNTIME
+            .spawn_blocking(move || {
+                generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)
+            })
+            .await?;
         imp.image_saved.replace(true);
         imp.save_button.set_sensitive(false);
         Ok(true)
@@ -409,12 +414,13 @@ impl GtkTestWindow {
         let imp = self.imp();
         let new_file = if let Some(file_temp) = file {
             let file_temp_clone = file_temp.clone();
-            let iconic_file = match tokio::task::spawn_blocking(move || {
-                File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
-                    .map_err(|err| err.to_string())
-            })
-            .await
-            .unwrap()
+            let iconic_file = match RUNTIME
+                .spawn_blocking(move || {
+                    File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
+                        .map_err(|err| err.to_string())
+                })
+                .await
+                .unwrap()
             {
                 Ok(x) => x,
                 Err(e) => {
@@ -434,12 +440,13 @@ impl GtkTestWindow {
         } else if let Some(path_temp) = path {
             let file_temp = gio::File::for_path(path_temp);
             let file_temp_clone = file_temp.clone();
-            let iconic_file = match tokio::task::spawn_blocking(move || {
-                File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
-                    .map_err(|err| err.to_string())
-            })
-            .await
-            .unwrap()
+            let iconic_file = match RUNTIME
+                .spawn_blocking(move || {
+                    File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
+                        .map_err(|err| err.to_string())
+                })
+                .await
+                .unwrap()
             {
                 Ok(x) => x,
                 Err(e) => {

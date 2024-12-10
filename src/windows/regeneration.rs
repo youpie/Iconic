@@ -1,5 +1,5 @@
 use crate::objects::file::File;
-use crate::GtkTestWindow;
+use crate::{GtkTestWindow, RUNTIME};
 
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -10,7 +10,6 @@ use log::*;
 use std::fs;
 use std::path::PathBuf;
 use std::time::Duration;
-use tokio;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -116,25 +115,32 @@ impl GtkTestWindow {
             let mut top_image_path = self.get_cache_path().join("top_images");
             top_image_path.push(hash);
             info!("Loading top image file");
-            let top_image_file = tokio::task::spawn_blocking(move || {
-                File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
-            })
-            .await??
-            .dynamic_image;
+            let top_image_file = RUNTIME
+                .spawn_blocking(move || {
+                    File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
+                })
+                .await??
+                .dynamic_image;
             self.set_properties(properties_list.clone())?;
             let top_image = self.create_top_image_for_generation(properties_list, top_image_file);
             info!(
                 "Creating top icon succesful, now creating bottom icon {:?}",
                 bottom_image_path
             );
-            let bottom_image_file = tokio::task::spawn_blocking(move || {
-                File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
-            })
-            .await??
-            .dynamic_image;
+            let bottom_image_file = RUNTIME
+                .spawn_blocking(move || {
+                    File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
+                })
+                .await??
+                .dynamic_image;
             self.image_animation(false);
             if delay {
-                tokio::time::sleep(Duration::from_millis(200)).await;
+                RUNTIME
+                    .spawn_blocking(move || {
+                        std::thread::sleep(Duration::from_millis(200));
+                    })
+                    .await
+                    .unwrap();
             }
             info!("Generating image");
             let generated_image = self
@@ -150,13 +156,22 @@ impl GtkTestWindow {
             self.image_animation(true);
             info!("Saving image");
             let generated_bytes = generated_image.into_bytes();
-            match tokio::fs::write(file_path, generated_bytes).await {
+            match RUNTIME
+                .spawn_blocking(move || std::fs::write(file_path, generated_bytes))
+                .await
+                .unwrap()
+            {
                 Ok(_) => info!("Saving Succesful"),
                 Err(x) => error!("Saving failed: {:?}", x),
             };
             info!("Waiting");
             if delay {
-                tokio::time::sleep(Duration::from_millis(400)).await; //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
+                RUNTIME
+                    .spawn_blocking(move || {
+                        std::thread::sleep(Duration::from_millis(400));
+                    })
+                    .await
+                    .unwrap(); //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
             }
         }
         self.default_sliders();

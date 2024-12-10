@@ -21,6 +21,7 @@
 use crate::glib::clone;
 use crate::objects::file::File;
 use crate::settings::settings::PreferencesDialog;
+use crate::RUNTIME;
 use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -857,7 +858,8 @@ impl GtkTestWindow {
             .set("folder-cache-name", file_name.clone())
             .unwrap();
         let cache_path = cache_dir.join(file_name.clone());
-        let _ = tokio::fs::copy(original_path, cache_path.clone()).await;
+        let _ = std::fs::copy(original_path, cache_path.clone());
+        //let test = RUNTIME.spawn_blocking(move || true).await;
         (cache_path, file_name)
     }
 
