@@ -216,6 +216,7 @@ impl PreferencesDialog {
         }
         imp.select_bottom_color
             .set_selected(imp.settings.int("selected-accent-color-index") as u32);
+        win.load_set_colors();
         win.dnd_row_expand(true);
         win.set_path_title();
         win.bottom_image_expander(true);
@@ -226,6 +227,18 @@ impl PreferencesDialog {
         win.show_reset_primary();
         win.show_reset_secondary();
         win
+    }
+
+    fn load_set_colors(&self) {
+        let imp = self.imp();
+        let current_primary = imp.settings.string("primary-folder-color");
+        let current_secondary = imp.settings.string("secondary-folder-color");
+        imp.primary_folder_color
+            .set_rgba(&PreferencesDialog::hex_to_rgba(current_primary.to_string()));
+        imp.secondary_folder_color
+            .set_rgba(&PreferencesDialog::hex_to_rgba(
+                current_secondary.to_string(),
+            ));
     }
 
     fn setup_settings(&self) {
@@ -310,6 +323,11 @@ impl PreferencesDialog {
             #[weak (rename_to = this)]
             self,
             move |_| {
+                let color = this.imp().primary_folder_color.rgba();
+                let _ = this
+                    .imp()
+                    .settings
+                    .set_string("primary-folder-color", &this.rgba_to_hex(color));
                 this.show_reset_primary();
             }
         ));
@@ -317,6 +335,11 @@ impl PreferencesDialog {
             #[weak (rename_to = this)]
             self,
             move |_| {
+                let color = this.imp().secondary_folder_color.rgba();
+                let _ = this
+                    .imp()
+                    .settings
+                    .set_string("secondary-folder-color", &this.rgba_to_hex(color));
                 this.show_reset_secondary();
             }
         ));

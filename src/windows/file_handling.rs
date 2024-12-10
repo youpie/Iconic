@@ -23,16 +23,46 @@ impl GtkTestWindow {
                 if imp.settings.boolean("manual-bottom-image-selection") {
                     let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
                     path = win.check_chache_icon(cache_file_name).await;
+                } else if imp.settings.string("selected-accent-color") == "Custom" {
+                    path = win.create_custom_folder_color().await;
                 } else {
                     path = win.load_built_in_bottom_icon().await;
-                    if !imp.reset_color.is_visible() {
-                        win.reset_colors();
-                    }
+                }
+                if !imp.reset_color.is_visible() {
+                    win.reset_colors();
                 }
                 info!("Loading path: {:?}", &path);
                 win.load_folder_icon(&path.into_os_string().into_string().unwrap());
             }
         ));
+    }
+
+    async fn create_custom_folder_color(&self) -> PathBuf {
+        let imp = self.imp();
+        info!("Creating custom folder colors");
+        let custom_primary_color = imp.settings.string("primary-folder-color");
+        let custom_secondary_color = imp.settings.string("secondary-folder-color");
+        let folder_svg_file =
+            tokio::fs::read_to_string("/app/share/folder_icon/folders/folder_Custom.svg")
+                .await
+                .unwrap();
+        let folder_svg_lines = folder_svg_file.lines();
+        let new_custom_folder: String = folder_svg_lines
+            .map(|row| {
+                let row_clone = row.to_string();
+                let row_clone = row_clone.replace("a4caee", &custom_primary_color);
+                let mut row_clone = row_clone.replace("438de6", &custom_secondary_color);
+                row_clone.push_str("\n");
+                row_clone
+            })
+            .collect();
+        let new_custom_folder_bytes = new_custom_folder.as_bytes().to_owned();
+        let mut cache_location = self.get_cache_path();
+        cache_location.push("custom_folder.svg");
+        tokio::fs::write(&cache_location, new_custom_folder_bytes)
+            .await
+            .unwrap();
+        cache_location
     }
 
     pub async fn load_built_in_bottom_icon(&self) -> PathBuf {

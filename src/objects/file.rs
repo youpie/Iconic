@@ -1,5 +1,4 @@
 use adw::prelude::FileExt;
-use error::UnsupportedError;
 use gio::{Cancellable, FileQueryInfoFlags};
 use gtk::gio;
 use image::*;

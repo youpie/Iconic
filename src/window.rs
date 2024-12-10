@@ -20,24 +20,23 @@
 
 use crate::glib::clone;
 use crate::objects::file::File;
-use adw::prelude::{AlertDialogExt, AlertDialogExtManual};
+use crate::settings::settings::PreferencesDialog;
+use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::Cancellable;
 use gtk::gdk::RGBA;
 use gtk::gdk_pixbuf::Pixbuf;
-use gtk::{gdk, glib, GestureClick};
+use gtk::{gdk, glib};
 use image::*;
 use log::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::env;
-use std::error::Error;
 use std::fs;
 use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 
@@ -609,6 +608,10 @@ impl GtkTestWindow {
         imp.settings
             .connect_changed(Some("folder-svg-path"), update_folder.clone());
         imp.settings
+            .connect_changed(Some("primary-folder-color"), update_folder.clone());
+        imp.settings
+            .connect_changed(Some("secondary-folder-color"), update_folder.clone());
+        imp.settings
             .connect_changed(Some("selected-accent-color"), update_folder.clone());
         imp.settings
             .connect_changed(Some("manual-bottom-image-selection"), update_folder.clone());
@@ -731,13 +734,18 @@ impl GtkTestWindow {
     pub fn get_default_color(&self) -> gdk::RGBA {
         let imp = self.imp();
         let accent_color;
+        debug!("Resetting top color");
         let selected_accent_color = imp.settings.string("selected-accent-color");
+        let mut custom_rgb = RGBA::new(0.0, 0.0, 0.0, 0.0);
         if selected_accent_color == "None" {
             accent_color = self.get_accent_color_and_dialog();
         } else if imp.settings.boolean("manual-bottom-image-selection") {
             accent_color = "Blue".to_string();
         } else if selected_accent_color == "Custom" {
-            accent_color = "Blue".to_string();
+            accent_color = "Custom".to_string();
+            custom_rgb = PreferencesDialog::hex_to_rgba(
+                imp.settings.string("secondary-folder-color").into(),
+            );
         } else {
             accent_color = selected_accent_color.into();
         }
@@ -745,7 +753,7 @@ impl GtkTestWindow {
             .default_color
             .borrow()
             .get(&accent_color)
-            .unwrap()
+            .unwrap_or(&custom_rgb)
             .clone();
         debug!("Found color: {:?}", &color);
         color

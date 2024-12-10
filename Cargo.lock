@@ -707,6 +707,7 @@ dependencies = [
  "gettext-rs",
  "gio",
  "gtk4",
+ "hex",
  "image",
  "libadwaita",
  "librsvg",

@@ -18,6 +18,7 @@ ashpd = "0.10.2"
 rand = "0.8.5"
 tokio = { version = "1.42.0", features = ["full"] }
 fs_extra = "1.2.0"
+hex = "0.4.3"
 
 
 [dependencies.gtk]
