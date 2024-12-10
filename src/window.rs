@@ -926,9 +926,9 @@ impl GtkTestWindow {
             (*top_image).replace(File::from_image(empty_image, 1, &folder_bottom_name));
             self.enable_disable_top_control(false);
 
-            // if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
-            //     imp.stack.set_visible_child_name("stack_welcome_page");
-            // }
+            if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
+                imp.stack.set_visible_child_name("stack_welcome_page");
+            }
         }
     }
 
@@ -1007,6 +1007,8 @@ impl GtkTestWindow {
                     .set_property("enable_expansion", false);
             }
         };
-        self.check_icon_update();
+        if self.imp().stack.visible_child_name() == Some("stack_main_page".into()) {
+            self.check_icon_update();
+        }
     }
 }
