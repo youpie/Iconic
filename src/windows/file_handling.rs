@@ -19,6 +19,7 @@ impl GtkTestWindow {
             async move {
                 let imp = win.imp();
                 let path;
+                imp.temp_image_loaded.replace(false);
                 if imp.settings.boolean("manual-bottom-image-selection") {
                     let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
                     path = win.check_chache_icon(cache_file_name).await;
@@ -69,6 +70,7 @@ impl GtkTestWindow {
                             .unwrap();
                     match top_file_selected {
                         Some(true) => {
+                            imp.temp_image_loaded.replace(true);
                             let iconic_file = File::from_image(image, thumbnail_size, "pasted");
                             match self.store_top_image_in_cache(&iconic_file, None) {
                                 Err(x) => {
@@ -173,6 +175,7 @@ impl GtkTestWindow {
                 imp.stack.set_visible_child_name("stack_loading_page");
                 match top_file_selected {
                     Some(true) => {
+                        imp.temp_image_loaded.replace(true);
                         self.new_iconic_file_creation(
                             Some(file),
                             None,
@@ -321,6 +324,7 @@ impl GtkTestWindow {
         let size: i32 = imp.settings.get("svg-render-size");
         match self.open_file_chooser_gtk().await {
             Some(x) => {
+                imp.temp_image_loaded.replace(true);
                 imp.stack.set_visible_child_name("stack_main_page");
                 self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false);
             }

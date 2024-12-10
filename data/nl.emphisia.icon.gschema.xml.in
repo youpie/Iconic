@@ -61,5 +61,13 @@
       <default>false</default>
       <summary>If true, the pop-up informing the user that it is possible to regenerate images has already been shown</summary>
     </key>
+    <key name="primary-folder-color" type="s">
+      <default>'A4CAEE'</default>
+      <summary>Color of primary part of custom folder</summary>
+    </key>
+    <key name="secondary-folder-color" type="s">
+      <default>'438DE6'</default>
+      <summary>Color of secondary part of custom folder</summary>
+    </key>
 	</schema>
 </schemalist>

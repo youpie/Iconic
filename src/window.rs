@@ -24,6 +24,7 @@ use adw::prelude::{AlertDialogExt, AlertDialogExtManual};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::Cancellable;
+use gtk::gdk::RGBA;
 use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib, GestureClick};
 use image::*;
@@ -104,6 +105,7 @@ mod imp {
         pub image_saved: RefCell<bool>,
         pub last_dnd_generated_name: RefCell<Option<gio::File>>,
         pub generated_image: RefCell<Option<DynamicImage>>,
+        pub temp_image_loaded: RefCell<bool>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         //pub drop_target_item: RefCell<Option<gtk::DropTarget>>,
         pub settings: gio::Settings,
@@ -145,6 +147,7 @@ mod imp {
                 regeneration_file: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
+                temp_image_loaded: RefCell::new(false),
                 default_color: RefCell::new(HashMap::new()),
                 last_dnd_generated_name: RefCell::new(None),
                 //drop_target_item: RefCell::new(None),
@@ -387,15 +390,15 @@ impl GtkTestWindow {
             imp.main_status_page.set_icon_name(Some(APP_ICON));
         }
         imp.default_color.replace(HashMap::from([
-            ("Blue".to_string(), win.create_rgba(67, 141, 230)),
-            ("Teal".to_string(), win.create_rgba(18, 158, 176)),
-            ("Green".to_string(), win.create_rgba(61, 158, 79)),
-            ("Yellow".to_string(), win.create_rgba(203, 147, 26)),
-            ("Orange".to_string(), win.create_rgba(241, 119, 56)),
-            ("Red".to_string(), win.create_rgba(232, 64, 83)),
-            ("Pink".to_string(), win.create_rgba(212, 95, 151)),
-            ("Purple".to_string(), win.create_rgba(149, 74, 181)),
-            ("Slate".to_string(), win.create_rgba(99, 118, 146)),
+            ("Blue".to_string(), GtkTestWindow::to_rgba(67, 141, 230)),
+            ("Teal".to_string(), GtkTestWindow::to_rgba(18, 158, 176)),
+            ("Green".to_string(), GtkTestWindow::to_rgba(61, 158, 79)),
+            ("Yellow".to_string(), GtkTestWindow::to_rgba(203, 147, 26)),
+            ("Orange".to_string(), GtkTestWindow::to_rgba(241, 119, 56)),
+            ("Red".to_string(), GtkTestWindow::to_rgba(232, 64, 83)),
+            ("Pink".to_string(), GtkTestWindow::to_rgba(212, 95, 151)),
+            ("Purple".to_string(), GtkTestWindow::to_rgba(149, 74, 181)),
+            ("Slate".to_string(), GtkTestWindow::to_rgba(99, 118, 146)),
         ]));
         win.setup_defaults();
 
@@ -428,10 +431,10 @@ impl GtkTestWindow {
         self.load_folder_path_from_settings();
     }
 
-    pub fn create_rgba(&self, r: u8, g: u8, b: u8) -> gdk::RGBA {
-        let r_float = 1.0 / 255.0 * r as f32;
-        let g_float = 1.0 / 255.0 * g as f32;
-        let b_float = 1.0 / 255.0 * b as f32;
+    pub fn to_rgba(r: u8, g: u8, b: u8) -> gdk::RGBA {
+        let r_float = (1.0 as f64 / 255.0 as f64 * r as f64) as f32;
+        let g_float = (1.0 as f64 / 255.0 as f64 * g as f64) as f32;
+        let b_float = (1.0 as f64 / 255.0 as f64 * b as f64) as f32;
         gdk::RGBA::new(r_float, g_float, b_float, 1.0)
     }
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
@@ -481,8 +484,8 @@ impl GtkTestWindow {
     fn create_image_properties_string(&self) -> String {
         let imp = self.imp();
         let is_default = (!imp.settings.boolean("manual-bottom-image-selection")
-            && imp.settings.string("selected-accent-color").as_str() == "None")
-            as usize;
+            && imp.settings.string("selected-accent-color").as_str() == "None"
+            && !*imp.temp_image_loaded.borrow()) as usize;
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();
@@ -732,6 +735,8 @@ impl GtkTestWindow {
         if selected_accent_color == "None" {
             accent_color = self.get_accent_color_and_dialog();
         } else if imp.settings.boolean("manual-bottom-image-selection") {
+            accent_color = "Blue".to_string();
+        } else if selected_accent_color == "Custom" {
             accent_color = "Blue".to_string();
         } else {
             accent_color = selected_accent_color.into();

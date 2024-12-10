@@ -37,8 +37,79 @@ template $PreferencesDialog: Adw.PreferencesDialog {
               _("Pink"),
               _("Purple"),
               _("Slate"),
+              _("Custom"),
             ]
           };
+        }
+
+        Adw.ActionRow primary_color_row {
+          visible: false;
+          title: _("Primary Folder Color");
+          activatable-widget: primary_folder_color;
+
+          Box {
+            valign: center;
+
+            Button reset_color_primary {
+              halign: start;
+              visible: false;
+
+              Adw.ButtonContent {
+                icon-name: "edit-undo-symbolic";
+              }
+
+              action-name: "app.reset_color_primary";
+
+              styles [
+                "flat",
+              ]
+            }
+
+            ColorDialogButton primary_folder_color {
+              halign: end;
+              margin-start: 5;
+              rgba: "#A4CAEEFF";
+
+              dialog: ColorDialog {
+                with-alpha: false;
+              };
+            }
+          }
+        }
+
+        Adw.ActionRow secondary_color_row {
+          visible: false;
+          title: _("Secondary Folder Color");
+          activatable-widget: secondary_folder_color;
+
+          Box {
+            valign: center;
+
+            Button reset_color_secondary {
+              halign: start;
+              visible: false;
+
+              Adw.ButtonContent {
+                icon-name: "edit-undo-symbolic";
+              }
+
+              action-name: "app.reset_color_secondary";
+
+              styles [
+                "flat",
+              ]
+            }
+
+            ColorDialogButton secondary_folder_color {
+              halign: end;
+              margin-start: 5;
+              rgba: "#438DE6FF";
+
+              dialog: ColorDialog {
+                with-alpha: false;
+              };
+            }
+          }
         }
       }
 

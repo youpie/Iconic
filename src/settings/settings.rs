@@ -17,6 +17,8 @@ use log::*;
 use std::path::PathBuf;
 use std::{env, fs, path};
 
+use crate::GtkTestWindow;
+
 mod imp {
     use super::*;
 
@@ -61,6 +63,18 @@ mod imp {
         pub cache_size: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub reset_top_cache: TemplateChild<adw::ButtonRow>,
+        #[template_child]
+        pub primary_color_row: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub reset_color_primary: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub primary_folder_color: TemplateChild<gtk::ColorDialogButton>,
+        #[template_child]
+        pub secondary_color_row: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub reset_color_secondary: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub secondary_folder_color: TemplateChild<gtk::ColorDialogButton>,
         pub settings: gio::Settings,
     }
 
@@ -91,6 +105,12 @@ mod imp {
                 automatic_regeneration: TemplateChild::default(),
                 cache_size: TemplateChild::default(),
                 reset_top_cache: TemplateChild::default(),
+                primary_color_row: TemplateChild::default(),
+                reset_color_primary: TemplateChild::default(),
+                primary_folder_color: TemplateChild::default(),
+                secondary_color_row: TemplateChild::default(),
+                reset_color_secondary: TemplateChild::default(),
+                secondary_folder_color: TemplateChild::default(),
             }
         }
 
@@ -103,6 +123,28 @@ mod imp {
                     win,
                     async move {
                         win.select_path_filechooser();
+                    }
+                ));
+            });
+            klass.install_action("app.reset_color_primary", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    win,
+                    async move {
+                        win.imp()
+                            .primary_folder_color
+                            .set_rgba(&GtkTestWindow::to_rgba(164, 202, 238));
+                    }
+                ));
+            });
+            klass.install_action("app.reset_color_secondary", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    win,
+                    async move {
+                        win.imp()
+                            .secondary_folder_color
+                            .set_rgba(&GtkTestWindow::to_rgba(67, 141, 230));
                     }
                 ));
             });
@@ -180,6 +222,9 @@ impl PreferencesDialog {
         win.disable_color_dropdown(true);
         win.setup_settings();
         win.get_file_size();
+        win.show_color_options();
+        win.show_reset_primary();
+        win.show_reset_secondary();
         win
     }
 
@@ -229,6 +274,7 @@ impl PreferencesDialog {
             self,
             move |_| {
                 this.get_selected_accent_color(false);
+                this.show_color_options();
             }
         ));
 
@@ -244,6 +290,7 @@ impl PreferencesDialog {
             self,
             move |_| {
                 this.disable_color_dropdown(false);
+                this.show_color_options();
             }
         ));
         imp.reset_top_cache.connect_activated(clone!(
@@ -257,6 +304,20 @@ impl PreferencesDialog {
                         win.on_buttonrow_activated().await;
                     }
                 ));
+            }
+        ));
+        imp.primary_folder_color.connect_rgba_notify(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.show_reset_primary();
+            }
+        ));
+        imp.secondary_folder_color.connect_rgba_notify(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                this.show_reset_secondary();
             }
         ));
     }
@@ -290,7 +351,7 @@ impl PreferencesDialog {
 
     fn get_selected_accent_color(&self, init: bool) {
         let color_vec = vec![
-            "Blue", "Teal", "Green", "Yellow", "Orange", "Red", "Pink", "Purple", "Slate",
+            "Blue", "Teal", "Green", "Yellow", "Orange", "Red", "Pink", "Purple", "Slate", "Custom",
         ];
         let imp = self.imp();
         let selected_index = imp.select_bottom_color.selected() as usize;
