@@ -566,21 +566,33 @@ impl GtkTestWindow {
         );
 
         let resize_folder = glib::clone!(
-            #[weak(rename_to = win)]
+            #[weak(rename_to = this)]
             self,
             move |_: &gio::Settings, _: &str| {
-                let path: &str = &win.imp().settings.string("folder-svg-path");
-                win.load_folder_icon(path);
+                glib::spawn_future_local(glib::clone!(
+                    #[weak(rename_to = win)]
+                    this,
+                    async move {
+                        let path: &str = &win.imp().settings.string("folder-svg-path");
+                        win.load_folder_icon(path).await;
+                    }
+                ));
             }
         );
 
         let reload_thumbnails = glib::clone!(
-            #[weak(rename_to = win)]
+            #[weak(rename_to = this)]
             self,
             move |_: &gio::Settings, _: &str| {
-                let path: &str = &win.imp().settings.string("folder-svg-path");
-                win.load_folder_icon(path);
-                win.imp().reset_color.set_visible(true);
+                glib::spawn_future_local(glib::clone!(
+                    #[weak(rename_to = win)]
+                    this,
+                    async move {
+                        let path: &str = &win.imp().settings.string("folder-svg-path");
+                        win.load_folder_icon(path).await;
+                        win.imp().reset_color.set_visible(true);
+                    }
+                ));
             }
         );
 

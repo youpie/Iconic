@@ -1,5 +1,5 @@
 use adw::{prelude::*, subclass::prelude::*};
-use gtk::{gdk, glib};
+use gtk::gdk;
 use image::*;
 
 use crate::GtkTestWindow;
@@ -85,17 +85,12 @@ impl GtkTestWindow {
         filter: imageops::FilterType,
     ) -> DynamicImage {
         let imp = self.imp();
-        //imp.stack.set_visible_child_name("stack_main_page");
-        // imp.image_saved.replace(false);
-        // imp.save_button.set_sensitive(true);
-        let (tx_texture, rx_texture) = async_channel::bounded(1);
-        let tx_texture1 = tx_texture.clone();
         let coordinates = (
             (imp.x_scale.value() + 50.0) as i64,
             (imp.y_scale.value() + 50.0) as i64,
         );
         let scale: f32 = imp.size.value() as f32;
-        gio::spawn_blocking(move || {
+        let texture = tokio::task::spawn_blocking(move || {
             let mut base = base_image;
             let top = top_image;
             let base_dimension: (i64, i64) =
@@ -115,13 +110,13 @@ impl GtkTestWindow {
                 final_coordinates.0.into(),
                 final_coordinates.1.into(),
             );
-            tx_texture1.send_blocking(base)
-        });
+            base
+        })
+        .await
+        .unwrap();
 
-        let texture = glib::spawn_future_local(async move { rx_texture.recv().await.unwrap() });
-        let image = texture.await.unwrap();
-        imp.generated_image.replace(Some(image.clone()));
-        image
+        imp.generated_image.replace(Some(texture.clone()));
+        texture
     }
 
     pub fn resize_image(
