@@ -52,19 +52,19 @@ impl GtkTestWindow {
         // SVG's are often very small in size, so if it is an SVG. Save that image. Otherwise store the dynamic image.
         // I do not know how this code below works, but it does. So I am not touching it
         // TODO implement async?
-        if file.extension == "image/svg+xml" && original_file != None {
-            let new_file = gio::File::for_path(file_path);
-            let filestream = new_file.open_readwrite(gio::Cancellable::NONE).unwrap();
-            let test = filestream.output_stream();
-            let buffer = original_file
-                .unwrap()
-                .load_bytes(gio::Cancellable::NONE)
-                .unwrap();
-            test.write_bytes(&buffer.0, gio::Cancellable::NONE).unwrap();
-        } else {
-            file.dynamic_image
-                .save_with_format(file_path, ImageFormat::Png)?;
-        }
+        //if file.extension == "image/svg+xml" && original_file != None {
+        let new_file = gio::File::for_path(file_path);
+        let filestream = new_file.open_readwrite(gio::Cancellable::NONE).unwrap();
+        let test = filestream.output_stream();
+        let buffer = original_file
+            .unwrap()
+            .load_bytes(gio::Cancellable::NONE)
+            .unwrap();
+        test.write_bytes(&buffer.0, gio::Cancellable::NONE).unwrap();
+        //} else {
+        //     file.dynamic_image
+        //         .save_with_format(file_path, ImageFormat::Png)?;
+        // }
         Ok(())
     }
 
@@ -94,7 +94,6 @@ impl GtkTestWindow {
         }
         let step_size = 1.0 / files_n as f64;
         let mut file_index: usize = 0;
-        error!("This function hangs if executed too many times. I do not know why");
         for file in compatible_files {
             info!("Loading new file");
 
@@ -155,9 +154,10 @@ impl GtkTestWindow {
             info!("Image animation");
             self.image_animation(true);
             info!("Saving image");
-            let generated_bytes = generated_image.into_bytes();
             match RUNTIME
-                .spawn_blocking(move || std::fs::write(file_path, generated_bytes))
+                .spawn_blocking(move || {
+                    generated_image.save_with_format(file_path, ImageFormat::Png)
+                })
                 .await
                 .unwrap()
             {
@@ -225,7 +225,7 @@ impl GtkTestWindow {
         imp.monochrome_switch
             .set_active(properties[5].parse::<usize>()? != 0);
         imp.threshold_scale.set_value(properties[6].parse()?);
-        imp.monochrome_color.set_rgba(&self.get_default_color());
+        imp.monochrome_color.set_rgba(&self.current_accent_rgba());
         imp.monochrome_invert
             .set_active(properties[10].parse::<usize>()? != 0);
         Ok(())
@@ -243,12 +243,22 @@ impl GtkTestWindow {
                 properties[9].parse().unwrap(),
                 1.0,
             ),
-            _ => self.get_default_color(),
+            _ => self.current_accent_rgba(),
         };
         match properties[5] {
             "1" => self.to_monochrome(top_image, properties[6].parse().unwrap(), color),
             _ => top_image,
         }
+    }
+
+    fn current_accent_rgba(&self) -> RGBA {
+        let imp = self.imp();
+        let accent_color = self.get_accent_color_and_dialog();
+        imp.default_color
+            .borrow()
+            .get(&accent_color)
+            .unwrap()
+            .clone()
     }
 
     fn progress_animation(&self, step_size: f64) {
