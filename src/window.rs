@@ -1007,6 +1007,6 @@ impl GtkTestWindow {
                     .set_property("enable_expansion", false);
             }
         };
-        // self.check_icon_update();
+        self.check_icon_update();
     }
 }
