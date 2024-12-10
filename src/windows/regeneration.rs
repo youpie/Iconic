@@ -175,6 +175,7 @@ impl GtkTestWindow {
             }
         }
         self.default_sliders();
+        self.reset_colors();
         Ok(())
     }
 
