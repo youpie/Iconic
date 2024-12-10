@@ -110,7 +110,6 @@ mod imp {
         pub generated_image: RefCell<Option<DynamicImage>>,
         pub temp_image_loaded: RefCell<bool>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
-        //pub drop_target_item: RefCell<Option<gtk::DropTarget>>,
         pub settings: gio::Settings,
         pub count: RefCell<i32>,
     }
@@ -155,7 +154,6 @@ mod imp {
                 temp_image_loaded: RefCell::new(false),
                 default_color: RefCell::new(HashMap::new()),
                 last_dnd_generated_name: RefCell::new(None),
-                //drop_target_item: RefCell::new(None),
             }
         }
     }
@@ -552,29 +550,6 @@ impl GtkTestWindow {
         false
     }
 
-    fn check_regeneration_needed(&self) -> bool {
-        let imp = self.imp();
-        let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
-        let current_accent = self.get_accent_color_and_dialog();
-        // error!("previous {previous_accent} current {current_accent}");
-        if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
-            glib::spawn_future_local(glib::clone!(
-                #[weak(rename_to = win)]
-                self,
-                async move {
-                    match win.regenerate_icons(false).await {
-                        Ok(_) => info!("Regeneration succesfull!"),
-                        Err(x) => {
-                            error!("{}", x.to_string());
-                        }
-                    };
-                }
-            ));
-            return true;
-        }
-        false
-    }
-
     fn drag_connect_end(&self) {
         debug!("drag end");
         self.drag_and_drop_regeneration_popup();
@@ -743,6 +718,29 @@ impl GtkTestWindow {
         ));
     }
 
+    fn check_regeneration_needed(&self) -> bool {
+        let imp = self.imp();
+        let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
+        let current_accent = self.get_accent_color_and_dialog();
+        // error!("previous {previous_accent} current {current_accent}");
+        if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
+            glib::spawn_future_local(glib::clone!(
+                #[weak(rename_to = win)]
+                self,
+                async move {
+                    match win.regenerate_icons(false).await {
+                        Ok(_) => info!("Regeneration succesfull!"),
+                        Err(x) => {
+                            error!("{}", x.to_string());
+                        }
+                    };
+                }
+            ));
+            return true;
+        }
+        false
+    }
+
     pub fn reset_colors(&self) {
         let imp = self.imp();
         imp.reset_color.set_visible(false);
@@ -751,6 +749,7 @@ impl GtkTestWindow {
         imp.reset_color.set_visible(false);
     }
 
+    // TODO: This approach is dumb. I am purposely failing a dictionary lookup and using unwrap_or to get my way
     pub fn get_default_color(&self) -> gdk::RGBA {
         let imp = self.imp();
         let accent_color;
@@ -787,13 +786,15 @@ impl GtkTestWindow {
         if folder_icon_cache_path.exists() {
             info!("File found in cache at: {:?}", folder_icon_cache_path);
             return folder_icon_cache_path;
-        }
-        if icon_path.exists() {
+        } else if icon_path.exists() {
             info!(
                 "File not found in cache, copying to: {:?}",
                 folder_icon_cache_path
             );
-            return self.copy_folder_image_to_cache(&icon_path, &cache_path).0;
+            return self
+                .copy_folder_image_to_cache(&icon_path, &cache_path)
+                .await
+                .0;
         }
         info!("File not found AT ALL");
         let dialog = self
@@ -805,7 +806,7 @@ impl GtkTestWindow {
             .unwrap();
         match &*dialog.clone().choose_future(self).await {
             "OK" => {
-                let new_path = match self.open_file_chooser_gtk().await {
+                let new_path = match self.open_file_chooser().await {
                     Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
                     None => {
                         //adw::subclass::prelude::ActionGroupImpl::activate_action(&self, "app.quit", None);
@@ -817,6 +818,7 @@ impl GtkTestWindow {
                     .unwrap();
                 let cached_file_name = self
                     .copy_folder_image_to_cache(&PathBuf::from(new_path), &cache_path)
+                    .await
                     .1;
                 imp.settings
                     .set_string("folder-cache-name", &cached_file_name)
@@ -827,6 +829,24 @@ impl GtkTestWindow {
             }
             _ => unreachable!(),
         };
+    }
+
+    async fn copy_folder_image_to_cache(
+        &self,
+        original_path: &PathBuf,
+        cache_dir: &PathBuf,
+    ) -> (PathBuf, String) {
+        let file_name = format!(
+            "folder.{}",
+            original_path.extension().unwrap().to_str().unwrap()
+        );
+        self.imp()
+            .settings
+            .set("folder-cache-name", file_name.clone())
+            .unwrap();
+        let cache_path = cache_dir.join(file_name.clone());
+        let _ = tokio::fs::copy(original_path, cache_path.clone()).await;
+        (cache_path, file_name)
     }
 
     pub fn get_cache_path(&self) -> PathBuf {
@@ -862,40 +882,17 @@ impl GtkTestWindow {
         data_path
     }
 
-    pub fn copy_folder_image_to_cache(
-        &self,
-        original_path: &PathBuf,
-        cache_dir: &PathBuf,
-    ) -> (PathBuf, String) {
-        let file_name = format!(
-            "folder.{}",
-            original_path.extension().unwrap().to_str().unwrap()
-        );
-        self.imp()
-            .settings
-            .set("folder-cache-name", file_name.clone())
-            .unwrap();
-        let cache_path = cache_dir.join(file_name.clone());
-        fs::copy(original_path, cache_path.clone()).unwrap();
-        (cache_path, file_name)
-    }
-
     // This checks if the main page, or welcome screen needs to be shown. And adds ability to loads just a bottom file
+    // TODO: This function is REALLY confusing and needs to be rewritten
     pub fn check_icon_update(&self) {
         let imp = self.imp();
-        if imp.top_image_file.lock().unwrap().as_ref() != None
-            && imp.bottom_image_file.lock().unwrap().as_ref() != None
-        {
-            if imp
-                .top_image_file
-                .lock()
-                .unwrap()
-                .as_ref()
-                .unwrap()
-                .dynamic_image
-                .width()
-                > 1
-            {
+        let mut top_image = imp.top_image_file.lock().unwrap();
+        let bottom_image = imp.bottom_image_file.lock().unwrap();
+        if (*top_image).is_some() && (*bottom_image).is_some() {
+            let top_image_width = top_image.as_ref().unwrap().dynamic_image.width();
+            if top_image_width > 1 {
+                // If the top image is empty, these controlls are disabled
+                // This is to check if it's needed to turn them on again
                 self.enable_disable_top_control(true);
             }
             imp.save_button.set_sensitive(true);
@@ -908,29 +905,32 @@ impl GtkTestWindow {
                 }
             ));
             imp.stack.set_visible_child_name("stack_main_page");
-        } else if imp.bottom_image_file.lock().unwrap().as_ref() != None {
-            let folder_bottom_name = imp
-                .bottom_image_file
-                .lock()
-                .unwrap()
-                .clone()
-                .unwrap()
-                .filename;
+        } else if (*bottom_image).is_some() {
+            let folder_bottom_name = bottom_image.as_ref().unwrap().filename.clone();
             debug!("Loaded temporary image for render");
+            // Create image of nothing
             let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
-            imp.top_image_file.lock().unwrap().replace(File::from_image(
-                empty_image,
-                1,
-                &folder_bottom_name,
-            ));
+            (*top_image).replace(File::from_image(empty_image, 1, &folder_bottom_name));
             self.enable_disable_top_control(false);
-            if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
-                imp.stack.set_visible_child_name("stack_welcome_page");
-            }
+
+            // if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
+            //     imp.stack.set_visible_child_name("stack_welcome_page");
+            // }
         }
     }
 
-    pub async fn open_file_chooser_gtk(&self) -> Option<gio::File> {
+    fn enable_disable_top_control(&self, enable: bool) {
+        let imp = self.imp();
+        imp.x_scale.set_sensitive(enable);
+        imp.y_scale.set_sensitive(enable);
+        imp.scale_row.set_sensitive(enable);
+        imp.threshold_scale.set_sensitive(enable);
+        imp.monochrome_color.set_sensitive(enable);
+        imp.monochrome_invert.set_sensitive(enable);
+        imp.monochrome_switch.set_sensitive(enable);
+    }
+
+    pub async fn open_file_chooser(&self) -> Option<gio::File> {
         let filters = gio::ListStore::new::<gtk::FileFilter>();
         let filter = gtk::FileFilter::new();
         filter.add_mime_type("image/*");
@@ -942,12 +942,12 @@ impl GtkTestWindow {
             .build();
         let file = dialog.open_future(Some(self)).await;
         match file {
-            Ok(x) => {
-                debug!("{:?}", &x.path().unwrap());
-                Some(x)
+            Ok(file) => {
+                debug!("{:?}", &file.path().unwrap());
+                Some(file)
             }
-            Err(y) => {
-                error!("{:?}", y);
+            Err(error) => {
+                error!("{:?}", error);
                 None
             }
         }
@@ -961,17 +961,6 @@ impl GtkTestWindow {
         if let Err(e) = launcher.open_containing_folder_future(win.as_ref()).await {
             error!("Could not open directory {}", e);
         };
-    }
-
-    pub fn enable_disable_top_control(&self, enable: bool) {
-        let imp = self.imp();
-        imp.x_scale.set_sensitive(enable);
-        imp.y_scale.set_sensitive(enable);
-        imp.scale_row.set_sensitive(enable);
-        imp.threshold_scale.set_sensitive(enable);
-        imp.monochrome_color.set_sensitive(enable);
-        imp.monochrome_invert.set_sensitive(enable);
-        imp.monochrome_switch.set_sensitive(enable);
     }
 
     pub fn dynamic_image_to_texture(&self, dynamic_image: &DynamicImage) -> gdk::Texture {
@@ -991,7 +980,7 @@ impl GtkTestWindow {
         gdk::Texture::for_pixbuf(&pixbuf)
     }
 
-    pub fn enable_monochrome_expand(&self) {
+    fn enable_monochrome_expand(&self) {
         let switch_state = self.imp().monochrome_switch.state();
         match switch_state {
             false => {

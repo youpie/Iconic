@@ -1,7 +1,6 @@
 use adw::{prelude::*, subclass::prelude::*};
 use gtk::{gdk, glib};
 use image::*;
-use log::*;
 
 use crate::GtkTestWindow;
 
@@ -16,34 +15,26 @@ impl GtkTestWindow {
             .unwrap()
             .thumbnail
             .clone();
-        let top_image = match self.imp().monochrome_switch.state() {
-            false => imp
-                .top_image_file
-                .lock()
-                .unwrap()
-                .as_ref()
-                .unwrap()
-                .thumbnail
-                .clone(),
-            true => self.to_monochrome(
-                imp.top_image_file
-                    .lock()
-                    .unwrap()
-                    .as_ref()
-                    .unwrap()
-                    .thumbnail
-                    .clone(),
+        let mut top_image = imp
+            .top_image_file
+            .lock()
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .thumbnail
+            .clone();
+        if imp.monochrome_switch.state() {
+            top_image = self.to_monochrome(
+                top_image,
                 imp.threshold_scale.value() as u8,
                 imp.monochrome_color.rgba(),
-            ),
-        };
+            );
+        }
         let texture = self.dynamic_image_to_texture(
             &self
                 .generate_image(base, top_image, imageops::FilterType::Nearest)
                 .await,
         );
-
-        debug!("setting paintable");
         imp.image_view.set_paintable(Some(&texture));
         imp.image_view.queue_draw();
     }
@@ -66,35 +57,25 @@ impl GtkTestWindow {
         for (x, y, pixel) in rgba_img.enumerate_pixels() {
             let rgba = pixel.0;
             let luma = 0.299 * rgba[0] as f32 + 0.587 * rgba[1] as f32 + 0.114 * rgba[2] as f32;
-            if !switch_state {
-                let mono_pixel = if luma >= threshold as f32 && rgba[3] > 0 {
-                    Rgba([
-                        (color.red() * 255.0) as u8,
-                        (color.green() * 255.0) as u8,
-                        (color.blue() * 255.0) as u8,
-                        rgba[3] as u8,
-                    ]) // White with original alpha
-                } else {
-                    Rgba([0u8, 0u8, 0u8, 0u8]) // Black with original alpha
-                };
-                mono_img.put_pixel(x, y, mono_pixel);
-            } else {
-                let mono_pixel = if luma >= threshold as f32 && rgba[3] > 0 {
-                    Rgba([0u8, 0u8, 0u8, 0u8]) // Black with original alpha
-                } else {
-                    Rgba([
-                        (color.red() * 255.0) as u8,
-                        (color.green() * 255.0) as u8,
-                        (color.blue() * 255.0) as u8,
-                        rgba[3] as u8,
-                    ]) // White with original alpha
-                };
-                mono_img.put_pixel(x, y, mono_pixel);
-            }
+            let threshold_reached = luma >= threshold as f32 && rgba[3] > 0;
+            let mono_pixel = match (threshold_reached, switch_state) {
+                (false, false) | (true, true) => Rgba([0u8, 0u8, 0u8, 0u8]), // Black
+                _ => self.create_colored_pixel(color, rgba[3]), // White with original alpha
+            };
+            mono_img.put_pixel(x, y, mono_pixel);
         }
 
         // Convert the monochrome RgbaImage to DynamicImage
         DynamicImage::ImageRgba8(mono_img)
+    }
+
+    fn create_colored_pixel(&self, color: gdk::RGBA, original_alpha: u8) -> Rgba<u8> {
+        Rgba([
+            (color.red() * 255.0) as u8,
+            (color.green() * 255.0) as u8,
+            (color.blue() * 255.0) as u8,
+            original_alpha,
+        ])
     }
 
     pub async fn generate_image(

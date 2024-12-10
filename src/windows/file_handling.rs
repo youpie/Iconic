@@ -335,7 +335,7 @@ impl GtkTestWindow {
     pub async fn load_top_icon(&self) {
         let imp = self.imp();
         imp.image_loading_spinner.set_visible(true);
-        match self.open_file_chooser_gtk().await {
+        match self.open_file_chooser().await {
             Some(x) => {
                 self.load_top_file(x).await;
             }
@@ -352,7 +352,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let size: i32 = imp.settings.get("svg-render-size");
-        match self.open_file_chooser_gtk().await {
+        match self.open_file_chooser().await {
             Some(x) => {
                 imp.temp_image_loaded.replace(true);
                 imp.stack.set_visible_child_name("stack_main_page");

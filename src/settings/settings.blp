@@ -46,18 +46,15 @@ template $PreferencesDialog: Adw.PreferencesDialog {
           title: _("Primary Folder Color");
           activatable-widget: primary_folder_color;
 
-          Box {
+          [suffix]
+          ColorDialogButton primary_folder_color {
             valign: center;
+            margin-start: 5;
+            rgba: "#A4CAEEFF";
 
-            ColorDialogButton primary_folder_color {
-              halign: end;
-              margin-start: 5;
-              rgba: "#A4CAEEFF";
-
-              dialog: ColorDialog {
-                with-alpha: false;
-              };
-            }
+            dialog: ColorDialog {
+              with-alpha: false;
+            };
           }
         }
 
@@ -66,18 +63,15 @@ template $PreferencesDialog: Adw.PreferencesDialog {
           title: _("Secondary Folder Color");
           activatable-widget: secondary_folder_color;
 
-          Box {
+          [suffix]
+          ColorDialogButton secondary_folder_color {
             valign: center;
+            margin-start: 5;
+            rgba: "#438DE6FF";
 
-            ColorDialogButton secondary_folder_color {
-              halign: end;
-              margin-start: 5;
-              rgba: "#438DE6FF";
-
-              dialog: ColorDialog {
-                with-alpha: false;
-              };
-            }
+            dialog: ColorDialog {
+              with-alpha: false;
+            };
           }
         }
       }
