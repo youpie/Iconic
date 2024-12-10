@@ -21,17 +21,34 @@
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true</image>
     </screenshot>
     <screenshot>
+      <caption>Regenerating Icons</caption>
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Regeneration.png?raw=true</image>
     </screenshot>
     <screenshot>
+      <caption>Accent collored folders supported</caption>
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light%20alt.png?raw=true</image>
     </screenshot>
     <screenshot>
       <caption>Main menu in dark mode</caption>
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20dark.png?raw=true</image>
     </screenshot>
+    <screenshot>
+      <caption>Custom colored folder icons supported</caption>
+      <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Custom%20Folder.png?raw=true</image>
+    </screenshot>
   </screenshots>
   <releases>
+    <release version="2024.12.2" date="2024-12-10" type="stable">
+      <description>
+        <p>I was really motivated so I made another update. Now allowing you to set custom collors for the folders. Other features include</p>
+        <ul>
+          <li>Made the app more responsive</li>
+          <li>Removed crashing bug</li>
+          <li>Removed small bugs</li>
+          <li>Added Right-click menu to folder view</li>
+        </ul>
+      </description>
+    </release>
     <release version="2024.12.1" date="2024-12-05" type="stable">
       <description>
         <p>A really big update for Iconic! You are now able to regenerate images with the correct accent color after you change it. This makes the app really nice to combine with "Adwaita-Colors"</p>

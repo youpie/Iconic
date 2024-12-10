@@ -1,5 +1,5 @@
 project('folder_icon', 'rust',
-          version: '2024.12.1',
+          version: '2024.12.2',
     meson_version: '>= 0.62.0',
   default_options: [ 'warning_level=2', 'werror=false', ],
 )

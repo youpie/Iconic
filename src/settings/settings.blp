@@ -37,8 +37,42 @@ template $PreferencesDialog: Adw.PreferencesDialog {
               _("Pink"),
               _("Purple"),
               _("Slate"),
+              _("Custom"),
             ]
           };
+        }
+
+        Adw.ActionRow primary_color_row {
+          title: _("Primary Folder Color");
+          activatable-widget: primary_folder_color;
+
+          [suffix]
+          ColorDialogButton primary_folder_color {
+            valign: center;
+            margin-start: 5;
+            rgba: "#A4CAEEFF";
+
+            dialog: ColorDialog {
+              with-alpha: false;
+            };
+          }
+        }
+
+        Adw.ActionRow secondary_color_row {
+          visible: true;
+          title: _("Secondary Folder Color");
+          activatable-widget: secondary_folder_color;
+
+          [suffix]
+          ColorDialogButton secondary_folder_color {
+            valign: center;
+            margin-start: 5;
+            rgba: "#438DE6FF";
+
+            dialog: ColorDialog {
+              with-alpha: false;
+            };
+          }
         }
       }
 
@@ -59,16 +93,6 @@ template $PreferencesDialog: Adw.PreferencesDialog {
           title: _("Select bottom icon");
           action-name: "app.select_folder";
           start-icon-name: "folder-open-symbolic";
-        }
-
-        Adw.ButtonRow reset_default_bottom {
-          title: _("Reset bottom icon");
-          action-name: "app.reset_location";
-          start-icon-name: "edit-undo-symbolic";
-
-          styles [
-            "destructive-action",
-          ]
         }
       }
     }

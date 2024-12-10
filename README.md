@@ -12,7 +12,7 @@ This application is my first attempt at creating an application using Rust and L
 ## Todo 📝
 These are ideas I want to implement.
 - [ ] Add features
-    - [ ] Add threading
+    - [X] Add threading
         - [ ] Loading dragged images
         - [ ] Making images monochrome
             - Monochrome images get recreated every time the preview is updated. Slows down quite a lot on slower systems, i could also
@@ -23,7 +23,7 @@ These are ideas I want to implement.
     - [ ] Add guide grid or something
     - [X] Multiple folder colors
         - [x] according to gnome 47 accent color?
-            - [ ] SVG manipulation?
+            - [X] SVG manipulation?
             - [X] Or just packing the images in with iconic
         - [x] Option in settings
     - [x] Regenerate all (d&d'ed) images automatically

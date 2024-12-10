@@ -17,6 +17,8 @@ use log::*;
 use std::path::PathBuf;
 use std::{env, fs, path};
 
+use crate::GtkTestWindow;
+
 mod imp {
     use super::*;
 
@@ -61,6 +63,14 @@ mod imp {
         pub cache_size: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub reset_top_cache: TemplateChild<adw::ButtonRow>,
+        #[template_child]
+        pub primary_color_row: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub primary_folder_color: TemplateChild<gtk::ColorDialogButton>,
+        #[template_child]
+        pub secondary_color_row: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub secondary_folder_color: TemplateChild<gtk::ColorDialogButton>,
         pub settings: gio::Settings,
     }
 
@@ -91,6 +101,11 @@ mod imp {
                 automatic_regeneration: TemplateChild::default(),
                 cache_size: TemplateChild::default(),
                 reset_top_cache: TemplateChild::default(),
+                primary_color_row: TemplateChild::default(),
+                primary_folder_color: TemplateChild::default(),
+                secondary_color_row: TemplateChild::default(),
+                secondary_folder_color: TemplateChild::default(),
+                // reveal_custom_colors: TemplateChild::default(),
             }
         }
 
@@ -106,12 +121,25 @@ mod imp {
                     }
                 ));
             });
-            klass.install_action("app.reset_location", None, move |win, _, _| {
+            klass.install_action("app.reset_color_primary", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
                     #[weak]
                     win,
                     async move {
-                        win.reset_location_fn();
+                        win.imp()
+                            .primary_folder_color
+                            .set_rgba(&GtkTestWindow::to_rgba(164, 202, 238));
+                    }
+                ));
+            });
+            klass.install_action("app.reset_color_secondary", None, move |win, _, _| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    win,
+                    async move {
+                        win.imp()
+                            .secondary_folder_color
+                            .set_rgba(&GtkTestWindow::to_rgba(67, 141, 230));
                     }
                 ));
             });
@@ -174,13 +202,27 @@ impl PreferencesDialog {
         }
         imp.select_bottom_color
             .set_selected(imp.settings.int("selected-accent-color-index") as u32);
+        win.load_set_colors();
         win.dnd_row_expand(true);
         win.set_path_title();
         win.bottom_image_expander(true);
         win.disable_color_dropdown(true);
         win.setup_settings();
         win.get_file_size();
+        win.show_color_options();
         win
+    }
+
+    fn load_set_colors(&self) {
+        let imp = self.imp();
+        let current_primary = imp.settings.string("primary-folder-color");
+        let current_secondary = imp.settings.string("secondary-folder-color");
+        imp.primary_folder_color
+            .set_rgba(&PreferencesDialog::hex_to_rgba(current_primary.to_string()));
+        imp.secondary_folder_color
+            .set_rgba(&PreferencesDialog::hex_to_rgba(
+                current_secondary.to_string(),
+            ));
     }
 
     fn setup_settings(&self) {
@@ -229,6 +271,7 @@ impl PreferencesDialog {
             self,
             move |_| {
                 this.get_selected_accent_color(false);
+                this.show_color_options();
             }
         ));
 
@@ -244,6 +287,7 @@ impl PreferencesDialog {
             self,
             move |_| {
                 this.disable_color_dropdown(false);
+                this.show_color_options();
             }
         ));
         imp.reset_top_cache.connect_activated(clone!(
@@ -257,6 +301,28 @@ impl PreferencesDialog {
                         win.on_buttonrow_activated().await;
                     }
                 ));
+            }
+        ));
+        imp.primary_folder_color.connect_rgba_notify(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                let color = this.imp().primary_folder_color.rgba();
+                let _ = this
+                    .imp()
+                    .settings
+                    .set_string("primary-folder-color", &this.rgba_to_hex(color));
+            }
+        ));
+        imp.secondary_folder_color.connect_rgba_notify(clone!(
+            #[weak (rename_to = this)]
+            self,
+            move |_| {
+                let color = this.imp().secondary_folder_color.rgba();
+                let _ = this
+                    .imp()
+                    .settings
+                    .set_string("secondary-folder-color", &this.rgba_to_hex(color));
             }
         ));
     }
@@ -290,7 +356,7 @@ impl PreferencesDialog {
 
     fn get_selected_accent_color(&self, init: bool) {
         let color_vec = vec![
-            "Blue", "Teal", "Green", "Yellow", "Orange", "Red", "Pink", "Purple", "Slate",
+            "Blue", "Teal", "Green", "Yellow", "Orange", "Red", "Pink", "Purple", "Slate", "Custom",
         ];
         let imp = self.imp();
         let selected_index = imp.select_bottom_color.selected() as usize;
@@ -302,18 +368,6 @@ impl PreferencesDialog {
                 .settings
                 .set("selected-accent-color-index", selected_index as i32);
         }
-    }
-
-    fn reset_location_fn(&self) {
-        let mut default_value = self
-            .imp()
-            .settings
-            .default_value("folder-svg-path")
-            .unwrap()
-            .to_string();
-        default_value.pop();
-        default_value.remove(0);
-        self.can_error(self.set_path(&default_value));
     }
 
     fn set_path_title(&self) {

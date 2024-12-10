@@ -9,7 +9,7 @@ use std::env;
 use std::error::Error;
 use std::path::PathBuf;
 
-use crate::GtkTestWindow;
+use crate::{GtkTestWindow, RUNTIME};
 
 impl GtkTestWindow {
     pub fn load_folder_path_from_settings(&self) {
@@ -19,19 +19,53 @@ impl GtkTestWindow {
             async move {
                 let imp = win.imp();
                 let path;
+                imp.temp_image_loaded.replace(false);
                 if imp.settings.boolean("manual-bottom-image-selection") {
                     let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
                     path = win.check_chache_icon(cache_file_name).await;
+                } else if imp.settings.string("selected-accent-color") == "Custom" {
+                    path = win.create_custom_folder_color().await;
                 } else {
                     path = win.load_built_in_bottom_icon().await;
-                    if !imp.reset_color.is_visible() {
-                        win.reset_colors();
-                    }
+                }
+                if !imp.reset_color.is_visible() {
+                    win.reset_colors();
                 }
                 info!("Loading path: {:?}", &path);
-                win.load_folder_icon(&path.into_os_string().into_string().unwrap());
+                win.load_folder_icon(&path.into_os_string().into_string().unwrap())
+                    .await;
             }
         ));
+    }
+
+    async fn create_custom_folder_color(&self) -> PathBuf {
+        let imp = self.imp();
+        info!("Creating custom folder colors");
+        let custom_primary_color = imp.settings.string("primary-folder-color");
+        let custom_secondary_color = imp.settings.string("secondary-folder-color");
+        let folder_svg_file =
+            std::fs::read_to_string("/app/share/folder_icon/folders/folder_Custom.svg").unwrap();
+        let folder_svg_lines = folder_svg_file.lines();
+        let new_custom_folder: String = folder_svg_lines
+            .map(|row| {
+                let row_clone = row.to_string();
+                let row_clone = row_clone.replace("a4caee", &custom_primary_color);
+                let mut row_clone = row_clone.replace("438de6", &custom_secondary_color);
+                row_clone.push_str("\n");
+                row_clone
+            })
+            .collect();
+        let new_custom_folder_bytes = new_custom_folder.as_bytes().to_owned();
+        let mut cache_location = self.get_cache_path();
+        cache_location.push("custom_folder.svg");
+        let cache_location_clone = cache_location.clone();
+        RUNTIME
+            .spawn_blocking(move || {
+                let _ = std::fs::write(&cache_location_clone, new_custom_folder_bytes);
+            })
+            .await
+            .unwrap();
+        cache_location
     }
 
     pub async fn load_built_in_bottom_icon(&self) -> PathBuf {
@@ -69,7 +103,13 @@ impl GtkTestWindow {
                             .unwrap();
                     match top_file_selected {
                         Some(true) => {
-                            let iconic_file = File::from_image(image, thumbnail_size, "pasted");
+                            imp.temp_image_loaded.replace(true);
+                            let iconic_file = RUNTIME
+                                .spawn_blocking(move || {
+                                    File::from_image(image, thumbnail_size, "pasted")
+                                })
+                                .await
+                                .unwrap();
                             match self.store_top_image_in_cache(&iconic_file, None) {
                                 Err(x) => {
                                     self.show_error_popup(&x.to_string(), true, None);
@@ -79,10 +119,14 @@ impl GtkTestWindow {
                             imp.top_image_file.lock().unwrap().replace(iconic_file);
                         }
                         _ => {
-                            imp.bottom_image_file
-                                .lock()
-                                .unwrap()
-                                .replace(File::from_image(image.clone(), thumbnail_size, "pasted"));
+                            imp.bottom_image_file.lock().unwrap().replace(
+                                RUNTIME
+                                    .spawn_blocking(move || {
+                                        File::from_image(image.clone(), thumbnail_size, "pasted")
+                                    })
+                                    .await
+                                    .unwrap(),
+                            );
                         }
                     }
                     self.check_icon_update();
@@ -140,7 +184,8 @@ impl GtkTestWindow {
             svg_render_size,
             thumbnail_size,
             top_file,
-        );
+        )
+        .await;
     }
 
     pub async fn open_dragged_file(&self, file: gio::File) {
@@ -173,13 +218,15 @@ impl GtkTestWindow {
                 imp.stack.set_visible_child_name("stack_loading_page");
                 match top_file_selected {
                     Some(true) => {
+                        imp.temp_image_loaded.replace(true);
                         self.new_iconic_file_creation(
                             Some(file),
                             None,
                             svg_render_size,
                             thumbnail_size,
                             true,
-                        );
+                        )
+                        .await;
                     }
                     Some(false) => {
                         imp.stack.set_visible_child_name("stack_main_page");
@@ -189,7 +236,8 @@ impl GtkTestWindow {
                             svg_render_size,
                             thumbnail_size,
                             false,
-                        );
+                        )
+                        .await;
                     }
                     _ => (),
                 };
@@ -252,11 +300,7 @@ impl GtkTestWindow {
 
     pub async fn save_file(&self, file: gio::File) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
-
-        imp.saved_file
-            .lock()
-            .expect("Could not get file")
-            .replace(file.clone());
+        imp.saved_file.lock()?.replace(file.clone());
         let base_image = imp
             .bottom_image_file
             .lock()?
@@ -264,29 +308,28 @@ impl GtkTestWindow {
             .unwrap()
             .dynamic_image
             .clone();
-        let top_image = match self.imp().monochrome_switch.state() {
-            false => imp
-                .top_image_file
-                .lock()?
-                .as_ref()
-                .unwrap()
-                .dynamic_image
-                .clone(),
-            true => self.to_monochrome(
-                imp.top_image_file
-                    .lock()?
-                    .as_ref()
-                    .unwrap()
-                    .dynamic_image
-                    .clone(),
+        let mut top_image = imp
+            .top_image_file
+            .lock()?
+            .as_ref()
+            .unwrap()
+            .thumbnail
+            .clone();
+        if imp.monochrome_switch.state() {
+            top_image = self.to_monochrome(
+                top_image,
                 imp.threshold_scale.value() as u8,
                 imp.monochrome_color.rgba(),
-            ),
-        };
+            );
+        }
         let generated_image = self
             .generate_image(base_image, top_image, imageops::FilterType::Gaussian)
             .await;
-        generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)?;
+        let _ = RUNTIME
+            .spawn_blocking(move || {
+                generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)
+            })
+            .await?;
         imp.image_saved.replace(true);
         imp.save_button.set_sensitive(false);
         Ok(true)
@@ -302,7 +345,7 @@ impl GtkTestWindow {
     pub async fn load_top_icon(&self) {
         let imp = self.imp();
         imp.image_loading_spinner.set_visible(true);
-        match self.open_file_chooser_gtk().await {
+        match self.open_file_chooser().await {
             Some(x) => {
                 self.load_top_file(x).await;
             }
@@ -319,10 +362,12 @@ impl GtkTestWindow {
         let imp = self.imp();
         let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
         let size: i32 = imp.settings.get("svg-render-size");
-        match self.open_file_chooser_gtk().await {
+        match self.open_file_chooser().await {
             Some(x) => {
+                imp.temp_image_loaded.replace(true);
                 imp.stack.set_visible_child_name("stack_main_page");
-                self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false);
+                self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
+                    .await;
             }
             None => {
                 imp.toast_overlay
@@ -331,7 +376,7 @@ impl GtkTestWindow {
         };
     }
 
-    pub fn load_folder_icon(&self, path: &str) {
+    pub async fn load_folder_icon(&self, path: &str) {
         //let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
         let size: i32 = self.imp().settings.get("thumbnail-size");
         self.new_iconic_file_creation(
@@ -340,7 +385,8 @@ impl GtkTestWindow {
             self.imp().settings.get("svg-render-size"),
             size,
             false,
-        );
+        )
+        .await;
     }
 
     pub async fn load_top_file(&self, filename: gio::File) {
@@ -350,12 +396,14 @@ impl GtkTestWindow {
         }
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
-        self.new_iconic_file_creation(Some(filename), None, svg_render_size, size, true);
+        self.new_iconic_file_creation(Some(filename), None, svg_render_size, size, true)
+            .await;
     }
 
     // Creates a new folder_icon::File from a gio::file, path or dynamicimage.
     // Will show an error if none are provided
-    pub fn new_iconic_file_creation(
+    // TODO rewrite this, it is REALLY confusing
+    pub async fn new_iconic_file_creation(
         &self,
         file: Option<gio::File>,
         path: Option<PathBuf>,
@@ -365,14 +413,21 @@ impl GtkTestWindow {
     ) -> Option<File> {
         let imp = self.imp();
         let new_file = if let Some(file_temp) = file {
-            let iconic_file =
-                match File::new(file_temp.clone(), svg_render_size, thumbnail_render_size) {
-                    Ok(x) => x,
-                    Err(e) => {
-                        self.show_error_popup(&e.to_string(), true, Some(e));
-                        return None;
-                    }
-                };
+            let file_temp_clone = file_temp.clone();
+            let iconic_file = match RUNTIME
+                .spawn_blocking(move || {
+                    File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
+                        .map_err(|err| err.to_string())
+                })
+                .await
+                .unwrap()
+            {
+                Ok(x) => x,
+                Err(e) => {
+                    self.show_error_popup(&e.to_string(), true, None);
+                    return None;
+                }
+            };
             if change_top_icon {
                 match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
                     Err(x) => {
@@ -384,15 +439,21 @@ impl GtkTestWindow {
             Some(iconic_file)
         } else if let Some(path_temp) = path {
             let file_temp = gio::File::for_path(path_temp);
-
-            let iconic_file =
-                match File::new(file_temp.clone(), svg_render_size, thumbnail_render_size) {
-                    Ok(x) => x,
-                    Err(e) => {
-                        self.show_error_popup(&e.to_string(), true, Some(e));
-                        return None;
-                    }
-                };
+            let file_temp_clone = file_temp.clone();
+            let iconic_file = match RUNTIME
+                .spawn_blocking(move || {
+                    File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
+                        .map_err(|err| err.to_string())
+                })
+                .await
+                .unwrap()
+            {
+                Ok(x) => x,
+                Err(e) => {
+                    self.show_error_popup(&e.to_string(), true, None);
+                    return None;
+                }
+            };
             if change_top_icon {
                 match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
                     Err(x) => {

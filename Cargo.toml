@@ -1,6 +1,6 @@
 [package]
 name = "folder_icon"
-version = "2024.12.1"
+version = "2024.12.2"
 edition = "2021"
 
 [dependencies]
@@ -18,6 +18,8 @@ ashpd = "0.10.2"
 rand = "0.8.5"
 tokio = { version = "1.42.0", features = ["full"] }
 fs_extra = "1.2.0"
+hex = "0.4.3"
+once_cell = "1.20.2"
 
 
 [dependencies.gtk]

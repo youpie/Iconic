@@ -8,3 +8,5 @@
 /custom_build
 /**/*.mo
 /build-aux/.flatpak-builder
+*.bkp
+*.drawio

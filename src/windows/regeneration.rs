@@ -1,5 +1,5 @@
 use crate::objects::file::File;
-use crate::GtkTestWindow;
+use crate::{GtkTestWindow, RUNTIME};
 
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -10,7 +10,6 @@ use log::*;
 use std::fs;
 use std::path::PathBuf;
 use std::time::Duration;
-use tokio;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -95,7 +94,10 @@ impl GtkTestWindow {
         }
         let step_size = 1.0 / files_n as f64;
         let mut file_index: usize = 0;
+        error!("This function hangs if executed too many times. I do not know why");
         for file in compatible_files {
+            info!("Loading new file");
+
             file_index += 1;
             self.progress_animation(step_size);
             let file_name = file.file_name();
@@ -103,7 +105,7 @@ impl GtkTestWindow {
             let file_name = file_name.to_str().unwrap().to_string();
             let file_properties = file_name.split("-");
             let properties_list: Vec<&str> = file_properties.into_iter().collect();
-            debug!("properties list: {:?}", properties_list);
+            info!("properties list: {:?}", properties_list);
             let current_accent_color = self.get_accent_color_and_dialog();
             let bottom_image_path = PathBuf::from(format!(
                 "/app/share/folder_icon/folders/folder_{}.svg",
@@ -112,39 +114,65 @@ impl GtkTestWindow {
             let hash = properties_list[12].split(".").nth(0).unwrap();
             let mut top_image_path = self.get_cache_path().join("top_images");
             top_image_path.push(hash);
-            let top_image_file = tokio::task::spawn_blocking(move || {
-                File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
-            })
-            .await??
-            .dynamic_image;
-            let top_image =
-                self.create_top_image_for_generation(properties_list.clone(), top_image_file);
-            self.set_properties(properties_list)?;
-            debug!(
+            info!("Loading top image file");
+            let top_image_file = RUNTIME
+                .spawn_blocking(move || {
+                    File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
+                })
+                .await??
+                .dynamic_image;
+            self.set_properties(properties_list.clone())?;
+            let top_image = self.create_top_image_for_generation(properties_list, top_image_file);
+            info!(
                 "Creating top icon succesful, now creating bottom icon {:?}",
                 bottom_image_path
             );
-            let bottom_image_file = tokio::task::spawn_blocking(move || {
-                File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
-            })
-            .await??
-            .dynamic_image;
+            let bottom_image_file = RUNTIME
+                .spawn_blocking(move || {
+                    File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
+                })
+                .await??
+                .dynamic_image;
             self.image_animation(false);
             if delay {
-                tokio::time::sleep(Duration::from_millis(200)).await;
+                RUNTIME
+                    .spawn_blocking(move || {
+                        std::thread::sleep(Duration::from_millis(200));
+                    })
+                    .await
+                    .unwrap();
             }
+            info!("Generating image");
             let generated_image = self
                 .generate_image(bottom_image_file, top_image, imageops::FilterType::Gaussian)
                 .await;
+            info!("Setting texture");
             let pixbuf = self.dynamic_image_to_texture(&generated_image);
             imp.regeneration_image_view.set_paintable(Some(&pixbuf));
             imp.regeneration_image_view.queue_draw();
+            info!("Updating indicators");
             self.file_progress_indicator(file_index, files_n);
+            info!("Image animation");
             self.image_animation(true);
+            info!("Saving image");
+            let generated_bytes = generated_image.into_bytes();
+            match RUNTIME
+                .spawn_blocking(move || std::fs::write(file_path, generated_bytes))
+                .await
+                .unwrap()
+            {
+                Ok(_) => info!("Saving Succesful"),
+                Err(x) => error!("Saving failed: {:?}", x),
+            };
+            info!("Waiting");
             if delay {
-                tokio::time::sleep(Duration::from_millis(400)).await; //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
+                RUNTIME
+                    .spawn_blocking(move || {
+                        std::thread::sleep(Duration::from_millis(400));
+                    })
+                    .await
+                    .unwrap(); //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
             }
-            tokio::task::spawn_blocking(move || generated_image.save(file_path)).await??;
         }
         self.default_sliders();
         Ok(())
@@ -194,10 +222,10 @@ impl GtkTestWindow {
         imp.x_scale.set_value(properties[2].parse()?);
         imp.y_scale.set_value(properties[3].parse()?);
         imp.size.set_value(properties[4].parse()?);
-        // imp.monochrome_switch
-        //     .set_active(properties[5].parse::<usize>()? != 0);
-        // imp.threshold_scale.set_value(properties[6].parse()?);
-        // imp.monochrome_color.set_rgba(&self.get_default_color());
+        imp.monochrome_switch
+            .set_active(properties[5].parse::<usize>()? != 0);
+        imp.threshold_scale.set_value(properties[6].parse()?);
+        imp.monochrome_color.set_rgba(&self.get_default_color());
         imp.monochrome_invert
             .set_active(properties[10].parse::<usize>()? != 0);
         Ok(())
@@ -218,7 +246,7 @@ impl GtkTestWindow {
             _ => self.get_default_color(),
         };
         match properties[5] {
-            "1" => self.to_monochrome(top_image, properties[5].parse().unwrap(), color),
+            "1" => self.to_monochrome(top_image, properties[6].parse().unwrap(), color),
             _ => top_image,
         }
     }
