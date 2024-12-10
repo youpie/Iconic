@@ -21,7 +21,6 @@
 use crate::glib::clone;
 use crate::objects::file::File;
 use crate::settings::settings::PreferencesDialog;
-use crate::RUNTIME;
 use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
