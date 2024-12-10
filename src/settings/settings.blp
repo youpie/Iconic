@@ -43,27 +43,11 @@ template $PreferencesDialog: Adw.PreferencesDialog {
         }
 
         Adw.ActionRow primary_color_row {
-          visible: false;
           title: _("Primary Folder Color");
           activatable-widget: primary_folder_color;
 
           Box {
             valign: center;
-
-            Button reset_color_primary {
-              halign: start;
-              visible: false;
-
-              Adw.ButtonContent {
-                icon-name: "edit-undo-symbolic";
-              }
-
-              action-name: "app.reset_color_primary";
-
-              styles [
-                "flat",
-              ]
-            }
 
             ColorDialogButton primary_folder_color {
               halign: end;
@@ -78,27 +62,12 @@ template $PreferencesDialog: Adw.PreferencesDialog {
         }
 
         Adw.ActionRow secondary_color_row {
-          visible: false;
+          visible: true;
           title: _("Secondary Folder Color");
           activatable-widget: secondary_folder_color;
 
           Box {
             valign: center;
-
-            Button reset_color_secondary {
-              halign: start;
-              visible: false;
-
-              Adw.ButtonContent {
-                icon-name: "edit-undo-symbolic";
-              }
-
-              action-name: "app.reset_color_secondary";
-
-              styles [
-                "flat",
-              ]
-            }
 
             ColorDialogButton secondary_folder_color {
               halign: end;
@@ -130,16 +99,6 @@ template $PreferencesDialog: Adw.PreferencesDialog {
           title: _("Select bottom icon");
           action-name: "app.select_folder";
           start-icon-name: "folder-open-symbolic";
-        }
-
-        Adw.ButtonRow reset_default_bottom {
-          title: _("Reset bottom icon");
-          action-name: "app.reset_location";
-          start-icon-name: "edit-undo-symbolic";
-
-          styles [
-            "destructive-action",
-          ]
         }
       }
     }

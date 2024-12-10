@@ -66,13 +66,9 @@ mod imp {
         #[template_child]
         pub primary_color_row: TemplateChild<adw::ActionRow>,
         #[template_child]
-        pub reset_color_primary: TemplateChild<gtk::Button>,
-        #[template_child]
         pub primary_folder_color: TemplateChild<gtk::ColorDialogButton>,
         #[template_child]
         pub secondary_color_row: TemplateChild<adw::ActionRow>,
-        #[template_child]
-        pub reset_color_secondary: TemplateChild<gtk::Button>,
         #[template_child]
         pub secondary_folder_color: TemplateChild<gtk::ColorDialogButton>,
         pub settings: gio::Settings,
@@ -106,11 +102,10 @@ mod imp {
                 cache_size: TemplateChild::default(),
                 reset_top_cache: TemplateChild::default(),
                 primary_color_row: TemplateChild::default(),
-                reset_color_primary: TemplateChild::default(),
                 primary_folder_color: TemplateChild::default(),
                 secondary_color_row: TemplateChild::default(),
-                reset_color_secondary: TemplateChild::default(),
                 secondary_folder_color: TemplateChild::default(),
+                // reveal_custom_colors: TemplateChild::default(),
             }
         }
 
@@ -145,15 +140,6 @@ mod imp {
                         win.imp()
                             .secondary_folder_color
                             .set_rgba(&GtkTestWindow::to_rgba(67, 141, 230));
-                    }
-                ));
-            });
-            klass.install_action("app.reset_location", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.reset_location_fn();
                     }
                 ));
             });
@@ -224,8 +210,6 @@ impl PreferencesDialog {
         win.setup_settings();
         win.get_file_size();
         win.show_color_options();
-        win.show_reset_primary();
-        win.show_reset_secondary();
         win
     }
 
@@ -328,7 +312,6 @@ impl PreferencesDialog {
                     .imp()
                     .settings
                     .set_string("primary-folder-color", &this.rgba_to_hex(color));
-                this.show_reset_primary();
             }
         ));
         imp.secondary_folder_color.connect_rgba_notify(clone!(
@@ -340,7 +323,6 @@ impl PreferencesDialog {
                     .imp()
                     .settings
                     .set_string("secondary-folder-color", &this.rgba_to_hex(color));
-                this.show_reset_secondary();
             }
         ));
     }
@@ -386,18 +368,6 @@ impl PreferencesDialog {
                 .settings
                 .set("selected-accent-color-index", selected_index as i32);
         }
-    }
-
-    fn reset_location_fn(&self) {
-        let mut default_value = self
-            .imp()
-            .settings
-            .default_value("folder-svg-path")
-            .unwrap()
-            .to_string();
-        default_value.pop();
-        default_value.remove(0);
-        self.can_error(self.set_path(&default_value));
     }
 
     fn set_path_title(&self) {

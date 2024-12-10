@@ -95,6 +95,10 @@ mod imp {
         pub regeneration_progress: TemplateChild<gtk::ProgressBar>,
         #[template_child]
         pub regeneration_file: TemplateChild<gtk::Label>,
+        #[template_child]
+        pub popover_menu: TemplateChild<gtk::PopoverMenu>,
+        #[template_child]
+        pub gesture_click: TemplateChild<gtk::GestureClick>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
@@ -144,6 +148,8 @@ mod imp {
                 image_loading_spinner: TemplateChild::default(),
                 regeneration_progress: TemplateChild::default(),
                 regeneration_file: TemplateChild::default(),
+                popover_menu: TemplateChild::default(),
+                gesture_click: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
                 temp_image_loaded: RefCell::new(false),
@@ -400,8 +406,22 @@ impl GtkTestWindow {
             ("Slate".to_string(), GtkTestWindow::to_rgba(99, 118, 146)),
         ]));
         win.setup_defaults();
-
+        win.create_popover_image();
         win
+    }
+
+    fn create_popover_image(&self) {
+        self.imp().gesture_click.connect_pressed(glib::clone!(
+            #[weak(rename_to = win)]
+            self,
+            move |_gesture, _n_press, x, y| {
+                let imp = win.imp();
+                let position = gdk::Rectangle::new(x as i32, y as i32, 0, 0);
+                debug!("popover");
+                imp.popover_menu.set_pointing_to(Some(&position));
+                imp.popover_menu.popup();
+            }
+        ));
     }
 
     pub fn default_sliders(&self) {

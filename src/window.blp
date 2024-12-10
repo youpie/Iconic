@@ -221,14 +221,26 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                     orientation: vertical;
 
                     Overlay {
-                      Picture image_view {
-                        valign: center;
-                        halign: center;
-                        width-request: 150;
-                        height-request: 150;
-                        content-fit: scale_down;
-                        hexpand: true;
-                        vexpand: true;
+                      Box {
+                        Picture image_view {
+                          valign: center;
+                          halign: center;
+                          width-request: 150;
+                          height-request: 150;
+                          content-fit: scale_down;
+                          hexpand: true;
+                          vexpand: true;
+                        }
+
+                        PopoverMenu popover_menu {
+                          menu-model: image_menu;
+                          has-arrow: false;
+                          halign: start;
+                        }
+
+                        GestureClick gesture_click {
+                          button: 3;
+                        }
                       }
 
                       [overlay]
@@ -467,13 +479,25 @@ menu primary_menu {
 menu image_menu {
   section {
     item {
-      label: _("Keyboard Shortcuts");
-      action: "app.shortcuts";
+      label: _("Change Top Image");
+      action: "app.open_top_icon";
     }
 
     item {
-      label: _("About Workbench");
-      action: "app.about";
+      label: _("Change Bottom Image");
+      action: "app.preferences";
+    }
+  }
+
+  section {
+    item {
+      label: _("Temporarily Change Bottom Image");
+      action: "app.select_folder";
+    }
+
+    item {
+      label: _("Reset Temporary Bottom Image");
+      action: "app.reset_bottom";
     }
   }
 }
