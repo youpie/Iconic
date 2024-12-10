@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2024-12-10 11:49+0100\n"
+"POT-Creation-Date: 2024-12-10 22:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -355,100 +355,95 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-#: src/settings/settings.blp:47
+#: src/settings/settings.blp:46
 msgid "Primary Folder Color"
 msgstr ""
 
-#: src/settings/settings.blp:82
+#: src/settings/settings.blp:63
 msgid "Secondary Folder Color"
 msgstr ""
 
-#: src/settings/settings.blp:117
+#: src/settings/settings.blp:80
 msgid "Use custom bottom icon"
 msgstr ""
 
-#: src/settings/settings.blp:126
+#: src/settings/settings.blp:89
 msgid "Currently set bottom icon"
 msgstr ""
 
-#: src/settings/settings.blp:130
+#: src/settings/settings.blp:93
 msgid "Select bottom icon"
 msgstr ""
 
-#: src/settings/settings.blp:136
-msgid "Reset bottom icon"
-msgstr ""
-
-#: src/settings/settings.blp:149
+#: src/settings/settings.blp:102
 msgid "Store top images in cache"
 msgstr ""
 
-#: src/settings/settings.blp:150
+#: src/settings/settings.blp:103
 msgid ""
 "If you change your system accent color, and want to regenerate the icons, "
 "turn this on"
 msgstr ""
 
-#: src/settings/settings.blp:154
+#: src/settings/settings.blp:107
 msgid "Regenerate automatically"
 msgstr ""
 
-#: src/settings/settings.blp:155
+#: src/settings/settings.blp:108
 msgid ""
-"⚠ Iconic will freeze if you regenerate more than twice, if you know what "
-"causes this, file a bug report ⚠\n"
-"If it freezes, just force quit Iconic and start it again"
+"If you want to automatically regenerate images after changing accent color, "
+"turn this on"
 msgstr ""
 
-#: src/settings/settings.blp:159
+#: src/settings/settings.blp:112
 msgid "Current cache used"
 msgstr ""
 
-#: src/settings/settings.blp:164
+#: src/settings/settings.blp:117
 msgid "Remove all cached images"
 msgstr ""
 
-#: src/settings/settings.blp:175
+#: src/settings/settings.blp:128
 msgid "Default drag-and-drop action"
 msgstr ""
 
-#: src/settings/settings.blp:176
+#: src/settings/settings.blp:129
 msgid ""
 "By default, after dragging and dropping a file, you have to select a layer "
 "to paste it to. Here you can disable that pop-up"
 msgstr ""
 
-#: src/settings/settings.blp:186
+#: src/settings/settings.blp:139
 msgid "Always select top layer"
 msgstr ""
 
-#: src/settings/settings.blp:196
+#: src/settings/settings.blp:149
 msgid "Always select bottom layer"
 msgstr ""
 
-#: src/settings/settings.blp:208
+#: src/settings/settings.blp:161
 msgid "Advanced"
 msgstr ""
 
-#: src/settings/settings.blp:212
+#: src/settings/settings.blp:165
 msgid "You can see these options because you have enabled the Devel profile"
 msgstr ""
 
-#: src/settings/settings.blp:223
+#: src/settings/settings.blp:176
 msgid "Select size of SVG images"
 msgstr ""
 
-#: src/settings/settings.blp:224
+#: src/settings/settings.blp:177
 msgid ""
 "SVG images will by default be converted to a 1024x1024 image. You can adjust "
 "that here"
 msgstr ""
 
-#: src/settings/settings.blp:236
+#: src/settings/settings.blp:189
 msgid "Select size of Thumbnail images"
 msgstr ""
 
-#: src/settings/settings.blp:237
+#: src/settings/settings.blp:190
 msgid ""
 "Thumbnail images will by default be converted to a 255x255 image. You can "
 "adjust that here"
@@ -482,68 +477,76 @@ msgstr ""
 msgid "Iconic is regenerating the previously generated icons"
 msgstr ""
 
-#: src/window.blp:291
+#: src/window.blp:303
 msgid "Toggle Monochrome"
 msgstr ""
 
-#: src/window.blp:301
+#: src/window.blp:313
 msgid "Invert"
 msgstr ""
 
-#: src/window.blp:305
+#: src/window.blp:317
 msgid "Color"
 msgstr ""
 
-#: src/window.blp:339
+#: src/window.blp:351
 msgid "Threshold"
 msgstr ""
 
-#: src/window.blp:381
+#: src/window.blp:393
 msgid "Saving..."
 msgstr ""
 
-#: src/window.blp:417
+#: src/window.blp:429
 msgid "_Paste Top Icon from Clipboard"
 msgstr ""
 
-#: src/window.blp:422
+#: src/window.blp:434
 msgid "_Open Top Icon"
 msgstr ""
 
-#: src/window.blp:427
+#: src/window.blp:439
 msgid "_Open Bottom Icon"
 msgstr ""
 
-#: src/window.blp:434
+#: src/window.blp:446
 msgid "_Reset Bottom Icon"
 msgstr ""
 
-#: src/window.blp:439
+#: src/window.blp:451
 msgid "_Regenerate Icons"
 msgstr ""
 
-#: src/window.blp:446
+#: src/window.blp:458
 msgid "_Preferences"
 msgstr ""
 
-#: src/window.blp:451
+#: src/window.blp:463
 msgid "_Keyboard Shortcuts"
 msgstr ""
 
-#: src/window.blp:456
+#: src/window.blp:468
 msgid "_Donate ❤️"
 msgstr ""
 
-#: src/window.blp:461
+#: src/window.blp:473
 msgid "_About Iconic"
 msgstr ""
 
-#: src/window.blp:470
-msgid "Keyboard Shortcuts"
+#: src/window.blp:482
+msgid "Change Top Image"
 msgstr ""
 
-#: src/window.blp:475
-msgid "About Workbench"
+#: src/window.blp:487
+msgid "Change Bottom Image"
+msgstr ""
+
+#: src/window.blp:494
+msgid "Temporarily Change Bottom Image"
+msgstr ""
+
+#: src/window.blp:499
+msgid "Reset Temporary Bottom Image"
 msgstr ""
 
 #. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
@@ -551,34 +554,34 @@ msgstr ""
 msgid "translator-credits"
 msgstr ""
 
-#: src/settings/settings.rs:420 src/window.rs:919
+#: src/settings/settings.rs:390 src/window.rs:953
 msgid "Open Document"
 msgstr ""
 
-#: src/settings/settings.rs:465 src/windows/alert_dialogs.rs:141
+#: src/settings/settings.rs:435 src/windows/alert_dialogs.rs:141
 msgid "Error"
 msgstr ""
 
-#: src/settings/settings.rs:482
+#: src/settings/settings.rs:452
 msgid ""
 "Are you sure you want to clear the cache? \n"
 " Clearing the cache means you probably won't be able to regenerate a lot of "
 "images."
 msgstr ""
 
-#: src/settings/settings.rs:485 src/windows/alert_dialogs.rs:74
+#: src/settings/settings.rs:455 src/windows/alert_dialogs.rs:74
 msgid "Cancel"
 msgstr ""
 
-#: src/settings/settings.rs:487
+#: src/settings/settings.rs:457
 msgid "Remove"
 msgstr ""
 
-#: src/window.rs:234
+#: src/window.rs:239
 msgid "Regeneration sucessful, restart nautilus"
 msgstr ""
 
-#: src/window.rs:781
+#: src/window.rs:815
 msgid "The set folder icon could not be found, press ok to select a new one"
 msgstr ""
 
@@ -658,42 +661,42 @@ msgid ""
 "pressing ctrl+R"
 msgstr ""
 
-#: src/windows/file_handling.rs:125 src/windows/file_handling.rs:130
+#: src/windows/file_handling.rs:137 src/windows/file_handling.rs:142
 msgid "No texture found"
 msgstr ""
 
-#: src/windows/file_handling.rs:231
+#: src/windows/file_handling.rs:246
 msgid "Unsupported file type"
 msgstr ""
 
-#: src/windows/file_handling.rs:260
+#: src/windows/file_handling.rs:275
 msgid "Open Folder"
 msgstr ""
 
-#: src/windows/file_handling.rs:262
+#: src/windows/file_handling.rs:277
 msgid "File Saved"
 msgstr ""
 
-#: src/windows/file_handling.rs:331
+#: src/windows/file_handling.rs:341
 msgid "Icon reset"
 msgstr ""
 
-#: src/windows/file_handling.rs:344 src/windows/file_handling.rs:363
+#: src/windows/file_handling.rs:354 src/windows/file_handling.rs:374
 msgid "Nothing selected"
 msgstr ""
 
-#: src/windows/file_handling.rs:441
+#: src/windows/file_handling.rs:468
 msgid "No file or path found, this is probably not your fault."
 msgstr ""
 
-#: src/windows/regeneration.rs:88
+#: src/windows/regeneration.rs:87
 msgid "All "
 msgstr ""
 
-#: src/windows/regeneration.rs:90
+#: src/windows/regeneration.rs:89
 msgid " files are not compatible for regeneration"
 msgstr ""
 
-#: src/windows/regeneration.rs:279
+#: src/windows/regeneration.rs:294
 msgid "File"
 msgstr ""
