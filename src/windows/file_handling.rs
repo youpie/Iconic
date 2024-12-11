@@ -103,7 +103,6 @@ impl GtkTestWindow {
                             .unwrap();
                     match top_file_selected {
                         Some(true) => {
-                            imp.temp_image_loaded.replace(true);
                             let iconic_file = RUNTIME
                                 .spawn_blocking(move || {
                                     File::from_image(image, thumbnail_size, "pasted")
@@ -119,6 +118,7 @@ impl GtkTestWindow {
                             imp.top_image_file.lock().unwrap().replace(iconic_file);
                         }
                         _ => {
+                            imp.temp_image_loaded.replace(true);
                             imp.bottom_image_file.lock().unwrap().replace(
                                 RUNTIME
                                     .spawn_blocking(move || {
@@ -218,7 +218,6 @@ impl GtkTestWindow {
                 imp.stack.set_visible_child_name("stack_loading_page");
                 match top_file_selected {
                     Some(true) => {
-                        imp.temp_image_loaded.replace(true);
                         self.new_iconic_file_creation(
                             Some(file),
                             None,
@@ -229,6 +228,7 @@ impl GtkTestWindow {
                         .await;
                     }
                     Some(false) => {
+                        imp.temp_image_loaded.replace(true);
                         imp.stack.set_visible_child_name("stack_main_page");
                         self.new_iconic_file_creation(
                             Some(file),
