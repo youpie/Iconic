@@ -464,6 +464,7 @@ impl GtkTestWindow {
             64,
             imageops::FilterType::Nearest,
         ));
+        debug!("temp image loaded {}", *imp.temp_image_loaded.borrow());
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
         let gio_file = self.create_drag_file(file_hash);
         imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
