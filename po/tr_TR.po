@@ -1,0 +1,794 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Iconic package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Iconic\n"
+"Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
+"POT-Creation-Date: 2024-12-10 22:34+0100\n"
+"PO-Revision-Date: 2025-02-26 17:41+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: tr_TR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.5\n"
+
+#: data/nl.emphisia.icon.desktop.in.in:3
+#: data/nl.emphisia.icon.metainfo.xml.in.in:5
+#: data/nl.emphisia.icon.metainfo.xml.in.in:159
+msgid "Iconic"
+msgstr "Iconic"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:6
+msgid "Easily add icons on top of folders"
+msgstr "Klasörlerin üzerine kolayca simgeleri ekleyin"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:8
+msgid "Youpie"
+msgstr "Youpie"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:14
+msgid ""
+"This program allows an easy and intuitive way to add an icon on top of a "
+"folder to help you differentiate it better."
+msgstr ""
+"Bu program, klasörleri daha iyi ayırt edebilmenize yardımcı olmak için "
+"klasörün üzerine kolay ve sezgisel bir şekilde simge eklemenizi sağlar."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:15
+msgid ""
+"This program works best in combination with the app \"Icon library\" found "
+"on flathub and \"Adwaita Colors\" found on github"
+msgstr ""
+"Bu program, Flathub'da bulunan \"Icon library\" ve Github'da bulunan "
+"\"Adwaita Colors\" ile birlikte en iyi şekilde çalışır"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:16
+msgid ""
+"This program is written in Rust and Libadwaita and is my first attempt at "
+"creating an application"
+msgstr ""
+"Bu program Rust ve Libadwaita ile yazılmıştır ve bir uygulama oluşturmaya "
+"yönelik ilk denememdir"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:20
+msgid "Main menu in light mode"
+msgstr "Açık tema modunda Ana Menü"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:24 src/windows/alert_dialogs.rs:124
+msgid "Regenerating Icons"
+msgstr "Simgeleri Yeniden Oluşturma"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:28
+msgid "Accent collored folders supported"
+msgstr "Tematik renkli klasörler desteklenir"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:32
+msgid "Main menu in dark mode"
+msgstr "Karanlık tema modunda Ana Menü"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:36
+msgid "Custom colored folder icons supported"
+msgstr "Kişiselleştirilmiş renkli klasör simgeleri desteklenir"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:43
+msgid ""
+"I was really motivated so I made another update. Now allowing you to set "
+"custom collors for the folders. Other features include"
+msgstr ""
+"Çok motive olduğumdan bir güncelleme daha yaptım. Artık klasörler için özel "
+"renkler ayarlamanıza izin veriliyor. Diğer özellikle şunları içerir:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:45
+msgid "Made the app more responsive"
+msgstr "Uygulamanın tepki süresi iyileştirildi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+msgid "Removed crashing bug"
+msgstr "Çökmeye neden olan hata giderildi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+msgid "Removed small bugs"
+msgstr "Küçük hatalar giderildi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+msgid "Added Right-click menu to folder view"
+msgstr "Klasör görünümüne sağ tıklama menüsü eklendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:54
+msgid ""
+"A really big update for Iconic! You are now able to regenerate images with "
+"the correct accent color after you change it. This makes the app really nice "
+"to combine with \"Adwaita-Colors\""
+msgstr ""
+"Iconic için gerçekten büyük bir güncelleme! Artık, vurgu rengini "
+"değiştirdikten sonra, görüntüleri doğru vurgu rengiyle yeniden "
+"oluşturabilirsiniz. Bu, uygulamayı \"Adwaita-Colors\" ile birlikte "
+"kullanmayı da gerçekten daha güzel hale getiriyor."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:55
+msgid ""
+"In Gnome 48, using static images in natilus might change. If that is the "
+"case I will retire the app. But for now I will keep working on the app!"
+msgstr ""
+"Gnome 48'de, Nautilus'ta statik resimlerin kullanımı değişebilir. Eğer durum "
+"böyle olursa uygulamayı emekliye ayırabilirim. Şimdilik uygulamayı "
+"geliştirmeye devam edeceğim"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:60
+msgid ""
+"This is a nice big update to Iconic making it way more colorfull and better "
+"for gnome 47. Features include"
+msgstr ""
+"Bu, Iconic için büyük bir güncelleme olup, onu çok daha renkli ve Gnome 47 "
+"için daha iyi hale getiriyor. Özellikler şunları içerir:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
+msgid "Custom accent color folders"
+msgstr "Kişiselleştirilmiş vurgu renkli klasörler"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:63
+msgid "Accent color detection"
+msgstr "Tematik rengi algılama"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
+msgid "Updated settings"
+msgstr "Güncellenmiş ayarlar"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:65
+msgid "Bug fixes!"
+msgstr "Hata düzeltmeleri"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:67
+msgid "As always, please let me know if you encounter any bugs!"
+msgstr ""
+"Her zamanki gibi, herhangi bir hatayla karşılaşırsanız lütfen bana haber "
+"verin!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:72
+msgid ""
+"This update to iconic is mostly just a version bump. However I do have some "
+"fun features I want to try and implement. If it is possible, idk yet. But I "
+"have already started working on it."
+msgstr ""
+"Iconic'e yapılan bu güncelleme, çoğunlukla bir sürüm yükseltmesidir. Ancak "
+"denemek istediğim bazı özellikler var. Mümkün olup olmadığını henüz "
+"bilmiyorum. Ama üzerinde çalışmaya başladım bile"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:73
+msgid "Biggest changes"
+msgstr "En büyük değişiklikler"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:75
+msgid "Updated to gnome 47"
+msgstr "Gnome 47'ye güncellendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:76
+msgid "Using new loading animation"
+msgstr "Yeni bir yükleme animasyonu kullanıldı"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:77
+msgid "Using new buttons in settings"
+msgstr "Ayarlarda yeni düğmeler kullanıldı"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:83
+msgid ""
+"A new update to Iconic is here! It does not add many features but features a "
+"lot of improvements under the hood, this means the app will now crash way "
+"less often without any warning. Some changes include:"
+msgstr ""
+"Iconic'e yeni bir güncelleme geldi! Çok fazla özellik eklemiyor, ancak "
+"kaputun altında bir çok iyileştirme içeriyor. Bu da uygulamanın herhangi bir "
+"hata vermeden çökmesinin çok azalacağı anlamına geliyor. Bazı değişiklikler "
+"şunları içerir:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:85
+msgid "Added ability to drag icon out of iconic directly"
+msgstr "Simgeyi doğrudan Iconic'ten dışarı sürükleme özelliği eklendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:86
+msgid "Added error handling on opening files"
+msgstr "Dosya açma sırasında hata yönetimi eklendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:87
+msgid "Added error handling on saving files"
+msgstr "Dosya kaydetme sırasında hata yönetimi eklendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:88
+msgid "Added donation link"
+msgstr "Bağış linki eklendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:89
+msgid "Added pop-up when dragging in files"
+msgstr "Dosyaları sürüklerken açılır pencere eklendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:90
+msgid "Updated Dutch translations"
+msgstr "Hollandaca çeviriler güncellendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:92
+msgid "Please report any bugs you see! Many thanks"
+msgstr "Lütfen gördüğünüz hataları bildirin! Çok teşekkürler"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:97
+msgid ""
+"This is a new major release of Iconic. Featuring many bug fixes and added "
+"features. Some notable ones are:"
+msgstr ""
+"Bu, Iconic'in yeni bir sürümüdür. Birçok hata düzeltmesi ve ek özellik "
+"içerir. Önemli olanlardan bazıları şunlardır:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:99
+msgid "Drag and drop support"
+msgstr "Sürükle ve bırak desteği"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:100
+msgid "Copy-paste support"
+msgstr "Kopyala-yapıştır desteği"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:101
+msgid "Better file type detection"
+msgstr "Geliştirilmiş dosya türü tespiti"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:102
+msgid "Updated dutch translations"
+msgstr "Hollandaca çeviriler güncellendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:103
+msgid "Added Hindi translations"
+msgstr "Hintçe çeviriler eklendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:104
+msgid "Fixed spelling mistakes"
+msgstr "Yazım hataları düzeltildi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:105
+msgid "Fixed issues with black pixels not converting to monochrome"
+msgstr "Siyah piksellerin tek renge çevrilmesiyle ilgili problemler düzeltildi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:111
+msgid "Another small update with a few additions and changes"
+msgstr "Birkaç ekleme ve değişiklik içeren daha küçük bir güncelleme"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:113
+msgid "You can now open containing folder after saving image"
+msgstr "Artık resmi kaydettikten sonra, bulunduğu klasörü açabilirsiniz"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:114
+msgid "Added italian translation"
+msgstr "İtalyanca çeviriler eklendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:115
+msgid "Updated Dutch translation"
+msgstr "Hollandaca çeviriler güncellendi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:121
+msgid "This version adds a few small features and fixes some bugs"
+msgstr "Bu sürüm birkaç küçük özellik ekler ve bazı hataları giderir"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:123
+msgid "The app now shows some errors as pop-ups"
+msgstr "Uygulama, artık bazı hataları açılır pencereler olarak gösteriyor"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:124
+msgid "You can now temporarily open a new folder image"
+msgstr "Artık geçici bir süreliğine yeni bir klasör resmi açabilirsiniz"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:125
+msgid "It now first shows a pop-up when the folder image is not found"
+msgstr ""
+"Artık klasör resmi bulunamadığında, ilk olarak bir açılır pencere "
+"gösteriliyor."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:131
+msgid "Initial release"
+msgstr "Başlangıç Sürümü"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:150
+msgid "icon"
+msgstr "simge"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:151
+msgid "create"
+msgstr "oluştur"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:152
+msgid "folder icon"
+msgstr "klasör Simgesi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:153
+msgid "svg"
+msgstr "svg"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:154
+msgid "png"
+msgstr "png"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:155
+msgid "gnome"
+msgstr "gnome"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:156
+msgid "icon create"
+msgstr "simge oluştur"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:157
+msgid "icon creator"
+msgstr "simge oluşturucu"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:158
+msgid "folder icon creator"
+msgstr "klasör simgesi oluşturucu"
+
+#: src/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "Genel"
+
+#: src/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Kısayolları Göster"
+
+#: src/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Çıkış"
+
+#: src/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Save"
+msgstr "Kaydet"
+
+#: src/gtk/help-overlay.blp:29
+msgctxt "shortcut window"
+msgid "Open top image"
+msgstr "En üstteki görseli aç"
+
+#: src/gtk/help-overlay.blp:34
+msgctxt "shortcut window"
+msgid "Open temporary bottom image"
+msgstr "Geçici alttaki resmi aç"
+
+# Yeniden Oluştur can be used as well
+#: src/gtk/help-overlay.blp:39
+msgctxt "shortcut window"
+msgid "Regenerate Images"
+msgstr "Görüntüleri Yeniden Oluştur"
+
+#: src/settings/settings.blp:8
+msgid "General"
+msgstr "Genel"
+
+#: src/settings/settings.blp:11
+msgid "Customise"
+msgstr "Kişiselleştir"
+
+#: src/settings/settings.blp:14
+msgid "Use a built-in bottom icon"
+msgstr "Dahili bir alt simge kullan"
+
+#: src/settings/settings.blp:23
+msgid "Use system accent color"
+msgstr "Sistem tematik rengini kullan"
+
+#: src/settings/settings.blp:27
+msgid "Manually select folder color"
+msgstr "Klasör rengini elle seç"
+
+#: src/settings/settings.blp:31
+msgid "Blue"
+msgstr "Mavi"
+
+#: src/settings/settings.blp:32
+msgid "Teal"
+msgstr "Turkuaz"
+
+#: src/settings/settings.blp:33
+msgid "Green"
+msgstr "Yeşil"
+
+#: src/settings/settings.blp:34
+msgid "Yellow"
+msgstr "Sarı"
+
+#: src/settings/settings.blp:35
+msgid "Orange"
+msgstr "Turuncu"
+
+#: src/settings/settings.blp:36
+msgid "Red"
+msgstr "Kırmızı"
+
+#: src/settings/settings.blp:37
+msgid "Pink"
+msgstr "Pembe"
+
+#: src/settings/settings.blp:38
+msgid "Purple"
+msgstr "Mor"
+
+#: src/settings/settings.blp:39
+msgid "Slate"
+msgstr "Arduvaz"
+
+#: src/settings/settings.blp:40
+msgid "Custom"
+msgstr "Özel"
+
+#: src/settings/settings.blp:46
+msgid "Primary Folder Color"
+msgstr "Birincil Klasör Rengi"
+
+#: src/settings/settings.blp:63
+msgid "Secondary Folder Color"
+msgstr "İkincil Klasör Rengi"
+
+#: src/settings/settings.blp:80
+msgid "Use custom bottom icon"
+msgstr "Özel alt simge kullan"
+
+#: src/settings/settings.blp:89
+msgid "Currently set bottom icon"
+msgstr "Mevcut alt simge"
+
+#: src/settings/settings.blp:93
+msgid "Select bottom icon"
+msgstr "Alt simge seç"
+
+#: src/settings/settings.blp:102
+msgid "Store top images in cache"
+msgstr "Üst görüntüleri önbelleğe kaydet"
+
+#: src/settings/settings.blp:103
+msgid ""
+"If you change your system accent color, and want to regenerate the icons, "
+"turn this on"
+msgstr ""
+"Sistem vurgu rengini değiştirdiğinizde simgeleri yeniden oluşturmak için, bu "
+"özelliği etkinleştirin"
+
+#: src/settings/settings.blp:107
+msgid "Regenerate automatically"
+msgstr "Otomatik olarak yeniden oluştur"
+
+#: src/settings/settings.blp:108
+msgid ""
+"If you want to automatically regenerate images after changing accent color, "
+"turn this on"
+msgstr ""
+"Tematik rengi değiştirdikten sonra resimleri otomatik olarak yenilemek "
+"isterseniz, bu özelliği etkinleştirin"
+
+#: src/settings/settings.blp:112
+msgid "Current cache used"
+msgstr "Mevcut önbellek kullanımı"
+
+#: src/settings/settings.blp:117
+msgid "Remove all cached images"
+msgstr "Önbelleğe alınmış tüm görüntüleri kaldır"
+
+#: src/settings/settings.blp:128
+msgid "Default drag-and-drop action"
+msgstr "Varsayılan sürükle ve bırak eylemi"
+
+#: src/settings/settings.blp:129
+msgid ""
+"By default, after dragging and dropping a file, you have to select a layer "
+"to paste it to. Here you can disable that pop-up"
+msgstr ""
+"Varsayılan olarak, bir dosyayı sürükleyip bıraktıktan sonra, yapıştırmak "
+"için bir katman seçmeniz gerekir. Burada bu açılır pencereyi devre dışı "
+"bırakabilirsiniz"
+
+#: src/settings/settings.blp:139
+msgid "Always select top layer"
+msgstr "Her zaman üst katmanı seç"
+
+#: src/settings/settings.blp:149
+msgid "Always select bottom layer"
+msgstr "Her zaman alt katmanı seç"
+
+#: src/settings/settings.blp:161
+msgid "Advanced"
+msgstr "Gelişmiş"
+
+#: src/settings/settings.blp:165
+msgid "You can see these options because you have enabled the Devel profile"
+msgstr ""
+"Bu seçenekleri, Geliştirici profilini etkinleştirdiğiniz için görüyorsunuz"
+
+#: src/settings/settings.blp:176
+msgid "Select size of SVG images"
+msgstr "SVG görüntülerinin boyutunu belirle"
+
+#: src/settings/settings.blp:177
+msgid ""
+"SVG images will by default be converted to a 1024x1024 image. You can adjust "
+"that here"
+msgstr ""
+"SVG görselleri, varsayılan olarak 1024x1024 boyutuna dönüştürülür. Bunu bu "
+"kısımdan değiştirebilirsiniz"
+
+#: src/settings/settings.blp:189
+msgid "Select size of Thumbnail images"
+msgstr "Önizleme boyutu seç"
+
+#: src/settings/settings.blp:190
+msgid ""
+"Thumbnail images will by default be converted to a 255x255 image. You can "
+"adjust that here"
+msgstr ""
+"Önizleme görüntüleri, otomatik olarak 255x255 boyutuna dönüştürülür. Bunu bu "
+"kısımdan değiştirebilirsiniz."
+
+#: src/window.blp:28 src/window.blp:91 src/window.blp:191
+msgid "Menu"
+msgstr "Menü"
+
+#: src/window.blp:35
+msgid "Folder Icon Creator"
+msgstr "Klasör Simge Oluşturucu"
+
+#: src/window.blp:36
+msgid "Click or Drag to Open Image"
+msgstr "Görüntü Açmak için Tıklayın veya Sürükleyin"
+
+#: src/window.blp:47
+msgid "_Open Image"
+msgstr "_Görüntü Aç"
+
+#: src/window.blp:60
+msgid "_Show Bottom Layer"
+msgstr "_Alt Katman Göster"
+
+#: src/window.blp:121
+msgid "Regenerating"
+msgstr "Yeniden Oluşturuluyor"
+
+#: src/window.blp:131
+msgid "Iconic is regenerating the previously generated icons"
+msgstr "Iconic, önceden oluşturulmuş simgeleri yeniden oluşturuyor"
+
+# Monokroma geçiş yap. 
+#: src/window.blp:303
+msgid "Toggle Monochrome"
+msgstr "Tek renge geç"
+
+#: src/window.blp:313
+msgid "Invert"
+msgstr "Tersine çevir"
+
+#: src/window.blp:317
+msgid "Color"
+msgstr "Renk"
+
+#: src/window.blp:351
+msgid "Threshold"
+msgstr "Eşik"
+
+#: src/window.blp:393
+msgid "Saving..."
+msgstr "Kaydediliyor..."
+
+#: src/window.blp:429
+msgid "_Paste Top Icon from Clipboard"
+msgstr "_Üst Simgeyi Panodan Yapıştır"
+
+#: src/window.blp:434
+msgid "_Open Top Icon"
+msgstr "_Üst Simgeyi Aç"
+
+#: src/window.blp:439
+msgid "_Open Bottom Icon"
+msgstr "_Alt Simgeyi Aç"
+
+#: src/window.blp:446
+msgid "_Reset Bottom Icon"
+msgstr "_Alt Simge Sıfırla"
+
+#: src/window.blp:451
+msgid "_Regenerate Icons"
+msgstr "_Simgeleri Yenile"
+
+#: src/window.blp:458
+msgid "_Preferences"
+msgstr "_Tercihler"
+
+#: src/window.blp:463
+msgid "_Keyboard Shortcuts"
+msgstr "_Klavye Kısayolları"
+
+#: src/window.blp:468
+msgid "_Donate ❤️"
+msgstr "_Bağış<3"
+
+#: src/window.blp:473
+msgid "_About Iconic"
+msgstr "_Iconic Hakkında"
+
+#: src/window.blp:482
+msgid "Change Top Image"
+msgstr "Üstteki Görseli Değiştir"
+
+#: src/window.blp:487
+msgid "Change Bottom Image"
+msgstr "Alttaki Görseli Değiştir"
+
+#: src/window.blp:494
+msgid "Temporarily Change Bottom Image"
+msgstr "Geçici Olarak Alttaki Görseli Değiştir"
+
+#: src/window.blp:499
+msgid "Reset Temporary Bottom Image"
+msgstr "Alttaki Görseli Geçici Olarak Sıfırla"
+
+#. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
+#: src/application.rs:184
+msgid "translator-credits"
+msgstr " e.cokcoskun@yahoo.com"
+
+#: src/settings/settings.rs:390 src/window.rs:952
+msgid "Open Document"
+msgstr "Belgeyi Aç"
+
+#: src/settings/settings.rs:435 src/windows/alert_dialogs.rs:141
+msgid "Error"
+msgstr "Hata"
+
+#: src/settings/settings.rs:452
+msgid ""
+"Are you sure you want to clear the cache? \n"
+" Clearing the cache means you probably won't be able to regenerate a lot of "
+"images."
+msgstr ""
+"Önbelleği temizlemek istediğinizden emin misiniz?\n"
+"\n"
+"Önbelleği temizlemek, büyük olasılıkla birçok görüntüyü yeniden "
+"oluşturamayacağınız anlamına gelir."
+
+#: src/settings/settings.rs:455 src/windows/alert_dialogs.rs:74
+msgid "Cancel"
+msgstr "İptal"
+
+#: src/settings/settings.rs:457
+msgid "Remove"
+msgstr "Kaldır"
+
+#: src/window.rs:238
+msgid "Regeneration sucessful, restart nautilus"
+msgstr "Yeniden oluşturma başarılı. Nautilus'u yeniden başlatın"
+
+#: src/window.rs:814
+msgid "The set folder icon could not be found, press ok to select a new one"
+msgstr ""
+"Ayarlanan klasör simgesi bulunamadı, yeni bir tane seçmek için Tamam'a basın"
+
+#: src/windows/alert_dialogs.rs:22
+msgid "Drag and drop"
+msgstr "Sürükle ve bırak"
+
+#: src/windows/alert_dialogs.rs:23
+msgid ""
+"Did you know that it is possible to drag the folder image straight out of "
+"Iconic and drop it into nautilus' property window.\n"
+"No need to save!"
+msgstr ""
+"Klasör resmini doğrudan Iconic'ten sürükleyip Nautilus'un özellikler "
+"penceresine bırakmanın mümkün olduğunu biliyor muydunuz? \n"
+"Kaydetmenize gerek yok!"
+
+#: src/windows/alert_dialogs.rs:26 src/windows/alert_dialogs.rs:112
+#: src/windows/alert_dialogs.rs:128 src/windows/alert_dialogs.rs:150
+msgid "OK"
+msgstr "TAMAM"
+
+#: src/windows/alert_dialogs.rs:45
+msgid "Do you want to load this image to the top or bottom layer?"
+msgstr ""
+"Bu görüntüyü üst katmana mı, yoksa alt katmana mı yüklemek istiyorsunuz?"
+
+#: src/windows/alert_dialogs.rs:46
+msgid "Hint: You can disable this pop-up in the settings"
+msgstr "İpucu: Bu açılır pencereyi ayarlardan devre dışı bırakabilirsiniz"
+
+#: src/windows/alert_dialogs.rs:48
+msgid "Select layer"
+msgstr "Katman seç"
+
+#: src/windows/alert_dialogs.rs:53
+msgid "Top"
+msgstr "Üst"
+
+#: src/windows/alert_dialogs.rs:54
+msgid "Bottom"
+msgstr "Alt"
+
+#: src/windows/alert_dialogs.rs:69
+msgid "Save Changes?"
+msgstr "Değişiklikleri Kaydet?"
+
+#: src/windows/alert_dialogs.rs:70
+msgid ""
+"Open image contain unsaved changes. Changes which are not saved will be "
+"permanently lost"
+msgstr ""
+"Görüntü kaydedilmemiş değişiklikler içeriyor. Kaydedilmeyen değişiklikler "
+"kalıcı olarak kaybolacak"
+
+#: src/windows/alert_dialogs.rs:75
+msgid "Discard"
+msgstr "Yok say"
+
+#: src/windows/alert_dialogs.rs:77
+msgid "Save"
+msgstr "Kaydet"
+
+#: src/windows/alert_dialogs.rs:108
+msgid "Accent color changed"
+msgstr "Tematik Renk Değiştirildi"
+
+#: src/windows/alert_dialogs.rs:109
+msgid ""
+"The system accent color has been changed, Iconic has automatically changed "
+"the color of the folder.\n"
+"If you do not want this, you can turn this off in the settings"
+msgstr ""
+"Sistemin tematik rengi değişti, Iconic klasör rengini otomatik olarak "
+"güncelledi.\n"
+"Eğer bunu istemiyorsanız, ayarlardan bu özelliği kapatabilirsiniz"
+
+#: src/windows/alert_dialogs.rs:125
+msgid ""
+"If you drag and drop icons and change your accent color. It is then possible "
+"to regenerate the images by pressing \"regenerate\" in the menu or by "
+"pressing ctrl+R"
+msgstr ""
+"Simgeleri sürükleyip bıraktıktan sonra tema renginizi değiştirirseniz, "
+"menüdeki \"yenile\" seçeneğiyle yada ctrl+R kısayoluyla görselleri tekrar "
+"oluşturabilirsiniz"
+
+#: src/windows/file_handling.rs:137 src/windows/file_handling.rs:142
+msgid "No texture found"
+msgstr "Kaplama bulunamadı"
+
+#: src/windows/file_handling.rs:246
+msgid "Unsupported file type"
+msgstr "Desteklenmeyen dosya türü"
+
+#: src/windows/file_handling.rs:275
+msgid "Open Folder"
+msgstr "Klasörü Aç"
+
+#: src/windows/file_handling.rs:277
+msgid "File Saved"
+msgstr "Dosya Kaydedildi"
+
+#: src/windows/file_handling.rs:341
+msgid "Icon reset"
+msgstr "Simge Yenile"
+
+#: src/windows/file_handling.rs:354 src/windows/file_handling.rs:374
+msgid "Nothing selected"
+msgstr "Hiçbir şey seçilmedi"
+
+#: src/windows/file_handling.rs:468
+msgid "No file or path found, this is probably not your fault."
+msgstr "Dosya ya da dizin bulunamadı, bu büyük olasılıkla sizin hatanız değil"
+
+#: src/windows/regeneration.rs:87
+msgid "All "
+msgstr "Hepsi "
+
+#: src/windows/regeneration.rs:89
+msgid " files are not compatible for regeneration"
+msgstr " dosyalar yeniden oluşturma için uyumlu değil"
+
+#: src/windows/regeneration.rs:294
+msgid "File"
+msgstr "Dosya"
