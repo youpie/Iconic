@@ -40,15 +40,28 @@ enum OptionError {
     NoneUnwrap(Option<&'static str>),
 }
 
+impl OptionError {
+    fn new(reason: &'static str) -> Self {
+        Self::NoneUnwrap(Some(reason))
+    }
+}
+
 trait IntoResult<T> {
-    fn into_result(self) -> Result<T, OptionError>;
+    fn into_result(self) -> Result<T, Box<dyn Error>>;
+    fn into_reason_result(self, reason: &'static str) -> Result<T, Box<dyn Error>>;
 }
 
 impl<T> IntoResult<T> for Option<T> {
-    fn into_result(self) -> Result<T, OptionError> {
+    fn into_result(self) -> Result<T, Box<dyn Error>> {
         match self {
             Some(value) => Ok(value),
-            None => Err(OptionError::NoneUnwrap(None)),
+            None => Err(Box::new(OptionError::NoneUnwrap(None))),
+        }
+    }
+    fn into_reason_result(self, reason: &'static str) -> Result<T, Box<dyn Error>> {
+        match self {
+            Some(value) => Ok(value),
+            None => Err(Box::new(OptionError::NoneUnwrap(Some(reason)))),
         }
     }
 }
