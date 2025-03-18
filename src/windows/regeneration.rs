@@ -72,8 +72,13 @@ impl GtkTestWindow {
     This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
     It is currently incredibly slow, but it does work.
     After I added the animation, it got only more ugly. But the animation looks nice :)*/
-    pub async fn regenerate_icons(&self, delay: bool) -> GenResult<()> {
+    pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
+        let previous_save_sensitivity = imp.save_button.is_sensitive();
+        imp.save_button.set_sensitive(false);
+        let id = *imp.regeneration_lock.borrow();
+        imp.toast_overlay
+            .add_toast(adw::Toast::new(&gettext("Regenerating icons")));
         let data_path = self.get_data_path();
         let mut incompatible_files_n: u32 = 0;
         let compatible_files =
@@ -84,7 +89,7 @@ impl GtkTestWindow {
         self.slider_control_sensitivity(false);
         let files_n = compatible_files.len();
         let mut last_animation = None;
-        if files_n == 0 && delay {
+        if files_n == 0 {
             show_error_popup(
                 &self,
                 &format!(
@@ -100,6 +105,10 @@ impl GtkTestWindow {
         let step_size = 1.0 / files_n as f64;
         let mut regeneration_errors = vec![];
         for file in compatible_files {
+            if *imp.regeneration_lock.borrow() != id {
+                error!("Stopping regeneration");
+                return Ok(());
+            }
             let path = &file.path();
             match self.regenerate_and_save_icon(file).await {
                 Ok(_) => (),
@@ -123,6 +132,7 @@ impl GtkTestWindow {
             );
         }
         imp.regeneration_revealer.set_reveal_child(false);
+        imp.save_button.set_sensitive(previous_save_sensitivity);
         self.slider_control_sensitivity(previous_control_sensitivity);
         self.default_sliders();
         self.reset_colors();
@@ -130,13 +140,11 @@ impl GtkTestWindow {
     }
 
     async fn regenerate_and_save_icon(&self, file: DirEntry) -> GenResult<()> {
-        info!("Loading new file");
         let file_name = file.file_name();
         let file_path = file.path();
         let file_name = file_name.to_str().into_result()?.to_string();
         let file_properties = file_name.split("-");
         let properties_list: Vec<&str> = file_properties.into_iter().collect();
-        info!("properties list: {:?}", properties_list);
         let current_accent_color = self.get_accent_color_and_show_dialog();
         let bottom_image_path = PathBuf::from(format!(
             "/app/share/folder_icon/folders/folder_{}.svg",
@@ -145,7 +153,6 @@ impl GtkTestWindow {
         let hash = properties_list[12].split(".").nth(0).into_result()?;
         let mut top_image_path = self.get_cache_path().join("top_images");
         top_image_path.push(hash);
-        info!("Loading top image file");
         let top_image_file = RUNTIME
             .spawn_blocking(move || {
                 File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
@@ -154,10 +161,6 @@ impl GtkTestWindow {
             .dynamic_image;
         let slider_values = self.set_properties(properties_list.clone())?;
         let top_image = self.create_top_image_for_generation(properties_list, top_image_file)?;
-        info!(
-            "Creating top icon succesful, now creating bottom icon {:?}",
-            bottom_image_path
-        );
         let bottom_image_file = RUNTIME
             .spawn_blocking(move || {
                 File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
@@ -203,12 +206,12 @@ impl GtkTestWindow {
             // imp.regeneration_progress
             //     .set_fraction(imp.regeneration_progress.fraction() + step_size);
             if file_properties.nth(0).unwrap_or("folder") != "folder_new" {
-                warn!("File not supported for regeneration");
+                info!("File not supported for regeneration");
                 continue;
             }
             let properties_list: Vec<&str> = file_properties.into_iter().collect();
             if !(properties_list[0].parse::<usize>()? != 0) {
-                warn!("Non-default image, not converting");
+                info!("Non-default image, not converting");
                 continue;
             }
             let hash = properties_list[11].split(".").nth(0).into_result()?;

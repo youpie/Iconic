@@ -20,7 +20,7 @@
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 use crate::glib::clone;
-use crate::objects::errors::{show_error_popup, IntoResult};
+use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
 use crate::settings::settings::PreferencesDialog;
 use adw::prelude::AlertDialogExtManual;
@@ -63,8 +63,6 @@ mod imp {
         #[template_child]
         pub image_view: TemplateChild<gtk::Picture>,
         #[template_child]
-        pub regeneration_image_view: TemplateChild<gtk::Picture>,
-        #[template_child]
         pub save_button: TemplateChild<gtk::Button>,
         #[template_child]
         pub x_scale: TemplateChild<gtk::Scale>,
@@ -95,10 +93,6 @@ mod imp {
         #[template_child]
         pub image_preferences: TemplateChild<adw::Clamp>,
         #[template_child]
-        pub regeneration_progress: TemplateChild<gtk::ProgressBar>,
-        #[template_child]
-        pub regeneration_file: TemplateChild<gtk::Label>,
-        #[template_child]
         pub popover_menu: TemplateChild<gtk::PopoverMenu>,
         #[template_child]
         pub gesture_click: TemplateChild<gtk::GestureClick>,
@@ -119,6 +113,7 @@ mod imp {
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
         pub count: RefCell<i32>,
+        pub regeneration_lock: Arc<RefCell<usize>>,
     }
 
     impl Default for GtkTestWindow {
@@ -129,7 +124,6 @@ mod imp {
                 toast_overlay: TemplateChild::default(),
                 open_top_icon: TemplateChild::default(),
                 image_view: TemplateChild::default(),
-                regeneration_image_view: TemplateChild::default(),
                 save_button: TemplateChild::default(),
                 threshold_scale: TemplateChild::default(),
                 reset_color: TemplateChild::default(),
@@ -146,8 +140,6 @@ mod imp {
                 main_status_page: TemplateChild::default(),
                 monochrome_invert: TemplateChild::default(),
                 image_loading_spinner: TemplateChild::default(),
-                regeneration_progress: TemplateChild::default(),
-                regeneration_file: TemplateChild::default(),
                 popover_menu: TemplateChild::default(),
                 gesture_click: TemplateChild::default(),
                 regeneration_revealer: TemplateChild::default(),
@@ -163,6 +155,7 @@ mod imp {
                 temp_image_loaded: RefCell::new(false),
                 default_color: RefCell::new(HashMap::new()),
                 last_dnd_generated_name: RefCell::new(None),
+                regeneration_lock: Arc::new(RefCell::new(0)),
             }
         }
     }
@@ -236,7 +229,9 @@ mod imp {
                         //let previous_stack = imp.stack.visible_child_name().unwrap();
                         //debug!("previous stack {}", previous_stack);
                         //imp.stack.set_visible_child_name("regenerating_page");
-                        match win.regenerate_icons(true).await {
+                        let id = *imp.regeneration_lock.borrow();
+                        imp.regeneration_lock.replace(id + 1);
+                        match win.regenerate_icons().await {
                             Ok(_) => (),
                             Err(x) => {
                                 show_error_popup(&win, "", true, Some(x));
@@ -649,8 +644,7 @@ impl GtkTestWindow {
                     #[weak]
                     win,
                     async move {
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                         win.render_to_screen().await;
                     }
                 ));
@@ -665,8 +659,7 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -680,8 +673,7 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -695,8 +687,7 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -717,8 +708,7 @@ impl GtkTestWindow {
                         // TODO: I do not like this approach, but it works
                         if imp.stack.visible_child_name() == Some("stack_main_page".into()) {
                             win.render_to_screen().await;
-                            imp.image_saved.replace(false);
-                            imp.save_button.set_sensitive(true);
+                            win.image_save_sensitive(true);
                         }
                     }
                 ));
@@ -733,12 +723,21 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                     }
                 ));
             }
         ));
+    }
+
+    fn image_save_sensitive(&self, sensitive: bool) {
+        let imp = self.imp();
+        if Arc::strong_count(&imp.regeneration_lock) > 1 {
+            debug!("Skip settings save button");
+            return ();
+        }
+        imp.image_saved.replace(!sensitive);
+        imp.save_button.set_sensitive(sensitive);
     }
 
     fn check_regeneration_needed(&self) -> bool {
@@ -746,12 +745,14 @@ impl GtkTestWindow {
         let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
         let current_accent = self.get_accent_color_and_show_dialog();
         // error!("previous {previous_accent} current {current_accent}");
+        let id = *imp.regeneration_lock.borrow();
+        imp.regeneration_lock.replace(id + 1);
         if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
             glib::spawn_future_local(glib::clone!(
                 #[weak(rename_to = win)]
                 self,
                 async move {
-                    match win.regenerate_icons(false).await {
+                    match win.regenerate_icons().await {
                         Ok(_) => info!("Regeneration succesfull!"),
                         Err(x) => {
                             error!("{}", x.to_string());
@@ -920,8 +921,7 @@ impl GtkTestWindow {
                 // This is to check if it's needed to turn them on again
                 self.slider_control_sensitivity(true);
             }
-            imp.save_button.set_sensitive(true);
-            imp.image_saved.replace(false);
+            self.image_save_sensitive(true);
             glib::spawn_future_local(glib::clone!(
                 #[weak(rename_to = win)]
                 self,

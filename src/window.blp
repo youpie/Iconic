@@ -49,131 +49,59 @@ template $GtkTestWindow: Adw.ApplicationWindow {
               }
             }
 
-            Adw.StatusPage main_status_page {
-              icon-name: "nl.emphisia.icon";
-              title: _("Folder Icon Creator");
-              description: _("Click or Drag to Open Image");
-              hexpand: true;
-              vexpand: true;
-
-              child: Box {
-                orientation: vertical;
-                spacing: 20;
-
-                Button open_top_icon {
-                  valign: center;
-                  halign: center;
-                  label: _("_Open Image");
-                  use-underline: true;
-                  action-name: "app.open_top_icon";
-
-                  styles [
-                    "suggested-action",
-                    "pill",
-                  ]
-                }
-
-                Button open_bottom_icon {
-                  valign: center;
-                  halign: center;
-                  label: _("_Show Bottom Layer");
-                  use-underline: true;
-                  action-name: "app.open_bottom_icon";
-
-                  styles [
-                    "pill",
-                  ]
-                }
-              };
-
-              styles [
-                "icon-dropshadow"
-              ]
-            }
-          };
-        };
-      }
-
-      StackPage {
-        name: "regenerating_page";
-
-        child: Adw.ToolbarView {
-          [top]
-          Adw.HeaderBar {
-            title-widget: Adw.WindowTitle {
-              title: "Iconic";
-            };
-
-            [end]
-            MenuButton {
-              primary: true;
-              icon-name: "open-menu-symbolic";
-              tooltip-text: _("Menu");
-              menu-model: primary_menu;
-            }
-          }
-
-          content: Adw.Clamp {
-            width-request: 300;
-
-            Adw.PreferencesPage {
-              Adw.PreferencesGroup {
-                Box {
-                  Picture regeneration_image_view {
-                    vexpand: true;
-                    hexpand: true;
-                    width-request: 200;
-                    height-request: 200;
-                    content-fit: contain;
-                    can-shrink: true;
-                  }
-                }
+            Overlay {
+              [overlay]
+              Adw.Spinner {
+                visible: bind regeneration_revealer.reveal-child;
+                tooltip-text: "Regenerating...";
+                margin-top: 100;
+                valign: start;
+                halign: center;
+                width-request: 150;
+                height-request: 150;
               }
 
-              Adw.PreferencesGroup {
-                Box {
+              child: Adw.StatusPage main_status_page {
+                icon-name: "nl.emphisia.icon";
+                title: _("Folder Icon Creator");
+                description: _("Click or Drag to Open Image");
+                hexpand: true;
+                vexpand: true;
+
+                child: Box {
                   orientation: vertical;
-                  height-request: 20;
                   spacing: 20;
 
-                  Label {
-                    margin-top: 10;
-                    label: _("Regenerating");
-                    wrap: true;
+                  Button open_top_icon {
                     valign: center;
+                    halign: center;
+                    label: _("_Open Image");
+                    use-underline: true;
+                    action-name: "app.open_top_icon";
 
                     styles [
-                      "heading"
+                      "suggested-action",
+                      "pill",
                     ]
                   }
 
-                  Label {
-                    label: _("Iconic is regenerating the previously generated icons");
-                    wrap: true;
+                  Button open_bottom_icon {
                     valign: center;
+                    halign: center;
+                    label: _("_Show Bottom Layer");
+                    use-underline: true;
+                    action-name: "app.open_bottom_icon";
 
                     styles [
-                      "subtitle"
+                      "pill",
                     ]
                   }
+                };
 
-                  ProgressBar regeneration_progress {
-                    fraction: 0.0;
-                    show-text: true;
-                    width-request: 50;
-                  }
-
-                  Label regeneration_file {
-                    label: "File x/x";
-                    wrap: true;
-                    valign: center;
-
-                    styles [
-                      "subtitle"
-                    ]
-                  }
-                }
-              }
+                styles [
+                  "icon-dropshadow"
+                ]
+              };
             }
           };
         };
@@ -205,11 +133,20 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             };
 
             [end]
-            MenuButton {
-              primary: true;
-              icon-name: "open-menu-symbolic";
-              tooltip-text: _("Menu");
-              menu-model: primary_menu;
+            Box {
+              spacing: 10;
+
+              Adw.Spinner {
+                visible: bind regeneration_revealer.reveal-child;
+                tooltip-text: _("Regenerating icons...");
+              }
+
+              MenuButton {
+                primary: true;
+                icon-name: "open-menu-symbolic";
+                tooltip-text: _("Menu");
+                menu-model: primary_menu;
+              }
             }
           }
 
