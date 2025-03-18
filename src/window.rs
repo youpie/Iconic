@@ -496,7 +496,7 @@ impl GtkTestWindow {
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
         let gio_file = self.create_drag_file(file_hash);
         imp.last_dnd_generated_name
-            .replace(Some(gio_file.0.clone()));
+            .replace(Some(gio_file.1.clone()));
         let gio_file_clone = gio_file.clone();
         glib::spawn_future_local(clone!(
             #[weak (rename_to = win)]
@@ -522,12 +522,18 @@ impl GtkTestWindow {
         file_path_folder.push(DRAG_FOLDER_LOCATION);
         file_path_folder.push(generated_file_name.clone());
         debug!("generated file path: {:?}", file_path_folder);
+        let _ = fs::create_dir(&file_path_folder.parent().unwrap());
         let gio_file = gio::File::for_path(file_path_folder.clone());
         let mut file_path_symbolic = data_path.clone();
         file_path_symbolic.push(SYMBOLIC_FOLDER_LOCATION);
         let file_name_symbolic = self.create_random_filename(file_path_symbolic.clone());
         file_path_symbolic.push(file_name_symbolic);
-        std::os::unix::fs::symlink(&file_path_folder, &file_path_symbolic);
+        match std::os::unix::fs::symlink(&file_path_folder, &file_path_symbolic) {
+            Err(_error) => {
+                let _ = fs::create_dir(file_path_symbolic.parent().unwrap());
+            }
+            _ => (),
+        };
         let symbolic_file = gio::File::for_path(&file_path_symbolic);
         (gio_file, symbolic_file)
     }
