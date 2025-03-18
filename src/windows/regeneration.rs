@@ -52,19 +52,19 @@ impl GtkTestWindow {
         // SVG's are often very small in size, so if it is an SVG. Save that image. Otherwise store the dynamic image.
         // I do not know how this code below works, but it does. So I am not touching it
         // TODO implement async?
-        //if file.extension == "image/svg+xml" && original_file != None {
-        let new_file = gio::File::for_path(file_path);
-        let filestream = new_file.open_readwrite(gio::Cancellable::NONE).unwrap();
+        let new_file = gio::File::for_path(&file_path);
+        let filestream = new_file.open_readwrite(gio::Cancellable::NONE)?;
         let test = filestream.output_stream();
-        let buffer = original_file
-            .unwrap()
-            .load_bytes(gio::Cancellable::NONE)
-            .unwrap();
-        test.write_bytes(&buffer.0, gio::Cancellable::NONE).unwrap();
-        //} else {
-        //     file.dynamic_image
-        //         .save_with_format(file_path, ImageFormat::Png)?;
-        // }
+        match original_file {
+            Some(file) => {
+                let buffer = file.load_bytes(gio::Cancellable::NONE)?;
+                test.write_bytes(&buffer.0, gio::Cancellable::NONE)?;
+            }
+            None => {
+                file.dynamic_image
+                    .save_with_format(file_path, ImageFormat::Png)?;
+            }
+        }
         Ok(())
     }
 
