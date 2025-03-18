@@ -33,7 +33,14 @@ impl GtkTestWindow {
         }
         let texture = self.dynamic_image_to_texture(
             &self
-                .generate_image(base, top_image, imageops::FilterType::Nearest)
+                .generate_image(
+                    base,
+                    top_image,
+                    imageops::FilterType::Nearest,
+                    imp.x_scale.value(),
+                    imp.y_scale.value(),
+                    imp.size.value(),
+                )
                 .await,
         );
         imp.image_view.set_paintable(Some(&texture));
@@ -84,13 +91,12 @@ impl GtkTestWindow {
         base_image: image::DynamicImage,
         top_image: image::DynamicImage,
         filter: imageops::FilterType,
+        x_scale_value: f64,
+        y_scale_value: f64,
+        scale: f64,
     ) -> DynamicImage {
         let imp = self.imp();
-        let coordinates = (
-            (imp.x_scale.value() + 50.0) as i64,
-            (imp.y_scale.value() + 50.0) as i64,
-        );
-        let scale: f32 = imp.size.value() as f32;
+        let coordinates = ((x_scale_value + 50.0) as i64, (y_scale_value + 50.0) as i64);
         let texture = RUNTIME
             .spawn_blocking(move || {
                 let mut base = base_image;
@@ -124,12 +130,12 @@ impl GtkTestWindow {
     pub fn resize_image(
         image: DynamicImage,
         dimensions: (u32, u32),
-        slider_position: f32,
+        slider_position: f64,
         filter: imageops::FilterType,
     ) -> DynamicImage {
-        let width: f32 = dimensions.0 as f32;
-        let height: f32 = dimensions.1 as f32;
-        let scale_factor: f32 = (slider_position + 10.0) / 10.0;
+        let width: f64 = dimensions.0 as f64;
+        let height: f64 = dimensions.1 as f64;
+        let scale_factor: f64 = (slider_position + 10.0) / 10.0;
         let new_width: u32 = (width / scale_factor) as u32;
         let new_height: u32 = (height / scale_factor) as u32;
         image.resize(new_width, new_height, filter)

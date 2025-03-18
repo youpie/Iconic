@@ -332,7 +332,14 @@ impl GtkTestWindow {
             );
         }
         let generated_image = self
-            .generate_image(base_image, top_image, imageops::FilterType::Gaussian)
+            .generate_image(
+                base_image,
+                top_image,
+                imageops::FilterType::Gaussian,
+                imp.x_scale.value(),
+                imp.y_scale.value(),
+                imp.size.value(),
+            )
             .await;
         let _ = RUNTIME
             .spawn_blocking(move || {

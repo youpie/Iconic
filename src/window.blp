@@ -30,47 +30,67 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             }
           }
 
-          Adw.StatusPage main_status_page {
-            icon-name: "nl.emphisia.icon";
-            title: _("Folder Icon Creator");
-            description: _("Click or Drag to Open Image");
-            hexpand: true;
-            vexpand: true;
+          content: Overlay {
+            [overlay]
+            Revealer {
+              transition-duration: 500;
+              transition-type: crossfade;
+              reveal-child: bind regeneration_revealer.reveal-child;
+              valign: start;
 
-            child: Box {
-              orientation: vertical;
-              spacing: 20;
-
-              Button open_top_icon {
-                valign: center;
-                halign: center;
-                label: _("_Open Image");
-                use-underline: true;
-                action-name: "app.open_top_icon";
+              ProgressBar {
+                fraction: bind regeneration_osd.fraction;
+                visible: true;
+                halign: fill;
 
                 styles [
-                  "suggested-action",
-                  "pill",
+                  "osd"
                 ]
               }
+            }
 
-              Button open_bottom_icon {
-                valign: center;
-                halign: center;
-                label: _("_Show Bottom Layer");
-                use-underline: true;
-                action-name: "app.open_bottom_icon";
+            Adw.StatusPage main_status_page {
+              icon-name: "nl.emphisia.icon";
+              title: _("Folder Icon Creator");
+              description: _("Click or Drag to Open Image");
+              hexpand: true;
+              vexpand: true;
 
-                styles [
-                  "pill",
-                ]
-              }
-            };
+              child: Box {
+                orientation: vertical;
+                spacing: 20;
 
-            styles [
-              "icon-dropshadow"
-            ]
-          }
+                Button open_top_icon {
+                  valign: center;
+                  halign: center;
+                  label: _("_Open Image");
+                  use-underline: true;
+                  action-name: "app.open_top_icon";
+
+                  styles [
+                    "suggested-action",
+                    "pill",
+                  ]
+                }
+
+                Button open_bottom_icon {
+                  valign: center;
+                  halign: center;
+                  label: _("_Show Bottom Layer");
+                  use-underline: true;
+                  action-name: "app.open_bottom_icon";
+
+                  styles [
+                    "pill",
+                  ]
+                }
+              };
+
+              styles [
+                "icon-dropshadow"
+              ]
+            }
+          };
         };
       }
 
@@ -198,12 +218,12 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             Revealer regeneration_revealer {
               transition-duration: 500;
               transition-type: crossfade;
+              valign: start;
 
               child: ProgressBar regeneration_osd {
                 fraction: 0.5;
                 visible: true;
                 halign: fill;
-                hexpand: true;
 
                 styles [
                   "osd"

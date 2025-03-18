@@ -445,6 +445,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         imp.save_button.set_sensitive(false);
         self.default_sliders();
+        self.user_control_visibilty(false);
         imp.reset_color.set_visible(false);
         self.check_regeneration_needed();
         let _ = imp.settings.set_string(
@@ -913,6 +914,7 @@ impl GtkTestWindow {
         if (*top_image).is_some() && (*bottom_image).is_some() {
             let top_image_width = top_image.as_ref().unwrap().dynamic_image.width();
             if top_image_width > 1 {
+                debug!("activated silders");
                 // If the top image is empty, these controlls are disabled
                 // This is to check if it's needed to turn them on again
                 self.user_control_visibilty(true);

@@ -10,7 +10,6 @@ use image::*;
 use log::*;
 use std::fs;
 use std::path::PathBuf;
-use std::time::Duration;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -82,7 +81,6 @@ impl GtkTestWindow {
         imp.regeneration_osd.set_fraction(0.0);
         let previous_control_visibility = imp.x_scale.is_visible();
         self.user_control_visibilty(false);
-        imp.stack.set_visible_child_name("stack_main_page");
         let files_n = compatible_files.len();
         if files_n == 0 && delay {
             show_error_popup(
@@ -123,7 +121,7 @@ impl GtkTestWindow {
                 })
                 .await??
                 .dynamic_image;
-            self.set_properties(properties_list.clone())?;
+            let slider_values = self.set_properties(properties_list.clone())?;
             let top_image =
                 self.create_top_image_for_generation(properties_list, top_image_file)?;
             info!(
@@ -136,26 +134,17 @@ impl GtkTestWindow {
                 })
                 .await??
                 .dynamic_image;
-            //self.image_animation(false);
-            // if delay {
-            //     RUNTIME
-            //         .spawn_blocking(move || {
-            //             std::thread::sleep(Duration::from_millis(200));
-            //         })
-            //         .await?;
-            // }
             info!("Generating image");
             let generated_image = self
-                .generate_image(bottom_image_file, top_image, imageops::FilterType::Gaussian)
+                .generate_image(
+                    bottom_image_file,
+                    top_image,
+                    imageops::FilterType::Gaussian,
+                    slider_values.0,
+                    slider_values.1,
+                    slider_values.2,
+                )
                 .await;
-            info!("Setting texture");
-            //let pixbuf = self.dynamic_image_to_texture(&generated_image);
-            //imp.regeneration_image_view.set_paintable(Some(&pixbuf));
-            //imp.regeneration_image_view.queue_draw();
-            info!("Updating indicators");
-            //self.file_progress_indicator(file_index, files_n);
-            info!("Image animation");
-            //self.image_animation(true);
             info!("Saving image");
             match RUNTIME
                 .spawn_blocking(move || {
@@ -166,14 +155,6 @@ impl GtkTestWindow {
                 Ok(_) => info!("Saving Succesful"),
                 Err(x) => error!("Saving failed: {:?}", x),
             };
-            info!("Waiting");
-            // if delay {
-            //     RUNTIME
-            //         .spawn_blocking(move || {
-            //             std::thread::sleep(Duration::from_millis(400));
-            //         })
-            //         .await?; //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
-            // }
         }
         imp.regeneration_revealer.set_reveal_child(false);
         self.user_control_visibilty(previous_control_visibility);
@@ -221,18 +202,18 @@ impl GtkTestWindow {
         Ok(regeneratable)
     }
 
-    fn set_properties(&self, properties: Vec<&str>) -> GenResult<()> {
+    fn set_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
         let imp = self.imp();
-        imp.x_scale.set_value(properties[2].parse()?);
-        imp.y_scale.set_value(properties[3].parse()?);
-        imp.size.set_value(properties[4].parse()?);
+        let x_scale: f64 = properties[2].parse()?;
+        let y_scale: f64 = properties[3].parse()?;
+        let size: f64 = properties[4].parse()?;
         imp.monochrome_switch
             .set_active(properties[5].parse::<usize>()? != 0);
         imp.threshold_scale.set_value(properties[6].parse()?);
         imp.monochrome_color.set_rgba(&self.current_accent_rgba()?);
         imp.monochrome_invert
             .set_active(properties[10].parse::<usize>()? != 0);
-        Ok(())
+        Ok((x_scale, y_scale, size))
     }
 
     fn create_top_image_for_generation(
@@ -279,33 +260,5 @@ impl GtkTestWindow {
             .easing(adw::Easing::EaseInOutCubic)
             .build()
             .play();
-    }
-
-    fn image_animation(&self, increase: bool) {
-        let (start, end) = match increase {
-            true => (0.0, 1.0),
-            false => (1.0, 0.0),
-        };
-        let imp = self.imp();
-        debug!("Starting animation");
-        let target =
-            adw::PropertyAnimationTarget::new(&imp.regeneration_image_view.to_owned(), "opacity");
-        adw::TimedAnimation::builder()
-            .target(&target)
-            .widget(&imp.regeneration_image_view.to_owned())
-            .value_from(start)
-            .value_to(end)
-            .duration(200)
-            .easing(adw::Easing::EaseInOutCubic)
-            .build()
-            .play();
-        debug!("Animation done ");
-    }
-
-    fn file_progress_indicator(&self, file_index: usize, total_files: usize) {
-        let imp = self.imp();
-        let file_string = gettext("File");
-        imp.regeneration_file
-            .set_label(&format!("{} {}/{}", file_string, file_index, total_files));
     }
 }
