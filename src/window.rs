@@ -32,13 +32,18 @@ use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
 use image::*;
 use log::*;
+use rand::prelude::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::env;
+use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+
+pub const SYMBOLIC_FOLDER_LOCATION: &str = "symbolic";
+pub const DRAG_FOLDER_LOCATION: &str = "folders";
 
 mod imp {
     use std::collections::HashMap;
@@ -119,6 +124,7 @@ mod imp {
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
         pub count: RefCell<i32>,
+        pub quit_inhibit: Arc<()>,
     }
 
     impl Default for GtkTestWindow {
@@ -163,6 +169,7 @@ mod imp {
                 temp_image_loaded: RefCell::new(false),
                 default_color: RefCell::new(HashMap::new()),
                 last_dnd_generated_name: RefCell::new(None),
+                quit_inhibit: Arc::new(()),
             }
         }
     }
@@ -368,8 +375,18 @@ mod imp {
     impl WidgetImpl for GtkTestWindow {}
     impl WindowImpl for GtkTestWindow {
         fn close_request(&self) -> glib::Propagation {
+            let window = self.obj();
+            if Arc::strong_count(&self.quit_inhibit) > 1 {
+                error!("{}", Arc::strong_count(&self.quit_inhibit));
+                show_error_popup(
+                    &window,
+                    "Iconic is busy, please wait before closing",
+                    true,
+                    None,
+                );
+                return glib::Propagation::Stop;
+            }
             if !self.image_saved.borrow().clone() {
-                let window = self.obj();
                 return match glib::MainContext::default()
                     .block_on(async move { window.confirm_save_changes().await })
                 {
@@ -478,21 +495,22 @@ impl GtkTestWindow {
         debug!("temp image loaded {}", *imp.temp_image_loaded.borrow());
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
         let gio_file = self.create_drag_file(file_hash);
-        imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
+        imp.last_dnd_generated_name
+            .replace(Some(gio_file.0.clone()));
         let gio_file_clone = gio_file.clone();
         glib::spawn_future_local(clone!(
             #[weak (rename_to = win)]
             self,
             async move {
-                win.save_file(gio_file_clone).await.unwrap();
+                win.save_file(gio_file_clone.0).await.unwrap();
             }
         ));
         Some(gdk::ContentProvider::for_value(&glib::Value::from(
-            &gio_file,
+            &gio_file.1,
         )))
     }
 
-    pub fn create_drag_file(&self, file_hash: u64) -> gio::File {
+    pub fn create_drag_file(&self, file_hash: u64) -> (gio::File, gio::File) {
         // let imp = self.imp();
         let data_path = self.get_data_path();
         debug!("data path: {:?}", data_path);
@@ -500,11 +518,36 @@ impl GtkTestWindow {
         let properties_string = self.create_image_properties_string();
         let generated_file_name = format!("folder_new-{}-{}.png", properties_string, file_hash);
         debug!("generated_file_name: {}", generated_file_name);
-        let mut file_path = data_path.clone();
-        file_path.push(generated_file_name.clone());
-        debug!("generated file path: {:?}", file_path);
-        let gio_file = gio::File::for_path(file_path);
-        gio_file
+        let mut file_path_folder: PathBuf = data_path.clone();
+        file_path_folder.push(DRAG_FOLDER_LOCATION);
+        file_path_folder.push(generated_file_name.clone());
+        debug!("generated file path: {:?}", file_path_folder);
+        let gio_file = gio::File::for_path(file_path_folder.clone());
+        let mut file_path_symbolic = data_path.clone();
+        file_path_symbolic.push(SYMBOLIC_FOLDER_LOCATION);
+        let file_name_symbolic = self.create_random_filename(file_path_symbolic.clone());
+        file_path_symbolic.push(file_name_symbolic);
+        std::os::unix::fs::symlink(&file_path_folder, &file_path_symbolic);
+        let symbolic_file = gio::File::for_path(&file_path_symbolic);
+        (gio_file, symbolic_file)
+    }
+
+    fn create_random_filename(&self, path: PathBuf) -> String {
+        // Get an RNG:
+        let mut rng = rand::rng();
+        let possible_filename: u32 = rng.random();
+        let mut path_clone = path.clone();
+        path_clone.push(possible_filename.to_string());
+        path_clone.set_extension("png");
+        match path_clone.exists() {
+            true => self.create_random_filename(path_clone),
+            false => path_clone
+                .file_name()
+                .unwrap_or(OsStr::new(""))
+                .to_str()
+                .unwrap_or("1234")
+                .to_string(),
+        }
     }
 
     /* This function is used to create a string with all properties applied to the current image.

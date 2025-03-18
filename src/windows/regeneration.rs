@@ -2,6 +2,7 @@ use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
 use crate::{objects::errors::show_error_popup, GtkTestWindow, RUNTIME};
 
+use crate::window::SYMBOLIC_FOLDER_LOCATION;
 use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -74,7 +75,9 @@ impl GtkTestWindow {
     After I added the animation, it got only more ugly. But the animation looks nice :)*/
     pub async fn regenerate_icons(&self, delay: bool) -> GenResult<()> {
         let imp = self.imp();
-        let data_path = self.get_data_path();
+        let _inhibit_exit = imp.quit_inhibit.clone();
+        let mut data_path = self.get_data_path();
+        data_path.push(SYMBOLIC_FOLDER_LOCATION);
         let mut incompatible_files_n: u32 = 0;
         let compatible_files =
             self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
@@ -288,8 +291,8 @@ impl GtkTestWindow {
             .widget(&imp.regeneration_osd.to_owned())
             .value_from(imp.regeneration_osd.fraction())
             .value_to(imp.regeneration_osd.fraction() + step_size)
-            .duration(50)
-            .easing(adw::Easing::EaseInOutCubic)
+            .duration(100)
+            .easing(adw::Easing::Linear)
             .build();
         animation.play();
         animation

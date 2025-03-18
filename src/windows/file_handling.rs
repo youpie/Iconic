@@ -309,6 +309,7 @@ impl GtkTestWindow {
 
     pub async fn save_file(&self, file: gio::File) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
+        let inhibit_quit = imp.quit_inhibit.clone();
         imp.saved_file.lock()?.replace(file.clone());
         let base_image = imp
             .bottom_image_file
