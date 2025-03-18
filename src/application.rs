@@ -175,7 +175,7 @@ impl GtkTestApplication {
     fn show_about(&self) {
         let window = self.active_window().unwrap();
 
-        let mut about = adw::AboutDialog::builder()
+        let about = adw::AboutDialog::builder()
             .application_name("Iconic")
             .application_icon(APP_ICON)
             .developer_name("Youpie")

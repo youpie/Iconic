@@ -10,7 +10,7 @@ This application is my first attempt at creating an application using Rust and L
 <a>
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20dark.png?raw=true">
-      <img alt="Iconic logo" src="https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true">
+      <img alt="Iconic logo" src="https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true" height="512">
     </picture>
   </a>
 </div>
@@ -73,5 +73,5 @@ The icon is just a few already existing icons added together, the following are 
 - Adwaita icons - https://gitlab.gnome.org/GNOME/adwaita-icon-theme
 
 ### Folder credits
-The folders/colors used in Iconic (Except the pink one as I like my own one better) are taken from 
+The folders/colors used in Iconic are taken from 
 - Adwaita-Colors - https://github.com/dpejoh/Adwaita-colors/tree/main

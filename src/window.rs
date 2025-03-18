@@ -48,6 +48,9 @@ mod imp {
     #[template(resource = "/nl/emphisia/icon/window.ui")]
     pub struct GtkTestWindow {
         // Template widgets
+        // Every item in this list, is something defined in
+        // a blueprint file, if you want to control it from the code
+        // it needs to be added here
         #[template_child]
         pub toolbar: TemplateChild<adw::ToolbarView>,
         #[template_child]
@@ -398,7 +401,7 @@ impl GtkTestWindow {
             ("Yellow".to_string(), GtkTestWindow::to_rgba(203, 147, 26)),
             ("Orange".to_string(), GtkTestWindow::to_rgba(241, 119, 56)),
             ("Red".to_string(), GtkTestWindow::to_rgba(232, 64, 83)),
-            ("Pink".to_string(), GtkTestWindow::to_rgba(212, 95, 151)),
+            ("Pink".to_string(), GtkTestWindow::to_rgba(230, 67, 146)),
             ("Purple".to_string(), GtkTestWindow::to_rgba(149, 74, 181)),
             ("Slate".to_string(), GtkTestWindow::to_rgba(99, 118, 146)),
         ]));
@@ -698,7 +701,6 @@ impl GtkTestWindow {
                     win,
                     async move {
                         let imp = win.imp();
-                        debug!("ran");
                         if imp.monochrome_color.rgba() != win.get_default_color() {
                             imp.reset_color.set_visible(true);
                         }
