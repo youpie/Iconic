@@ -6,15 +6,17 @@ Iconic lets you easily add images on top of a folder icon. It is mostly meant fo
 This application is my first attempt at creating an application using Rust and Libadwaita.
 
 <a href='https://flathub.org/apps/details/nl.emphisia.icon'><img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en&light'/></a>
-
+<div>
 <a>
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20dark.png?raw=true">
-      <img alt="Iconic logo" src="https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen.png?raw=true">
+      <img alt="Iconic logo" src="https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true">
     </picture>
   </a>
+</div>
 
 ## Todo 📝
+
 These are ideas I want to implement.
 - [ ] Add features
     - [ ] Update to gnome 48 runtime
