@@ -1,6 +1,6 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
-use crate::{objects::errors::show_error_popup, GtkTestWindow, RUNTIME};
+use crate::{GtkTestWindow, RUNTIME, objects::errors::show_error_popup};
 
 use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
@@ -107,7 +107,7 @@ impl GtkTestWindow {
         for file in compatible_files {
             if *imp.regeneration_lock.borrow() != id {
                 error!("Stopping regeneration");
-                return Ok(());
+                break;
             }
             let path = &file.path();
             match self.regenerate_and_save_icon(file).await {

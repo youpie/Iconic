@@ -916,7 +916,6 @@ impl GtkTestWindow {
         if (*top_image).is_some() && (*bottom_image).is_some() {
             let top_image_width = top_image.as_ref().unwrap().dynamic_image.width();
             if top_image_width > 1 {
-                show_error_popup(&self, "SLIDERS GOT ACTIVATED", true, None);
                 // If the top image is empty, these controlls are disabled
                 // This is to check if it's needed to turn them on again
                 self.slider_control_sensitivity(true);
@@ -992,7 +991,7 @@ impl GtkTestWindow {
         let rgba_image = dynamic_image.to_rgba8();
         let (width, height) = rgba_image.dimensions();
         let pixels = rgba_image.into_raw(); // Get the raw pixel data
-                                            // Create Pixbuf from raw pixel data
+        // Create Pixbuf from raw pixel data
         let pixbuf = Pixbuf::from_bytes(
             &glib::Bytes::from(&pixels),
             gtk::gdk_pixbuf::Colorspace::Rgb,
@@ -1005,6 +1004,7 @@ impl GtkTestWindow {
         gdk::Texture::for_pixbuf(&pixbuf)
     }
 
+    // TODO decouple UI components from these functions
     fn enable_monochrome_expand(&self) {
         let switch_state = self.imp().monochrome_switch.state();
         match switch_state {
