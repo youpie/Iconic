@@ -12,12 +12,22 @@ pub fn show_error_popup(
 ) -> Option<adw::AlertDialog> {
     const RESPONSE_OK: &str = "OK";
     let error_text: &str = &gettext("Error");
+    let error_message = match message {
+        "" => {
+            if let Some(error_value) = &error {
+                error_value.to_string()
+            } else {
+                "unknown error".to_string()
+            }
+        }
+        _ => message.to_string(),
+    };
     let dialog = adw::AlertDialog::builder()
         .heading(format!(
             "<span foreground=\"red\"><b>⚠ {error_text}</b></span>"
         ))
         .heading_use_markup(true)
-        .body(message)
+        .body(error_message)
         .default_response(RESPONSE_OK)
         .build();
     dialog.add_response(RESPONSE_OK, &gettext("OK"));

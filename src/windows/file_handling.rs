@@ -1,4 +1,4 @@
-use crate::objects::errors::show_error_popup;
+use crate::objects::errors::{show_error_popup, IntoResult};
 use crate::objects::file::File;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -260,7 +260,11 @@ impl GtkTestWindow {
         };
         let file_name = format!(
             "folder-{}.png",
-            imp.top_image_file.lock()?.as_ref().unwrap().filename
+            imp.top_image_file
+                .lock()?
+                .as_ref()
+                .into_reason_result("No top image found")?
+                .filename
         );
         let file_chooser = gtk::FileDialog::builder()
             .initial_name(file_name)
@@ -280,10 +284,14 @@ impl GtkTestWindow {
                 );
                 saved_file
             }
-            Err(e) => {
+            Err(file_chooser_error) => {
                 self.imp().stack.set_visible_child_name("stack_main_page");
-                match e.message() {
-                    "Dismissed by user" => {
+                match file_chooser_error
+                    .kind()
+                    .into_reason_result("Unknown file picker error")?
+                {
+                    gtk::DialogError::Dismissed => {
+                        error!("{:?}", file_chooser_error);
                         imp.toast_overlay
                             .add_toast(adw::Toast::new("File not saved"));
                         return Ok(false);
@@ -291,7 +299,7 @@ impl GtkTestWindow {
                     _ => {
                         imp.image_saved.replace(false);
                         imp.save_button.set_sensitive(true);
-                        return Err(Box::new(e));
+                        return Err(Box::new(file_chooser_error));
                     }
                 };
             }
@@ -306,14 +314,14 @@ impl GtkTestWindow {
             .bottom_image_file
             .lock()?
             .as_ref()
-            .unwrap()
+            .into_reason_result("No bottom image found")?
             .dynamic_image
             .clone();
         let mut top_image = imp
             .top_image_file
             .lock()?
             .as_ref()
-            .unwrap()
+            .into_reason_result("No top image found")?
             .thumbnail
             .clone();
         if imp.monochrome_switch.state() {
