@@ -6,7 +6,7 @@
 /.flatpak
 /vendor
 /custom_build
-/**/*.mo
+*.mo
 /build-aux/.flatpak-builder
 *.bkp
 *.drawio

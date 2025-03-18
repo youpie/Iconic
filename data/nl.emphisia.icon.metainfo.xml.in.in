@@ -21,10 +21,6 @@
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true</image>
     </screenshot>
     <screenshot>
-      <caption>Regenerating Icons</caption>
-      <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Regeneration.png?raw=true</image>
-    </screenshot>
-    <screenshot>
       <caption>Accent collored folders supported</caption>
       <image type="source">https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light%20alt.png?raw=true</image>
     </screenshot>
@@ -38,6 +34,23 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2025.3.2" date="2025-03-18" type="stable">
+      <description>
+        <p>A new version of Iconic! It is mostly a quality of life update, I have some fun additions planned so stay tuned!</p>
+        <p>Here is what has changed:</p>
+        <ul>
+          <li>Updated to rust 2024 edition</li>
+          <li>Removed regeneration screen</li>
+          <li>Added regeneration bar on main screen</li>
+          <li>Added better error handling for regeneration</li>
+          <li>Updated pink folder, to be in line with Adwaita-colors</li>
+          <li>Added acknowledgements in the About Iconic</li>
+          <li>Fixed donation link</li>
+        </ul>
+        <p>As always, if you encounter any bugs. Please let me know on GitHub!</p>
+        <p>Enjoy the update, and Free Palestine 🇵🇸</p>
+      </description>
+    </release>
     <release version="2024.12.2" date="2024-12-10" type="stable">
       <description>
         <p>I was really motivated so I made another update. Now allowing you to set custom collors for the folders. Other features include</p>
