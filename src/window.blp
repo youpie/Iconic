@@ -195,15 +195,20 @@ template $GtkTestWindow: Adw.ApplicationWindow {
 
           content: Overlay {
             [overlay]
-            ProgressBar {
-              fraction: 0.5;
-              visible: true;
-              halign: fill;
-              hexpand: true;
+            Revealer regeneration_revealer {
+              transition-duration: 500;
+              transition-type: crossfade;
 
-              styles [
-                "osd"
-              ]
+              child: ProgressBar regeneration_osd {
+                fraction: 0.5;
+                visible: true;
+                halign: fill;
+                hexpand: true;
+
+                styles [
+                  "osd"
+                ]
+              };
             }
 
             child: Adw.Clamp image_preferences {

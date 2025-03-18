@@ -78,7 +78,8 @@ impl GtkTestWindow {
         let mut incompatible_files_n: u32 = 0;
         let compatible_files =
             self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
-        imp.regeneration_progress.set_fraction(0.0);
+        imp.regeneration_revealer.set_reveal_child(true);
+        imp.regeneration_osd.set_fraction(0.0);
         let files_n = compatible_files.len();
         if files_n == 0 && delay {
             show_error_popup(
@@ -94,11 +95,9 @@ impl GtkTestWindow {
             );
         }
         let step_size = 1.0 / files_n as f64;
-        let mut file_index: usize = 0;
         for file in compatible_files {
             info!("Loading new file");
 
-            file_index += 1;
             self.progress_animation(step_size);
             let file_name = file.file_name();
             let file_path = file.path();
@@ -134,26 +133,26 @@ impl GtkTestWindow {
                 })
                 .await??
                 .dynamic_image;
-            self.image_animation(false);
-            if delay {
-                RUNTIME
-                    .spawn_blocking(move || {
-                        std::thread::sleep(Duration::from_millis(200));
-                    })
-                    .await?;
-            }
+            //self.image_animation(false);
+            // if delay {
+            //     RUNTIME
+            //         .spawn_blocking(move || {
+            //             std::thread::sleep(Duration::from_millis(200));
+            //         })
+            //         .await?;
+            // }
             info!("Generating image");
             let generated_image = self
                 .generate_image(bottom_image_file, top_image, imageops::FilterType::Gaussian)
                 .await;
             info!("Setting texture");
-            let pixbuf = self.dynamic_image_to_texture(&generated_image);
-            imp.regeneration_image_view.set_paintable(Some(&pixbuf));
-            imp.regeneration_image_view.queue_draw();
+            //let pixbuf = self.dynamic_image_to_texture(&generated_image);
+            //imp.regeneration_image_view.set_paintable(Some(&pixbuf));
+            //imp.regeneration_image_view.queue_draw();
             info!("Updating indicators");
-            self.file_progress_indicator(file_index, files_n);
+            //self.file_progress_indicator(file_index, files_n);
             info!("Image animation");
-            self.image_animation(true);
+            //self.image_animation(true);
             info!("Saving image");
             match RUNTIME
                 .spawn_blocking(move || {
@@ -165,14 +164,15 @@ impl GtkTestWindow {
                 Err(x) => error!("Saving failed: {:?}", x),
             };
             info!("Waiting");
-            if delay {
-                RUNTIME
-                    .spawn_blocking(move || {
-                        std::thread::sleep(Duration::from_millis(400));
-                    })
-                    .await?; //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
-            }
+            // if delay {
+            //     RUNTIME
+            //         .spawn_blocking(move || {
+            //             std::thread::sleep(Duration::from_millis(400));
+            //         })
+            //         .await?; //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
+            // }
         }
+        imp.regeneration_revealer.set_reveal_child(false);
         self.default_sliders();
         self.reset_colors();
         Ok(())
@@ -264,19 +264,17 @@ impl GtkTestWindow {
 
     fn progress_animation(&self, step_size: f64) {
         let imp = self.imp();
-        debug!("Starting animation");
         let target =
-            adw::PropertyAnimationTarget::new(&imp.regeneration_progress.to_owned(), "fraction");
+            adw::PropertyAnimationTarget::new(&imp.regeneration_osd.to_owned(), "fraction");
         adw::TimedAnimation::builder()
             .target(&target)
-            .widget(&imp.regeneration_progress.to_owned())
-            .value_from(imp.regeneration_progress.fraction())
-            .value_to(imp.regeneration_progress.fraction() + step_size)
+            .widget(&imp.regeneration_osd.to_owned())
+            .value_from(imp.regeneration_osd.fraction())
+            .value_to(imp.regeneration_osd.fraction() + step_size)
             .duration(500)
             .easing(adw::Easing::EaseInOutCubic)
             .build()
             .play();
-        debug!("Animation done ");
     }
 
     fn image_animation(&self, increase: bool) {

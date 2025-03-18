@@ -102,6 +102,10 @@ mod imp {
         pub popover_menu: TemplateChild<gtk::PopoverMenu>,
         #[template_child]
         pub gesture_click: TemplateChild<gtk::GestureClick>,
+        #[template_child]
+        pub regeneration_osd: TemplateChild<gtk::ProgressBar>,
+        #[template_child]
+        pub regeneration_revealer: TemplateChild<gtk::Revealer>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
@@ -134,13 +138,7 @@ mod imp {
                 scale_row: TemplateChild::default(),
                 monochrome_switch: TemplateChild::default(),
                 image_preferences: TemplateChild::default(),
-                bottom_image_file: Arc::new(Mutex::new(None)),
-                top_image_file: Arc::new(Mutex::new(None)),
-                saved_file: Arc::new(Mutex::new(None)),
-                image_saved: RefCell::new(true),
-                generated_image: RefCell::new(None),
-                file_created: RefCell::new(false),
-                signals: RefCell::new(vec![]),
+                regeneration_osd: TemplateChild::default(),
                 x_scale: TemplateChild::default(),
                 y_scale: TemplateChild::default(),
                 size: TemplateChild::default(),
@@ -152,6 +150,7 @@ mod imp {
                 regeneration_file: TemplateChild::default(),
                 popover_menu: TemplateChild::default(),
                 gesture_click: TemplateChild::default(),
+                regeneration_revealer: TemplateChild::default(),
                 bottom_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),
@@ -236,7 +235,7 @@ mod imp {
                         let imp = win.imp();
                         let previous_stack = imp.stack.visible_child_name().unwrap();
                         debug!("previous stack {}", previous_stack);
-                        imp.stack.set_visible_child_name("regenerating_page");
+                        //imp.stack.set_visible_child_name("regenerating_page");
                         match win.regenerate_icons(true).await {
                             Ok(_) => (),
                             Err(x) => {
