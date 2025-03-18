@@ -1,4 +1,4 @@
-use std::error::Error;
+use crate::objects::errors::show_error_popup;
 
 use adw::prelude::{AdwDialogExt, AlertDialogExt, AlertDialogExtManual};
 use gettextrs::gettext;
@@ -89,7 +89,7 @@ impl GtkTestWindow {
                     false => Ok(glib::Propagation::Stop),
                 },
                 Err(error) => {
-                    self.show_error_popup(&error.to_string(), true, Some(error));
+                    show_error_popup(&self, &error.to_string(), true, Some(error));
                     Ok(glib::Propagation::Stop)
                 }
             },
@@ -97,7 +97,7 @@ impl GtkTestWindow {
         }
     }
 
-    pub fn get_accent_color_and_dialog(&self) -> String {
+    pub fn get_accent_color_and_show_dialog(&self) -> String {
         let imp = self.imp();
         let accent_color = format!("{:?}", adw::StyleManager::default().accent_color());
         if !imp.settings.boolean("accent-color-popup-shown")
@@ -128,36 +128,6 @@ impl GtkTestWindow {
             dialog.add_response(RESPONSE_OK, &gettext("OK"));
             dialog.present(Some(self));
             let _ = imp.settings.set("regeneration-hint-shown", true);
-        }
-    }
-
-    pub fn show_error_popup(
-        &self,
-        message: &str,
-        show: bool,
-        error: Option<Box<dyn Error + '_>>,
-    ) -> Option<adw::AlertDialog> {
-        const RESPONSE_OK: &str = "OK";
-        let error_text: &str = &gettext("Error");
-        let dialog = adw::AlertDialog::builder()
-            .heading(format!(
-                "<span foreground=\"red\"><b>⚠ {error_text}</b></span>"
-            ))
-            .heading_use_markup(true)
-            .body(message)
-            .default_response(RESPONSE_OK)
-            .build();
-        dialog.add_response(RESPONSE_OK, &gettext("OK"));
-        match error {
-            Some(ref x) => error!("An error has occured: \"{:?}\"", x),
-            None => error!("An error has occured: \"{}\"", message),
-        };
-        match show {
-            true => {
-                dialog.present(Some(self));
-                None
-            }
-            false => Some(dialog),
         }
     }
 }

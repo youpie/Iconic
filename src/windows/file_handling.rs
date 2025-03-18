@@ -1,3 +1,4 @@
+use crate::objects::errors::{show_error_popup, IntoResult};
 use crate::objects::file::File;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -72,7 +73,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         let current_set_accent_color = imp.settings.string("selected-accent-color");
         let folder_color_name = match current_set_accent_color.as_str() {
-            "None" => self.get_accent_color_and_dialog(),
+            "None" => self.get_accent_color_and_show_dialog(),
             x => x.to_string(),
         };
         let folder_path = PathBuf::from(format!(
@@ -111,7 +112,7 @@ impl GtkTestWindow {
                                 .unwrap();
                             match self.store_top_image_in_cache(&iconic_file, None) {
                                 Err(x) => {
-                                    self.show_error_popup(&x.to_string(), true, None);
+                                    show_error_popup(&self, &x.to_string(), true, None);
                                 }
                                 _ => (),
                             };
@@ -198,7 +199,7 @@ impl GtkTestWindow {
             match file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE) {
                 Ok(x) => x,
                 Err(e) => {
-                    self.show_error_popup(&e.to_string(), true, Some(Box::new(e)));
+                    show_error_popup(&self, &e.to_string(), true, Some(Box::new(e)));
                     return;
                 }
             };
@@ -243,7 +244,7 @@ impl GtkTestWindow {
                 };
             }
             _ => {
-                self.show_error_popup(&gettext("Unsupported file type"), true, None);
+                show_error_popup(&self, &gettext("Unsupported file type"), true, None);
             }
         }
 
@@ -259,7 +260,11 @@ impl GtkTestWindow {
         };
         let file_name = format!(
             "folder-{}.png",
-            imp.top_image_file.lock()?.as_ref().unwrap().filename
+            imp.top_image_file
+                .lock()?
+                .as_ref()
+                .into_reason_result("No top image found")?
+                .filename
         );
         let file_chooser = gtk::FileDialog::builder()
             .initial_name(file_name)
@@ -279,10 +284,14 @@ impl GtkTestWindow {
                 );
                 saved_file
             }
-            Err(e) => {
+            Err(file_chooser_error) => {
                 self.imp().stack.set_visible_child_name("stack_main_page");
-                match e.message() {
-                    "Dismissed by user" => {
+                match file_chooser_error
+                    .kind()
+                    .into_reason_result("Unknown file picker error")?
+                {
+                    gtk::DialogError::Dismissed => {
+                        error!("{:?}", file_chooser_error);
                         imp.toast_overlay
                             .add_toast(adw::Toast::new("File not saved"));
                         return Ok(false);
@@ -290,7 +299,7 @@ impl GtkTestWindow {
                     _ => {
                         imp.image_saved.replace(false);
                         imp.save_button.set_sensitive(true);
-                        return Err(Box::new(e));
+                        return Err(Box::new(file_chooser_error));
                     }
                 };
             }
@@ -305,14 +314,14 @@ impl GtkTestWindow {
             .bottom_image_file
             .lock()?
             .as_ref()
-            .unwrap()
+            .into_reason_result("No bottom image found")?
             .dynamic_image
             .clone();
         let mut top_image = imp
             .top_image_file
             .lock()?
             .as_ref()
-            .unwrap()
+            .into_reason_result("No top image found")?
             .thumbnail
             .clone();
         if imp.monochrome_switch.state() {
@@ -323,7 +332,14 @@ impl GtkTestWindow {
             );
         }
         let generated_image = self
-            .generate_image(base_image, top_image, imageops::FilterType::Gaussian)
+            .generate_image(
+                base_image,
+                top_image,
+                imageops::FilterType::Gaussian,
+                imp.x_scale.value(),
+                imp.y_scale.value(),
+                imp.size.value(),
+            )
             .await;
         let _ = RUNTIME
             .spawn_blocking(move || {
@@ -424,14 +440,14 @@ impl GtkTestWindow {
             {
                 Ok(x) => x,
                 Err(e) => {
-                    self.show_error_popup(&e.to_string(), true, None);
+                    show_error_popup(&self, &e.to_string(), true, None);
                     return None;
                 }
             };
             if change_top_icon {
                 match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
                     Err(x) => {
-                        self.show_error_popup("", true, Some(x));
+                        show_error_popup(&self, "", true, Some(x));
                     }
                     _ => (),
                 };
@@ -450,21 +466,22 @@ impl GtkTestWindow {
             {
                 Ok(x) => x,
                 Err(e) => {
-                    self.show_error_popup(&e.to_string(), true, None);
+                    show_error_popup(&self, &e.to_string(), true, None);
                     return None;
                 }
             };
             if change_top_icon {
                 match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
                     Err(x) => {
-                        self.show_error_popup("", true, Some(x));
+                        show_error_popup(&self, "", true, Some(x));
                     }
                     _ => (),
                 };
             }
             Some(iconic_file)
         } else {
-            self.show_error_popup(
+            show_error_popup(
+                &self,
                 &gettext("No file or path found, this is probably not your fault."),
                 true,
                 None,

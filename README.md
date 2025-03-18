@@ -6,12 +6,20 @@ Iconic lets you easily add images on top of a folder icon. It is mostly meant fo
 This application is my first attempt at creating an application using Rust and Libadwaita.
 
 <a href='https://flathub.org/apps/details/nl.emphisia.icon'><img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en&light'/></a>
-
-![afbeelding](https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20dark.png?raw=true)
+<div>
+<a>
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20dark.png?raw=true">
+      <img alt="Iconic logo" src="https://github.com/youpie/Iconic/blob/main/data/screenshots/Main%20screen%20light.png?raw=true" height="512">
+    </picture>
+  </a>
+</div>
 
 ## Todo 📝
+
 These are ideas I want to implement.
 - [ ] Add features
+    - [ ] Update to gnome 48 runtime
     - [X] Add threading
         - [ ] Loading dragged images
         - [ ] Making images monochrome
@@ -21,28 +29,20 @@ These are ideas I want to implement.
         - This would probably require a full rewrite of the image generation system. Using cairo or something, but I originally didn't use cairo as I did not understand it, and good examples were really scarse 
     - [ ] Rounded corner option for top image
     - [ ] Add guide grid or something
-    - [X] Multiple folder colors
-        - [x] according to gnome 47 accent color?
-            - [X] SVG manipulation?
-            - [X] Or just packing the images in with iconic
-        - [x] Option in settings
-    - [x] Regenerate all (d&d'ed) images automatically
-        - This way its possible to regenerate all images, when for example the accent color changes (I assume if the image that nautulus has set as folder image is changed but filename stays the same, it will change in nautulis)
-        - [x] Save dragged images with metadata about top layer
-        - [x] Store all used top layer images in cache
-            - This will use a lot of cache size, so
-            - [X] Allow users to turn it off (opt-in/-out on first launch?)
-            - [ ] Inform users 
-            - [X] Do not store too large images
-        - [X] Detect current accent color
     - [ ] Create guide when first starting iconic, to show users dragging and dropping images is possible
     - [ ] Refer users to icon library, so they know where to find many good icons   
-- [X] Update main app to gnome 47 runtime
-- [ ] Add credits for applications I used to learn in the "about iconic"
+    - [ ] Improve about window (example [eyedropper](https://github.com/FineFindus/eyedropper/blob/main/src/widgets/about_window.rs))
+- [ ] Use [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/)
 - [ ] Move donation link to About iconic (issue #8)
 - [ ] Make donation link just point to a random charity
 - [ ] Improve accessibility
+    - Find accessibility issues in the app, and adress them
+- [ ] Set up CI/CD Pipeline
+- [ ] Apply for [gnome circle](https://gitlab.gnome.org/Teams/Circle#how-to-apply)
+- [ ] Create tests
+    - It has now happened several times, that I release an update and it turns out a feature of the app is completely broken. That is not acceptable
 - [ ] Clean up code
+    - [ ] Reduce unwraps
     - I feel like a lot of code is not up to "standards" like rust conventions and stuff, So I need to do some research into that. 
 - [ ] Add comments
     - I struggled a lot learning it all, So adding comments, especially at points I got stuck, might help other devs also wanting to learn 
@@ -73,5 +73,5 @@ The icon is just a few already existing icons added together, the following are 
 - Adwaita icons - https://gitlab.gnome.org/GNOME/adwaita-icon-theme
 
 ### Folder credits
-The folders/colors used in Iconic (Except the pink one as I like my own one better) are taken from 
+The folders/colors used in Iconic are taken from 
 - Adwaita-Colors - https://github.com/dpejoh/Adwaita-colors/tree/main

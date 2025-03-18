@@ -18,7 +18,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+use crate::config::{APP_ICON, APP_ID, PROFILE};
 use crate::glib::clone;
+use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
 use crate::settings::settings::PreferencesDialog;
 use adw::prelude::AlertDialogExtManual;
@@ -38,8 +40,6 @@ use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-use crate::config::{APP_ICON, APP_ID, PROFILE};
-
 mod imp {
     use std::collections::HashMap;
 
@@ -49,6 +49,9 @@ mod imp {
     #[template(resource = "/nl/emphisia/icon/window.ui")]
     pub struct GtkTestWindow {
         // Template widgets
+        // Every item in this list, is something defined in
+        // a blueprint file, if you want to control it from the code
+        // it needs to be added here
         #[template_child]
         pub toolbar: TemplateChild<adw::ToolbarView>,
         #[template_child]
@@ -59,8 +62,6 @@ mod imp {
         pub open_top_icon: TemplateChild<gtk::Button>,
         #[template_child]
         pub image_view: TemplateChild<gtk::Picture>,
-        #[template_child]
-        pub regeneration_image_view: TemplateChild<gtk::Picture>,
         #[template_child]
         pub save_button: TemplateChild<gtk::Button>,
         #[template_child]
@@ -92,13 +93,13 @@ mod imp {
         #[template_child]
         pub image_preferences: TemplateChild<adw::Clamp>,
         #[template_child]
-        pub regeneration_progress: TemplateChild<gtk::ProgressBar>,
-        #[template_child]
-        pub regeneration_file: TemplateChild<gtk::Label>,
-        #[template_child]
         pub popover_menu: TemplateChild<gtk::PopoverMenu>,
         #[template_child]
         pub gesture_click: TemplateChild<gtk::GestureClick>,
+        #[template_child]
+        pub regeneration_osd: TemplateChild<gtk::ProgressBar>,
+        #[template_child]
+        pub regeneration_revealer: TemplateChild<gtk::Revealer>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
@@ -112,6 +113,7 @@ mod imp {
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
         pub count: RefCell<i32>,
+        pub regeneration_lock: Arc<RefCell<usize>>,
     }
 
     impl Default for GtkTestWindow {
@@ -122,7 +124,6 @@ mod imp {
                 toast_overlay: TemplateChild::default(),
                 open_top_icon: TemplateChild::default(),
                 image_view: TemplateChild::default(),
-                regeneration_image_view: TemplateChild::default(),
                 save_button: TemplateChild::default(),
                 threshold_scale: TemplateChild::default(),
                 reset_color: TemplateChild::default(),
@@ -131,13 +132,7 @@ mod imp {
                 scale_row: TemplateChild::default(),
                 monochrome_switch: TemplateChild::default(),
                 image_preferences: TemplateChild::default(),
-                bottom_image_file: Arc::new(Mutex::new(None)),
-                top_image_file: Arc::new(Mutex::new(None)),
-                saved_file: Arc::new(Mutex::new(None)),
-                image_saved: RefCell::new(true),
-                generated_image: RefCell::new(None),
-                file_created: RefCell::new(false),
-                signals: RefCell::new(vec![]),
+                regeneration_osd: TemplateChild::default(),
                 x_scale: TemplateChild::default(),
                 y_scale: TemplateChild::default(),
                 size: TemplateChild::default(),
@@ -145,15 +140,22 @@ mod imp {
                 main_status_page: TemplateChild::default(),
                 monochrome_invert: TemplateChild::default(),
                 image_loading_spinner: TemplateChild::default(),
-                regeneration_progress: TemplateChild::default(),
-                regeneration_file: TemplateChild::default(),
                 popover_menu: TemplateChild::default(),
                 gesture_click: TemplateChild::default(),
+                regeneration_revealer: TemplateChild::default(),
+                bottom_image_file: Arc::new(Mutex::new(None)),
+                top_image_file: Arc::new(Mutex::new(None)),
+                saved_file: Arc::new(Mutex::new(None)),
+                image_saved: RefCell::new(true),
+                generated_image: RefCell::new(None),
+                file_created: RefCell::new(false),
+                signals: RefCell::new(vec![]),
                 settings: gio::Settings::new(APP_ID),
                 count: RefCell::new(0),
                 temp_image_loaded: RefCell::new(false),
                 default_color: RefCell::new(HashMap::new()),
                 last_dnd_generated_name: RefCell::new(None),
+                regeneration_lock: Arc::new(RefCell::new(0)),
             }
         }
     }
@@ -224,20 +226,22 @@ mod imp {
                     win,
                     async move {
                         let imp = win.imp();
-                        let previous_stack = imp.stack.visible_child_name().unwrap();
-                        debug!("previous stack {}", previous_stack);
-                        imp.stack.set_visible_child_name("regenerating_page");
-                        match win.regenerate_icons(true).await {
+                        //let previous_stack = imp.stack.visible_child_name().unwrap();
+                        //debug!("previous stack {}", previous_stack);
+                        //imp.stack.set_visible_child_name("regenerating_page");
+                        let id = *imp.regeneration_lock.borrow();
+                        imp.regeneration_lock.replace(id + 1);
+                        match win.regenerate_icons().await {
                             Ok(_) => (),
                             Err(x) => {
-                                win.show_error_popup(&format!("{}", x), true, None);
+                                show_error_popup(&win, "", true, Some(x));
                             }
                         };
 
                         imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
                             "Regeneration sucessful, restart nautilus",
                         )));
-                        imp.stack.set_visible_child_name(&previous_stack);
+                        //imp.stack.set_visible_child_name(&previous_stack);
                         debug!("Done generating");
                     }
                 ));
@@ -251,7 +255,7 @@ mod imp {
                         match win.open_save_file_dialog().await {
                             Ok(_) => (),
                             Err(error) => {
-                                win.show_error_popup(&error.to_string(), true, Some(error));
+                                show_error_popup(&win, &error.to_string(), true, Some(error));
                             }
                         };
                     }
@@ -399,7 +403,7 @@ impl GtkTestWindow {
             ("Yellow".to_string(), GtkTestWindow::to_rgba(203, 147, 26)),
             ("Orange".to_string(), GtkTestWindow::to_rgba(241, 119, 56)),
             ("Red".to_string(), GtkTestWindow::to_rgba(232, 64, 83)),
-            ("Pink".to_string(), GtkTestWindow::to_rgba(212, 95, 151)),
+            ("Pink".to_string(), GtkTestWindow::to_rgba(230, 67, 146)),
             ("Purple".to_string(), GtkTestWindow::to_rgba(149, 74, 181)),
             ("Slate".to_string(), GtkTestWindow::to_rgba(99, 118, 146)),
         ]));
@@ -436,22 +440,24 @@ impl GtkTestWindow {
         let imp = self.imp();
         imp.save_button.set_sensitive(false);
         self.default_sliders();
+
         imp.reset_color.set_visible(false);
         self.check_regeneration_needed();
         let _ = imp.settings.set_string(
             "previous-system-accent-color",
-            &self.get_accent_color_and_dialog(),
+            &self.get_accent_color_and_show_dialog(),
         );
         imp.stack.set_visible_child_name("stack_welcome_page");
         self.setup_settings();
         self.setup_update();
         self.load_folder_path_from_settings();
+        self.slider_control_sensitivity(false);
     }
 
     pub fn to_rgba(r: u8, g: u8, b: u8) -> gdk::RGBA {
-        let r_float = (1.0 as f64 / 255.0 as f64 * r as f64) as f32;
-        let g_float = (1.0 as f64 / 255.0 as f64 * g as f64) as f32;
-        let b_float = (1.0 as f64 / 255.0 as f64 * b as f64) as f32;
+        let r_float = (1.0 / 255.0 * r as f64) as f32;
+        let g_float = (1.0 / 255.0 * g as f64) as f32;
+        let b_float = (1.0 / 255.0 * b as f64) as f32;
         gdk::RGBA::new(r_float, g_float, b_float, 1.0)
     }
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
@@ -608,7 +614,7 @@ impl GtkTestWindow {
                 }
                 let _ = win.imp().settings.set_string(
                     "previous-system-accent-color",
-                    &win.get_accent_color_and_dialog(),
+                    &win.get_accent_color_and_show_dialog(),
                 );
             }
         ));
@@ -638,8 +644,7 @@ impl GtkTestWindow {
                     #[weak]
                     win,
                     async move {
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                         win.render_to_screen().await;
                     }
                 ));
@@ -654,8 +659,7 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -669,8 +673,7 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -684,8 +687,7 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -699,7 +701,6 @@ impl GtkTestWindow {
                     win,
                     async move {
                         let imp = win.imp();
-                        debug!("ran");
                         if imp.monochrome_color.rgba() != win.get_default_color() {
                             imp.reset_color.set_visible(true);
                         }
@@ -707,8 +708,7 @@ impl GtkTestWindow {
                         // TODO: I do not like this approach, but it works
                         if imp.stack.visible_child_name() == Some("stack_main_page".into()) {
                             win.render_to_screen().await;
-                            imp.image_saved.replace(false);
-                            imp.save_button.set_sensitive(true);
+                            win.image_save_sensitive(true);
                         }
                     }
                 ));
@@ -723,25 +723,36 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.imp().image_saved.replace(false);
-                        win.imp().save_button.set_sensitive(true);
+                        win.image_save_sensitive(true);
                     }
                 ));
             }
         ));
     }
 
+    fn image_save_sensitive(&self, sensitive: bool) {
+        let imp = self.imp();
+        if Arc::strong_count(&imp.regeneration_lock) > 1 {
+            debug!("Skip settings save button");
+            return ();
+        }
+        imp.image_saved.replace(!sensitive);
+        imp.save_button.set_sensitive(sensitive);
+    }
+
     fn check_regeneration_needed(&self) -> bool {
         let imp = self.imp();
         let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
-        let current_accent = self.get_accent_color_and_dialog();
+        let current_accent = self.get_accent_color_and_show_dialog();
         // error!("previous {previous_accent} current {current_accent}");
+        let id = *imp.regeneration_lock.borrow();
+        imp.regeneration_lock.replace(id + 1);
         if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
             glib::spawn_future_local(glib::clone!(
                 #[weak(rename_to = win)]
                 self,
                 async move {
-                    match win.regenerate_icons(false).await {
+                    match win.regenerate_icons().await {
                         Ok(_) => info!("Regeneration succesfull!"),
                         Err(x) => {
                             error!("{}", x.to_string());
@@ -770,7 +781,7 @@ impl GtkTestWindow {
         let selected_accent_color = imp.settings.string("selected-accent-color");
         let mut custom_rgb = RGBA::new(0.0, 0.0, 0.0, 0.0);
         if selected_accent_color == "None" {
-            accent_color = self.get_accent_color_and_dialog();
+            accent_color = self.get_accent_color_and_show_dialog();
         } else if imp.settings.boolean("manual-bottom-image-selection") {
             accent_color = "Blue".to_string();
         } else if selected_accent_color == "Custom" {
@@ -810,13 +821,13 @@ impl GtkTestWindow {
                 .0;
         }
         info!("File not found AT ALL");
-        let dialog = self
-            .show_error_popup(
-                &gettext("The set folder icon could not be found, press ok to select a new one"),
-                false,
-                None,
-            )
-            .unwrap();
+        let dialog = show_error_popup(
+            &self,
+            &gettext("The set folder icon could not be found, press ok to select a new one"),
+            false,
+            None,
+        )
+        .unwrap();
         match &*dialog.clone().choose_future(self).await {
             "OK" => {
                 let new_path = match self.open_file_chooser().await {
@@ -907,10 +918,9 @@ impl GtkTestWindow {
             if top_image_width > 1 {
                 // If the top image is empty, these controlls are disabled
                 // This is to check if it's needed to turn them on again
-                self.enable_disable_top_control(true);
+                self.slider_control_sensitivity(true);
             }
-            imp.save_button.set_sensitive(true);
-            imp.image_saved.replace(false);
+            self.image_save_sensitive(true);
             glib::spawn_future_local(glib::clone!(
                 #[weak(rename_to = win)]
                 self,
@@ -925,7 +935,7 @@ impl GtkTestWindow {
             // Create image of nothing
             let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
             (*top_image).replace(File::from_image(empty_image, 1, &folder_bottom_name));
-            self.enable_disable_top_control(false);
+            self.slider_control_sensitivity(false);
 
             if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
                 imp.stack.set_visible_child_name("stack_welcome_page");
@@ -933,15 +943,15 @@ impl GtkTestWindow {
         }
     }
 
-    fn enable_disable_top_control(&self, enable: bool) {
+    pub fn slider_control_sensitivity(&self, sensitive: bool) {
         let imp = self.imp();
-        imp.x_scale.set_sensitive(enable);
-        imp.y_scale.set_sensitive(enable);
-        imp.scale_row.set_sensitive(enable);
-        imp.threshold_scale.set_sensitive(enable);
-        imp.monochrome_color.set_sensitive(enable);
-        imp.monochrome_invert.set_sensitive(enable);
-        imp.monochrome_switch.set_sensitive(enable);
+        imp.x_scale.set_sensitive(sensitive);
+        imp.y_scale.set_sensitive(sensitive);
+        imp.scale_row.set_sensitive(sensitive);
+        imp.threshold_scale.set_sensitive(sensitive);
+        imp.monochrome_color.set_sensitive(sensitive);
+        imp.monochrome_invert.set_sensitive(sensitive);
+        imp.monochrome_switch.set_sensitive(sensitive);
     }
 
     pub async fn open_file_chooser(&self) -> Option<gio::File> {
@@ -973,7 +983,7 @@ impl GtkTestWindow {
             gtk::FileLauncher::new(Some(&imp.saved_file.lock().unwrap().clone().unwrap()));
         let win = self.native().and_downcast::<gtk::Window>();
         if let Err(e) = launcher.open_containing_folder_future(win.as_ref()).await {
-            error!("Could not open directory {}", e);
+            show_error_popup(&self, "", true, Some(Box::new(e)));
         };
     }
 
@@ -981,7 +991,7 @@ impl GtkTestWindow {
         let rgba_image = dynamic_image.to_rgba8();
         let (width, height) = rgba_image.dimensions();
         let pixels = rgba_image.into_raw(); // Get the raw pixel data
-                                            // Create Pixbuf from raw pixel data
+        // Create Pixbuf from raw pixel data
         let pixbuf = Pixbuf::from_bytes(
             &glib::Bytes::from(&pixels),
             gtk::gdk_pixbuf::Colorspace::Rgb,
@@ -994,6 +1004,7 @@ impl GtkTestWindow {
         gdk::Texture::for_pixbuf(&pixbuf)
     }
 
+    // TODO decouple UI components from these functions
     fn enable_monochrome_expand(&self) {
         let switch_state = self.imp().monochrome_switch.state();
         match switch_state {

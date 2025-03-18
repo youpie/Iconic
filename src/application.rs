@@ -22,6 +22,7 @@ use crate::config::{APP_ICON, VERSION};
 use crate::glib::WeakRef;
 use crate::settings::settings::PreferencesDialog;
 use crate::GtkTestWindow;
+use crate::RUNTIME;
 use adw::prelude::AdwDialogExt;
 use adw::subclass::prelude::*;
 use ashpd::desktop::open_uri::OpenFileRequest;
@@ -160,7 +161,9 @@ impl GtkTestApplication {
                 //let root = win.native().unwrap();
                 //let identifier = WindowIdentifier::from_native(&root).await;
                 let request = OpenFileRequest::default();
-                request.send_uri(&uri).await.unwrap();
+                RUNTIME.spawn(async move {
+                    request.send_uri(&uri).await.unwrap();
+                });
             }
         ));
     }
@@ -188,6 +191,28 @@ impl GtkTestApplication {
             .license_type(License::Gpl30)
             .copyright("© 2024 YoupDeGamerNL")
             .build();
+        about.add_credit_section(Some("Supporters of iconic"), &["Nido"]);
+        about.add_acknowledgement_section(
+            Some("Code inspiration from"),
+            &[
+                "Eyedropper https://github.com/FineFindus/eyedropper",
+                "Switcheroo https://gitlab.com/adhami3310/Switcheroo",
+                "Geopard https://github.com/ranfdev/Geopard",
+                "Obfuscate https://gitlab.gnome.org/World/obfuscate",
+                "Loupe https://gitlab.gnome.org/GNOME/loupe",
+            ],
+        );
+        about.add_acknowledgement_section(
+            Some("Icon inspiration from"),
+            &[
+                "Gnome text editor https://gitlab.gnome.org/GNOME/gnome-text-editor",
+                "Adwaita icons https://gitlab.gnome.org/GNOME/adwaita-icon-theme",
+            ],
+        );
+        about.add_acknowledgement_section(
+            Some("Folder credits"),
+            &["Adwaita-Colors https://github.com/dpejoh/Adwaita-colors/tree/main"],
+        );
         about.present(Some(&window));
     }
 }
