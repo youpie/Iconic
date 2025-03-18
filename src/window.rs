@@ -233,8 +233,8 @@ mod imp {
                     win,
                     async move {
                         let imp = win.imp();
-                        let previous_stack = imp.stack.visible_child_name().unwrap();
-                        debug!("previous stack {}", previous_stack);
+                        //let previous_stack = imp.stack.visible_child_name().unwrap();
+                        //debug!("previous stack {}", previous_stack);
                         //imp.stack.set_visible_child_name("regenerating_page");
                         match win.regenerate_icons(true).await {
                             Ok(_) => (),
@@ -246,7 +246,7 @@ mod imp {
                         imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
                             "Regeneration sucessful, restart nautilus",
                         )));
-                        imp.stack.set_visible_child_name(&previous_stack);
+                        //imp.stack.set_visible_child_name(&previous_stack);
                         debug!("Done generating");
                     }
                 ));
@@ -941,7 +941,7 @@ impl GtkTestWindow {
         }
     }
 
-    fn user_control_visibilty(&self, visible: bool) {
+    pub fn user_control_visibilty(&self, visible: bool) {
         let imp = self.imp();
         imp.x_scale.set_sensitive(visible);
         imp.y_scale.set_sensitive(visible);

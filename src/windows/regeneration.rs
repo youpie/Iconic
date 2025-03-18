@@ -80,6 +80,9 @@ impl GtkTestWindow {
             self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
         imp.regeneration_revealer.set_reveal_child(true);
         imp.regeneration_osd.set_fraction(0.0);
+        let previous_control_visibility = imp.x_scale.is_visible();
+        self.user_control_visibilty(false);
+        imp.stack.set_visible_child_name("stack_main_page");
         let files_n = compatible_files.len();
         if files_n == 0 && delay {
             show_error_popup(
@@ -173,6 +176,7 @@ impl GtkTestWindow {
             // }
         }
         imp.regeneration_revealer.set_reveal_child(false);
+        self.user_control_visibilty(previous_control_visibility);
         self.default_sliders();
         self.reset_colors();
         Ok(())
@@ -271,7 +275,7 @@ impl GtkTestWindow {
             .widget(&imp.regeneration_osd.to_owned())
             .value_from(imp.regeneration_osd.fraction())
             .value_to(imp.regeneration_osd.fraction() + step_size)
-            .duration(500)
+            .duration(20)
             .easing(adw::Easing::EaseInOutCubic)
             .build()
             .play();
