@@ -73,7 +73,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         let current_set_accent_color = imp.settings.string("selected-accent-color");
         let folder_color_name = match current_set_accent_color.as_str() {
-            "None" => self.get_accent_color_and_dialog(),
+            "None" => self.get_accent_color_and_show_dialog(),
             x => x.to_string(),
         };
         let folder_path = PathBuf::from(format!(

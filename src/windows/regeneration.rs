@@ -105,7 +105,7 @@ impl GtkTestWindow {
             let file_properties = file_name.split("-");
             let properties_list: Vec<&str> = file_properties.into_iter().collect();
             info!("properties list: {:?}", properties_list);
-            let current_accent_color = self.get_accent_color_and_dialog();
+            let current_accent_color = self.get_accent_color_and_show_dialog();
             let bottom_image_path = PathBuf::from(format!(
                 "/app/share/folder_icon/folders/folder_{}.svg",
                 &current_accent_color
@@ -253,7 +253,7 @@ impl GtkTestWindow {
 
     fn current_accent_rgba(&self) -> GenResult<RGBA> {
         let imp = self.imp();
-        let accent_color = self.get_accent_color_and_dialog();
+        let accent_color = self.get_accent_color_and_show_dialog();
         Ok(imp
             .default_color
             .borrow()

@@ -97,7 +97,7 @@ impl GtkTestWindow {
         }
     }
 
-    pub fn get_accent_color_and_dialog(&self) -> String {
+    pub fn get_accent_color_and_show_dialog(&self) -> String {
         let imp = self.imp();
         let accent_color = format!("{:?}", adw::StyleManager::default().accent_color());
         if !imp.settings.boolean("accent-color-popup-shown")

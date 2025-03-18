@@ -449,7 +449,7 @@ impl GtkTestWindow {
         self.check_regeneration_needed();
         let _ = imp.settings.set_string(
             "previous-system-accent-color",
-            &self.get_accent_color_and_dialog(),
+            &self.get_accent_color_and_show_dialog(),
         );
         imp.stack.set_visible_child_name("stack_welcome_page");
         self.setup_settings();
@@ -617,7 +617,7 @@ impl GtkTestWindow {
                 }
                 let _ = win.imp().settings.set_string(
                     "previous-system-accent-color",
-                    &win.get_accent_color_and_dialog(),
+                    &win.get_accent_color_and_show_dialog(),
                 );
             }
         ));
@@ -742,7 +742,7 @@ impl GtkTestWindow {
     fn check_regeneration_needed(&self) -> bool {
         let imp = self.imp();
         let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
-        let current_accent = self.get_accent_color_and_dialog();
+        let current_accent = self.get_accent_color_and_show_dialog();
         // error!("previous {previous_accent} current {current_accent}");
         if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
             glib::spawn_future_local(glib::clone!(
@@ -778,7 +778,7 @@ impl GtkTestWindow {
         let selected_accent_color = imp.settings.string("selected-accent-color");
         let mut custom_rgb = RGBA::new(0.0, 0.0, 0.0, 0.0);
         if selected_accent_color == "None" {
-            accent_color = self.get_accent_color_and_dialog();
+            accent_color = self.get_accent_color_and_show_dialog();
         } else if imp.settings.boolean("manual-bottom-image-selection") {
             accent_color = "Blue".to_string();
         } else if selected_accent_color == "Custom" {
