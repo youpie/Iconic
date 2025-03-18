@@ -33,3 +33,22 @@ pub fn show_error_popup(
         false => Some(dialog),
     }
 }
+
+#[derive(Debug, thiserror::Error)]
+enum OptionError {
+    #[error("Unwrapped on a None value. (optional)reason: {0:?}")]
+    NoneUnwrap(Option<&'static str>),
+}
+
+trait IntoResult<T> {
+    fn into_result(self) -> Result<T, OptionError>;
+}
+
+impl<T> IntoResult<T> for Option<T> {
+    fn into_result(self) -> Result<T, OptionError> {
+        match self {
+            Some(value) => Ok(value),
+            None => Err(OptionError::NoneUnwrap(None)),
+        }
+    }
+}
