@@ -233,7 +233,7 @@ mod imp {
                         match win.regenerate_icons(true).await {
                             Ok(_) => (),
                             Err(x) => {
-                                show_error_popup(&win, &format!("{}", x), true, None);
+                                show_error_popup(&win, "", true, Some(x));
                             }
                         };
 
@@ -452,9 +452,9 @@ impl GtkTestWindow {
     }
 
     pub fn to_rgba(r: u8, g: u8, b: u8) -> gdk::RGBA {
-        let r_float = (1.0 as f64 / 255.0 as f64 * r as f64) as f32;
-        let g_float = (1.0 as f64 / 255.0 as f64 * g as f64) as f32;
-        let b_float = (1.0 as f64 / 255.0 as f64 * b as f64) as f32;
+        let r_float = (1.0 / 255.0 * r as f64) as f32;
+        let g_float = (1.0 / 255.0 * g as f64) as f32;
+        let b_float = (1.0 / 255.0 * b as f64) as f32;
         gdk::RGBA::new(r_float, g_float, b_float, 1.0)
     }
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
@@ -975,7 +975,7 @@ impl GtkTestWindow {
             gtk::FileLauncher::new(Some(&imp.saved_file.lock().unwrap().clone().unwrap()));
         let win = self.native().and_downcast::<gtk::Window>();
         if let Err(e) = launcher.open_containing_folder_future(win.as_ref()).await {
-            error!("Could not open directory {}", e);
+            show_error_popup(&self, "", true, Some(Box::new(e)));
         };
     }
 

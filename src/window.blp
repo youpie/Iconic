@@ -193,183 +193,197 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             }
           }
 
-          content: Adw.Clamp image_preferences {
-            width-request: 300;
+          content: Overlay {
+            [overlay]
+            ProgressBar {
+              fraction: 0.5;
+              visible: true;
+              halign: fill;
+              hexpand: true;
 
-            Adw.PreferencesPage {
-              Adw.PreferencesGroup {
-                Box {
-                  orientation: horizontal;
+              styles [
+                "osd"
+              ]
+            }
 
-                  Scale y_scale {
-                    has-origin: false;
-                    orientation: vertical;
+            child: Adw.Clamp image_preferences {
+              width-request: 300;
 
-                    adjustment: Adjustment percentage2 {
-                      lower: -50;
-                      upper: 50;
-                      step-increment: 1;
-                    };
-
-                    vexpand: true;
-                    digits: 0;
-                    // draw-value: true;
-                    // value-pos: left;
-                  }
-
+              Adw.PreferencesPage {
+                Adw.PreferencesGroup {
                   Box {
-                    orientation: vertical;
+                    orientation: horizontal;
 
-                    Overlay {
-                      Box {
-                        Picture image_view {
-                          valign: center;
-                          halign: center;
-                          width-request: 150;
-                          height-request: 150;
-                          content-fit: scale_down;
-                          hexpand: true;
-                          vexpand: true;
-                        }
-
-                        PopoverMenu popover_menu {
-                          menu-model: image_menu;
-                          has-arrow: false;
-                          halign: start;
-                        }
-
-                        GestureClick gesture_click {
-                          button: 3;
-                        }
-                      }
-
-                      [overlay]
-                      Adw.Spinner image_loading_spinner {
-                        valign: center;
-                        halign: center;
-                        width-request: 50;
-                        height-request: 50;
-                        visible: false;
-                      }
-                    }
-
-                    Scale x_scale {
+                    Scale y_scale {
                       has-origin: false;
-                      orientation: horizontal;
+                      orientation: vertical;
 
-                      adjustment: Adjustment percentage {
+                      adjustment: Adjustment percentage2 {
                         lower: -50;
                         upper: 50;
                         step-increment: 1;
                       };
 
-                      hexpand: true;
-                      // vexpand: true;
+                      vexpand: true;
                       digits: 0;
                       // draw-value: true;
-                      // value-pos: top;
+                      // value-pos: left;
                     }
-                  }
-
-                  styles [
-                    "card",
-                  ]
-                }
-              }
-
-              Adw.PreferencesGroup {
-                Adw.ActionRow scale_row {
-                  title: "Scale";
-
-                  Scale size {
-                    has-origin: true;
-                    orientation: horizontal;
-
-                    adjustment: Adjustment percentage3 {
-                      lower: 0;
-                      upper: 50;
-                      step-increment: 1;
-                    };
-
-                    hexpand: true;
-                    vexpand: true;
-                    digits: 1;
-                  }
-                }
-              }
-
-              Adw.PreferencesGroup {
-                Adw.ExpanderRow monochrome_action_row {
-                  title: _("Toggle Monochrome");
-
-                  [suffix]
-                  Switch monochrome_switch {
-                    valign: center;
-                    action-name: "app.monochrome_switch";
-                    active: true;
-                  }
-
-                  Adw.SwitchRow monochrome_invert {
-                    title: _("Invert");
-                  }
-
-                  Adw.ActionRow {
-                    title: _("Color");
-                    activatable-widget: monochrome_color;
 
                     Box {
-                      valign: center;
+                      orientation: vertical;
 
-                      Button reset_color {
-                        halign: start;
-                        visible: false;
+                      Overlay {
+                        Box {
+                          Picture image_view {
+                            valign: center;
+                            halign: center;
+                            width-request: 150;
+                            height-request: 150;
+                            content-fit: scale_down;
+                            hexpand: true;
+                            vexpand: true;
+                          }
 
-                        Adw.ButtonContent top_icon_content {
-                          icon-name: "edit-undo-symbolic";
+                          PopoverMenu popover_menu {
+                            menu-model: image_menu;
+                            has-arrow: false;
+                            halign: start;
+                          }
+
+                          GestureClick gesture_click {
+                            button: 3;
+                          }
                         }
 
-                        action-name: "app.reset_color";
-
-                        styles [
-                          "flat",
-                        ]
+                        [overlay]
+                        Adw.Spinner image_loading_spinner {
+                          valign: center;
+                          halign: center;
+                          width-request: 50;
+                          height-request: 50;
+                          visible: false;
+                        }
                       }
 
-                      ColorDialogButton monochrome_color {
-                        halign: end;
-                        margin-start: 5;
-                        rgba: "#438DE6FF";
+                      Scale x_scale {
+                        has-origin: false;
+                        orientation: horizontal;
 
-                        dialog: ColorDialog {
-                          with-alpha: false;
+                        adjustment: Adjustment percentage {
+                          lower: -50;
+                          upper: 50;
+                          step-increment: 1;
                         };
+
+                        hexpand: true;
+                        // vexpand: true;
+                        digits: 0;
+                        // draw-value: true;
+                        // value-pos: top;
                       }
                     }
+
+                    styles [
+                      "card",
+                    ]
                   }
+                }
 
-                  Adw.ActionRow {
-                    title: _("Threshold");
+                Adw.PreferencesGroup {
+                  Adw.ActionRow scale_row {
+                    title: "Scale";
 
-                    Scale threshold_scale {
+                    Scale size {
                       has-origin: true;
                       orientation: horizontal;
 
-                      adjustment: Adjustment threshold_value {
+                      adjustment: Adjustment percentage3 {
                         lower: 0;
-                        upper: 255;
+                        upper: 50;
                         step-increment: 1;
                       };
 
                       hexpand: true;
                       vexpand: true;
-                      digits: 0;
-                      draw-value: true;
-                      value-pos: left;
+                      digits: 1;
+                    }
+                  }
+                }
+
+                Adw.PreferencesGroup {
+                  Adw.ExpanderRow monochrome_action_row {
+                    title: _("Toggle Monochrome");
+
+                    [suffix]
+                    Switch monochrome_switch {
+                      valign: center;
+                      action-name: "app.monochrome_switch";
+                      active: true;
+                    }
+
+                    Adw.SwitchRow monochrome_invert {
+                      title: _("Invert");
+                    }
+
+                    Adw.ActionRow {
+                      title: _("Color");
+                      activatable-widget: monochrome_color;
+
+                      Box {
+                        valign: center;
+
+                        Button reset_color {
+                          halign: start;
+                          visible: false;
+
+                          Adw.ButtonContent top_icon_content {
+                            icon-name: "edit-undo-symbolic";
+                          }
+
+                          action-name: "app.reset_color";
+
+                          styles [
+                            "flat",
+                          ]
+                        }
+
+                        ColorDialogButton monochrome_color {
+                          halign: end;
+                          margin-start: 5;
+                          rgba: "#438DE6FF";
+
+                          dialog: ColorDialog {
+                            with-alpha: false;
+                          };
+                        }
+                      }
+                    }
+
+                    Adw.ActionRow {
+                      title: _("Threshold");
+
+                      Scale threshold_scale {
+                        has-origin: true;
+                        orientation: horizontal;
+
+                        adjustment: Adjustment threshold_value {
+                          lower: 0;
+                          upper: 255;
+                          step-increment: 1;
+                        };
+
+                        hexpand: true;
+                        vexpand: true;
+                        digits: 0;
+                        draw-value: true;
+                        value-pos: left;
+                      }
                     }
                   }
                 }
               }
-            }
+            };
           };
         };
       }
