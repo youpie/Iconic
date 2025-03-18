@@ -20,7 +20,7 @@
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 use crate::glib::clone;
-use crate::objects::errors::show_error_popup;
+use crate::objects::errors::{show_error_popup, IntoResult};
 use crate::objects::file::File;
 use crate::settings::settings::PreferencesDialog;
 use adw::prelude::AlertDialogExtManual;
@@ -909,7 +909,7 @@ impl GtkTestWindow {
             if top_image_width > 1 {
                 // If the top image is empty, these controlls are disabled
                 // This is to check if it's needed to turn them on again
-                self.enable_disable_top_control(true);
+                self.user_control_visibilty(true);
             }
             imp.save_button.set_sensitive(true);
             imp.image_saved.replace(false);
@@ -927,7 +927,7 @@ impl GtkTestWindow {
             // Create image of nothing
             let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
             (*top_image).replace(File::from_image(empty_image, 1, &folder_bottom_name));
-            self.enable_disable_top_control(false);
+            self.user_control_visibilty(false);
 
             if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
                 imp.stack.set_visible_child_name("stack_welcome_page");
@@ -935,15 +935,15 @@ impl GtkTestWindow {
         }
     }
 
-    fn enable_disable_top_control(&self, enable: bool) {
+    fn user_control_visibilty(&self, visible: bool) {
         let imp = self.imp();
-        imp.x_scale.set_sensitive(enable);
-        imp.y_scale.set_sensitive(enable);
-        imp.scale_row.set_sensitive(enable);
-        imp.threshold_scale.set_sensitive(enable);
-        imp.monochrome_color.set_sensitive(enable);
-        imp.monochrome_invert.set_sensitive(enable);
-        imp.monochrome_switch.set_sensitive(enable);
+        imp.x_scale.set_sensitive(visible);
+        imp.y_scale.set_sensitive(visible);
+        imp.scale_row.set_sensitive(visible);
+        imp.threshold_scale.set_sensitive(visible);
+        imp.monochrome_color.set_sensitive(visible);
+        imp.monochrome_invert.set_sensitive(visible);
+        imp.monochrome_switch.set_sensitive(visible);
     }
 
     pub async fn open_file_chooser(&self) -> Option<gio::File> {

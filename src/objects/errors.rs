@@ -41,12 +41,12 @@ enum OptionError {
 }
 
 impl OptionError {
-    fn new(reason: &'static str) -> Self {
+    pub fn new(reason: &'static str) -> Self {
         Self::NoneUnwrap(Some(reason))
     }
 }
 
-trait IntoResult<T> {
+pub trait IntoResult<T> {
     fn into_result(self) -> Result<T, Box<dyn Error>>;
     fn into_reason_result(self, reason: &'static str) -> Result<T, Box<dyn Error>>;
 }

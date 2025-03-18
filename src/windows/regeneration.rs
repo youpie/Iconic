@@ -1,3 +1,4 @@
+use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
 use crate::{objects::errors::show_error_popup, GtkTestWindow, RUNTIME};
 
@@ -101,7 +102,7 @@ impl GtkTestWindow {
             self.progress_animation(step_size);
             let file_name = file.file_name();
             let file_path = file.path();
-            let file_name = file_name.to_str().unwrap().to_string();
+            let file_name = file_name.to_str().into_result()?.to_string();
             let file_properties = file_name.split("-");
             let properties_list: Vec<&str> = file_properties.into_iter().collect();
             info!("properties list: {:?}", properties_list);
@@ -110,7 +111,7 @@ impl GtkTestWindow {
                 "/app/share/folder_icon/folders/folder_{}.svg",
                 &current_accent_color
             ));
-            let hash = properties_list[12].split(".").nth(0).unwrap();
+            let hash = properties_list[12].split(".").nth(0).into_result()?;
             let mut top_image_path = self.get_cache_path().join("top_images");
             top_image_path.push(hash);
             info!("Loading top image file");
@@ -121,7 +122,8 @@ impl GtkTestWindow {
                 .await??
                 .dynamic_image;
             self.set_properties(properties_list.clone())?;
-            let top_image = self.create_top_image_for_generation(properties_list, top_image_file);
+            let top_image =
+                self.create_top_image_for_generation(properties_list, top_image_file)?;
             info!(
                 "Creating top icon succesful, now creating bottom icon {:?}",
                 bottom_image_path
@@ -138,8 +140,7 @@ impl GtkTestWindow {
                     .spawn_blocking(move || {
                         std::thread::sleep(Duration::from_millis(200));
                     })
-                    .await
-                    .unwrap();
+                    .await?;
             }
             info!("Generating image");
             let generated_image = self
@@ -158,8 +159,7 @@ impl GtkTestWindow {
                 .spawn_blocking(move || {
                     generated_image.save_with_format(file_path, ImageFormat::Png)
                 })
-                .await
-                .unwrap()
+                .await?
             {
                 Ok(_) => info!("Saving Succesful"),
                 Err(x) => error!("Saving failed: {:?}", x),
@@ -170,8 +170,7 @@ impl GtkTestWindow {
                     .spawn_blocking(move || {
                         std::thread::sleep(Duration::from_millis(400));
                     })
-                    .await
-                    .unwrap(); //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
+                    .await?; //I worked really hard on my animation but the app is too fast in production. But it is my own app and I can do what I want
             }
         }
         self.default_sliders();
@@ -185,13 +184,13 @@ impl GtkTestWindow {
         incompatible_files: &mut u32,
     ) -> GenResult<Vec<fs::DirEntry>> {
         let mut regeneratable: Vec<fs::DirEntry> = vec![];
-        let files: fs::ReadDir = fs::read_dir(&dir).unwrap();
+        let files: fs::ReadDir = fs::read_dir(&dir)?;
         for file in files {
             *incompatible_files += 1;
             let current_file = file?;
             let file_name = current_file.file_name();
             debug!("File found: {:?}", file_name);
-            let file_name_str = file_name.to_str().unwrap().to_string();
+            let file_name_str = file_name.to_str().into_result()?.to_string();
             let mut file_properties = file_name_str.split("-");
             // imp.regeneration_progress
             //     .set_fraction(imp.regeneration_progress.fraction() + step_size);
@@ -200,11 +199,11 @@ impl GtkTestWindow {
                 continue;
             }
             let properties_list: Vec<&str> = file_properties.into_iter().collect();
-            if !(properties_list[0].parse::<usize>().unwrap() != 0) {
+            if !(properties_list[0].parse::<usize>()? != 0) {
                 warn!("Non-default image, not converting");
                 continue;
             }
-            let hash = properties_list[11].split(".").nth(0).unwrap();
+            let hash = properties_list[11].split(".").nth(0).into_result()?;
             let mut top_image_path = self.get_cache_path().join("top_images");
             top_image_path.push(hash);
 
@@ -226,7 +225,7 @@ impl GtkTestWindow {
         imp.monochrome_switch
             .set_active(properties[5].parse::<usize>()? != 0);
         imp.threshold_scale.set_value(properties[6].parse()?);
-        imp.monochrome_color.set_rgba(&self.current_accent_rgba());
+        imp.monochrome_color.set_rgba(&self.current_accent_rgba()?);
         imp.monochrome_invert
             .set_active(properties[10].parse::<usize>()? != 0);
         Ok(())
@@ -236,30 +235,31 @@ impl GtkTestWindow {
         &self,
         properties: Vec<&str>,
         top_image: DynamicImage,
-    ) -> DynamicImage {
+    ) -> GenResult<DynamicImage> {
         let color = match properties[10] {
             "false" => RGBA::new(
-                properties[7].parse().unwrap(),
-                properties[8].parse().unwrap(),
-                properties[9].parse().unwrap(),
+                properties[7].parse()?,
+                properties[8].parse()?,
+                properties[9].parse()?,
                 1.0,
             ),
-            _ => self.current_accent_rgba(),
+            _ => self.current_accent_rgba()?,
         };
         match properties[5] {
-            "1" => self.to_monochrome(top_image, properties[6].parse().unwrap(), color),
-            _ => top_image,
+            "1" => Ok(self.to_monochrome(top_image, properties[6].parse()?, color)),
+            _ => Ok(top_image),
         }
     }
 
-    fn current_accent_rgba(&self) -> RGBA {
+    fn current_accent_rgba(&self) -> GenResult<RGBA> {
         let imp = self.imp();
         let accent_color = self.get_accent_color_and_dialog();
-        imp.default_color
+        Ok(imp
+            .default_color
             .borrow()
             .get(&accent_color)
-            .unwrap()
-            .clone()
+            .into_result()?
+            .clone())
     }
 
     fn progress_animation(&self, step_size: f64) {
