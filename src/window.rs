@@ -445,7 +445,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         imp.save_button.set_sensitive(false);
         self.default_sliders();
-        self.user_control_visibilty(false);
+
         imp.reset_color.set_visible(false);
         self.check_regeneration_needed();
         let _ = imp.settings.set_string(
@@ -456,6 +456,7 @@ impl GtkTestWindow {
         self.setup_settings();
         self.setup_update();
         self.load_folder_path_from_settings();
+        self.slider_control_sensitivity(false);
     }
 
     pub fn to_rgba(r: u8, g: u8, b: u8) -> gdk::RGBA {
@@ -914,10 +915,10 @@ impl GtkTestWindow {
         if (*top_image).is_some() && (*bottom_image).is_some() {
             let top_image_width = top_image.as_ref().unwrap().dynamic_image.width();
             if top_image_width > 1 {
-                debug!("activated silders");
+                show_error_popup(&self, "SLIDERS GOT ACTIVATED", true, None);
                 // If the top image is empty, these controlls are disabled
                 // This is to check if it's needed to turn them on again
-                self.user_control_visibilty(true);
+                self.slider_control_sensitivity(true);
             }
             imp.save_button.set_sensitive(true);
             imp.image_saved.replace(false);
@@ -935,7 +936,7 @@ impl GtkTestWindow {
             // Create image of nothing
             let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
             (*top_image).replace(File::from_image(empty_image, 1, &folder_bottom_name));
-            self.user_control_visibilty(false);
+            self.slider_control_sensitivity(false);
 
             if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
                 imp.stack.set_visible_child_name("stack_welcome_page");
@@ -943,15 +944,15 @@ impl GtkTestWindow {
         }
     }
 
-    pub fn user_control_visibilty(&self, visible: bool) {
+    pub fn slider_control_sensitivity(&self, sensitive: bool) {
         let imp = self.imp();
-        imp.x_scale.set_sensitive(visible);
-        imp.y_scale.set_sensitive(visible);
-        imp.scale_row.set_sensitive(visible);
-        imp.threshold_scale.set_sensitive(visible);
-        imp.monochrome_color.set_sensitive(visible);
-        imp.monochrome_invert.set_sensitive(visible);
-        imp.monochrome_switch.set_sensitive(visible);
+        imp.x_scale.set_sensitive(sensitive);
+        imp.y_scale.set_sensitive(sensitive);
+        imp.scale_row.set_sensitive(sensitive);
+        imp.threshold_scale.set_sensitive(sensitive);
+        imp.monochrome_color.set_sensitive(sensitive);
+        imp.monochrome_invert.set_sensitive(sensitive);
+        imp.monochrome_switch.set_sensitive(sensitive);
     }
 
     pub async fn open_file_chooser(&self) -> Option<gio::File> {

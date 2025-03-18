@@ -2,13 +2,14 @@ use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
 use crate::{objects::errors::show_error_popup, GtkTestWindow, RUNTIME};
 
+use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gtk::gdk::RGBA;
 use gtk::gio;
 use image::*;
 use log::*;
-use std::fs;
+use std::fs::{self, DirEntry};
 use std::path::PathBuf;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -79,9 +80,10 @@ impl GtkTestWindow {
             self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
         imp.regeneration_revealer.set_reveal_child(true);
         imp.regeneration_osd.set_fraction(0.0);
-        let previous_control_visibility = imp.x_scale.is_visible();
-        self.user_control_visibilty(false);
+        let previous_control_sensitivity = imp.x_scale.is_sensitive();
+        self.slider_control_sensitivity(false);
         let files_n = compatible_files.len();
+        let mut last_animation = None;
         if files_n == 0 && delay {
             show_error_popup(
                 &self,
@@ -96,70 +98,91 @@ impl GtkTestWindow {
             );
         }
         let step_size = 1.0 / files_n as f64;
+        let mut regeneration_errors = vec![];
         for file in compatible_files {
-            info!("Loading new file");
-
-            self.progress_animation(step_size);
-            let file_name = file.file_name();
-            let file_path = file.path();
-            let file_name = file_name.to_str().into_result()?.to_string();
-            let file_properties = file_name.split("-");
-            let properties_list: Vec<&str> = file_properties.into_iter().collect();
-            info!("properties list: {:?}", properties_list);
-            let current_accent_color = self.get_accent_color_and_show_dialog();
-            let bottom_image_path = PathBuf::from(format!(
-                "/app/share/folder_icon/folders/folder_{}.svg",
-                &current_accent_color
-            ));
-            let hash = properties_list[12].split(".").nth(0).into_result()?;
-            let mut top_image_path = self.get_cache_path().join("top_images");
-            top_image_path.push(hash);
-            info!("Loading top image file");
-            let top_image_file = RUNTIME
-                .spawn_blocking(move || {
-                    File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
-                })
-                .await??
-                .dynamic_image;
-            let slider_values = self.set_properties(properties_list.clone())?;
-            let top_image =
-                self.create_top_image_for_generation(properties_list, top_image_file)?;
-            info!(
-                "Creating top icon succesful, now creating bottom icon {:?}",
-                bottom_image_path
+            let path = &file.path();
+            match self.regenerate_and_save_icon(file).await {
+                Ok(_) => (),
+                Err(error) => {
+                    error!("Error while generating {:?}: {}", path, &error.to_string());
+                    regeneration_errors.push(error)
+                }
+            }
+            last_animation = Some(self.progress_animation(step_size, last_animation));
+        }
+        if !regeneration_errors.is_empty() {
+            show_error_popup(
+                &self,
+                &format!(
+                    "{} {}",
+                    regeneration_errors.len(),
+                    &gettext("file(s) failed to regenerate\nview logs for more information")
+                ),
+                true,
+                None,
             );
-            let bottom_image_file = RUNTIME
-                .spawn_blocking(move || {
-                    File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
-                })
-                .await??
-                .dynamic_image;
-            info!("Generating image");
-            let generated_image = self
-                .generate_image(
-                    bottom_image_file,
-                    top_image,
-                    imageops::FilterType::Gaussian,
-                    slider_values.0,
-                    slider_values.1,
-                    slider_values.2,
-                )
-                .await;
-            info!("Saving image");
-            match RUNTIME
-                .spawn_blocking(move || {
-                    generated_image.save_with_format(file_path, ImageFormat::Png)
-                })
-                .await?
-            {
-                Ok(_) => info!("Saving Succesful"),
-                Err(x) => error!("Saving failed: {:?}", x),
-            };
         }
         imp.regeneration_revealer.set_reveal_child(false);
-        self.user_control_visibilty(previous_control_visibility);
+        self.slider_control_sensitivity(previous_control_sensitivity);
         self.default_sliders();
         self.reset_colors();
+        Ok(())
+    }
+
+    async fn regenerate_and_save_icon(&self, file: DirEntry) -> GenResult<()> {
+        info!("Loading new file");
+        let file_name = file.file_name();
+        let file_path = file.path();
+        let file_name = file_name.to_str().into_result()?.to_string();
+        let file_properties = file_name.split("-");
+        let properties_list: Vec<&str> = file_properties.into_iter().collect();
+        info!("properties list: {:?}", properties_list);
+        let current_accent_color = self.get_accent_color_and_show_dialog();
+        let bottom_image_path = PathBuf::from(format!(
+            "/app/share/folder_icon/folders/folder_{}.svg",
+            &current_accent_color
+        ));
+        let hash = properties_list[12].split(".").nth(0).into_result()?;
+        let mut top_image_path = self.get_cache_path().join("top_images");
+        top_image_path.push(hash);
+        info!("Loading top image file");
+        let top_image_file = RUNTIME
+            .spawn_blocking(move || {
+                File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
+            })
+            .await??
+            .dynamic_image;
+        let slider_values = self.set_properties(properties_list.clone())?;
+        let top_image = self.create_top_image_for_generation(properties_list, top_image_file)?;
+        info!(
+            "Creating top icon succesful, now creating bottom icon {:?}",
+            bottom_image_path
+        );
+        let bottom_image_file = RUNTIME
+            .spawn_blocking(move || {
+                File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
+            })
+            .await??
+            .dynamic_image;
+        info!("Generating image");
+        let generated_image = self
+            .generate_image(
+                bottom_image_file,
+                top_image,
+                imageops::FilterType::Gaussian,
+                slider_values.0,
+                slider_values.1,
+                slider_values.2,
+            )
+            .await;
+        info!("Saving image");
+        match RUNTIME
+            .spawn_blocking(move || generated_image.save_with_format(file_path, ImageFormat::Png))
+            .await?
+        {
+            Ok(_) => info!("Saving Succesful"),
+            Err(x) => error!("Saving failed: {:?}", x),
+        };
         Ok(())
     }
 
@@ -247,18 +270,28 @@ impl GtkTestWindow {
             .clone())
     }
 
-    fn progress_animation(&self, step_size: f64) {
+    fn progress_animation(
+        &self,
+        step_size: f64,
+        previous_animation: Option<TimedAnimation>,
+    ) -> TimedAnimation {
         let imp = self.imp();
+
         let target =
             adw::PropertyAnimationTarget::new(&imp.regeneration_osd.to_owned(), "fraction");
-        adw::TimedAnimation::builder()
+        let _ = previous_animation.is_some_and(|animation| {
+            animation.skip();
+            false
+        });
+        let animation = adw::TimedAnimation::builder()
             .target(&target)
             .widget(&imp.regeneration_osd.to_owned())
             .value_from(imp.regeneration_osd.fraction())
             .value_to(imp.regeneration_osd.fraction() + step_size)
-            .duration(20)
+            .duration(50)
             .easing(adw::Easing::EaseInOutCubic)
-            .build()
-            .play();
+            .build();
+        animation.play();
+        animation
     }
 }
