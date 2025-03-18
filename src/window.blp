@@ -51,14 +51,21 @@ template $GtkTestWindow: Adw.ApplicationWindow {
 
             Overlay {
               [overlay]
-              Adw.Spinner {
-                visible: bind regeneration_revealer.reveal-child;
-                tooltip-text: "Regenerating...";
-                margin-top: 100;
-                valign: start;
+              Revealer {
+                reveal-child: bind regeneration_revealer.reveal-child;
+                transition-duration: 500;
+                transition-type: crossfade;
+                valign: center;
                 halign: center;
-                width-request: 150;
-                height-request: 150;
+
+                Adw.Spinner {
+                  tooltip-text: "Regenerating...";
+                  margin-top: 100;
+                  valign: start;
+                  halign: center;
+                  width-request: 150;
+                  height-request: 150;
+                }
               }
 
               child: Adw.StatusPage main_status_page {
@@ -136,9 +143,17 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             Box {
               spacing: 10;
 
-              Adw.Spinner {
-                visible: bind regeneration_revealer.reveal-child;
-                tooltip-text: _("Regenerating icons...");
+              Revealer {
+                reveal-child: bind regeneration_revealer.reveal-child;
+                transition-duration: 250;
+                transition-type: crossfade;
+                valign: center;
+                halign: center;
+
+                Adw.Spinner {
+                  // visible: bind regeneration_revealer.reveal-child;
+                  tooltip-text: _("Regenerating icons...");
+                }
               }
 
               MenuButton {
