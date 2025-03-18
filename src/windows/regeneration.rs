@@ -1,5 +1,5 @@
 use crate::objects::file::File;
-use crate::{GtkTestWindow, RUNTIME};
+use crate::{objects::errors::show_error_popup, GtkTestWindow, RUNTIME};
 
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -80,7 +80,8 @@ impl GtkTestWindow {
         imp.regeneration_progress.set_fraction(0.0);
         let files_n = compatible_files.len();
         if files_n == 0 && delay {
-            self.show_error_popup(
+            show_error_popup(
+                &self,
                 &format!(
                     "{}{}{}",
                     gettext("All "),

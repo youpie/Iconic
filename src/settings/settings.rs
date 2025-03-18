@@ -1,6 +1,6 @@
 use crate::config::{APP_ID, PROFILE};
 use crate::glib::clone;
-use crate::Results;
+use crate::GenResult;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
 use adw::prelude::ComboRowExt;
@@ -407,14 +407,14 @@ impl PreferencesDialog {
         ));
     }
 
-    fn set_path(&self, path: &str) -> Results<()> {
+    fn set_path(&self, path: &str) -> GenResult<()> {
         self.copy_folder_image_to_cache(path::PathBuf::from(path))?;
         self.imp().settings.set("folder-svg-path", path)?;
         self.set_path_title();
         Ok(())
     }
 
-    fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) -> Results<()> {
+    fn copy_folder_image_to_cache(&self, original_path: path::PathBuf) -> GenResult<()> {
         let cache_dir = self.get_cache_path();
         let file_name = format!(
             "folder.{}",
@@ -428,7 +428,7 @@ impl PreferencesDialog {
         Ok(())
     }
 
-    fn can_error<T>(&self, result: Results<T>) {
+    fn can_error<T>(&self, result: GenResult<T>) {
         let _ = result.map_err(|e| {
             const RESPONSE_OK: &str = "OK";
             let dialog = adw::AlertDialog::builder()
@@ -470,7 +470,7 @@ impl PreferencesDialog {
     }
 
     // This might turn out bad, but iconic does not have file persmission so it is probably fine :D
-    fn remove_cache_folder(&self) -> Results<()> {
+    fn remove_cache_folder(&self) -> GenResult<()> {
         let mut path = self.get_cache_path();
         path.push("top_images");
         fs::remove_dir_all(&path)?;

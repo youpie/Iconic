@@ -1,3 +1,4 @@
+use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -111,7 +112,7 @@ impl GtkTestWindow {
                                 .unwrap();
                             match self.store_top_image_in_cache(&iconic_file, None) {
                                 Err(x) => {
-                                    self.show_error_popup(&x.to_string(), true, None);
+                                    show_error_popup(&self, &x.to_string(), true, None);
                                 }
                                 _ => (),
                             };
@@ -198,7 +199,7 @@ impl GtkTestWindow {
             match file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE) {
                 Ok(x) => x,
                 Err(e) => {
-                    self.show_error_popup(&e.to_string(), true, Some(Box::new(e)));
+                    show_error_popup(&self, &e.to_string(), true, Some(Box::new(e)));
                     return;
                 }
             };
@@ -243,7 +244,7 @@ impl GtkTestWindow {
                 };
             }
             _ => {
-                self.show_error_popup(&gettext("Unsupported file type"), true, None);
+                show_error_popup(&self, &gettext("Unsupported file type"), true, None);
             }
         }
 
@@ -424,14 +425,14 @@ impl GtkTestWindow {
             {
                 Ok(x) => x,
                 Err(e) => {
-                    self.show_error_popup(&e.to_string(), true, None);
+                    show_error_popup(&self, &e.to_string(), true, None);
                     return None;
                 }
             };
             if change_top_icon {
                 match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
                     Err(x) => {
-                        self.show_error_popup("", true, Some(x));
+                        show_error_popup(&self, "", true, Some(x));
                     }
                     _ => (),
                 };
@@ -450,21 +451,22 @@ impl GtkTestWindow {
             {
                 Ok(x) => x,
                 Err(e) => {
-                    self.show_error_popup(&e.to_string(), true, None);
+                    show_error_popup(&self, &e.to_string(), true, None);
                     return None;
                 }
             };
             if change_top_icon {
                 match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
                     Err(x) => {
-                        self.show_error_popup("", true, Some(x));
+                        show_error_popup(&self, "", true, Some(x));
                     }
                     _ => (),
                 };
             }
             Some(iconic_file)
         } else {
-            self.show_error_popup(
+            show_error_popup(
+                &self,
                 &gettext("No file or path found, this is probably not your fault."),
                 true,
                 None,

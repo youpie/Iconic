@@ -20,6 +20,7 @@
 
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 use crate::glib::clone;
+use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
 use crate::settings::settings::PreferencesDialog;
 use adw::prelude::AlertDialogExtManual;
@@ -232,7 +233,7 @@ mod imp {
                         match win.regenerate_icons(true).await {
                             Ok(_) => (),
                             Err(x) => {
-                                win.show_error_popup(&format!("{}", x), true, None);
+                                show_error_popup(&win, &format!("{}", x), true, None);
                             }
                         };
 
@@ -253,7 +254,7 @@ mod imp {
                         match win.open_save_file_dialog().await {
                             Ok(_) => (),
                             Err(error) => {
-                                win.show_error_popup(&error.to_string(), true, Some(error));
+                                show_error_popup(&win, &error.to_string(), true, Some(error));
                             }
                         };
                     }
@@ -811,13 +812,13 @@ impl GtkTestWindow {
                 .0;
         }
         info!("File not found AT ALL");
-        let dialog = self
-            .show_error_popup(
-                &gettext("The set folder icon could not be found, press ok to select a new one"),
-                false,
-                None,
-            )
-            .unwrap();
+        let dialog = show_error_popup(
+            &self,
+            &gettext("The set folder icon could not be found, press ok to select a new one"),
+            false,
+            None,
+        )
+        .unwrap();
         match &*dialog.clone().choose_future(self).await {
             "OK" => {
                 let new_path = match self.open_file_chooser().await {

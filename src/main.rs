@@ -17,7 +17,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-type Results<T> = std::result::Result<T, Box<dyn error::Error>>;
+pub type GenResult<T> = std::result::Result<T, Box<dyn error::Error>>;
 mod application;
 mod config;
 mod objects;
