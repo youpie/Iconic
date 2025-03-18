@@ -18,6 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+use crate::config::{APP_ICON, APP_ID, PROFILE};
 use crate::glib::clone;
 use crate::objects::file::File;
 use crate::settings::settings::PreferencesDialog;
@@ -37,8 +38,6 @@ use std::fs;
 use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-
-use crate::config::{APP_ICON, APP_ID, PROFILE};
 
 mod imp {
     use std::collections::HashMap;

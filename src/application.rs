@@ -22,6 +22,7 @@ use crate::config::{APP_ICON, VERSION};
 use crate::glib::WeakRef;
 use crate::settings::settings::PreferencesDialog;
 use crate::GtkTestWindow;
+use crate::RUNTIME;
 use adw::prelude::AdwDialogExt;
 use adw::subclass::prelude::*;
 use ashpd::desktop::open_uri::OpenFileRequest;
@@ -160,7 +161,9 @@ impl GtkTestApplication {
                 //let root = win.native().unwrap();
                 //let identifier = WindowIdentifier::from_native(&root).await;
                 let request = OpenFileRequest::default();
-                request.send_uri(&uri).await.unwrap();
+                RUNTIME.spawn(async move {
+                    request.send_uri(&uri).await.unwrap();
+                });
             }
         ));
     }

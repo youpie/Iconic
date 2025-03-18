@@ -49,9 +49,8 @@ impl GtkTestWindow {
                 fs::File::create(&file_path)?;
             }
         };
-        // SVG's are often very small in size, so if it is an SVG. Save that image. Otherwise store the dynamic image.
-        // I do not know how this code below works, but it does. So I am not touching it
-        // TODO implement async?
+        // The dynamic image is quite a lot bigger than the original file (often), so only if there is no original file (pasted images) use the dynam icimage
+        // TODO check if the dynamic image or original file bigger is
         let new_file = gio::File::for_path(&file_path);
         let filestream = new_file.open_readwrite(gio::Cancellable::NONE)?;
         let test = filestream.output_stream();
