@@ -169,15 +169,6 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
-            klass.install_action("app.generate_icon", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
-                    }
-                ));
-            });
             klass.install_action("app.open_top_icon", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
                     #[weak]
@@ -644,7 +635,6 @@ impl GtkTestWindow {
                     #[weak]
                     win,
                     async move {
-                        win.image_save_sensitive(true);
                         win.render_to_screen().await;
                     }
                 ));
@@ -659,7 +649,6 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -673,7 +662,6 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -687,7 +675,6 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -708,7 +695,6 @@ impl GtkTestWindow {
                         // TODO: I do not like this approach, but it works
                         if imp.stack.visible_child_name() == Some("stack_main_page".into()) {
                             win.render_to_screen().await;
-                            win.image_save_sensitive(true);
                         }
                     }
                 ));
@@ -723,14 +709,13 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.image_save_sensitive(true);
                     }
                 ));
             }
         ));
     }
 
-    fn image_save_sensitive(&self, sensitive: bool) {
+    pub fn image_save_sensitive(&self, sensitive: bool) {
         let imp = self.imp();
         if Arc::strong_count(&imp.regeneration_lock) > 1 {
             debug!("Skip settings save button");
@@ -893,6 +878,7 @@ impl GtkTestWindow {
     // This checks if the main page, or welcome screen needs to be shown. And adds ability to loads just a bottom file
     // TODO: This function is REALLY confusing and needs to be rewritten
     pub fn check_icon_update(&self) {
+        error!("Icon update");
         let imp = self.imp();
         let mut top_image = imp.top_image_file.lock().unwrap();
         let bottom_image = imp.bottom_image_file.lock().unwrap();
@@ -903,7 +889,6 @@ impl GtkTestWindow {
                 // This is to check if it's needed to turn them on again
                 self.slider_control_sensitivity(true);
             }
-            self.image_save_sensitive(true);
             glib::spawn_future_local(glib::clone!(
                 #[weak(rename_to = win)]
                 self,

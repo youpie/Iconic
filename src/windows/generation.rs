@@ -31,6 +31,7 @@ impl GtkTestWindow {
                 imp.monochrome_color.rgba(),
             );
         }
+        self.image_save_sensitive(true);
         let texture = self.dynamic_image_to_texture(
             &self
                 .generate_image(

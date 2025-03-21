@@ -247,8 +247,6 @@ impl GtkTestWindow {
                 show_error_popup(&self, &gettext("Unsupported file type"), true, None);
             }
         }
-
-        self.check_icon_update();
     }
 
     pub async fn open_save_file_dialog(&self) -> Result<bool, Box<dyn Error + '_>> {
@@ -297,8 +295,6 @@ impl GtkTestWindow {
                         return Ok(false);
                     }
                     _ => {
-                        imp.image_saved.replace(false);
-                        imp.save_button.set_sensitive(true);
                         return Err(Box::new(file_chooser_error));
                     }
                 };
@@ -332,6 +328,7 @@ impl GtkTestWindow {
 
     pub async fn save_file(&self, file: gio::File) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
+        self.image_save_sensitive(false);
         imp.saved_file.lock()?.replace(file.clone());
         let base_image = imp
             .bottom_image_file
@@ -369,8 +366,6 @@ impl GtkTestWindow {
                 generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)
             })
             .await?;
-        imp.image_saved.replace(true);
-        imp.save_button.set_sensitive(false);
         Ok(true)
     }
 
@@ -394,7 +389,6 @@ impl GtkTestWindow {
             }
         };
         imp.image_loading_spinner.set_visible(false);
-        self.check_icon_update();
     }
 
     pub async fn load_temp_folder_icon(&self) {
