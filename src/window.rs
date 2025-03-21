@@ -818,6 +818,7 @@ impl GtkTestWindow {
             return self
                 .copy_folder_image_to_cache(&icon_path, &cache_path)
                 .await
+                .unwrap()
                 .0;
         }
         info!("File not found AT ALL");
@@ -843,6 +844,7 @@ impl GtkTestWindow {
                 let cached_file_name = self
                     .copy_folder_image_to_cache(&PathBuf::from(new_path), &cache_path)
                     .await
+                    .unwrap()
                     .1;
                 imp.settings
                     .set_string("folder-cache-name", &cached_file_name)
@@ -853,25 +855,6 @@ impl GtkTestWindow {
             }
             _ => unreachable!(),
         };
-    }
-
-    async fn copy_folder_image_to_cache(
-        &self,
-        original_path: &PathBuf,
-        cache_dir: &PathBuf,
-    ) -> (PathBuf, String) {
-        let file_name = format!(
-            "folder.{}",
-            original_path.extension().unwrap().to_str().unwrap()
-        );
-        self.imp()
-            .settings
-            .set("folder-cache-name", file_name.clone())
-            .unwrap();
-        let cache_path = cache_dir.join(file_name.clone());
-        let _ = std::fs::copy(original_path, cache_path.clone());
-        //let test = RUNTIME.spawn_blocking(move || true).await;
-        (cache_path, file_name)
     }
 
     pub fn get_cache_path(&self) -> PathBuf {

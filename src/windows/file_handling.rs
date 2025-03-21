@@ -1,4 +1,4 @@
-use crate::objects::errors::{show_error_popup, IntoResult};
+use crate::objects::errors::{IntoResult, show_error_popup};
 use crate::objects::file::File;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -10,7 +10,7 @@ use std::env;
 use std::error::Error;
 use std::path::PathBuf;
 
-use crate::{GtkTestWindow, RUNTIME};
+use crate::{GenResult, GtkTestWindow, RUNTIME};
 
 impl GtkTestWindow {
     pub fn load_folder_path_from_settings(&self) {
@@ -305,6 +305,29 @@ impl GtkTestWindow {
             }
         };
         Ok(true)
+    }
+
+    pub async fn copy_folder_image_to_cache(
+        &self,
+        original_path: &PathBuf,
+        cache_dir: &PathBuf,
+    ) -> GenResult<(PathBuf, String)> {
+        let file_name = format!(
+            "folder.{}",
+            original_path
+                .extension()
+                .into_reason_result("Failed to get folder file extension")?
+                .to_str()
+                .into_result()?
+        );
+        self.imp()
+            .settings
+            .set("folder-cache-name", file_name.clone())
+            .unwrap();
+        let cache_path = cache_dir.join(file_name.clone());
+        std::fs::copy(original_path, cache_path.clone())?;
+        //let test = RUNTIME.spawn_blocking(move || true).await;
+        Ok((cache_path, file_name))
     }
 
     pub async fn save_file(&self, file: gio::File) -> Result<bool, Box<dyn Error + '_>> {

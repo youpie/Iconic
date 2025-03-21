@@ -59,7 +59,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                 halign: center;
 
                 Adw.Spinner {
-                  tooltip-text: "Regenerating...";
+                  tooltip-text: _("Regenerating...");
                   margin-top: 100;
                   valign: start;
                   halign: center;
@@ -122,7 +122,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
           Adw.HeaderBar header_bar {
             Button save_button {
               Adw.ButtonContent save_button_content {
-                label: "Save";
+                label: _("Save");
                 icon-name: "document-save-symbolic";
               }
 
