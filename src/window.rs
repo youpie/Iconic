@@ -470,7 +470,13 @@ impl GtkTestWindow {
             #[weak (rename_to = win)]
             self,
             async move {
-                win.save_file(gio_file_clone).await.unwrap();
+                win.save_file(
+                    gio_file_clone,
+                    win.imp().monochrome_switch.is_active(),
+                    None,
+                )
+                .await
+                .unwrap();
             }
         ));
         Some(gdk::ContentProvider::for_value(&glib::Value::from(

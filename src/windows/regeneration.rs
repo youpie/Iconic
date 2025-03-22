@@ -228,7 +228,7 @@ impl GtkTestWindow {
         Ok(regeneratable)
     }
 
-    fn set_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
+    fn set_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64, bool)> {
         let imp = self.imp();
         let x_scale: f64 = properties[2].parse()?;
         let y_scale: f64 = properties[3].parse()?;
@@ -239,7 +239,7 @@ impl GtkTestWindow {
         imp.monochrome_color.set_rgba(&self.current_accent_rgba()?);
         imp.monochrome_invert
             .set_active(properties[10].parse::<usize>()? != 0);
-        Ok((x_scale, y_scale, size))
+        Ok((x_scale, y_scale, size, false))
     }
 
     fn create_top_image_for_generation(

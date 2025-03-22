@@ -271,7 +271,9 @@ impl GtkTestWindow {
         self.imp().stack.set_visible_child_name("stack_saving_page");
         match file_chooser.save_future(Some(self)).await {
             Ok(file) => {
-                let saved_file = self.save_file(file).await?;
+                let saved_file = self
+                    .save_file(file, imp.monochrome_switch.is_active(), None)
+                    .await?;
                 self.imp().stack.set_visible_child_name("stack_main_page");
                 imp.toast_overlay.add_toast(
                     adw::Toast::builder()
@@ -326,7 +328,12 @@ impl GtkTestWindow {
         Ok((cache_path, file_name))
     }
 
-    pub async fn save_file(&self, file: gio::File) -> Result<bool, Box<dyn Error + '_>> {
+    pub async fn save_file(
+        &self,
+        file: gio::File,
+        use_monochrome: bool,
+        manual_monochrome_values: Option<(u8, gtk::gdk::RGBA)>,
+    ) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
         self.image_save_sensitive(false);
         imp.saved_file.lock()?.replace(file.clone());
@@ -344,12 +351,15 @@ impl GtkTestWindow {
             .into_reason_result("No top image found")?
             .thumbnail
             .clone();
-        if imp.monochrome_switch.state() {
-            top_image = self.to_monochrome(
-                top_image,
-                imp.threshold_scale.value() as u8,
-                imp.monochrome_color.rgba(),
-            );
+        if use_monochrome {
+            let (monochrome_threshold, monochrome_color) = match manual_monochrome_values {
+                Some((threshold, color)) => (threshold, color),
+                None => (
+                    imp.threshold_scale.value() as u8,
+                    imp.monochrome_color.rgba(),
+                ),
+            };
+            top_image = self.to_monochrome(top_image, monochrome_threshold, monochrome_color);
         }
         let generated_image = self
             .generate_image(
