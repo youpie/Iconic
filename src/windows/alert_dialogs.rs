@@ -70,7 +70,7 @@ impl GtkTestWindow {
         let dialog = adw::AlertDialog::builder()
             .heading(gettext("Save Changes?"))
             .body(gettext("Open image contain unsaved changes. Changes which are not saved will be permanently lost"))
-            .close_response(RESPONSE_DISCARD)
+            .close_response(RESPONSE_CANCEL)
             .default_response(RESPONSE_SAVE)
             .build();
         dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
@@ -80,6 +80,7 @@ impl GtkTestWindow {
         dialog.set_response_appearance(RESPONSE_SAVE, adw::ResponseAppearance::Suggested);
         match &*dialog.clone().choose_future(self).await {
             RESPONSE_CANCEL => {
+                self.imp().image_saved.replace(true);
                 dialog.close();
             }
             RESPONSE_DISCARD => {
@@ -138,7 +139,7 @@ impl GtkTestWindow {
         }
     }
 
-    pub fn async_force_quit_dialog(&self) {
+    pub fn force_quit_dialog_async_wrapper(&self) {
         glib::spawn_future_local(glib::clone!(
             #[weak(rename_to=win)]
             self,

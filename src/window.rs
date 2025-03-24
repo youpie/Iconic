@@ -359,7 +359,7 @@ mod imp {
             let window = self.obj();
             // If iconic is busy, show busy pop-up
             if Arc::strong_count(&self.app_busy) >= 2 {
-                window.async_force_quit_dialog();
+                window.force_quit_dialog_async_wrapper();
             // Else, show quit iconic, by showing save dialog if needed
             } else {
                 window.quit_iconic();
