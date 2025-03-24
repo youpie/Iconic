@@ -217,9 +217,6 @@ mod imp {
                     win,
                     async move {
                         let imp = win.imp();
-                        //let previous_stack = imp.stack.visible_child_name().unwrap();
-                        //debug!("previous stack {}", previous_stack);
-                        //imp.stack.set_visible_child_name("regenerating_page");
                         let id = *imp.regeneration_lock.borrow();
                         imp.regeneration_lock.replace(id + 1);
                         match win.regenerate_icons().await {

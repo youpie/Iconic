@@ -37,6 +37,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
               transition-type: crossfade;
               reveal-child: bind regeneration_revealer.reveal-child;
               valign: start;
+              halign: fill;
 
               ProgressBar regeneration_osd_second {
                 fraction: bind regeneration_osd.fraction;
@@ -44,72 +45,52 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                 halign: fill;
 
                 styles [
-                  "osd"
+                  "osd",
                 ]
               }
             }
 
-            Overlay {
-              [overlay]
-              Revealer {
-                reveal-child: bind regeneration_revealer.reveal-child;
-                transition-duration: 500;
-                transition-type: crossfade;
-                valign: center;
-                halign: center;
+            child: Adw.StatusPage main_status_page {
+              icon-name: "nl.emphisia.icon";
+              title: _("Folder Icon Creator");
+              description: _("Click or Drag to Open Image");
+              hexpand: true;
+              vexpand: true;
 
-                Adw.Spinner {
-                  tooltip-text: _("Regenerating...");
-                  margin-top: 100;
-                  valign: start;
+              child: Box {
+                orientation: vertical;
+                spacing: 20;
+
+                Button open_top_icon {
+                  valign: center;
                   halign: center;
-                  width-request: 150;
-                  height-request: 150;
+                  label: _("_Open Image");
+                  use-underline: true;
+                  action-name: "app.open_top_icon";
+
+                  styles [
+                    "suggested-action",
+                    "pill",
+                  ]
                 }
-              }
 
-              child: Adw.StatusPage main_status_page {
-                icon-name: "nl.emphisia.icon";
-                title: _("Folder Icon Creator");
-                description: _("Click or Drag to Open Image");
-                hexpand: true;
-                vexpand: true;
+                Button open_bottom_icon {
+                  valign: center;
+                  halign: center;
+                  label: _("_Show Bottom Layer");
+                  use-underline: true;
+                  action-name: "app.open_bottom_icon";
 
-                child: Box {
-                  orientation: vertical;
-                  spacing: 20;
-
-                  Button open_top_icon {
-                    valign: center;
-                    halign: center;
-                    label: _("_Open Image");
-                    use-underline: true;
-                    action-name: "app.open_top_icon";
-
-                    styles [
-                      "suggested-action",
-                      "pill",
-                    ]
-                  }
-
-                  Button open_bottom_icon {
-                    valign: center;
-                    halign: center;
-                    label: _("_Show Bottom Layer");
-                    use-underline: true;
-                    action-name: "app.open_bottom_icon";
-
-                    styles [
-                      "pill",
-                    ]
-                  }
-                };
-
-                styles [
-                  "icon-dropshadow"
-                ]
+                  styles [
+                    "pill",
+                  ]
+                }
               };
-            }
+
+              styles [
+                "icon-dropshadow",
+              ]
+            };
           };
         };
       }
@@ -131,7 +112,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
               action-name: "app.save_button";
 
               styles [
-                "suggested-action"
+                "suggested-action",
               ]
             }
 
@@ -178,7 +159,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                 halign: fill;
 
                 styles [
-                  "osd"
+                  "osd",
                 ]
               };
             }
@@ -453,11 +434,6 @@ menu primary_menu {
     item {
       label: _("_Keyboard Shortcuts");
       action: "win.show-help-overlay";
-    }
-
-    item {
-      label: _("_Donate ❤️");
-      action: "app.donate";
     }
 
     item {
