@@ -131,7 +131,7 @@ impl GtkTestWindow {
         }
     }
 
-    pub async fn force_quit(&self) -> glib::Propagation {
+    pub async fn force_quit(&self) -> bool {
         const RESPONSE_WAIT: &str = "OKE";
         const RESPONSE_FORCE_QUIT: &str = "QUIT";
         let dialog = adw::AlertDialog::builder()
@@ -147,8 +147,8 @@ impl GtkTestWindow {
         dialog.set_response_appearance(RESPONSE_WAIT, adw::ResponseAppearance::Suggested);
         dialog.present(Some(self));
         match &*dialog.clone().choose_future(self).await {
-            RESPONSE_WAIT => glib::Propagation::Stop,
-            RESPONSE_FORCE_QUIT => glib::Propagation::Proceed,
+            RESPONSE_WAIT => false,
+            RESPONSE_FORCE_QUIT => true,
             _ => unreachable!(),
         }
     }

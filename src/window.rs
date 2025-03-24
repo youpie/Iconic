@@ -356,8 +356,16 @@ mod imp {
         fn close_request(&self) -> glib::Propagation {
             let window = self.obj();
             if Arc::strong_count(&self.app_busy) >= 2 {
-                return glib::MainContext::default()
-                    .block_on(async move { window.force_quit().await });
+                match glib::MainContext::default().block_on(glib::clone!(
+                    #[weak(rename_to = win)]
+                    window,
+                    #[upgrade_or]
+                    false,
+                    async move { win.force_quit().await }
+                )) {
+                    true => (),
+                    false => return glib::Propagation::Stop,
+                }
             }
             if self.image_saved.borrow().clone() {
                 return self.parent_close_request();
