@@ -76,7 +76,6 @@ impl GtkTestWindow {
         dialog.set_response_appearance(RESPONSE_DISCARD, adw::ResponseAppearance::Destructive);
         dialog.add_response(RESPONSE_SAVE, &gettext("Save"));
         dialog.set_response_appearance(RESPONSE_SAVE, adw::ResponseAppearance::Suggested);
-
         match &*dialog.clone().choose_future(self).await {
             RESPONSE_CANCEL => {
                 dialog.close();
@@ -131,7 +130,7 @@ impl GtkTestWindow {
         }
     }
 
-    pub async fn force_quit(&self) -> bool {
+    pub async fn force_quit_dialog(&self) -> bool {
         const RESPONSE_WAIT: &str = "OKE";
         const RESPONSE_FORCE_QUIT: &str = "QUIT";
         let dialog = adw::AlertDialog::builder()

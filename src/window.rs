@@ -354,14 +354,18 @@ mod imp {
     impl WidgetImpl for GtkTestWindow {}
     impl WindowImpl for GtkTestWindow {
         fn close_request(&self) -> glib::Propagation {
+            error!("close request");
             let window = self.obj();
+            if window.visible_dialog().is_some() {
+                return glib::Propagation::Proceed;
+            }
             if Arc::strong_count(&self.app_busy) >= 2 {
                 match glib::MainContext::default().block_on(glib::clone!(
-                    #[weak(rename_to = win)]
+                    #[weak]
                     window,
                     #[upgrade_or]
                     false,
-                    async move { win.force_quit().await }
+                    async move { window.force_quit_dialog().await }
                 )) {
                     true => (),
                     false => return glib::Propagation::Stop,
@@ -823,7 +827,7 @@ impl GtkTestWindow {
         info!("File not found AT ALL");
         let dialog = show_error_popup(
             &self,
-            &gettext("The set folder icon could not be found, press ok to select a new one"),
+            &gettext("The set bottom icon could not be found, press ok to select a new one"),
             false,
             None,
         )
@@ -833,8 +837,8 @@ impl GtkTestWindow {
                 let new_path = match self.open_file_chooser().await {
                     Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
                     None => {
-                        //adw::subclass::prelude::ActionGroupImpl::activate_action(&self, "app.quit", None);
-                        String::from("")
+                        self.application().unwrap().activate_action("quit", None);
+                        return PathBuf::new();
                     }
                 };
                 imp.settings

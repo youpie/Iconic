@@ -4,7 +4,7 @@ use crate::{GtkTestWindow, RUNTIME, objects::errors::show_error_popup};
 
 use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
-use gettextrs::gettext;
+use gettextrs::{gettext, ngettext};
 use gtk::gdk::RGBA;
 use gtk::gio;
 use image::*;
@@ -120,7 +120,11 @@ impl GtkTestWindow {
                 &format!(
                     "{} {}",
                     regeneration_errors.len(),
-                    &gettext("file(s) failed to regenerate\nview logs for more information")
+                    &ngettext(
+                        "file failed to regenerate\nview logs for more information",
+                        "files failed to regenerate\nview logs for more information",
+                        regeneration_errors.len() as u32
+                    )
                 ),
                 true,
                 None,

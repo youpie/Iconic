@@ -6,9 +6,12 @@ use log::*;
 use resvg::tiny_skia::Pixmap;
 use resvg::usvg::{Options, Tree};
 use std::error::Error;
+use std::ffi::OsStr;
 use std::fs;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::PathBuf;
+
+use crate::objects::errors::IntoResult;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
@@ -26,16 +29,26 @@ impl File {
         self.path.clone().into_os_string().into_string().unwrap()
     }
     pub fn new(file: gio::File, size: i32, thumbnail_size: i32) -> Result<Self, Box<dyn Error>> {
-        let temp_path = file.path().unwrap();
+        let temp_path = file.path().into_reason_result("Can't get file path")?;
         let file_info =
             file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE)?;
-        let file_name = file_info.name().into_os_string().into_string().unwrap();
-        let period_split: Vec<&str> = file_name.split(".").collect();
-        let file_extension = format!(".{}", period_split.last().unwrap());
+        let file_name_pathbuf = PathBuf::from(file_info.name().into_os_string());
+        let file_name = file_name_pathbuf
+            .file_name()
+            .unwrap_or(OsStr::new("unkwnown"))
+            .to_str()
+            .into_result()?
+            .to_string();
+        let file_extension = file_name_pathbuf
+            .extension()
+            .unwrap_or(OsStr::new("png"))
+            .to_str()
+            .into_result()?
+            .to_string();
         let mime_type = file_info.content_type();
         debug!("Mime type: {:?}", mime_type);
         let dynamic_image = if mime_type == Some("image/svg+xml".into()) {
-            let path = &temp_path.as_os_str().to_str().unwrap();
+            let path = temp_path.as_os_str().to_str().into_result()?;
             Self::load_svg(path, size)?
         } else {
             match image::open(temp_path.clone().into_os_string()) {
@@ -47,12 +60,11 @@ impl File {
                 Ok(x) => x,
             }
         };
-        let name_no_extension = file_name.replace(&file_extension, "");
         let hash = Self::create_hash(&dynamic_image);
         debug!("hash of created file: {}", hash);
         let mut thumbnail = DynamicImage::new_rgb8(0, 0);
         if thumbnail_size > 0 {
-            thumbnail = if file_extension == ".svg" {
+            thumbnail = if file_extension == "svg" {
                 let path = &temp_path.as_os_str().to_str().unwrap();
                 Self::load_svg(path, thumbnail_size)?
             } else {
@@ -66,8 +78,8 @@ impl File {
         Ok(Self {
             files: Some(file),
             path: temp_path.into(),
-            extension: mime_type.unwrap().into(),
-            filename: name_no_extension,
+            extension: mime_type.into_result()?.into(),
+            filename: file_name,
             dynamic_image,
             thumbnail,
             hash,
