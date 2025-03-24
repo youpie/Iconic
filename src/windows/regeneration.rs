@@ -11,6 +11,7 @@ use image::*;
 use log::*;
 use std::fs::{self, DirEntry};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -72,6 +73,7 @@ impl GtkTestWindow {
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
         let id = *imp.regeneration_lock.borrow();
+        let _iconic_busy = Arc::clone(&imp.app_busy);
         imp.toast_overlay
             .add_toast(adw::Toast::new(&gettext("Regenerating icons")));
         let data_path = self.get_data_path();
@@ -103,7 +105,7 @@ impl GtkTestWindow {
                 break;
             }
             let path = &file.path();
-            match self.regenerate_and_save_icon(file).await {
+            match self.regenerate_and_save_single_icon(file).await {
                 Ok(_) => (),
                 Err(error) => {
                     error!("Error while generating {:?}: {}", path, &error.to_string());
@@ -128,7 +130,7 @@ impl GtkTestWindow {
         Ok(())
     }
 
-    async fn regenerate_and_save_icon(&self, file: DirEntry) -> GenResult<()> {
+    async fn regenerate_and_save_single_icon(&self, file: DirEntry) -> GenResult<()> {
         let file_name = file.file_name();
         let file_path = file.path();
         let file_name = file_name.to_str().into_result()?.to_string();

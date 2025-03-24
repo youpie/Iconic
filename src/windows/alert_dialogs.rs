@@ -130,4 +130,26 @@ impl GtkTestWindow {
             let _ = imp.settings.set("regeneration-hint-shown", true);
         }
     }
+
+    pub async fn force_quit(&self) -> glib::Propagation {
+        const RESPONSE_WAIT: &str = "OKE";
+        const RESPONSE_FORCE_QUIT: &str = "QUIT";
+        let dialog = adw::AlertDialog::builder()
+                .heading(&gettext("Iconic is busy"))
+                .body(&gettext("Iconic is currently busy, it is recommended to wait before closing to prevent data loss"))
+                .default_response(RESPONSE_WAIT)
+                .close_response(RESPONSE_WAIT)
+                .build();
+        // Aparently items appear reversed from how they are defined here
+        dialog.add_response(RESPONSE_FORCE_QUIT, &gettext("Quit anyway"));
+        dialog.set_response_appearance(RESPONSE_FORCE_QUIT, adw::ResponseAppearance::Destructive);
+        dialog.add_response(RESPONSE_WAIT, &gettext("Wait"));
+        dialog.set_response_appearance(RESPONSE_WAIT, adw::ResponseAppearance::Suggested);
+        dialog.present(Some(self));
+        match &*dialog.clone().choose_future(self).await {
+            RESPONSE_WAIT => glib::Propagation::Stop,
+            RESPONSE_FORCE_QUIT => glib::Propagation::Proceed,
+            _ => unreachable!(),
+        }
+    }
 }

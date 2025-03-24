@@ -114,6 +114,7 @@ mod imp {
         pub settings: gio::Settings,
         pub count: RefCell<i32>,
         pub regeneration_lock: Arc<RefCell<usize>>,
+        pub app_busy: Arc<()>,
     }
 
     impl Default for GtkTestWindow {
@@ -156,6 +157,7 @@ mod imp {
                 default_color: RefCell::new(HashMap::new()),
                 last_dnd_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(RefCell::new(0)),
+                app_busy: Arc::new(()),
             }
         }
     }
@@ -170,13 +172,14 @@ mod imp {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
             klass.install_action("app.open_top_icon", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.load_top_icon().await;
-                    }
-                ));
+                // glib::spawn_future_local(clone!(
+                //     #[weak]
+                //     win,
+                //     async move {
+                //         win.load_top_icon().await;
+                //     }
+                // ));
+                error!("References: {}", Arc::strong_count(&win.imp().app_busy));
             });
             klass.install_action("app.open_file_location", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
@@ -351,17 +354,21 @@ mod imp {
     impl WidgetImpl for GtkTestWindow {}
     impl WindowImpl for GtkTestWindow {
         fn close_request(&self) -> glib::Propagation {
-            if !self.image_saved.borrow().clone() {
-                let window = self.obj();
-                return match glib::MainContext::default()
-                    .block_on(async move { window.confirm_save_changes().await })
-                {
-                    Ok(p) => p,
-                    _ => glib::Propagation::Stop,
-                };
+            let window = self.obj();
+            if Arc::strong_count(&self.app_busy) >= 2 {
+                return glib::MainContext::default()
+                    .block_on(async move { window.force_quit().await });
+            }
+            if self.image_saved.borrow().clone() {
+                return self.parent_close_request();
             }
 
-            self.parent_close_request()
+            return match glib::MainContext::default()
+                .block_on(async move { window.confirm_save_changes().await })
+            {
+                Ok(p) => p,
+                _ => glib::Propagation::Stop,
+            };
         }
     }
     impl ApplicationWindowImpl for GtkTestWindow {}
@@ -720,10 +727,6 @@ impl GtkTestWindow {
 
     pub fn image_save_sensitive(&self, sensitive: bool) {
         let imp = self.imp();
-        if Arc::strong_count(&imp.regeneration_lock) > 1 {
-            debug!("Skip settings save button");
-            return ();
-        }
         imp.image_saved.replace(!sensitive);
         imp.save_button.set_sensitive(sensitive);
     }

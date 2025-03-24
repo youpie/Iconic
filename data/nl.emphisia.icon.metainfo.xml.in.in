@@ -3,7 +3,7 @@
   <!--Created with jdAppStreamEdit 9.2-->
   <id>@app-id@</id>
   <name>Iconic</name>
-  <summary>Easily add icons on top of folders</summary>
+  <summary>Add icons on top of folders</summary>
   <developer id="@youpie@social.emphisia.nl">
     <name>Youpie</name>
   </developer>
