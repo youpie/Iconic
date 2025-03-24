@@ -71,7 +71,6 @@ impl GtkTestWindow {
     //This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
-        imp.save_button.set_sensitive(false);
         let id = *imp.regeneration_lock.borrow();
         imp.toast_overlay
             .add_toast(adw::Toast::new(&gettext("Regenerating icons")));

@@ -881,7 +881,6 @@ impl GtkTestWindow {
     // This checks if the main page, or welcome screen needs to be shown. And adds ability to loads just a bottom file
     // TODO: This function is REALLY confusing and needs to be rewritten
     pub fn check_icon_update(&self) {
-        error!("Icon update");
         let imp = self.imp();
         let mut top_image = imp.top_image_file.lock().unwrap();
         let bottom_image = imp.bottom_image_file.lock().unwrap();
@@ -923,6 +922,7 @@ impl GtkTestWindow {
         imp.monochrome_color.set_sensitive(sensitive);
         imp.monochrome_invert.set_sensitive(sensitive);
         imp.monochrome_switch.set_sensitive(sensitive);
+        imp.monochrome_action_row.set_sensitive(sensitive);
     }
 
     pub async fn open_file_chooser(&self) -> Option<gio::File> {

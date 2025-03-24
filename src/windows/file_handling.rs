@@ -335,6 +335,7 @@ impl GtkTestWindow {
         manual_monochrome_values: Option<(u8, gtk::gdk::RGBA)>,
     ) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
+
         self.image_save_sensitive(false);
         imp.saved_file.lock()?.replace(file.clone());
         let base_image = imp

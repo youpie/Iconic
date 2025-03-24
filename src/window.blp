@@ -22,11 +22,28 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             };
 
             [end]
-            MenuButton {
-              primary: true;
-              icon-name: "open-menu-symbolic";
-              tooltip-text: _("Menu");
-              menu-model: primary_menu;
+            Box {
+              spacing: 10;
+
+              Revealer {
+                reveal-child: bind regeneration_revealer.reveal-child;
+                transition-duration: 250;
+                transition-type: crossfade;
+                valign: center;
+                halign: center;
+
+                Adw.Spinner {
+                  // visible: bind regeneration_revealer.reveal-child;
+                  tooltip-text: _("Regenerating icons...");
+                }
+              }
+
+              MenuButton {
+                primary: true;
+                icon-name: "open-menu-symbolic";
+                tooltip-text: _("Menu");
+                menu-model: primary_menu;
+              }
             }
           }
 
