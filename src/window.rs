@@ -23,7 +23,6 @@ use crate::glib::clone;
 use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
 use crate::settings::settings::PreferencesDialog;
-use adw::AlertDialog;
 use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -759,44 +758,6 @@ impl GtkTestWindow {
         imp.monochrome_color.set_rgba(&self.get_default_color());
         //self.check_icon_update();
         imp.reset_color.set_visible(false);
-    }
-
-    fn get_current_alert_dialog(&self) -> Option<AlertDialog> {
-        let dialog = match self.visible_dialog() {
-            Some(dialog) => dialog,
-            None => {
-                info!("No dialog found");
-                return None;
-            }
-        };
-        dialog.downcast::<AlertDialog>().ok()
-    }
-
-    pub fn close_iconic_busy_popup(&self) {
-        if let Some(alert_dialog) = self.get_current_alert_dialog() {
-            if alert_dialog.default_response() == Some("WAIT_QUIT".into()) {
-                alert_dialog.close();
-                warn!("Busy dialog is found, closing");
-                self.quit_iconic();
-            } else {
-                info!("Dialog is found, but not busy dialog");
-            }
-        }
-    }
-
-    fn quit_iconic(&self) {
-        let imp = self.imp();
-        if imp.image_saved.borrow().clone() {
-            error!("closing iconic");
-            self.application().unwrap().activate_action("quit", None);
-        }
-        glib::spawn_future_local(glib::clone!(
-            #[weak(rename_to=win)]
-            self,
-            async move {
-                win.confirm_save_changes().await;
-            }
-        ));
     }
 
     // TODO: This approach is dumb. I am purposely failing a dictionary lookup and using unwrap_or to get my way
