@@ -131,7 +131,7 @@ impl GtkTestWindow {
     }
 
     pub async fn force_quit_dialog(&self) -> bool {
-        const RESPONSE_WAIT: &str = "OKE";
+        const RESPONSE_WAIT: &str = "WAIT_QUIT";
         const RESPONSE_FORCE_QUIT: &str = "QUIT";
         let dialog = adw::AlertDialog::builder()
                 .heading(&gettext("Iconic is busy"))

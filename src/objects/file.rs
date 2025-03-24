@@ -4,7 +4,7 @@ use gtk::gio;
 use image::*;
 use log::*;
 use resvg::tiny_skia::Pixmap;
-use resvg::usvg::{Options, Tree};
+use resvg::usvg::{Options, Transform, Tree};
 use std::error::Error;
 use std::ffi::OsStr;
 use std::fs;
@@ -147,9 +147,9 @@ impl File {
         let mut pixmap = Pixmap::new(size as u32, size as u32).unwrap();
 
         // Render the SVG tree to the Pixmap
-        let _ = resvg::render(
+        resvg::render(
             &rtree,
-            usvg::Transform::from_scale(scale, scale),
+            Transform::from_scale(scale, scale),
             &mut pixmap.as_mut(),
         );
         Ok(Self::pixmap_to_image(pixmap))

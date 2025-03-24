@@ -1,5 +1,5 @@
 {
-    "app-id": "nl.emphisia.icon",
+    "id": "nl.emphisia.icon",
     "runtime": "org.gnome.Platform",
     "runtime-version": "48",
     "sdk": "org.gnome.Sdk",
@@ -14,7 +14,10 @@
         "--socket=wayland"
     ],
     "build-options": {
-        "append-path": "/usr/lib/sdk/rust-stable/bin"
+        "append-path": "/usr/lib/sdk/rust-stable/bin",
+        "env": {
+            "RUST_LOG": "folder_icon=info"
+        }
     },
     "cleanup": [
         "/include",
@@ -38,7 +41,7 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
-                    "tag": "v0.12.0"
+                    "tag": "v0.16.0"
                 }
             ]
         },

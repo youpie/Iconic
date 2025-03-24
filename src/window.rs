@@ -23,6 +23,7 @@ use crate::glib::clone;
 use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
 use crate::settings::settings::PreferencesDialog;
+use adw::AlertDialog;
 use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -172,13 +173,13 @@ mod imp {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
             klass.install_action("app.open_top_icon", None, move |win, _, _| {
-                // glib::spawn_future_local(clone!(
-                //     #[weak]
-                //     win,
-                //     async move {
-                //         win.load_top_icon().await;
-                //     }
-                // ));
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    win,
+                    async move {
+                        win.load_top_icon().await;
+                    }
+                ));
                 error!("References: {}", Arc::strong_count(&win.imp().app_busy));
             });
             klass.install_action("app.open_file_location", None, move |win, _, _| {
@@ -774,6 +775,28 @@ impl GtkTestWindow {
         imp.monochrome_color.set_rgba(&self.get_default_color());
         //self.check_icon_update();
         imp.reset_color.set_visible(false);
+    }
+
+    fn get_current_alert_dialog(&self) -> Option<AlertDialog> {
+        let dialog = match self.visible_dialog() {
+            Some(dialog) => dialog,
+            None => {
+                info!("No dialog found");
+                return None;
+            }
+        };
+        dialog.downcast::<AlertDialog>().ok()
+    }
+
+    pub fn end_iconic_busy_popup(&self) {
+        if let Some(alert_dialog) = self.get_current_alert_dialog() {
+            if alert_dialog.default_response() == Some("WAIT_QUIT".into()) {
+                warn!("Busy dialog is found, closing");
+                self.application().unwrap().activate_action("quit", None);
+            } else {
+                info!("Dialog is found, but not busy dialog");
+            }
+        }
     }
 
     // TODO: This approach is dumb. I am purposely failing a dictionary lookup and using unwrap_or to get my way
