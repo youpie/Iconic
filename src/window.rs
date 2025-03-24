@@ -357,31 +357,15 @@ mod imp {
         fn close_request(&self) -> glib::Propagation {
             error!("close request");
             let window = self.obj();
-            if window.visible_dialog().is_some() {
-                return glib::Propagation::Proceed;
-            }
+            // If iconic is busy, show busy pop-up
             if Arc::strong_count(&self.app_busy) >= 2 {
-                match glib::MainContext::default().block_on(glib::clone!(
-                    #[weak]
-                    window,
-                    #[upgrade_or]
-                    false,
-                    async move { window.force_quit_dialog().await }
-                )) {
-                    true => (),
-                    false => return glib::Propagation::Stop,
-                }
+                window.async_force_quit_dialog();
+            // Else, show quit iconic, by showing save dialog if needed
+            } else {
+                window.quit_iconic();
             }
-            if self.image_saved.borrow().clone() {
-                return self.parent_close_request();
-            }
-
-            return match glib::MainContext::default()
-                .block_on(async move { window.confirm_save_changes().await })
-            {
-                Ok(p) => p,
-                _ => glib::Propagation::Stop,
-            };
+            // Closing the window is handled in the above two functions, so by returning stop. It won't quit the application from this function
+            glib::Propagation::Stop
         }
     }
     impl ApplicationWindowImpl for GtkTestWindow {}
@@ -788,15 +772,31 @@ impl GtkTestWindow {
         dialog.downcast::<AlertDialog>().ok()
     }
 
-    pub fn end_iconic_busy_popup(&self) {
+    pub fn close_iconic_busy_popup(&self) {
         if let Some(alert_dialog) = self.get_current_alert_dialog() {
             if alert_dialog.default_response() == Some("WAIT_QUIT".into()) {
+                alert_dialog.close();
                 warn!("Busy dialog is found, closing");
-                self.application().unwrap().activate_action("quit", None);
+                self.quit_iconic();
             } else {
                 info!("Dialog is found, but not busy dialog");
             }
         }
+    }
+
+    fn quit_iconic(&self) {
+        let imp = self.imp();
+        if imp.image_saved.borrow().clone() {
+            error!("closing iconic");
+            self.application().unwrap().activate_action("quit", None);
+        }
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to=win)]
+            self,
+            async move {
+                win.confirm_save_changes().await;
+            }
+        ));
     }
 
     // TODO: This approach is dumb. I am purposely failing a dictionary lookup and using unwrap_or to get my way

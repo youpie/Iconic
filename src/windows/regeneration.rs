@@ -131,10 +131,7 @@ impl GtkTestWindow {
             );
         }
         imp.regeneration_revealer.set_reveal_child(false);
-        if let Some(dialog) = self.visible_dialog().and_downcast::<adw::AlertDialog>() {
-            dialog.set_close_response("QUIT");
-            dialog.close();
-        }
+        self.close_iconic_busy_popup();
         Ok(())
     }
 

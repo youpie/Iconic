@@ -4,9 +4,10 @@ use adw::prelude::{AdwDialogExt, AlertDialogExt, AlertDialogExtManual};
 use gettextrs::gettext;
 use gio::{
     glib,
-    prelude::{SettingsExt, SettingsExtManual},
+    prelude::{ActionGroupExt, SettingsExt, SettingsExtManual},
     subclass::prelude::ObjectSubclassIsExt,
 };
+use gtk::prelude::GtkWindowExt;
 use log::*;
 
 use crate::GtkTestWindow;
@@ -61,14 +62,15 @@ impl GtkTestWindow {
         }
     }
 
-    pub async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
+    pub async fn confirm_save_changes(&self) -> bool {
+        let mut quit_iconic = false;
         const RESPONSE_CANCEL: &str = "cancel";
         const RESPONSE_DISCARD: &str = "discard";
         const RESPONSE_SAVE: &str = "save";
         let dialog = adw::AlertDialog::builder()
             .heading(gettext("Save Changes?"))
             .body(gettext("Open image contain unsaved changes. Changes which are not saved will be permanently lost"))
-            .close_response(RESPONSE_CANCEL)
+            .close_response(RESPONSE_DISCARD)
             .default_response(RESPONSE_SAVE)
             .build();
         dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
@@ -79,21 +81,27 @@ impl GtkTestWindow {
         match &*dialog.clone().choose_future(self).await {
             RESPONSE_CANCEL => {
                 dialog.close();
-                Ok(glib::Propagation::Stop)
             }
-            RESPONSE_DISCARD => Ok(glib::Propagation::Proceed),
+            RESPONSE_DISCARD => {
+                quit_iconic = true;
+            }
             RESPONSE_SAVE => match self.open_save_file_dialog().await {
                 Ok(saved) => match saved {
-                    true => Ok(glib::Propagation::Proceed),
-                    false => Ok(glib::Propagation::Stop),
+                    true => {
+                        quit_iconic = true;
+                    }
+                    false => (),
                 },
                 Err(error) => {
                     show_error_popup(&self, &error.to_string(), true, Some(error));
-                    Ok(glib::Propagation::Stop)
                 }
             },
             _ => unreachable!(),
         }
+        if quit_iconic {
+            self.application().unwrap().activate_action("quit", None)
+        }
+        false
     }
 
     pub fn get_accent_color_and_show_dialog(&self) -> String {
@@ -130,7 +138,15 @@ impl GtkTestWindow {
         }
     }
 
-    pub async fn force_quit_dialog(&self) -> bool {
+    pub fn async_force_quit_dialog(&self) {
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to=win)]
+            self,
+            async move { win.force_quit_dialog().await }
+        ));
+    }
+
+    async fn force_quit_dialog(&self) {
         const RESPONSE_WAIT: &str = "WAIT_QUIT";
         const RESPONSE_FORCE_QUIT: &str = "QUIT";
         let dialog = adw::AlertDialog::builder()
@@ -146,8 +162,8 @@ impl GtkTestWindow {
         dialog.set_response_appearance(RESPONSE_WAIT, adw::ResponseAppearance::Suggested);
         dialog.present(Some(self));
         match &*dialog.clone().choose_future(self).await {
-            RESPONSE_WAIT => false,
-            RESPONSE_FORCE_QUIT => true,
+            RESPONSE_WAIT => (),
+            RESPONSE_FORCE_QUIT => self.application().unwrap().activate_action("quit", None),
             _ => unreachable!(),
         }
     }
