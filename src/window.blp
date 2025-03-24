@@ -9,7 +9,8 @@ template $GtkTestWindow: Adw.ApplicationWindow {
 
   content: Adw.ToastOverlay toast_overlay {
     Stack stack {
-      transition-type: crossfade;
+      transition-type: slide_left_right;
+      transition-duration: 300;
 
       StackPage {
         name: "stack_welcome_page";
@@ -34,7 +35,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
 
                 Adw.Spinner {
                   // visible: bind regeneration_revealer.reveal-child;
-                  tooltip-text: _("Regenerating icons...");
+                  tooltip-text: _("Regenerating icons…");
                 }
               }
 
@@ -150,7 +151,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
 
                 Adw.Spinner {
                   // visible: bind regeneration_revealer.reveal-child;
-                  tooltip-text: _("Regenerating icons...");
+                  tooltip-text: _("Regenerating icons…");
                 }
               }
 
@@ -379,7 +380,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             }
 
             Label {
-              label: _("Saving...");
+              label: _("Saving…");
               margin-bottom: 40;
 
               styles [
