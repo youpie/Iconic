@@ -75,3 +75,6 @@ The icon is just a few already existing icons added together, the following are 
 ### Folder credits
 The folders/colors used in Iconic are taken from 
 - Adwaita-Colors - https://github.com/dpejoh/Adwaita-colors/tree/main
+
+### Code of Conduct
+This app follows the [Gnome Code of Conduct](https://conduct.gnome.org/)

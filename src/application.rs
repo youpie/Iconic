@@ -18,18 +18,18 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+use crate::GtkTestWindow;
+use crate::RUNTIME;
 use crate::config::{APP_ICON, VERSION};
 use crate::glib::WeakRef;
 use crate::settings::settings::PreferencesDialog;
-use crate::GtkTestWindow;
-use crate::RUNTIME;
 use adw::prelude::AdwDialogExt;
 use adw::subclass::prelude::*;
 use ashpd::desktop::open_uri::OpenFileRequest;
 use ashpd::url;
 use gettextrs::gettext;
-use gtk::prelude::*;
 use gtk::License;
+use gtk::prelude::*;
 use gtk::{gio, glib};
 use std::cell::OnceCell;
 
@@ -132,6 +132,7 @@ impl GtkTestApplication {
         self.set_accels_for_action("app.save_button", &["<primary>s"]);
         self.set_accels_for_action("app.open_top_icon", &["<primary>o"]);
         self.set_accels_for_action("app.quit", &["<primary>q"]);
+        self.set_accels_for_action("app.preferences", &["<primary>comma"]);
         self.set_accels_for_action("app.select_folder", &["<primary><shift>o"]);
         self.set_accels_for_action("app.paste", &["<primary>v"]);
         self.set_accels_for_action("app.regeneration", &["<primary>r"]);

@@ -253,7 +253,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         if !imp.save_button.is_sensitive() {
             imp.toast_overlay
-                .add_toast(adw::Toast::new("Can't save anything"));
+                .add_toast(adw::Toast::new(&gettext("Nothing to save")));
             return Ok(false);
         };
         let file_name = format!(
