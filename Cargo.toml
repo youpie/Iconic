@@ -1,6 +1,6 @@
 [package]
 name = "folder_icon"
-version = "2025.3.1"
+version = "2025.3.2"
 edition = "2024"
 
 [dependencies]
@@ -31,4 +31,4 @@ features = ["v4_10"]
 [dependencies.adw]
 package = "libadwaita"
 version = "0.7.2"
-features = ["v1_6"]
+features = ["v1_7"]
