@@ -29,6 +29,7 @@ impl GtkTestWindow {
                 top_image,
                 imp.threshold_scale.value() as u8,
                 imp.monochrome_color.rgba(),
+                None,
             );
         }
         self.image_save_sensitive(true);
@@ -53,6 +54,7 @@ impl GtkTestWindow {
         image: DynamicImage,
         threshold: u8,
         color: gdk::RGBA,
+        invert: Option<bool>,
     ) -> DynamicImage {
         // Convert the image to RGBA8
         let rgba_img = image.to_rgba8();
@@ -61,7 +63,10 @@ impl GtkTestWindow {
 
         // Create a new image buffer for the monochrome image
         let mut mono_img: RgbaImage = ImageBuffer::new(rgba_img.width(), rgba_img.height());
-        let switch_state = self.imp().monochrome_invert.is_active();
+        let switch_state = match invert {
+            Some(invert_value) => invert_value,
+            None => self.imp().monochrome_invert.is_active(),
+        };
         // Apply the threshold to create a black and white image, keeping the alpha channel
         for (x, y, pixel) in rgba_img.enumerate_pixels() {
             let rgba = pixel.0;

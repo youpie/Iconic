@@ -359,7 +359,7 @@ impl GtkTestWindow {
                     imp.monochrome_color.rgba(),
                 ),
             };
-            top_image = self.to_monochrome(top_image, monochrome_threshold, monochrome_color);
+            top_image = self.to_monochrome(top_image, monochrome_threshold, monochrome_color, None);
         }
         let generated_image = self
             .generate_image(

@@ -68,13 +68,9 @@ impl GtkTestWindow {
         Ok(())
     }
 
-    /*
-    This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
-    It is currently incredibly slow, but it does work.
-    After I added the animation, it got only more ugly. But the animation looks nice :)*/
+    //This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
-        let previous_save_sensitivity = imp.save_button.is_sensitive();
         imp.save_button.set_sensitive(false);
         let id = *imp.regeneration_lock.borrow();
         imp.toast_overlay
@@ -85,8 +81,6 @@ impl GtkTestWindow {
             self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
         imp.regeneration_revealer.set_reveal_child(true);
         imp.regeneration_osd.set_fraction(0.0);
-        let previous_control_sensitivity = imp.x_scale.is_sensitive();
-        self.slider_control_sensitivity(false);
         let files_n = compatible_files.len();
         let mut last_animation = None;
         if files_n == 0 {
@@ -132,10 +126,6 @@ impl GtkTestWindow {
             );
         }
         imp.regeneration_revealer.set_reveal_child(false);
-        imp.save_button.set_sensitive(previous_save_sensitivity);
-        self.slider_control_sensitivity(previous_control_sensitivity);
-        self.default_sliders();
-        self.reset_colors();
         Ok(())
     }
 
@@ -159,7 +149,7 @@ impl GtkTestWindow {
             })
             .await??
             .dynamic_image;
-        let slider_values = self.set_properties(properties_list.clone())?;
+        let slider_values = self.get_properties(properties_list.clone())?;
         let top_image = self.create_top_image_for_generation(properties_list, top_image_file)?;
         let bottom_image_file = RUNTIME
             .spawn_blocking(move || {
@@ -228,18 +218,11 @@ impl GtkTestWindow {
         Ok(regeneratable)
     }
 
-    fn set_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64, bool)> {
-        let imp = self.imp();
+    fn get_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
         let x_scale: f64 = properties[2].parse()?;
         let y_scale: f64 = properties[3].parse()?;
         let size: f64 = properties[4].parse()?;
-        imp.monochrome_switch
-            .set_active(properties[5].parse::<usize>()? != 0);
-        imp.threshold_scale.set_value(properties[6].parse()?);
-        imp.monochrome_color.set_rgba(&self.current_accent_rgba()?);
-        imp.monochrome_invert
-            .set_active(properties[10].parse::<usize>()? != 0);
-        Ok((x_scale, y_scale, size, false))
+        Ok((x_scale, y_scale, size))
     }
 
     fn create_top_image_for_generation(
@@ -257,7 +240,12 @@ impl GtkTestWindow {
             _ => self.current_accent_rgba()?,
         };
         match properties[5] {
-            "1" => Ok(self.to_monochrome(top_image, properties[6].parse()?, color)),
+            "1" => Ok(self.to_monochrome(
+                top_image,
+                properties[6].parse()?,
+                color,
+                Some(properties[10].parse::<usize>()? != 0),
+            )),
             _ => Ok(top_image),
         }
     }
