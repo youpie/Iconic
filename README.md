@@ -19,7 +19,7 @@ This application is my first attempt at creating an application using Rust and L
 
 These are ideas I want to implement.
 - [ ] Add features
-    - [ ] Update to gnome 48 runtime
+    - [X] Update to gnome 48 runtime
     - [X] Add threading
         - [ ] Loading dragged images
         - [ ] Making images monochrome
@@ -29,13 +29,13 @@ These are ideas I want to implement.
         - This would probably require a full rewrite of the image generation system. Using cairo or something, but I originally didn't use cairo as I did not understand it, and good examples were really scarse 
     - [ ] Rounded corner option for top image
     - [ ] Add guide grid or something
-    - [ ] Create guide when first starting iconic, to show users dragging and dropping images is possible
+    - [X] Create guide when first starting iconic, to show users dragging and dropping images is possible
     - [ ] Refer users to icon library, so they know where to find many good icons   
-    - [ ] Improve about window (example [eyedropper](https://github.com/FineFindus/eyedropper/blob/main/src/widgets/about_window.rs))
+    - [X] Improve about window (example [eyedropper](https://github.com/FineFindus/eyedropper/blob/main/src/widgets/about_window.rs))
 - [ ] Use [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/)
-- [ ] Move donation link to About iconic (issue #8)
+- [X] Move donation link to About iconic (issue #8)
 - [ ] Make donation link just point to a random charity
-- [ ] Improve accessibility
+- [X] Improve accessibility
     - Find accessibility issues in the app, and adress them
 - [ ] Set up CI/CD Pipeline
 - [ ] Apply for [gnome circle](https://gitlab.gnome.org/Teams/Circle#how-to-apply)
