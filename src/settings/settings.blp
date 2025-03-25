@@ -15,6 +15,7 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
         [suffix]
         CheckButton use_builtin_icons_button {
+          tooltip-text: _("use the built-in bottom image");
           valign: center;
           active: true;
         }
@@ -81,6 +82,7 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
         [suffix]
         CheckButton use_external_icon_button {
+          tooltip-text: _("use a custom bottom image");
           valign: center;
           group: use_builtin_icons_button;
         }
@@ -130,6 +132,7 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
         [suffix]
         Switch dnd_switch {
+          tooltip-text: _("Use a default drag and drop action");
           valign: center;
           active: false;
           action-name: "app.dnd_switch";
@@ -168,7 +171,7 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
         styles [
           "subtitle",
-          "warning"
+          "warning",
         ]
       }
 

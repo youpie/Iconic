@@ -114,6 +114,24 @@ template $GtkTestWindow: Adw.ApplicationWindow {
       }
 
       StackPage {
+        name: "stack_loading_page";
+
+        child: Adw.StatusPage {
+          Box {
+            orientation: vertical;
+            spacing: 12;
+
+            Adw.Spinner {
+              valign: center;
+              halign: center;
+              height-request: 32;
+              width-request: 32;
+            }
+          }
+        };
+      }
+
+      StackPage {
         name: "stack_main_page";
 
         child: Adw.ToolbarView toolbar {
@@ -150,7 +168,6 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                 halign: center;
 
                 Adw.Spinner {
-                  // visible: bind regeneration_revealer.reveal-child;
                   tooltip-text: _("Regenerating icons…");
                 }
               }
@@ -193,6 +210,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                     Scale y_scale {
                       has-origin: false;
                       orientation: vertical;
+                      tooltip-text: _("y-position of top image");
 
                       adjustment: Adjustment percentage2 {
                         lower: -50;
@@ -212,6 +230,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                       Overlay {
                         Box {
                           Picture image_view {
+                            tooltip-text: _("Preview window of icon, drag from here to start drag operation");
                             valign: center;
                             halign: center;
                             width-request: 150;
@@ -234,6 +253,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
 
                         [overlay]
                         Adw.Spinner image_loading_spinner {
+                          tooltip-text: _("New top image is loading");
                           valign: center;
                           halign: center;
                           width-request: 50;
@@ -245,6 +265,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                       Scale x_scale {
                         has-origin: false;
                         orientation: horizontal;
+                        tooltip-text: _("x-position of top image");
 
                         adjustment: Adjustment percentage {
                           lower: -50;
@@ -273,6 +294,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                     Scale size {
                       has-origin: true;
                       orientation: horizontal;
+                      tooltip-text: _("size of top image");
 
                       adjustment: Adjustment percentage3 {
                         lower: 0;
@@ -295,16 +317,19 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                     Switch monochrome_switch {
                       valign: center;
                       action-name: "app.monochrome_switch";
+                      tooltip-text: _("Turn on monochrome for top image");
                       active: true;
                     }
 
                     Adw.SwitchRow monochrome_invert {
                       title: _("Invert");
+                      tooltip-text: _("Invert bright and dark in the monochrome image");
                     }
 
                     Adw.ActionRow {
                       title: _("Color");
                       activatable-widget: monochrome_color;
+                      tooltip-text: _("Choose the color of the monochrome image");
 
                       Box {
                         valign: center;
@@ -312,6 +337,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                         Button reset_color {
                           halign: start;
                           visible: false;
+                          tooltip-text: _("Reset the color of the monochrome image to default");
 
                           Adw.ButtonContent top_icon_content {
                             icon-name: "edit-undo-symbolic";
@@ -342,6 +368,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                       Scale threshold_scale {
                         has-origin: true;
                         orientation: horizontal;
+                        tooltip-text: _("Set the threshold of bright and dark for the monochrome image");
 
                         adjustment: Adjustment threshold_value {
                           lower: 0;
@@ -386,24 +413,6 @@ template $GtkTestWindow: Adw.ApplicationWindow {
               styles [
                 "subtitle",
               ]
-            }
-          }
-        };
-      }
-
-      StackPage {
-        name: "stack_loading_page";
-
-        child: Adw.StatusPage {
-          Box {
-            orientation: vertical;
-            spacing: 12;
-
-            Adw.Spinner {
-              valign: center;
-              halign: center;
-              height-request: 32;
-              width-request: 32;
             }
           }
         };
