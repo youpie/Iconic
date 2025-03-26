@@ -897,6 +897,7 @@ impl GtkTestWindow {
                     win.render_to_screen().await;
                 }
             ));
+            imp.image_loading_spinner.set_visible(false);
             imp.stack.set_visible_child_name("stack_main_page");
         } else if (*bottom_image).is_some() {
             let folder_bottom_name = bottom_image.as_ref().unwrap().filename.clone();

@@ -114,24 +114,6 @@ template $GtkTestWindow: Adw.ApplicationWindow {
       }
 
       StackPage {
-        name: "stack_loading_page";
-
-        child: Adw.StatusPage {
-          Box {
-            orientation: vertical;
-            spacing: 12;
-
-            Adw.Spinner {
-              valign: center;
-              halign: center;
-              height-request: 32;
-              width-request: 32;
-            }
-          }
-        };
-      }
-
-      StackPage {
         name: "stack_main_page";
 
         child: Adw.ToolbarView toolbar {

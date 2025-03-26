@@ -9,6 +9,7 @@ use log::*;
 use std::env;
 use std::error::Error;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use crate::{GenResult, GtkTestWindow, RUNTIME};
 
@@ -96,7 +97,7 @@ impl GtkTestWindow {
             Err(_) => match clipboard.read_texture_future().await {
                 Ok(Some(texture)) => {
                     let top_file_selected = self.top_or_bottom_popup().await;
-                    imp.stack.set_visible_child_name("stack_loading_page");
+                    imp.image_loading_spinner.set_visible(true);
 
                     let png_texture = texture.save_to_tiff_bytes();
                     let image =
@@ -216,7 +217,7 @@ impl GtkTestWindow {
         match mime_type {
             Some(x) if x == String::from("image") => {
                 let top_file_selected = self.top_or_bottom_popup().await;
-                imp.stack.set_visible_child_name("stack_loading_page");
+                imp.image_loading_spinner.set_visible(true);
                 match top_file_selected {
                     Some(true) => {
                         self.new_iconic_file_creation(
@@ -335,7 +336,7 @@ impl GtkTestWindow {
         manual_monochrome_values: Option<(u8, gtk::gdk::RGBA)>,
     ) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
-
+        let _busy_lock = Arc::clone(&imp.app_busy);
         self.image_save_sensitive(false);
         imp.saved_file.lock()?.replace(file.clone());
         let base_image = imp
@@ -436,7 +437,8 @@ impl GtkTestWindow {
     pub async fn load_top_file(&self, filename: gio::File) {
         let imp = self.imp();
         if imp.stack.visible_child_name() == Some("stack_welcome_page".into()) {
-            imp.stack.set_visible_child_name("stack_loading_page");
+            imp.stack.set_visible_child_name("stack_main_page");
+            imp.image_loading_spinner.set_visible(true);
         }
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
