@@ -3,7 +3,6 @@ use gtk::gdk;
 use image::*;
 
 use crate::GtkTestWindow;
-use crate::RUNTIME;
 
 impl GtkTestWindow {
     pub async fn render_to_screen(&self) {
@@ -103,31 +102,30 @@ impl GtkTestWindow {
     ) -> DynamicImage {
         let imp = self.imp();
         let coordinates = ((x_scale_value + 50.0) as i64, (y_scale_value + 50.0) as i64);
-        let texture = RUNTIME
-            .spawn_blocking(move || {
-                let mut base = base_image;
-                let top = top_image;
-                let base_dimension: (i64, i64) =
-                    ((base.dimensions().0).into(), (base.dimensions().1).into());
-                let top = GtkTestWindow::resize_image(top, base.dimensions(), scale, filter);
-                let top_dimension: (i64, i64) = (
-                    (top.dimensions().0 / 2).into(),
-                    (top.dimensions().1 / 2).into(),
-                );
-                let final_coordinates: (i64, i64) = (
-                    ((base_dimension.0 * coordinates.0) / 100) - top_dimension.0,
-                    ((base_dimension.1 * coordinates.1) / 100) - top_dimension.1,
-                );
-                imageops::overlay(
-                    &mut base,
-                    &top,
-                    final_coordinates.0.into(),
-                    final_coordinates.1.into(),
-                );
-                base
-            })
-            .await
-            .unwrap();
+        let texture = gio::spawn_blocking(move || {
+            let mut base = base_image;
+            let top = top_image;
+            let base_dimension: (i64, i64) =
+                ((base.dimensions().0).into(), (base.dimensions().1).into());
+            let top = GtkTestWindow::resize_image(top, base.dimensions(), scale, filter);
+            let top_dimension: (i64, i64) = (
+                (top.dimensions().0 / 2).into(),
+                (top.dimensions().1 / 2).into(),
+            );
+            let final_coordinates: (i64, i64) = (
+                ((base_dimension.0 * coordinates.0) / 100) - top_dimension.0,
+                ((base_dimension.1 * coordinates.1) / 100) - top_dimension.1,
+            );
+            imageops::overlay(
+                &mut base,
+                &top,
+                final_coordinates.0.into(),
+                final_coordinates.1.into(),
+            );
+            base
+        })
+        .await
+        .unwrap();
 
         imp.generated_image.replace(Some(texture.clone()));
         texture

@@ -1,6 +1,6 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
-use crate::{GtkTestWindow, RUNTIME, objects::errors::show_error_popup};
+use crate::{GtkTestWindow, objects::errors::show_error_popup};
 
 use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
@@ -43,7 +43,7 @@ impl GtkTestWindow {
         debug!("File name: {:?}", file.filename);
         match file_path.exists() {
             true => {
-                debug!("file already exists with name");
+                debug!("File already exists with name");
                 return Ok(());
             }
             false => {
@@ -87,12 +87,7 @@ impl GtkTestWindow {
         if files_n == 0 {
             show_error_popup(
                 &self,
-                &format!(
-                    "{}{}{}",
-                    gettext("All "),
-                    incompatible_files_n,
-                    gettext(" files are not compatible for regeneration")
-                ),
+                &gettext("All files are not compatible for regeneration"),
                 true,
                 None,
             );
@@ -149,20 +144,20 @@ impl GtkTestWindow {
         let hash = properties_list[12].split(".").nth(0).into_result()?;
         let mut top_image_path = self.get_cache_path().join("top_images");
         top_image_path.push(hash);
-        let top_image_file = RUNTIME
-            .spawn_blocking(move || {
-                File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
-            })
-            .await??
-            .dynamic_image;
+        let top_image_file = gio::spawn_blocking(move || {
+            File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
+        })
+        .await
+        .unwrap()?
+        .dynamic_image;
         let slider_values = self.get_properties(properties_list.clone())?;
         let top_image = self.create_top_image_for_generation(properties_list, top_image_file)?;
-        let bottom_image_file = RUNTIME
-            .spawn_blocking(move || {
-                File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
-            })
-            .await??
-            .dynamic_image;
+        let bottom_image_file = gio::spawn_blocking(move || {
+            File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
+        })
+        .await
+        .unwrap()?
+        .dynamic_image;
         info!("Generating image");
         let generated_image = self
             .generate_image(
@@ -175,9 +170,11 @@ impl GtkTestWindow {
             )
             .await;
         info!("Saving image");
-        match RUNTIME
-            .spawn_blocking(move || generated_image.save_with_format(file_path, ImageFormat::Png))
-            .await?
+        match gio::spawn_blocking(move || {
+            generated_image.save_with_format(file_path, ImageFormat::Png)
+        })
+        .await
+        .unwrap()
         {
             Ok(_) => info!("Saving Succesful"),
             Err(x) => error!("Saving failed: {:?}", x),
