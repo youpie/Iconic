@@ -82,8 +82,10 @@ impl GtkTestWindow {
             self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
         imp.regeneration_revealer.set_reveal_child(true);
         imp.regeneration_osd.set_fraction(0.0);
+        imp.regeneration_osd_second.set_fraction(0.0);
         let files_n = compatible_files.len();
         let mut last_animation = None;
+        let mut last_animation_second = None;
         if files_n == 0 {
             show_error_popup(
                 &self,
@@ -107,7 +109,16 @@ impl GtkTestWindow {
                     regeneration_errors.push(error)
                 }
             }
-            last_animation = Some(self.progress_animation(step_size, last_animation));
+            last_animation = Some(self.progress_animation(
+                step_size,
+                last_animation,
+                imp.regeneration_osd.clone(),
+            ));
+            last_animation_second = Some(self.progress_animation(
+                step_size,
+                last_animation_second,
+                imp.regeneration_osd_second.clone(),
+            ));
         }
         if !regeneration_errors.is_empty() {
             show_error_popup(
@@ -271,21 +282,20 @@ impl GtkTestWindow {
         &self,
         step_size: f64,
         previous_animation: Option<TimedAnimation>,
+        progress_bar: gtk::ProgressBar,
     ) -> TimedAnimation {
         let imp = self.imp();
-
-        let target =
-            adw::PropertyAnimationTarget::new(&imp.regeneration_osd.to_owned(), "fraction");
+        let target = adw::PropertyAnimationTarget::new(&progress_bar, "fraction");
         let _ = previous_animation.is_some_and(|animation| {
             animation.skip();
             false
         });
         let animation = adw::TimedAnimation::builder()
             .target(&target)
-            .widget(&imp.regeneration_osd.to_owned())
-            .value_from(imp.regeneration_osd.fraction())
-            .value_to(imp.regeneration_osd.fraction() + step_size)
-            .duration(50)
+            .widget(&progress_bar)
+            .value_from(progress_bar.fraction())
+            .value_to(progress_bar.fraction() + step_size)
+            .duration(200)
             .easing(adw::Easing::EaseInOutCubic)
             .build();
         animation.play();

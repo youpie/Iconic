@@ -99,6 +99,8 @@ mod imp {
         #[template_child]
         pub regeneration_osd: TemplateChild<gtk::ProgressBar>,
         #[template_child]
+        pub regeneration_osd_second: TemplateChild<gtk::ProgressBar>,
+        #[template_child]
         pub regeneration_revealer: TemplateChild<gtk::Revealer>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
@@ -134,6 +136,7 @@ mod imp {
                 monochrome_switch: TemplateChild::default(),
                 image_preferences: TemplateChild::default(),
                 regeneration_osd: TemplateChild::default(),
+                regeneration_osd_second: TemplateChild::default(),
                 x_scale: TemplateChild::default(),
                 y_scale: TemplateChild::default(),
                 size: TemplateChild::default(),
