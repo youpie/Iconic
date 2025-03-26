@@ -179,7 +179,7 @@ mod imp {
                         win.load_top_icon().await;
                     }
                 ));
-                error!("References: {}", Arc::strong_count(&win.imp().app_busy));
+                debug!("References: {}", Arc::strong_count(&win.imp().app_busy));
             });
             klass.install_action("app.open_file_location", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
@@ -228,10 +228,6 @@ mod imp {
                                 show_error_popup(&win, "", true, Some(x));
                             }
                         };
-
-                        imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
-                            "Regeneration sucessful, restart nautilus",
-                        )));
                         //imp.stack.set_visible_child_name(&previous_stack);
                         debug!("Done generating");
                     }
@@ -354,7 +350,7 @@ mod imp {
     impl WidgetImpl for GtkTestWindow {}
     impl WindowImpl for GtkTestWindow {
         fn close_request(&self) -> glib::Propagation {
-            error!("close request");
+            warn!("close request");
             let window = self.obj();
             // If iconic is busy, show busy pop-up
             if Arc::strong_count(&self.app_busy) >= 2 {

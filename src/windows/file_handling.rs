@@ -292,7 +292,7 @@ impl GtkTestWindow {
                     gtk::DialogError::Dismissed => {
                         error!("{:?}", file_chooser_error);
                         imp.toast_overlay
-                            .add_toast(adw::Toast::new("File not saved"));
+                            .add_toast(adw::Toast::new(&gettext("File not saved")));
                         return Ok(false);
                     }
                     _ => {

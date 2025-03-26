@@ -125,6 +125,9 @@ impl GtkTestWindow {
                 None,
             );
         }
+        imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
+            "Regeneration sucessful, restart nautilus",
+        )));
         imp.regeneration_revealer.set_reveal_child(false);
         self.close_iconic_busy_popup();
         Ok(())
