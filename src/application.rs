@@ -22,7 +22,7 @@ use crate::GtkTestWindow;
 use crate::config::{APP_ICON, VERSION};
 use crate::glib::WeakRef;
 use crate::settings::settings::PreferencesDialog;
-use adw::prelude::AdwDialogExt;
+use adw::prelude::{AdwApplicationWindowExt, AdwDialogExt};
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::License;
@@ -134,8 +134,13 @@ impl GtkTestApplication {
     fn show_preferences_dialog(&self) {
         let preferences = PreferencesDialog::new();
         let window = self.active_window().unwrap();
-
-        adw::prelude::AdwDialogExt::present(&preferences, Some(&window));
+        let adw_window = window.downcast_ref::<GtkTestWindow>().unwrap();
+        match adw_window.visible_dialog() {
+            Some(dialog) => {
+                dialog.close();
+            }
+            None => adw::prelude::AdwDialogExt::present(&preferences, Some(&window)),
+        }
     }
 
     fn open_function(&self) {
