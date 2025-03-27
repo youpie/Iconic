@@ -1,7 +1,7 @@
 {
-    "app-id": "nl.emphisia.icon.Devel",
+    "id": "nl.emphisia.icon.Devel",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "47",
+    "runtime-version": "48",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
@@ -46,7 +46,7 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
-                    "tag": "v0.12.0"
+                    "tag": "v0.16.0"
                 }
             ]
         },

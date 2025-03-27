@@ -10,6 +10,7 @@ src/window.blp
 # RUST files
 src/application.rs
 src/main.rs
+src/objects/errors.rs
 src/settings/settings.rs
 src/window.rs
 src/windows/alert_dialogs.rs

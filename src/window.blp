@@ -9,7 +9,8 @@ template $GtkTestWindow: Adw.ApplicationWindow {
 
   content: Adw.ToastOverlay toast_overlay {
     Stack stack {
-      transition-type: crossfade;
+      transition-type: slide_left_right;
+      transition-duration: 300;
 
       StackPage {
         name: "stack_welcome_page";
@@ -22,11 +23,28 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             };
 
             [end]
-            MenuButton {
-              primary: true;
-              icon-name: "open-menu-symbolic";
-              tooltip-text: _("Menu");
-              menu-model: primary_menu;
+            Box {
+              spacing: 10;
+
+              Revealer {
+                reveal-child: bind regeneration_revealer.reveal-child;
+                transition-duration: 250;
+                transition-type: crossfade;
+                valign: center;
+                halign: center;
+
+                Adw.Spinner {
+                  // visible: bind regeneration_revealer.reveal-child;
+                  tooltip-text: _("Regenerating icons…");
+                }
+              }
+
+              MenuButton {
+                primary: true;
+                icon-name: "open-menu-symbolic";
+                tooltip-text: _("Menu");
+                menu-model: primary_menu;
+              }
             }
           }
 
@@ -37,72 +55,60 @@ template $GtkTestWindow: Adw.ApplicationWindow {
               transition-type: crossfade;
               reveal-child: bind regeneration_revealer.reveal-child;
               valign: start;
+              halign: fill;
 
               ProgressBar regeneration_osd_second {
-                fraction: bind regeneration_osd.fraction;
+                fraction: 0.5;
                 visible: true;
                 halign: fill;
 
                 styles [
-                  "osd"
+                  "osd",
                 ]
               }
             }
 
-            Overlay {
-              [overlay]
-              Adw.Spinner {
-                visible: bind regeneration_revealer.reveal-child;
-                tooltip-text: "Regenerating...";
-                margin-top: 100;
-                valign: start;
-                halign: center;
-                width-request: 150;
-                height-request: 150;
-              }
+            child: Adw.StatusPage main_status_page {
+              icon-name: "nl.emphisia.icon";
+              title: _("Folder Icon Creator");
+              description: _("Click or Drag to Open Image");
+              hexpand: true;
+              vexpand: true;
 
-              child: Adw.StatusPage main_status_page {
-                icon-name: "nl.emphisia.icon";
-                title: _("Folder Icon Creator");
-                description: _("Click or Drag to Open Image");
-                hexpand: true;
-                vexpand: true;
+              child: Box {
+                orientation: vertical;
+                spacing: 20;
 
-                child: Box {
-                  orientation: vertical;
-                  spacing: 20;
+                Button open_top_icon {
+                  valign: center;
+                  halign: center;
+                  label: _("_Open Image");
+                  use-underline: true;
+                  action-name: "app.open_top_icon";
 
-                  Button open_top_icon {
-                    valign: center;
-                    halign: center;
-                    label: _("_Open Image");
-                    use-underline: true;
-                    action-name: "app.open_top_icon";
+                  styles [
+                    "suggested-action",
+                    "pill",
+                  ]
+                }
 
-                    styles [
-                      "suggested-action",
-                      "pill",
-                    ]
-                  }
+                Button open_bottom_icon {
+                  valign: center;
+                  halign: center;
+                  label: _("_Show Bottom Layer");
+                  use-underline: true;
+                  action-name: "app.open_bottom_icon";
 
-                  Button open_bottom_icon {
-                    valign: center;
-                    halign: center;
-                    label: _("_Show Bottom Layer");
-                    use-underline: true;
-                    action-name: "app.open_bottom_icon";
-
-                    styles [
-                      "pill",
-                    ]
-                  }
-                };
-
-                styles [
-                  "icon-dropshadow"
-                ]
+                  styles [
+                    "pill",
+                  ]
+                }
               };
-            }
+
+              styles [
+                "icon-dropshadow",
+              ]
+            };
           };
         };
       }
@@ -115,7 +121,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
           Adw.HeaderBar header_bar {
             Button save_button {
               Adw.ButtonContent save_button_content {
-                label: "Save";
+                label: _("Save");
                 icon-name: "document-save-symbolic";
               }
 
@@ -124,7 +130,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
               action-name: "app.save_button";
 
               styles [
-                "suggested-action"
+                "suggested-action",
               ]
             }
 
@@ -136,9 +142,16 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             Box {
               spacing: 10;
 
-              Adw.Spinner {
-                visible: bind regeneration_revealer.reveal-child;
-                tooltip-text: _("Regenerating icons...");
+              Revealer {
+                reveal-child: bind regeneration_revealer.reveal-child;
+                transition-duration: 250;
+                transition-type: crossfade;
+                valign: center;
+                halign: center;
+
+                Adw.Spinner {
+                  tooltip-text: _("Regenerating icons…");
+                }
               }
 
               MenuButton {
@@ -163,7 +176,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                 halign: fill;
 
                 styles [
-                  "osd"
+                  "osd",
                 ]
               };
             }
@@ -179,6 +192,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                     Scale y_scale {
                       has-origin: false;
                       orientation: vertical;
+                      tooltip-text: _("y-position of top image");
 
                       adjustment: Adjustment percentage2 {
                         lower: -50;
@@ -198,6 +212,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                       Overlay {
                         Box {
                           Picture image_view {
+                            tooltip-text: _("Preview window of icon, drag from here to start drag operation");
                             valign: center;
                             halign: center;
                             width-request: 150;
@@ -220,6 +235,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
 
                         [overlay]
                         Adw.Spinner image_loading_spinner {
+                          tooltip-text: _("New top image is loading");
                           valign: center;
                           halign: center;
                           width-request: 50;
@@ -231,6 +247,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                       Scale x_scale {
                         has-origin: false;
                         orientation: horizontal;
+                        tooltip-text: _("x-position of top image");
 
                         adjustment: Adjustment percentage {
                           lower: -50;
@@ -259,6 +276,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                     Scale size {
                       has-origin: true;
                       orientation: horizontal;
+                      tooltip-text: _("size of top image");
 
                       adjustment: Adjustment percentage3 {
                         lower: 0;
@@ -281,16 +299,19 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                     Switch monochrome_switch {
                       valign: center;
                       action-name: "app.monochrome_switch";
+                      tooltip-text: _("Turn on monochrome for top image");
                       active: true;
                     }
 
                     Adw.SwitchRow monochrome_invert {
                       title: _("Invert");
+                      tooltip-text: _("Invert bright and dark in the monochrome image");
                     }
 
                     Adw.ActionRow {
                       title: _("Color");
                       activatable-widget: monochrome_color;
+                      tooltip-text: _("Choose the color of the monochrome image");
 
                       Box {
                         valign: center;
@@ -298,6 +319,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                         Button reset_color {
                           halign: start;
                           visible: false;
+                          tooltip-text: _("Reset the color of the monochrome image to default");
 
                           Adw.ButtonContent top_icon_content {
                             icon-name: "edit-undo-symbolic";
@@ -328,6 +350,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                       Scale threshold_scale {
                         has-origin: true;
                         orientation: horizontal;
+                        tooltip-text: _("Set the threshold of bright and dark for the monochrome image");
 
                         adjustment: Adjustment threshold_value {
                           lower: 0;
@@ -366,30 +389,12 @@ template $GtkTestWindow: Adw.ApplicationWindow {
             }
 
             Label {
-              label: _("Saving...");
+              label: _("Saving…");
               margin-bottom: 40;
 
               styles [
                 "subtitle",
               ]
-            }
-          }
-        };
-      }
-
-      StackPage {
-        name: "stack_loading_page";
-
-        child: Adw.StatusPage {
-          Box {
-            orientation: vertical;
-            spacing: 12;
-
-            Adw.Spinner {
-              valign: center;
-              halign: center;
-              height-request: 32;
-              width-request: 32;
             }
           }
         };
@@ -438,11 +443,6 @@ menu primary_menu {
     item {
       label: _("_Keyboard Shortcuts");
       action: "win.show-help-overlay";
-    }
-
-    item {
-      label: _("_Donate ❤️");
-      action: "app.donate";
     }
 
     item {

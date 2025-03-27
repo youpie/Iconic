@@ -1,4 +1,4 @@
-use crate::objects::errors::{show_error_popup, IntoResult};
+use crate::objects::errors::{IntoResult, show_error_popup};
 use crate::objects::file::File;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -9,8 +9,9 @@ use log::*;
 use std::env;
 use std::error::Error;
 use std::path::PathBuf;
+use std::sync::Arc;
 
-use crate::{GtkTestWindow, RUNTIME};
+use crate::{GenResult, GtkTestWindow};
 
 impl GtkTestWindow {
     pub fn load_folder_path_from_settings(&self) {
@@ -60,12 +61,12 @@ impl GtkTestWindow {
         let mut cache_location = self.get_cache_path();
         cache_location.push("custom_folder.svg");
         let cache_location_clone = cache_location.clone();
-        RUNTIME
-            .spawn_blocking(move || {
-                let _ = std::fs::write(&cache_location_clone, new_custom_folder_bytes);
-            })
-            .await
-            .unwrap();
+
+        gio::spawn_blocking(move || {
+            let _ = std::fs::write(&cache_location_clone, new_custom_folder_bytes);
+        })
+        .await
+        .unwrap();
         cache_location
     }
 
@@ -96,7 +97,7 @@ impl GtkTestWindow {
             Err(_) => match clipboard.read_texture_future().await {
                 Ok(Some(texture)) => {
                     let top_file_selected = self.top_or_bottom_popup().await;
-                    imp.stack.set_visible_child_name("stack_loading_page");
+                    imp.image_loading_spinner.set_visible(true);
 
                     let png_texture = texture.save_to_tiff_bytes();
                     let image =
@@ -104,12 +105,11 @@ impl GtkTestWindow {
                             .unwrap();
                     match top_file_selected {
                         Some(true) => {
-                            let iconic_file = RUNTIME
-                                .spawn_blocking(move || {
-                                    File::from_image(image, thumbnail_size, "pasted")
-                                })
-                                .await
-                                .unwrap();
+                            let iconic_file = gio::spawn_blocking(move || {
+                                File::from_image(image, thumbnail_size, "pasted")
+                            })
+                            .await
+                            .unwrap();
                             match self.store_top_image_in_cache(&iconic_file, None) {
                                 Err(x) => {
                                     show_error_popup(&self, &x.to_string(), true, None);
@@ -121,12 +121,11 @@ impl GtkTestWindow {
                         _ => {
                             imp.temp_image_loaded.replace(true);
                             imp.bottom_image_file.lock().unwrap().replace(
-                                RUNTIME
-                                    .spawn_blocking(move || {
-                                        File::from_image(image.clone(), thumbnail_size, "pasted")
-                                    })
-                                    .await
-                                    .unwrap(),
+                                gio::spawn_blocking(move || {
+                                    File::from_image(image.clone(), thumbnail_size, "pasted")
+                                })
+                                .await
+                                .unwrap(),
                             );
                         }
                     }
@@ -216,7 +215,7 @@ impl GtkTestWindow {
         match mime_type {
             Some(x) if x == String::from("image") => {
                 let top_file_selected = self.top_or_bottom_popup().await;
-                imp.stack.set_visible_child_name("stack_loading_page");
+                imp.image_loading_spinner.set_visible(true);
                 match top_file_selected {
                     Some(true) => {
                         self.new_iconic_file_creation(
@@ -247,15 +246,13 @@ impl GtkTestWindow {
                 show_error_popup(&self, &gettext("Unsupported file type"), true, None);
             }
         }
-
-        self.check_icon_update();
     }
 
     pub async fn open_save_file_dialog(&self) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
         if !imp.save_button.is_sensitive() {
             imp.toast_overlay
-                .add_toast(adw::Toast::new("Can't save anything"));
+                .add_toast(adw::Toast::new(&gettext("Nothing to save")));
             return Ok(false);
         };
         let file_name = format!(
@@ -273,7 +270,9 @@ impl GtkTestWindow {
         self.imp().stack.set_visible_child_name("stack_saving_page");
         match file_chooser.save_future(Some(self)).await {
             Ok(file) => {
-                let saved_file = self.save_file(file).await?;
+                let saved_file = self
+                    .save_file(file, imp.monochrome_switch.is_active(), None)
+                    .await?;
                 self.imp().stack.set_visible_child_name("stack_main_page");
                 imp.toast_overlay.add_toast(
                     adw::Toast::builder()
@@ -293,12 +292,10 @@ impl GtkTestWindow {
                     gtk::DialogError::Dismissed => {
                         error!("{:?}", file_chooser_error);
                         imp.toast_overlay
-                            .add_toast(adw::Toast::new("File not saved"));
+                            .add_toast(adw::Toast::new(&gettext("File not saved")));
                         return Ok(false);
                     }
                     _ => {
-                        imp.image_saved.replace(false);
-                        imp.save_button.set_sensitive(true);
                         return Err(Box::new(file_chooser_error));
                     }
                 };
@@ -307,8 +304,37 @@ impl GtkTestWindow {
         Ok(true)
     }
 
-    pub async fn save_file(&self, file: gio::File) -> Result<bool, Box<dyn Error + '_>> {
+    pub async fn copy_folder_image_to_cache(
+        &self,
+        original_path: &PathBuf,
+        cache_dir: &PathBuf,
+    ) -> GenResult<(PathBuf, String)> {
+        let file_name = format!(
+            "folder.{}",
+            original_path
+                .extension()
+                .into_reason_result("Failed to get folder file extension")?
+                .to_str()
+                .into_result()?
+        );
+        self.imp()
+            .settings
+            .set("folder-cache-name", file_name.clone())
+            .unwrap();
+        let cache_path = cache_dir.join(file_name.clone());
+        std::fs::copy(original_path, cache_path.clone())?;
+        Ok((cache_path, file_name))
+    }
+
+    pub async fn save_file(
+        &self,
+        file: gio::File,
+        use_monochrome: bool,
+        manual_monochrome_values: Option<(u8, gtk::gdk::RGBA)>,
+    ) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
+        let _busy_lock = Arc::clone(&imp.app_busy);
+        self.image_save_sensitive(false);
         imp.saved_file.lock()?.replace(file.clone());
         let base_image = imp
             .bottom_image_file
@@ -324,12 +350,15 @@ impl GtkTestWindow {
             .into_reason_result("No top image found")?
             .thumbnail
             .clone();
-        if imp.monochrome_switch.state() {
-            top_image = self.to_monochrome(
-                top_image,
-                imp.threshold_scale.value() as u8,
-                imp.monochrome_color.rgba(),
-            );
+        if use_monochrome {
+            let (monochrome_threshold, monochrome_color) = match manual_monochrome_values {
+                Some((threshold, color)) => (threshold, color),
+                None => (
+                    imp.threshold_scale.value() as u8,
+                    imp.monochrome_color.rgba(),
+                ),
+            };
+            top_image = self.to_monochrome(top_image, monochrome_threshold, monochrome_color, None);
         }
         let generated_image = self
             .generate_image(
@@ -341,13 +370,11 @@ impl GtkTestWindow {
                 imp.size.value(),
             )
             .await;
-        let _ = RUNTIME
-            .spawn_blocking(move || {
-                generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)
-            })
-            .await?;
-        imp.image_saved.replace(true);
-        imp.save_button.set_sensitive(false);
+        let _ = gio::spawn_blocking(move || {
+            generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)
+        })
+        .await
+        .unwrap()?;
         Ok(true)
     }
 
@@ -371,7 +398,6 @@ impl GtkTestWindow {
             }
         };
         imp.image_loading_spinner.set_visible(false);
-        self.check_icon_update();
     }
 
     pub async fn load_temp_folder_icon(&self) {
@@ -408,7 +434,8 @@ impl GtkTestWindow {
     pub async fn load_top_file(&self, filename: gio::File) {
         let imp = self.imp();
         if imp.stack.visible_child_name() == Some("stack_welcome_page".into()) {
-            imp.stack.set_visible_child_name("stack_loading_page");
+            imp.stack.set_visible_child_name("stack_main_page");
+            imp.image_loading_spinner.set_visible(true);
         }
         let svg_render_size: i32 = imp.settings.get("svg-render-size");
         let size: i32 = imp.settings.get("thumbnail-size");
@@ -430,13 +457,12 @@ impl GtkTestWindow {
         let imp = self.imp();
         let new_file = if let Some(file_temp) = file {
             let file_temp_clone = file_temp.clone();
-            let iconic_file = match RUNTIME
-                .spawn_blocking(move || {
-                    File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
-                        .map_err(|err| err.to_string())
-                })
-                .await
-                .unwrap()
+            let iconic_file = match gio::spawn_blocking(move || {
+                File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
+                    .map_err(|err| err.to_string())
+            })
+            .await
+            .unwrap()
             {
                 Ok(x) => x,
                 Err(e) => {
@@ -456,13 +482,12 @@ impl GtkTestWindow {
         } else if let Some(path_temp) = path {
             let file_temp = gio::File::for_path(path_temp);
             let file_temp_clone = file_temp.clone();
-            let iconic_file = match RUNTIME
-                .spawn_blocking(move || {
-                    File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
-                        .map_err(|err| err.to_string())
-                })
-                .await
-                .unwrap()
+            let iconic_file = match gio::spawn_blocking(move || {
+                File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
+                    .map_err(|err| err.to_string())
+            })
+            .await
+            .unwrap()
             {
                 Ok(x) => x,
                 Err(e) => {

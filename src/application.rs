@@ -18,18 +18,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+use crate::GtkTestWindow;
 use crate::config::{APP_ICON, VERSION};
 use crate::glib::WeakRef;
 use crate::settings::settings::PreferencesDialog;
-use crate::GtkTestWindow;
-use crate::RUNTIME;
-use adw::prelude::AdwDialogExt;
+use adw::prelude::{AdwApplicationWindowExt, AdwDialogExt};
 use adw::subclass::prelude::*;
-use ashpd::desktop::open_uri::OpenFileRequest;
-use ashpd::url;
 use gettextrs::gettext;
-use gtk::prelude::*;
 use gtk::License;
+use gtk::prelude::*;
 use gtk::{gio, glib};
 use std::cell::OnceCell;
 
@@ -114,9 +111,6 @@ impl GtkTestApplication {
         let paste_action = gio::ActionEntry::builder("paste")
             .activate(move |app: &Self, _, _| app.paste_image())
             .build();
-        let donate_action = gio::ActionEntry::builder("donate")
-            .activate(move |app: &Self, _, _| app.donate())
-            .build();
         self.add_action_entries([
             quit_action,
             about_action,
@@ -124,7 +118,6 @@ impl GtkTestApplication {
             open_action,
             open_folder_action,
             paste_action,
-            donate_action,
         ]);
     }
 
@@ -132,16 +125,22 @@ impl GtkTestApplication {
         self.set_accels_for_action("app.save_button", &["<primary>s"]);
         self.set_accels_for_action("app.open_top_icon", &["<primary>o"]);
         self.set_accels_for_action("app.quit", &["<primary>q"]);
+        self.set_accels_for_action("app.preferences", &["<primary>comma"]);
         self.set_accels_for_action("app.select_folder", &["<primary><shift>o"]);
         self.set_accels_for_action("app.paste", &["<primary>v"]);
-        self.set_accels_for_action("app.regeneration", &["<primary>r"]);
+        self.set_accels_for_action("app.regenerate", &["<primary>r"]);
     }
 
     fn show_preferences_dialog(&self) {
         let preferences = PreferencesDialog::new();
         let window = self.active_window().unwrap();
-
-        adw::prelude::AdwDialogExt::present(&preferences, Some(&window));
+        let adw_window = window.downcast_ref::<GtkTestWindow>().unwrap();
+        match adw_window.visible_dialog() {
+            Some(dialog) => {
+                dialog.close();
+            }
+            None => adw::prelude::AdwDialogExt::present(&preferences, Some(&window)),
+        }
     }
 
     fn open_function(&self) {
@@ -150,22 +149,6 @@ impl GtkTestApplication {
 
     fn open_folder_function(&self) {
         self.activate_action("app.select_folder", None);
-    }
-
-    fn donate(&self) {
-        glib::spawn_future_local(glib::clone!(
-            #[weak(rename_to = _win)]
-            self,
-            async move {
-                let uri = url::Url::parse("https://ko-fi.com/youpie").unwrap();
-                //let root = win.native().unwrap();
-                //let identifier = WindowIdentifier::from_native(&root).await;
-                let request = OpenFileRequest::default();
-                RUNTIME.spawn(async move {
-                    request.send_uri(&uri).await.unwrap();
-                });
-            }
-        ));
     }
 
     fn paste_image(&self) {
@@ -183,6 +166,12 @@ impl GtkTestApplication {
                 "Youpie https://github.com/youpie",
                 "Qustio https://github.com/Qustio",
             ])
+            .comments(&gettext(
+                "Iconic allows you to add images onto a folder.
+You can drag these created images straight into the properties window of the file manager!
+
+If you like this app, feel free to donate, I would really appreciate it!",
+            ))
             // Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
             .translator_credits(gettext("translator-credits"))
             .version(VERSION)
@@ -202,6 +191,7 @@ impl GtkTestApplication {
                 "Loupe https://gitlab.gnome.org/GNOME/loupe",
             ],
         );
+        about.add_link("Donate ❤️", "https://ko-fi.com/youpie");
         about.add_acknowledgement_section(
             Some("Icon inspiration from"),
             &[

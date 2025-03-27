@@ -35,12 +35,6 @@ use config::{APP_ID, GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
 use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
 use gtk::prelude::*;
 use gtk::{gio, glib};
-use once_cell::sync::Lazy;
-use tokio;
-
-/// The default tokio runtime to be used for async tasks
-pub static RUNTIME: Lazy<tokio::runtime::Runtime> =
-    Lazy::new(|| tokio::runtime::Runtime::new().unwrap());
 
 fn main() -> glib::ExitCode {
     pretty_env_logger::init();

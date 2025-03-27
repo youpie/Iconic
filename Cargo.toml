@@ -1,34 +1,34 @@
 [package]
 name = "folder_icon"
-version = "2025.3.1"
+version = "2025.3.2"
 edition = "2024"
+
+# override package level optimization, to always be maximum
+[profile.release.package."*"]
+opt-level = 3
 
 [dependencies]
 gettext-rs = { version = "0.7.2", features = ["gettext-system"] }
-image = { version = "0.25.2" }
-gio = "0.20.4"
-librsvg = "2.59.1"
-cairo-rs = "0.20.1"
-async-channel = { version = "2.3.1" }
-resvg = { version = "0.45.0" }
+image = "0.25.2"
+gio = "0.20.9"
+librsvg = "2.60.0"
+cairo-rs = "0.20.7"
+resvg = "0.45.0"
 usvg = "0.45.0"
 log = "0.4.22"
 pretty_env_logger = "0.5"
-ashpd = "0.11.0"
 rand = "0.9.0"
-tokio = { version = "1.42.0", features = ["full"] }
 fs_extra = "1.2.0"
 hex = "0.4.3"
-once_cell = "1.20.2"
 thiserror = "2.0.12"
 
 
 [dependencies.gtk]
 package = "gtk4"
-version = "0.9.2"
-features = ["v4_10"]
+version = "0.9.6"
+features = ["v4_18"]
 
 [dependencies.adw]
 package = "libadwaita"
-version = "0.7"
-features = ["v1_6"]
+version = "0.7.2"
+features = ["v1_7"]

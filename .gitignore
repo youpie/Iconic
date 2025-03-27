@@ -10,3 +10,4 @@
 /build-aux/.flatpak-builder
 *.bkp
 *.drawio
+*.flatpak

@@ -1,12 +1,15 @@
 use crate::objects::errors::show_error_popup;
 
-use adw::prelude::{AdwDialogExt, AlertDialogExt, AlertDialogExtManual};
+use adw::AlertDialog;
+use adw::prelude::Cast;
+use adw::prelude::{AdwApplicationWindowExt, AdwDialogExt, AlertDialogExt, AlertDialogExtManual};
 use gettextrs::gettext;
 use gio::{
     glib,
-    prelude::{SettingsExt, SettingsExtManual},
+    prelude::{ActionGroupExt, SettingsExt, SettingsExtManual},
     subclass::prelude::ObjectSubclassIsExt,
 };
+use gtk::prelude::GtkWindowExt;
 use log::*;
 
 use crate::GtkTestWindow;
@@ -61,14 +64,16 @@ impl GtkTestWindow {
         }
     }
 
-    pub async fn confirm_save_changes(&self) -> Result<glib::Propagation, ()> {
+    pub async fn confirm_save_changes(&self) -> bool {
+        let mut quit_iconic = false;
         const RESPONSE_CANCEL: &str = "cancel";
         const RESPONSE_DISCARD: &str = "discard";
         const RESPONSE_SAVE: &str = "save";
+        const RESPONSE_CLOSE: &str = "close";
         let dialog = adw::AlertDialog::builder()
             .heading(gettext("Save Changes?"))
             .body(gettext("Open image contain unsaved changes. Changes which are not saved will be permanently lost"))
-            .close_response(RESPONSE_CANCEL)
+            .close_response(RESPONSE_CLOSE)
             .default_response(RESPONSE_SAVE)
             .build();
         dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
@@ -76,25 +81,34 @@ impl GtkTestWindow {
         dialog.set_response_appearance(RESPONSE_DISCARD, adw::ResponseAppearance::Destructive);
         dialog.add_response(RESPONSE_SAVE, &gettext("Save"));
         dialog.set_response_appearance(RESPONSE_SAVE, adw::ResponseAppearance::Suggested);
-
         match &*dialog.clone().choose_future(self).await {
             RESPONSE_CANCEL => {
                 dialog.close();
-                Ok(glib::Propagation::Stop)
             }
-            RESPONSE_DISCARD => Ok(glib::Propagation::Proceed),
+            RESPONSE_DISCARD => {
+                quit_iconic = true;
+            }
             RESPONSE_SAVE => match self.open_save_file_dialog().await {
                 Ok(saved) => match saved {
-                    true => Ok(glib::Propagation::Proceed),
-                    false => Ok(glib::Propagation::Stop),
+                    true => {
+                        quit_iconic = true;
+                    }
+                    false => (),
                 },
                 Err(error) => {
                     show_error_popup(&self, &error.to_string(), true, Some(error));
-                    Ok(glib::Propagation::Stop)
                 }
             },
+            RESPONSE_CLOSE => {
+                self.imp().image_saved.replace(true);
+                dialog.close();
+            }
             _ => unreachable!(),
         }
+        if quit_iconic {
+            self.application().unwrap().activate_action("quit", None)
+        }
+        false
     }
 
     pub fn get_accent_color_and_show_dialog(&self) -> String {
@@ -129,5 +143,73 @@ impl GtkTestWindow {
             dialog.present(Some(self));
             let _ = imp.settings.set("regeneration-hint-shown", true);
         }
+    }
+
+    pub fn force_quit_dialog_async_wrapper(&self) {
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to=win)]
+            self,
+            async move { win.force_quit_dialog().await }
+        ));
+    }
+
+    async fn force_quit_dialog(&self) {
+        const RESPONSE_WAIT: &str = "WAIT_QUIT";
+        const RESPONSE_FORCE_QUIT: &str = "QUIT";
+        let dialog = adw::AlertDialog::builder()
+                .heading(&gettext("Iconic is busy"))
+                .body(&gettext("Iconic is currently busy, it is recommended to wait before closing to prevent data loss"))
+                .default_response(RESPONSE_WAIT)
+                .close_response(RESPONSE_WAIT)
+                .build();
+        // Aparently items appear reversed from how they are defined here
+        dialog.add_response(RESPONSE_FORCE_QUIT, &gettext("Quit anyway"));
+        dialog.set_response_appearance(RESPONSE_FORCE_QUIT, adw::ResponseAppearance::Destructive);
+        dialog.add_response(RESPONSE_WAIT, &gettext("Wait"));
+        dialog.set_response_appearance(RESPONSE_WAIT, adw::ResponseAppearance::Suggested);
+        dialog.present(Some(self));
+        match &*dialog.clone().choose_future(self).await {
+            RESPONSE_WAIT => (),
+            RESPONSE_FORCE_QUIT => self.application().unwrap().activate_action("quit", None),
+            _ => unreachable!(),
+        }
+    }
+
+    fn get_current_alert_dialog(&self) -> Option<AlertDialog> {
+        let dialog = match self.visible_dialog() {
+            Some(dialog) => dialog,
+            None => {
+                info!("No dialog found");
+                return None;
+            }
+        };
+        dialog.downcast::<AlertDialog>().ok()
+    }
+
+    pub fn close_iconic_busy_popup(&self) {
+        if let Some(alert_dialog) = self.get_current_alert_dialog() {
+            if alert_dialog.default_response() == Some("WAIT_QUIT".into()) {
+                alert_dialog.close();
+                warn!("Busy dialog is found, closing");
+                self.quit_iconic();
+            } else {
+                info!("Dialog is found, but not busy dialog");
+            }
+        }
+    }
+
+    pub fn quit_iconic(&self) {
+        let imp = self.imp();
+        if imp.image_saved.borrow().clone() {
+            error!("closing iconic");
+            self.application().unwrap().activate_action("quit", None);
+        }
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to=win)]
+            self,
+            async move {
+                win.confirm_save_changes().await;
+            }
+        ));
     }
 }

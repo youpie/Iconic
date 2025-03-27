@@ -3,7 +3,6 @@ use gtk::gdk;
 use image::*;
 
 use crate::GtkTestWindow;
-use crate::RUNTIME;
 
 impl GtkTestWindow {
     pub async fn render_to_screen(&self) {
@@ -29,8 +28,10 @@ impl GtkTestWindow {
                 top_image,
                 imp.threshold_scale.value() as u8,
                 imp.monochrome_color.rgba(),
+                None,
             );
         }
+        self.image_save_sensitive(true);
         let texture = self.dynamic_image_to_texture(
             &self
                 .generate_image(
@@ -52,6 +53,7 @@ impl GtkTestWindow {
         image: DynamicImage,
         threshold: u8,
         color: gdk::RGBA,
+        invert: Option<bool>,
     ) -> DynamicImage {
         // Convert the image to RGBA8
         let rgba_img = image.to_rgba8();
@@ -60,7 +62,10 @@ impl GtkTestWindow {
 
         // Create a new image buffer for the monochrome image
         let mut mono_img: RgbaImage = ImageBuffer::new(rgba_img.width(), rgba_img.height());
-        let switch_state = self.imp().monochrome_invert.is_active();
+        let switch_state = match invert {
+            Some(invert_value) => invert_value,
+            None => self.imp().monochrome_invert.is_active(),
+        };
         // Apply the threshold to create a black and white image, keeping the alpha channel
         for (x, y, pixel) in rgba_img.enumerate_pixels() {
             let rgba = pixel.0;
@@ -97,31 +102,30 @@ impl GtkTestWindow {
     ) -> DynamicImage {
         let imp = self.imp();
         let coordinates = ((x_scale_value + 50.0) as i64, (y_scale_value + 50.0) as i64);
-        let texture = RUNTIME
-            .spawn_blocking(move || {
-                let mut base = base_image;
-                let top = top_image;
-                let base_dimension: (i64, i64) =
-                    ((base.dimensions().0).into(), (base.dimensions().1).into());
-                let top = GtkTestWindow::resize_image(top, base.dimensions(), scale, filter);
-                let top_dimension: (i64, i64) = (
-                    (top.dimensions().0 / 2).into(),
-                    (top.dimensions().1 / 2).into(),
-                );
-                let final_coordinates: (i64, i64) = (
-                    ((base_dimension.0 * coordinates.0) / 100) - top_dimension.0,
-                    ((base_dimension.1 * coordinates.1) / 100) - top_dimension.1,
-                );
-                imageops::overlay(
-                    &mut base,
-                    &top,
-                    final_coordinates.0.into(),
-                    final_coordinates.1.into(),
-                );
-                base
-            })
-            .await
-            .unwrap();
+        let texture = gio::spawn_blocking(move || {
+            let mut base = base_image;
+            let top = top_image;
+            let base_dimension: (i64, i64) =
+                ((base.dimensions().0).into(), (base.dimensions().1).into());
+            let top = GtkTestWindow::resize_image(top, base.dimensions(), scale, filter);
+            let top_dimension: (i64, i64) = (
+                (top.dimensions().0 / 2).into(),
+                (top.dimensions().1 / 2).into(),
+            );
+            let final_coordinates: (i64, i64) = (
+                ((base_dimension.0 * coordinates.0) / 100) - top_dimension.0,
+                ((base_dimension.1 * coordinates.1) / 100) - top_dimension.1,
+            );
+            imageops::overlay(
+                &mut base,
+                &top,
+                final_coordinates.0.into(),
+                final_coordinates.1.into(),
+            );
+            base
+        })
+        .await
+        .unwrap();
 
         imp.generated_image.replace(Some(texture.clone()));
         texture

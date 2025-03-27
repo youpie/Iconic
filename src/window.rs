@@ -99,6 +99,8 @@ mod imp {
         #[template_child]
         pub regeneration_osd: TemplateChild<gtk::ProgressBar>,
         #[template_child]
+        pub regeneration_osd_second: TemplateChild<gtk::ProgressBar>,
+        #[template_child]
         pub regeneration_revealer: TemplateChild<gtk::Revealer>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
@@ -114,6 +116,7 @@ mod imp {
         pub settings: gio::Settings,
         pub count: RefCell<i32>,
         pub regeneration_lock: Arc<RefCell<usize>>,
+        pub app_busy: Arc<()>,
     }
 
     impl Default for GtkTestWindow {
@@ -133,6 +136,7 @@ mod imp {
                 monochrome_switch: TemplateChild::default(),
                 image_preferences: TemplateChild::default(),
                 regeneration_osd: TemplateChild::default(),
+                regeneration_osd_second: TemplateChild::default(),
                 x_scale: TemplateChild::default(),
                 y_scale: TemplateChild::default(),
                 size: TemplateChild::default(),
@@ -156,6 +160,7 @@ mod imp {
                 default_color: RefCell::new(HashMap::new()),
                 last_dnd_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(RefCell::new(0)),
+                app_busy: Arc::new(()),
             }
         }
     }
@@ -169,15 +174,6 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
-            klass.install_action("app.generate_icon", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
-                    }
-                ));
-            });
             klass.install_action("app.open_top_icon", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
                     #[weak]
@@ -186,6 +182,7 @@ mod imp {
                         win.load_top_icon().await;
                     }
                 ));
+                debug!("References: {}", Arc::strong_count(&win.imp().app_busy));
             });
             klass.install_action("app.open_file_location", None, move |win, _, _| {
                 glib::spawn_future_local(clone!(
@@ -226,9 +223,6 @@ mod imp {
                     win,
                     async move {
                         let imp = win.imp();
-                        //let previous_stack = imp.stack.visible_child_name().unwrap();
-                        //debug!("previous stack {}", previous_stack);
-                        //imp.stack.set_visible_child_name("regenerating_page");
                         let id = *imp.regeneration_lock.borrow();
                         imp.regeneration_lock.replace(id + 1);
                         match win.regenerate_icons().await {
@@ -237,10 +231,6 @@ mod imp {
                                 show_error_popup(&win, "", true, Some(x));
                             }
                         };
-
-                        imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
-                            "Regeneration sucessful, restart nautilus",
-                        )));
                         //imp.stack.set_visible_child_name(&previous_stack);
                         debug!("Done generating");
                     }
@@ -363,17 +353,17 @@ mod imp {
     impl WidgetImpl for GtkTestWindow {}
     impl WindowImpl for GtkTestWindow {
         fn close_request(&self) -> glib::Propagation {
-            if !self.image_saved.borrow().clone() {
-                let window = self.obj();
-                return match glib::MainContext::default()
-                    .block_on(async move { window.confirm_save_changes().await })
-                {
-                    Ok(p) => p,
-                    _ => glib::Propagation::Stop,
-                };
+            warn!("close request");
+            let window = self.obj();
+            // If iconic is busy, show busy pop-up
+            if Arc::strong_count(&self.app_busy) >= 2 {
+                window.force_quit_dialog_async_wrapper();
+            // Else, show quit iconic, by showing save dialog if needed
+            } else {
+                window.quit_iconic();
             }
-
-            self.parent_close_request()
+            // Closing the window is handled in the above two functions, so by returning stop. It won't quit the application from this function
+            glib::Propagation::Stop
         }
     }
     impl ApplicationWindowImpl for GtkTestWindow {}
@@ -479,7 +469,13 @@ impl GtkTestWindow {
             #[weak (rename_to = win)]
             self,
             async move {
-                win.save_file(gio_file_clone).await.unwrap();
+                win.save_file(
+                    gio_file_clone,
+                    win.imp().monochrome_switch.is_active(),
+                    None,
+                )
+                .await
+                .unwrap();
             }
         ));
         Some(gdk::ContentProvider::for_value(&glib::Value::from(
@@ -644,7 +640,6 @@ impl GtkTestWindow {
                     #[weak]
                     win,
                     async move {
-                        win.image_save_sensitive(true);
                         win.render_to_screen().await;
                     }
                 ));
@@ -659,7 +654,6 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -673,7 +667,6 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -687,7 +680,6 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.image_save_sensitive(true);
                     }
                 ));
             }
@@ -708,7 +700,6 @@ impl GtkTestWindow {
                         // TODO: I do not like this approach, but it works
                         if imp.stack.visible_child_name() == Some("stack_main_page".into()) {
                             win.render_to_screen().await;
-                            win.image_save_sensitive(true);
                         }
                     }
                 ));
@@ -723,19 +714,14 @@ impl GtkTestWindow {
                     win,
                     async move {
                         win.render_to_screen().await;
-                        win.image_save_sensitive(true);
                     }
                 ));
             }
         ));
     }
 
-    fn image_save_sensitive(&self, sensitive: bool) {
+    pub fn image_save_sensitive(&self, sensitive: bool) {
         let imp = self.imp();
-        if Arc::strong_count(&imp.regeneration_lock) > 1 {
-            debug!("Skip settings save button");
-            return ();
-        }
         imp.image_saved.replace(!sensitive);
         imp.save_button.set_sensitive(sensitive);
     }
@@ -818,12 +804,13 @@ impl GtkTestWindow {
             return self
                 .copy_folder_image_to_cache(&icon_path, &cache_path)
                 .await
+                .unwrap()
                 .0;
         }
         info!("File not found AT ALL");
         let dialog = show_error_popup(
             &self,
-            &gettext("The set folder icon could not be found, press ok to select a new one"),
+            &gettext("The set bottom icon could not be found, press ok to select a new one"),
             false,
             None,
         )
@@ -833,8 +820,8 @@ impl GtkTestWindow {
                 let new_path = match self.open_file_chooser().await {
                     Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
                     None => {
-                        //adw::subclass::prelude::ActionGroupImpl::activate_action(&self, "app.quit", None);
-                        String::from("")
+                        self.application().unwrap().activate_action("quit", None);
+                        return PathBuf::new();
                     }
                 };
                 imp.settings
@@ -843,6 +830,7 @@ impl GtkTestWindow {
                 let cached_file_name = self
                     .copy_folder_image_to_cache(&PathBuf::from(new_path), &cache_path)
                     .await
+                    .unwrap()
                     .1;
                 imp.settings
                     .set_string("folder-cache-name", &cached_file_name)
@@ -853,25 +841,6 @@ impl GtkTestWindow {
             }
             _ => unreachable!(),
         };
-    }
-
-    async fn copy_folder_image_to_cache(
-        &self,
-        original_path: &PathBuf,
-        cache_dir: &PathBuf,
-    ) -> (PathBuf, String) {
-        let file_name = format!(
-            "folder.{}",
-            original_path.extension().unwrap().to_str().unwrap()
-        );
-        self.imp()
-            .settings
-            .set("folder-cache-name", file_name.clone())
-            .unwrap();
-        let cache_path = cache_dir.join(file_name.clone());
-        let _ = std::fs::copy(original_path, cache_path.clone());
-        //let test = RUNTIME.spawn_blocking(move || true).await;
-        (cache_path, file_name)
     }
 
     pub fn get_cache_path(&self) -> PathBuf {
@@ -920,7 +889,6 @@ impl GtkTestWindow {
                 // This is to check if it's needed to turn them on again
                 self.slider_control_sensitivity(true);
             }
-            self.image_save_sensitive(true);
             glib::spawn_future_local(glib::clone!(
                 #[weak(rename_to = win)]
                 self,
@@ -928,6 +896,7 @@ impl GtkTestWindow {
                     win.render_to_screen().await;
                 }
             ));
+            imp.image_loading_spinner.set_visible(false);
             imp.stack.set_visible_child_name("stack_main_page");
         } else if (*bottom_image).is_some() {
             let folder_bottom_name = bottom_image.as_ref().unwrap().filename.clone();
@@ -952,6 +921,7 @@ impl GtkTestWindow {
         imp.monochrome_color.set_sensitive(sensitive);
         imp.monochrome_invert.set_sensitive(sensitive);
         imp.monochrome_switch.set_sensitive(sensitive);
+        imp.monochrome_action_row.set_sensitive(sensitive);
     }
 
     pub async fn open_file_chooser(&self) -> Option<gio::File> {
@@ -977,6 +947,7 @@ impl GtkTestWindow {
         }
     }
 
+    // opens file explorer to location of saved icon
     pub async fn open_directory(&self) {
         let imp = self.imp();
         let launcher =

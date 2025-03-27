@@ -1,16 +1,17 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
-use crate::{GtkTestWindow, RUNTIME, objects::errors::show_error_popup};
+use crate::{GtkTestWindow, objects::errors::show_error_popup};
 
 use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
-use gettextrs::gettext;
+use gettextrs::{gettext, ngettext};
 use gtk::gdk::RGBA;
 use gtk::gio;
 use image::*;
 use log::*;
 use std::fs::{self, DirEntry};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -42,7 +43,7 @@ impl GtkTestWindow {
         debug!("File name: {:?}", file.filename);
         match file_path.exists() {
             true => {
-                debug!("file already exists with name");
+                debug!("File already exists with name");
                 return Ok(());
             }
             false => {
@@ -68,15 +69,11 @@ impl GtkTestWindow {
         Ok(())
     }
 
-    /*
-    This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
-    It is currently incredibly slow, but it does work.
-    After I added the animation, it got only more ugly. But the animation looks nice :)*/
+    //This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
-        let previous_save_sensitivity = imp.save_button.is_sensitive();
-        imp.save_button.set_sensitive(false);
         let id = *imp.regeneration_lock.borrow();
+        let _iconic_busy = Arc::clone(&imp.app_busy);
         imp.toast_overlay
             .add_toast(adw::Toast::new(&gettext("Regenerating icons")));
         let data_path = self.get_data_path();
@@ -85,19 +82,14 @@ impl GtkTestWindow {
             self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
         imp.regeneration_revealer.set_reveal_child(true);
         imp.regeneration_osd.set_fraction(0.0);
-        let previous_control_sensitivity = imp.x_scale.is_sensitive();
-        self.slider_control_sensitivity(false);
+        imp.regeneration_osd_second.set_fraction(0.0);
         let files_n = compatible_files.len();
         let mut last_animation = None;
+        let mut last_animation_second = None;
         if files_n == 0 {
             show_error_popup(
                 &self,
-                &format!(
-                    "{}{}{}",
-                    gettext("All "),
-                    incompatible_files_n,
-                    gettext(" files are not compatible for regeneration")
-                ),
+                &gettext("All files are not compatible for regeneration"),
                 true,
                 None,
             );
@@ -110,14 +102,23 @@ impl GtkTestWindow {
                 break;
             }
             let path = &file.path();
-            match self.regenerate_and_save_icon(file).await {
+            match self.regenerate_and_save_single_icon(file).await {
                 Ok(_) => (),
                 Err(error) => {
                     error!("Error while generating {:?}: {}", path, &error.to_string());
                     regeneration_errors.push(error)
                 }
             }
-            last_animation = Some(self.progress_animation(step_size, last_animation));
+            last_animation = Some(self.progress_animation(
+                step_size,
+                last_animation,
+                imp.regeneration_osd.clone(),
+            ));
+            last_animation_second = Some(self.progress_animation(
+                step_size,
+                last_animation_second,
+                imp.regeneration_osd_second.clone(),
+            ));
         }
         if !regeneration_errors.is_empty() {
             show_error_popup(
@@ -125,21 +126,25 @@ impl GtkTestWindow {
                 &format!(
                     "{} {}",
                     regeneration_errors.len(),
-                    &gettext("file(s) failed to regenerate\nview logs for more information")
+                    &ngettext(
+                        "file failed to regenerate\nview logs for more information",
+                        "files failed to regenerate\nview logs for more information",
+                        regeneration_errors.len() as u32
+                    )
                 ),
                 true,
                 None,
             );
         }
+        imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
+            "Regeneration sucessful, restart nautilus",
+        )));
         imp.regeneration_revealer.set_reveal_child(false);
-        imp.save_button.set_sensitive(previous_save_sensitivity);
-        self.slider_control_sensitivity(previous_control_sensitivity);
-        self.default_sliders();
-        self.reset_colors();
+        self.close_iconic_busy_popup();
         Ok(())
     }
 
-    async fn regenerate_and_save_icon(&self, file: DirEntry) -> GenResult<()> {
+    async fn regenerate_and_save_single_icon(&self, file: DirEntry) -> GenResult<()> {
         let file_name = file.file_name();
         let file_path = file.path();
         let file_name = file_name.to_str().into_result()?.to_string();
@@ -153,20 +158,20 @@ impl GtkTestWindow {
         let hash = properties_list[12].split(".").nth(0).into_result()?;
         let mut top_image_path = self.get_cache_path().join("top_images");
         top_image_path.push(hash);
-        let top_image_file = RUNTIME
-            .spawn_blocking(move || {
-                File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
-            })
-            .await??
-            .dynamic_image;
-        let slider_values = self.set_properties(properties_list.clone())?;
+        let top_image_file = gio::spawn_blocking(move || {
+            File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
+        })
+        .await
+        .unwrap()?
+        .dynamic_image;
+        let slider_values = self.get_properties(properties_list.clone())?;
         let top_image = self.create_top_image_for_generation(properties_list, top_image_file)?;
-        let bottom_image_file = RUNTIME
-            .spawn_blocking(move || {
-                File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
-            })
-            .await??
-            .dynamic_image;
+        let bottom_image_file = gio::spawn_blocking(move || {
+            File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
+        })
+        .await
+        .unwrap()?
+        .dynamic_image;
         info!("Generating image");
         let generated_image = self
             .generate_image(
@@ -179,9 +184,11 @@ impl GtkTestWindow {
             )
             .await;
         info!("Saving image");
-        match RUNTIME
-            .spawn_blocking(move || generated_image.save_with_format(file_path, ImageFormat::Png))
-            .await?
+        match gio::spawn_blocking(move || {
+            generated_image.save_with_format(file_path, ImageFormat::Png)
+        })
+        .await
+        .unwrap()
         {
             Ok(_) => info!("Saving Succesful"),
             Err(x) => error!("Saving failed: {:?}", x),
@@ -228,17 +235,10 @@ impl GtkTestWindow {
         Ok(regeneratable)
     }
 
-    fn set_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
-        let imp = self.imp();
+    fn get_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
         let x_scale: f64 = properties[2].parse()?;
         let y_scale: f64 = properties[3].parse()?;
         let size: f64 = properties[4].parse()?;
-        imp.monochrome_switch
-            .set_active(properties[5].parse::<usize>()? != 0);
-        imp.threshold_scale.set_value(properties[6].parse()?);
-        imp.monochrome_color.set_rgba(&self.current_accent_rgba()?);
-        imp.monochrome_invert
-            .set_active(properties[10].parse::<usize>()? != 0);
         Ok((x_scale, y_scale, size))
     }
 
@@ -257,7 +257,12 @@ impl GtkTestWindow {
             _ => self.current_accent_rgba()?,
         };
         match properties[5] {
-            "1" => Ok(self.to_monochrome(top_image, properties[6].parse()?, color)),
+            "1" => Ok(self.to_monochrome(
+                top_image,
+                properties[6].parse()?,
+                color,
+                Some(properties[10].parse::<usize>()? != 0),
+            )),
             _ => Ok(top_image),
         }
     }
@@ -277,21 +282,19 @@ impl GtkTestWindow {
         &self,
         step_size: f64,
         previous_animation: Option<TimedAnimation>,
+        progress_bar: gtk::ProgressBar,
     ) -> TimedAnimation {
-        let imp = self.imp();
-
-        let target =
-            adw::PropertyAnimationTarget::new(&imp.regeneration_osd.to_owned(), "fraction");
+        let target = adw::PropertyAnimationTarget::new(&progress_bar, "fraction");
         let _ = previous_animation.is_some_and(|animation| {
             animation.skip();
             false
         });
         let animation = adw::TimedAnimation::builder()
             .target(&target)
-            .widget(&imp.regeneration_osd.to_owned())
-            .value_from(imp.regeneration_osd.fraction())
-            .value_to(imp.regeneration_osd.fraction() + step_size)
-            .duration(50)
+            .widget(&progress_bar)
+            .value_from(progress_bar.fraction())
+            .value_to(progress_bar.fraction() + step_size)
+            .duration(200)
             .easing(adw::Easing::EaseInOutCubic)
             .build();
         animation.play();

@@ -16,12 +16,17 @@ ShortcutsWindow help_overlay {
       }
 
       ShortcutsShortcut {
-        title: C_("shortcut window", "Quit");
+        title: C_("shortcut window", "Open Preferences");
+        action-name: "app.preferences";
+      }
+
+      ShortcutsShortcut {
+        title: C_("shortcut window", "Quit Iconic");
         action-name: "app.quit";
       }
 
       ShortcutsShortcut {
-        title: C_("shortcut window", "Save");
+        title: C_("shortcut window", "Save Image");
         action-name: "app.save_button";
       }
 
@@ -37,7 +42,7 @@ ShortcutsWindow help_overlay {
 
       ShortcutsShortcut {
         title: C_("shortcut window", "Regenerate Images");
-        action-name: "app.regeneration";
+        action-name: "app.regenerate";
       }
     }
   }

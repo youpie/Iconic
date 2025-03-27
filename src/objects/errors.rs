@@ -29,6 +29,7 @@ pub fn show_error_popup(
         .heading_use_markup(true)
         .body(error_message)
         .default_response(RESPONSE_OK)
+        .close_response(RESPONSE_OK)
         .build();
     dialog.add_response(RESPONSE_OK, &gettext("OK"));
     match error {
