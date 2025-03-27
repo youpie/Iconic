@@ -34,7 +34,26 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="2025.3.2" date="2025-03-18" type="stable">
+    <release version="2025.3.2" date="2025-03-27" type="stable">
+      <description>
+        <p>Here I am, once again. A new update to Iconic is here with the following changes!</p>
+        <ul>
+          <li>Improved code</li>
+          <li>Decrease storage and memory size</li>
+          <li>Improved app closing</li>
+          <li>Updated to gnome 48</li>
+          <li>Improved "About Iconic" dialog</li>
+          <li>Removed donation button from hamburger menu</li>
+          <li>Added keyboard shortcuts</li>
+          <li>Improved accessibility</li>
+          <li>Increased translatable elements</li>
+        </ul>
+        <p>I am doing a lot of this because I am planning to apply to gnome circle :)</p>
+        <p>Remember to let me know if you encounter any bugs!</p>
+        <p>Have a beautiful day &lt;3</p>
+      </description>
+    </release>
+    <release version="2025.3.1" date="2025-03-18" type="stable">
       <description>
         <p>A new version of Iconic! It is mostly a quality of life update, I have some fun additions planned so stay tuned!</p>
         <p>Here is what has changed:</p>

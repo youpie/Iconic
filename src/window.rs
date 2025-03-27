@@ -947,6 +947,7 @@ impl GtkTestWindow {
         }
     }
 
+    // opens file explorer to location of saved icon
     pub async fn open_directory(&self) {
         let imp = self.imp();
         let launcher =

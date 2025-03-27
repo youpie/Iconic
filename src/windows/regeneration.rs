@@ -284,7 +284,6 @@ impl GtkTestWindow {
         previous_animation: Option<TimedAnimation>,
         progress_bar: gtk::ProgressBar,
     ) -> TimedAnimation {
-        let imp = self.imp();
         let target = adw::PropertyAnimationTarget::new(&progress_bar, "fraction");
         let _ = previous_animation.is_some_and(|animation| {
             animation.skip();

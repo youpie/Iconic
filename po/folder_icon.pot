@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2025-03-26 17:44+0100\n"
+"POT-Creation-Date: 2025-03-27 08:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: data/nl.emphisia.icon.desktop.in.in:3
 #: data/nl.emphisia.icon.metainfo.xml.in.in:5
-#: data/nl.emphisia.icon.metainfo.xml.in.in:172
+#: data/nl.emphisia.icon.metainfo.xml.in.in:191
 msgid "Iconic"
 msgstr ""
 
@@ -68,272 +68,327 @@ msgstr ""
 
 #: data/nl.emphisia.icon.metainfo.xml.in.in:39
 msgid ""
+"Here I am, once again. A new update to Iconic is here with the following "
+"changes!"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:41
+msgid "Improved code"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:42
+msgid "Decrease storage and memory size"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:43
+msgid "Improved app closing"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+msgid "Updated to gnome 48"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:45
+msgid "Improved \"About Iconic\" dialog"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+msgid "Removed donation button from hamburger menu"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+msgid "Added keyboard shortcuts"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+msgid "Improved accessibility"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:49
+msgid "Increased translatable elements"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+msgid ""
+"I am doing a lot of this because I am planning to apply to gnome circle :)"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:52
+msgid "Remember to let me know if you encounter any bugs!"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:53
+msgid "Have a beautiful day &lt;3"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+msgid ""
 "A new version of Iconic! It is mostly a quality of life update, I have some "
 "fun additions planned so stay tuned!"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:40
+#: data/nl.emphisia.icon.metainfo.xml.in.in:59
 msgid "Here is what has changed:"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:42
+#: data/nl.emphisia.icon.metainfo.xml.in.in:61
 msgid "Updated to rust 2024 edition"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:43
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
 msgid "Removed regeneration screen"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+#: data/nl.emphisia.icon.metainfo.xml.in.in:63
 msgid "Added regeneration bar on main screen"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:45
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
 msgid "Added better error handling for regeneration"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+#: data/nl.emphisia.icon.metainfo.xml.in.in:65
 msgid "Updated pink folder, to be in line with Adwaita-colors"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+#: data/nl.emphisia.icon.metainfo.xml.in.in:66
 msgid "Added acknowledgements in the About Iconic"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+#: data/nl.emphisia.icon.metainfo.xml.in.in:67
 msgid "Fixed donation link"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:50
+#: data/nl.emphisia.icon.metainfo.xml.in.in:69
 msgid "As always, if you encounter any bugs. Please let me know on GitHub!"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+#: data/nl.emphisia.icon.metainfo.xml.in.in:70
 msgid "Enjoy the update, and Free Palestine 🇵🇸"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:56
+#: data/nl.emphisia.icon.metainfo.xml.in.in:75
 msgid ""
 "I was really motivated so I made another update. Now allowing you to set "
 "custom collors for the folders. Other features include"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+#: data/nl.emphisia.icon.metainfo.xml.in.in:77
 msgid "Made the app more responsive"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:59
+#: data/nl.emphisia.icon.metainfo.xml.in.in:78
 msgid "Removed crashing bug"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:60
+#: data/nl.emphisia.icon.metainfo.xml.in.in:79
 msgid "Removed small bugs"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:61
+#: data/nl.emphisia.icon.metainfo.xml.in.in:80
 msgid "Added Right-click menu to folder view"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:67
+#: data/nl.emphisia.icon.metainfo.xml.in.in:86
 msgid ""
 "A really big update for Iconic! You are now able to regenerate images with "
 "the correct accent color after you change it. This makes the app really nice "
 "to combine with \"Adwaita-Colors\""
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:68
+#: data/nl.emphisia.icon.metainfo.xml.in.in:87
 msgid ""
 "In Gnome 48, using static images in natilus might change. If that is the "
 "case I will retire the app. But for now I will keep working on the app!"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:73
+#: data/nl.emphisia.icon.metainfo.xml.in.in:92
 msgid ""
 "This is a nice big update to Iconic making it way more colorfull and better "
 "for gnome 47. Features include"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:75
+#: data/nl.emphisia.icon.metainfo.xml.in.in:94
 msgid "Custom accent color folders"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:76
+#: data/nl.emphisia.icon.metainfo.xml.in.in:95
 msgid "Accent color detection"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:77
+#: data/nl.emphisia.icon.metainfo.xml.in.in:96
 msgid "Updated settings"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:78
+#: data/nl.emphisia.icon.metainfo.xml.in.in:97
 msgid "Bug fixes!"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:80
+#: data/nl.emphisia.icon.metainfo.xml.in.in:99
 msgid "As always, please let me know if you encounter any bugs!"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:85
+#: data/nl.emphisia.icon.metainfo.xml.in.in:104
 msgid ""
 "This update to iconic is mostly just a version bump. However I do have some "
 "fun features I want to try and implement. If it is possible, idk yet. But I "
 "have already started working on it."
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:86
+#: data/nl.emphisia.icon.metainfo.xml.in.in:105
 msgid "Biggest changes"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:88
+#: data/nl.emphisia.icon.metainfo.xml.in.in:107
 msgid "Updated to gnome 47"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:89
+#: data/nl.emphisia.icon.metainfo.xml.in.in:108
 msgid "Using new loading animation"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:90
+#: data/nl.emphisia.icon.metainfo.xml.in.in:109
 msgid "Using new buttons in settings"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:96
+#: data/nl.emphisia.icon.metainfo.xml.in.in:115
 msgid ""
 "A new update to Iconic is here! It does not add many features but features a "
 "lot of improvements under the hood, this means the app will now crash way "
 "less often without any warning. Some changes include:"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:98
+#: data/nl.emphisia.icon.metainfo.xml.in.in:117
 msgid "Added ability to drag icon out of iconic directly"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:99
+#: data/nl.emphisia.icon.metainfo.xml.in.in:118
 msgid "Added error handling on opening files"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:100
+#: data/nl.emphisia.icon.metainfo.xml.in.in:119
 msgid "Added error handling on saving files"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:101
+#: data/nl.emphisia.icon.metainfo.xml.in.in:120
 msgid "Added donation link"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:102
+#: data/nl.emphisia.icon.metainfo.xml.in.in:121
 msgid "Added pop-up when dragging in files"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:103
+#: data/nl.emphisia.icon.metainfo.xml.in.in:122
 msgid "Updated Dutch translations"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:105
+#: data/nl.emphisia.icon.metainfo.xml.in.in:124
 msgid "Please report any bugs you see! Many thanks"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:110
+#: data/nl.emphisia.icon.metainfo.xml.in.in:129
 msgid ""
 "This is a new major release of Iconic. Featuring many bug fixes and added "
 "features. Some notable ones are:"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:112
+#: data/nl.emphisia.icon.metainfo.xml.in.in:131
 msgid "Drag and drop support"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:113
+#: data/nl.emphisia.icon.metainfo.xml.in.in:132
 msgid "Copy-paste support"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:114
+#: data/nl.emphisia.icon.metainfo.xml.in.in:133
 msgid "Better file type detection"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:115
+#: data/nl.emphisia.icon.metainfo.xml.in.in:134
 msgid "Updated dutch translations"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:116
+#: data/nl.emphisia.icon.metainfo.xml.in.in:135
 msgid "Added Hindi translations"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:117
+#: data/nl.emphisia.icon.metainfo.xml.in.in:136
 msgid "Fixed spelling mistakes"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:118
+#: data/nl.emphisia.icon.metainfo.xml.in.in:137
 msgid "Fixed issues with black pixels not converting to monochrome"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:124
+#: data/nl.emphisia.icon.metainfo.xml.in.in:143
 msgid "Another small update with a few additions and changes"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:126
+#: data/nl.emphisia.icon.metainfo.xml.in.in:145
 msgid "You can now open containing folder after saving image"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:127
+#: data/nl.emphisia.icon.metainfo.xml.in.in:146
 msgid "Added italian translation"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:128
+#: data/nl.emphisia.icon.metainfo.xml.in.in:147
 msgid "Updated Dutch translation"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:134
+#: data/nl.emphisia.icon.metainfo.xml.in.in:153
 msgid "This version adds a few small features and fixes some bugs"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:136
+#: data/nl.emphisia.icon.metainfo.xml.in.in:155
 msgid "The app now shows some errors as pop-ups"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:137
+#: data/nl.emphisia.icon.metainfo.xml.in.in:156
 msgid "You can now temporarily open a new folder image"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:138
+#: data/nl.emphisia.icon.metainfo.xml.in.in:157
 msgid "It now first shows a pop-up when the folder image is not found"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:144
+#: data/nl.emphisia.icon.metainfo.xml.in.in:163
 msgid "Initial release"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:163
+#: data/nl.emphisia.icon.metainfo.xml.in.in:182
 msgid "icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:164
+#: data/nl.emphisia.icon.metainfo.xml.in.in:183
 msgid "create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:165
+#: data/nl.emphisia.icon.metainfo.xml.in.in:184
 msgid "folder icon"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:166
+#: data/nl.emphisia.icon.metainfo.xml.in.in:185
 msgid "svg"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:167
+#: data/nl.emphisia.icon.metainfo.xml.in.in:186
 msgid "png"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:168
+#: data/nl.emphisia.icon.metainfo.xml.in.in:187
 msgid "gnome"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:169
+#: data/nl.emphisia.icon.metainfo.xml.in.in:188
 msgid "icon create"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:170
+#: data/nl.emphisia.icon.metainfo.xml.in.in:189
 msgid "icon creator"
 msgstr ""
 
-#: data/nl.emphisia.icon.metainfo.xml.in.in:171
+#: data/nl.emphisia.icon.metainfo.xml.in.in:190
 msgid "folder icon creator"
 msgstr ""
 
@@ -680,12 +735,12 @@ msgstr ""
 msgid "Reset Temporary Bottom Image"
 msgstr ""
 
-#: src/application.rs:165
+#: src/application.rs:170
 msgid "Iconic allows you to add images onto a folder."
 msgstr ""
 
 #. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
-#: src/application.rs:171
+#: src/application.rs:176
 msgid "translator-credits"
 msgstr ""
 
@@ -698,7 +753,7 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: src/settings/settings.rs:390 src/window.rs:930
+#: src/settings/settings.rs:390 src/window.rs:933
 msgid "Open Document"
 msgstr ""
 
@@ -717,7 +772,7 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: src/window.rs:810
+#: src/window.rs:813
 msgid "The set bottom icon could not be found, press ok to select a new one"
 msgstr ""
 
@@ -847,11 +902,11 @@ msgstr ""
 msgid "Regenerating icons"
 msgstr ""
 
-#: src/windows/regeneration.rs:90
+#: src/windows/regeneration.rs:92
 msgid "All files are not compatible for regeneration"
 msgstr ""
 
-#: src/windows/regeneration.rs:119
+#: src/windows/regeneration.rs:130
 msgid ""
 "file failed to regenerate\n"
 "view logs for more information"
@@ -861,6 +916,6 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/windows/regeneration.rs:129
+#: src/windows/regeneration.rs:140
 msgid "Regeneration sucessful, restart nautilus"
 msgstr ""
