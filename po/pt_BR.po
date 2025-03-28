@@ -609,7 +609,7 @@ msgstr "_Sobre o Iconic"
 
 #: src/window.blp:482
 msgid "Change Top Image"
-msgstr ""
+msgstr "Alterar imagem superior"
 
 #: src/window.blp:487
 msgid "Change Bottom Image"
