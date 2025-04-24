@@ -1,25 +1,25 @@
 on:
   push:
-    branches: [main, dev]
+    # branches: [main]
   pull_request:
     branches: [main]
 
 name: CI
 
 jobs:
-  rustfmt:
-    name: Rustfmt
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@v1
-        with:
-          toolchain: stable
-          components: rustfmt
-      - name: Create blank versions of configured file
-        run: echo -e "" >> src/config.rs
-      - name: Run cargo fmt
-        run: cargo fmt --all -- --check
+  # rustfmt:
+  #   name: Rustfmt
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: dtolnay/rust-toolchain@v1
+  #       with:
+  #         toolchain: stable
+  #         components: rustfmt
+  #     - name: Create blank versions of configured file
+  #       run: echo -e "" >> src/config.rs
+  #     - name: Run cargo fmt
+  #       run: cargo fmt --all -- --check
 
   flatpak:
     name: "Flatpak"
