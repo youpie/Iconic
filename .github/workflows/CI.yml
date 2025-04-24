@@ -8,7 +8,7 @@ name: CI
 
 jobs:
   format:
-    - name: Check formatting of Rust code with rustfmt
+    name: Check formatting of Rust code with rustfmt
     # You may pin to the exact commit or the version.
     # uses: actions-rust-lang/rustfmt@559aa3035a47390ba96088dffa783b5d26da9326
     uses: actions-rust-lang/rustfmt@v1.1.1
