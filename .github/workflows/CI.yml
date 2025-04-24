@@ -20,7 +20,6 @@ jobs:
   #       run: echo -e "" >> src/config.rs
   #     - name: Run cargo fmt
   #       run: cargo fmt --all -- --check
-
   flatpak:
     name: "Flatpak"
     runs-on: ubuntu-latest
