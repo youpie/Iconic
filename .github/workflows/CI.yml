@@ -7,32 +7,29 @@ on:
 name: CI
 
 jobs:
-  format:
-    name: Check formatting of Rust code with rustfmt
+  formatting:
+    name: cargo fmt
     runs-on: ubuntu-latest
     steps:
-    # You may pin to the exact commit or the version.
-    # uses: actions-rust-lang/rustfmt@559aa3035a47390ba96088dffa783b5d26da9326
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Run rustfmt
-        uses: actions-rust-lang/rustfmt@v1.1.1
+      - uses: actions/checkout@v4
+      # Ensure rustfmt is installed and setup problem matcher
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.1.1
+        with:
+          components: rustfmt
+      - name: Rustfmt Check
+        uses: actions-rust-lang/rustfmt@v1
           
   flatpak:
-    name: Flatpak Builder
+    name: "Flatpak"
     runs-on: ubuntu-latest
-    # You may pin to the exact commit or the version.
-    # uses: flatpak/flatpak-github-actions@fcc75a490e0a97ff4785b706adfc4fc10e732f4e
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
+      options: --privileged
     steps:
-    # You may pin to the exact commit or the version.
-    # uses: actions-rust-lang/rustfmt@559aa3035a47390ba96088dffa783b5d26da9326
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: build flatpak
-        uses: flatpak/flatpak-github-actions@v2
-        with:
-          # The relative path of the manifest file.
-          manifest-path: build-aux/nl.emphisia.icon.json
-          # The bundle name, by default it's app.flatpak
-          bundle: nl.emphisia.nl
+    - uses: actions/checkout@v4
+    - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+      with:
+        bundle: iconic.flatpak
+        manifest-path: build-aux/nl.emphisia.icon.json
+        cache-key: flatpak-builder-${{ github.sha }}
                 
