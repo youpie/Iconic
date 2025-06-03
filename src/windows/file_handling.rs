@@ -241,6 +241,7 @@ impl GtkTestWindow {
                     }
                     _ => (),
                 };
+                imp.image_loading_spinner.set_visible(false);
             }
             _ => {
                 show_error_popup(&self, &gettext("Unsupported file type"), true, None);
