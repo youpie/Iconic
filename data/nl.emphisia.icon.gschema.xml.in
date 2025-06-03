@@ -61,6 +61,10 @@
       <default>false</default>
       <summary>If true, the pop-up informing the user that it is possible to regenerate images has already been shown</summary>
     </key>
+    <key name="monochrome-mode-active" type="b">
+      <default>true</default>
+      <summary>If monochrome mode was active, the last time iconic was on</summary>
+    </key>
     <key name="primary-folder-color" type="s">
       <default>'A4CAEE'</default>
       <summary>Color of primary part of custom folder</summary>

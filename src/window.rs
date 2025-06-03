@@ -425,6 +425,9 @@ impl GtkTestWindow {
         imp.size.set_value(24.0);
         imp.size.add_mark(24.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
+        let monochrome_switch_state = imp.settings.boolean("monochrome-mode-active");
+        debug!("Monochrome switch state at {}", monochrome_switch_state);
+        imp.monochrome_switch.set_active(monochrome_switch_state);
     }
 
     pub fn setup_defaults(&self) {
@@ -497,43 +500,6 @@ impl GtkTestWindow {
         debug!("generated file path: {:?}", file_path);
         let gio_file = gio::File::for_path(file_path);
         gio_file
-    }
-
-    /* This function is used to create a string with all properties applied to the current image.
-    This makes it possible to completely recreate the image if the top image is still available
-    */
-    fn create_image_properties_string(&self) -> String {
-        let imp = self.imp();
-        let is_default = (!imp.settings.boolean("manual-bottom-image-selection")
-            && imp.settings.string("selected-accent-color").as_str() == "None"
-            && !*imp.temp_image_loaded.borrow()) as u8;
-        let x_scale_val = imp.x_scale.value();
-        let y_scale_val = imp.y_scale.value();
-        let zoom_val = imp.size.value();
-        let is_monochrome = imp.monochrome_switch.is_active() as u8;
-        let monochrome_slider = imp.threshold_scale.value();
-        let monochrome_red_val = imp.monochrome_color.rgba().red().to_string();
-        let monochrome_green_val = imp.monochrome_color.rgba().green().to_string();
-        let monochrome_blue_val = imp.monochrome_color.rgba().blue().to_string();
-        let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
-        let is_default_monochrome = imp.monochrome_color.rgba() == self.get_default_color();
-        debug!("is default? {}", is_default_monochrome);
-        let combined_string = format!(
-            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
-            is_default,
-            x_scale_val,
-            y_scale_val,
-            zoom_val,
-            is_monochrome,
-            monochrome_slider,
-            monochrome_red_val,
-            monochrome_green_val,
-            monochrome_blue_val,
-            monochrome_inverted,
-            is_default_monochrome
-        );
-        debug!("{}", &combined_string);
-        combined_string
     }
 
     fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool {
@@ -974,19 +940,25 @@ impl GtkTestWindow {
 
     // TODO decouple UI components from these functions
     fn enable_monochrome_expand(&self) {
-        let switch_state = self.imp().monochrome_switch.state();
+        let imp = self.imp();
+        let switch_state = imp.monochrome_switch.is_active();
+        debug!("Updating monochrome state to {:?}", switch_state);
+        _ = imp
+            .settings
+            .set_boolean("monochrome-mode-active", switch_state);
         match switch_state {
-            false => {
+            true => {
                 self.imp()
                     .monochrome_action_row
                     .set_property("enable_expansion", true);
             }
-            true => {
+            false => {
                 self.imp()
                     .monochrome_action_row
                     .set_property("enable_expansion", false);
             }
         };
+
         if self.imp().stack.visible_child_name() == Some("stack_main_page".into()) {
             self.check_icon_update();
         }

@@ -313,4 +313,41 @@ impl GtkTestWindow {
         animation.play();
         animation
     }
+
+    /* This function is used to create a string with all properties applied to the current image.
+    This makes it possible to completely recreate the image if the top image is still available
+    */
+    pub fn create_image_properties_string(&self) -> String {
+        let imp = self.imp();
+        let is_default = (!imp.settings.boolean("manual-bottom-image-selection")
+            && imp.settings.string("selected-accent-color").as_str() == "None"
+            && !*imp.temp_image_loaded.borrow()) as u8;
+        let x_scale_val = imp.x_scale.value();
+        let y_scale_val = imp.y_scale.value();
+        let zoom_val = imp.size.value();
+        let is_monochrome = imp.monochrome_switch.is_active() as u8;
+        let monochrome_slider = imp.threshold_scale.value();
+        let monochrome_red_val = imp.monochrome_color.rgba().red().to_string();
+        let monochrome_green_val = imp.monochrome_color.rgba().green().to_string();
+        let monochrome_blue_val = imp.monochrome_color.rgba().blue().to_string();
+        let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
+        let is_default_monochrome = imp.monochrome_color.rgba() == self.get_default_color();
+        debug!("is default? {}", is_default_monochrome);
+        let combined_string = format!(
+            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
+            is_default,
+            x_scale_val,
+            y_scale_val,
+            zoom_val,
+            is_monochrome,
+            monochrome_slider,
+            monochrome_red_val,
+            monochrome_green_val,
+            monochrome_blue_val,
+            monochrome_inverted,
+            is_default_monochrome
+        );
+        debug!("{}", &combined_string);
+        combined_string
+    }
 }
