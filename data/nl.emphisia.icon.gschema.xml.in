@@ -34,8 +34,8 @@
       <summary>The accent color the user has selected as index for row</summary>
     </key>
     <key name="previous-system-accent-color" type="s">
-      <default>'Blue'</default>
-      <summary>This is the accent color of the system, the last time it was checked</summary>
+      <default>'None'</default>
+      <summary>This is the accent color of the system, the last time it was checked, None means the pop-up wont be shown</summary>
     </key>
     <key name="manual-bottom-image-selection" type="b">
       <default>false</default>
