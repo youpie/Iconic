@@ -189,7 +189,8 @@ mod imp {
                     #[weak]
                     win,
                     async move {
-                        win.open_directory().await;
+                        let file = win.imp().saved_file.lock().unwrap().clone().unwrap();
+                        win.open_directory(&file).await;
                     }
                 ));
             });
@@ -505,7 +506,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         let is_default = (!imp.settings.boolean("manual-bottom-image-selection")
             && imp.settings.string("selected-accent-color").as_str() == "None"
-            && !*imp.temp_image_loaded.borrow()) as usize;
+            && !*imp.temp_image_loaded.borrow()) as u8;
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();
@@ -753,9 +754,7 @@ impl GtkTestWindow {
 
     pub fn reset_colors(&self) {
         let imp = self.imp();
-        imp.reset_color.set_visible(false);
         imp.monochrome_color.set_rgba(&self.get_default_color());
-        //self.check_icon_update();
         imp.reset_color.set_visible(false);
     }
 
@@ -791,7 +790,7 @@ impl GtkTestWindow {
     pub async fn check_chache_icon(&self, file_name: &str) -> PathBuf {
         let imp = self.imp();
         let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
-        let cache_path = self.get_cache_path();
+        let cache_path = Self::get_cache_path();
         let folder_icon_cache_path = cache_path.join(file_name);
         if folder_icon_cache_path.exists() {
             info!("File found in cache at: {:?}", folder_icon_cache_path);
@@ -843,7 +842,7 @@ impl GtkTestWindow {
         };
     }
 
-    pub fn get_cache_path(&self) -> PathBuf {
+    pub fn get_cache_path() -> PathBuf {
         let cache_path = match env::var("XDG_CACHE_HOME") {
             Ok(value) => PathBuf::from(value),
             Err(_) => {
@@ -948,10 +947,8 @@ impl GtkTestWindow {
     }
 
     // opens file explorer to location of saved icon
-    pub async fn open_directory(&self) {
-        let imp = self.imp();
-        let launcher =
-            gtk::FileLauncher::new(Some(&imp.saved_file.lock().unwrap().clone().unwrap()));
+    pub async fn open_directory(&self, file: &gio::File) {
+        let launcher = gtk::FileLauncher::new(Some(file));
         let win = self.native().and_downcast::<gtk::Window>();
         if let Err(e) = launcher.open_containing_folder_future(win.as_ref()).await {
             show_error_popup(&self, "", true, Some(Box::new(e)));

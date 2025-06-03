@@ -21,7 +21,7 @@ template $PreferencesDialog: Adw.PreferencesDialog {
         }
 
         Adw.SwitchRow use_system_color {
-          title: _("Use system accent color");
+          title: _("Use system folder color");
         }
 
         Adw.ComboRow select_bottom_color {
@@ -113,6 +113,12 @@ template $PreferencesDialog: Adw.PreferencesDialog {
       Adw.ActionRow cache_size {
         title: _("Current cache used");
         subtitle: "100 MB";
+      }
+
+      Adw.ButtonRow browse_cache {
+        title: _("Browse cached images");
+        start-icon-name: "folder-visiting-symbolic";
+        activated => $open_image_cache() swapped;
       }
 
       Adw.ButtonRow reset_top_cache {

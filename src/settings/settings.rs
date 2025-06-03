@@ -1,6 +1,6 @@
+use crate::GenResult;
 use crate::config::{APP_ID, PROFILE};
 use crate::glib::clone;
-use crate::GenResult;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
 use adw::prelude::ComboRowExt;
@@ -9,6 +9,7 @@ use adw::prelude::{ActionRowExt, AdwDialogExt};
 use adw::subclass::prelude::AdwDialogImpl;
 use fs_extra;
 use gettextrs::*;
+use gio::AppInfo;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
@@ -563,5 +564,17 @@ impl PreferencesDialog {
         };
         debug!("cache path {:?}", cache_path);
         cache_path
+    }
+
+    #[template_callback]
+    pub async fn open_image_cache(&self, _button: adw::ButtonRow) {
+        let file = gio::File::for_path(format!(
+            "{}/top_images/",
+            GtkTestWindow::get_cache_path().to_str().unwrap()
+        ))
+        .uri();
+        if let Err(e) = AppInfo::launch_default_for_uri(&file, None::<&gio::AppLaunchContext>) {
+            self.can_error::<()>(Err(std::boxed::Box::new(e)));
+        };
     }
 }

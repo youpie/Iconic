@@ -15,6 +15,22 @@ use std::sync::Arc;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
+enum FilenameProperty {
+    FileName = 0,
+    DefaultBottomImage,
+    XScale,
+    YScale,
+    ZoomVal,
+    MonochromeSelected,
+    MonochromeThreshold,
+    MonochromeRed,
+    MonochromeGreen,
+    MonochromeBlue,
+    MonochromeInverted,
+    DefaultMonochromeColor,
+    Hash,
+}
+
 impl GtkTestWindow {
     pub fn store_top_image_in_cache(
         &self,
@@ -31,7 +47,7 @@ impl GtkTestWindow {
             return Ok(());
         }
         //create folder inside cache
-        let cache_path = self.get_cache_path().join("top_images");
+        let cache_path = Self::get_cache_path().join("top_images");
         if !cache_path.exists() {
             debug!("Top icon cache file does not yet exist, creating");
             fs::create_dir(&cache_path)?;
@@ -86,14 +102,6 @@ impl GtkTestWindow {
         let files_n = compatible_files.len();
         let mut last_animation = None;
         let mut last_animation_second = None;
-        if files_n == 0 {
-            show_error_popup(
-                &self,
-                &gettext("All files are not compatible for regeneration"),
-                true,
-                None,
-            );
-        }
         let step_size = 1.0 / files_n as f64;
         let mut regeneration_errors = vec![];
         for file in compatible_files {
@@ -156,7 +164,7 @@ impl GtkTestWindow {
             &current_accent_color
         ));
         let hash = properties_list[12].split(".").nth(0).into_result()?;
-        let mut top_image_path = self.get_cache_path().join("top_images");
+        let mut top_image_path = Self::get_cache_path().join("top_images");
         top_image_path.push(hash);
         let top_image_file = gio::spawn_blocking(move || {
             File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
@@ -209,20 +217,22 @@ impl GtkTestWindow {
             let file_name = current_file.file_name();
             debug!("File found: {:?}", file_name);
             let file_name_str = file_name.to_str().into_result()?.to_string();
-            let mut file_properties = file_name_str.split("-");
-            // imp.regeneration_progress
-            //     .set_fraction(imp.regeneration_progress.fraction() + step_size);
-            if file_properties.nth(0).unwrap_or("folder") != "folder_new" {
+            let file_properties: Vec<&str> = file_name_str.split("-").collect();
+            if file_properties[FilenameProperty::FileName as usize] != "folder_new" {
                 info!("File not supported for regeneration");
                 continue;
             }
-            let properties_list: Vec<&str> = file_properties.into_iter().collect();
-            if !(properties_list[0].parse::<usize>()? != 0) {
+            if !(file_properties[FilenameProperty::DefaultBottomImage as usize].parse::<usize>()?
+                != 0)
+            {
                 info!("Non-default image, not converting");
                 continue;
             }
-            let hash = properties_list[11].split(".").nth(0).into_result()?;
-            let mut top_image_path = self.get_cache_path().join("top_images");
+            let hash = file_properties[FilenameProperty::Hash as usize]
+                .split(".")
+                .nth(0)
+                .into_result()?;
+            let mut top_image_path = Self::get_cache_path().join("top_images");
             top_image_path.push(hash);
 
             if !top_image_path.exists() {
@@ -236,9 +246,9 @@ impl GtkTestWindow {
     }
 
     fn get_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
-        let x_scale: f64 = properties[2].parse()?;
-        let y_scale: f64 = properties[3].parse()?;
-        let size: f64 = properties[4].parse()?;
+        let x_scale: f64 = properties[FilenameProperty::XScale as usize].parse()?;
+        let y_scale: f64 = properties[FilenameProperty::YScale as usize].parse()?;
+        let size: f64 = properties[FilenameProperty::ZoomVal as usize].parse()?;
         Ok((x_scale, y_scale, size))
     }
 
@@ -247,21 +257,24 @@ impl GtkTestWindow {
         properties: Vec<&str>,
         top_image: DynamicImage,
     ) -> GenResult<DynamicImage> {
-        let color = match properties[10] {
+        let color = match properties[FilenameProperty::DefaultMonochromeColor as usize] {
             "false" => RGBA::new(
-                properties[7].parse()?,
-                properties[8].parse()?,
-                properties[9].parse()?,
+                properties[FilenameProperty::MonochromeRed as usize].parse()?,
+                properties[FilenameProperty::MonochromeGreen as usize].parse()?,
+                properties[FilenameProperty::MonochromeBlue as usize].parse()?,
                 1.0,
             ),
             _ => self.current_accent_rgba()?,
         };
-        match properties[5] {
+        match properties[FilenameProperty::MonochromeSelected as usize] {
             "1" => Ok(self.to_monochrome(
                 top_image,
-                properties[6].parse()?,
+                properties[FilenameProperty::MonochromeThreshold as usize].parse()?,
                 color,
-                Some(properties[10].parse::<usize>()? != 0),
+                Some(
+                    properties[FilenameProperty::MonochromeInverted as usize].parse::<usize>()?
+                        != 0,
+                ),
             )),
             _ => Ok(top_image),
         }

@@ -58,7 +58,7 @@ impl GtkTestWindow {
             })
             .collect();
         let new_custom_folder_bytes = new_custom_folder.as_bytes().to_owned();
-        let mut cache_location = self.get_cache_path();
+        let mut cache_location = Self::get_cache_path();
         cache_location.push("custom_folder.svg");
         let cache_location_clone = cache_location.clone();
 
