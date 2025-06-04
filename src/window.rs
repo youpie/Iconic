@@ -27,11 +27,9 @@ use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::Cancellable;
-use gio::glib::SignalHandlerId;
-use gio::glib::translate::FromGlib;
-use gtk::gdk::{DragAction, RGBA};
+use gtk::gdk::RGBA;
 use gtk::gdk_pixbuf::Pixbuf;
-use gtk::{DropTarget, EventController, Widget, gdk, glib};
+use gtk::{gdk, glib};
 use image::*;
 use log::*;
 use std::cell::RefCell;
@@ -43,10 +41,11 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 mod imp {
-    use std::{collections::HashMap, rc::Rc};
+    use std::{cell::Cell, collections::HashMap};
 
     use gio::glib::SignalHandlerId;
-    use gtk::{DragSource, DropTarget};
+
+    use crate::windows::drag_overlay::DragOverlay;
 
     use super::*;
 
@@ -107,6 +106,8 @@ mod imp {
         pub regeneration_osd_second: TemplateChild<gtk::ProgressBar>,
         #[template_child]
         pub regeneration_revealer: TemplateChild<gtk::Revealer>,
+        #[template_child]
+        pub drag_overlay: TemplateChild<DragOverlay>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
@@ -122,7 +123,7 @@ mod imp {
         pub count: RefCell<i32>,
         pub regeneration_lock: Arc<RefCell<usize>>,
         pub app_busy: Arc<()>,
-        pub drop_target_id: RefCell<Option<SignalHandlerId>>,
+        pub drag_active: Cell<bool>,
     }
 
     impl Default for GtkTestWindow {
@@ -153,6 +154,7 @@ mod imp {
                 popover_menu: TemplateChild::default(),
                 gesture_click: TemplateChild::default(),
                 regeneration_revealer: TemplateChild::default(),
+                drag_overlay: TemplateChild::default(),
                 bottom_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),
@@ -167,7 +169,7 @@ mod imp {
                 last_dnd_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(RefCell::new(0)),
                 app_busy: Arc::new(()),
-                drop_target_id: RefCell::new(None),
+                drag_active: Cell::new(false),
             }
         }
     }
@@ -283,10 +285,6 @@ mod imp {
             }
 
             let drop_target = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
-            // self.drop_target_id.borrow_mut().replace(
-            // self.drop_target_id
-            // .borrow_mut()
-            // .replace(
             drop_target.connect_drop(clone!(
                 #[strong]
                 obj,
@@ -296,7 +294,9 @@ mod imp {
                             #[weak(rename_to = win)]
                             obj,
                             async move {
-                                if win.imp().settings.boolean("allow-meta-drop") {
+                                let imp = win.imp();
+                                let drag_active = imp.drag_active.get();
+                                if imp.settings.boolean("allow-meta-drop") || !drag_active {
                                     win.open_dragged_file(file).await;
                                 } else {
                                     info!("Meta drop is disabled");
@@ -309,29 +309,6 @@ mod imp {
                     }
                 }
             ));
-
-            let drop_target_2 =
-                gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
-
-            drop_target_2.connect_drop(clone!(
-                #[strong]
-                obj,
-                move |_, value, _, _| {
-                    if let Ok(file) = value.get::<gio::File>() {
-                        glib::spawn_future_local(glib::clone!(
-                            #[weak(rename_to = win)]
-                            obj,
-                            async move {
-                                win.open_dragged_file(file).await;
-                            }
-                        ));
-                        true
-                    } else {
-                        false
-                    }
-                }
-            ));
-
             //self.drop_target_item.replace(Some(drop_target));
             let drag_source = gtk::DragSource::builder()
                 .actions(gdk::DragAction::COPY)
@@ -358,9 +335,7 @@ mod imp {
                 false,
                 move |_, _, drag_cancel_reason| win.drag_connect_cancel(drag_cancel_reason)
             ));
-            // self.main_status_page.add_controller(drop_target.clone());
-            self.image_preferences.add_controller(drop_target);
-
+            self.drag_overlay.set_drop_target(&drop_target);
             self.image_view.add_controller(drag_source);
         }
 
@@ -442,7 +417,6 @@ impl GtkTestWindow {
         imp.size.add_mark(24.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
         let monochrome_switch_state = imp.settings.boolean("monochrome-mode-active");
-        debug!("Monochrome switch state at {}", monochrome_switch_state);
         imp.monochrome_switch.set_active(monochrome_switch_state);
     }
 
@@ -472,6 +446,7 @@ impl GtkTestWindow {
     }
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
         let imp = self.imp();
+        imp.drag_active.set(true);
         //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
         let generated_image = imp.generated_image.borrow().clone().unwrap();
         let file_hash = imp.top_image_file.lock().unwrap().clone().unwrap().hash;
@@ -503,33 +478,33 @@ impl GtkTestWindow {
         )))
     }
 
-    fn find_drop_source_controller<T: IsA<gtk::Widget>>(&self, widget: &T) -> Option<DropTarget> {
-        let controllers = widget.observe_controllers();
-        for controller in &controllers {
-            if let Ok(controller_ok) = controller {
-                if let Ok(target) = controller_ok.downcast::<DropTarget>() {
-                    return Some(target);
-                }
-            }
-        }
-        None
-    }
+    // fn find_drop_source_controller<T: IsA<gtk::Widget>>(&self, widget: &T) -> Option<DropTarget> {
+    //     let controllers = widget.observe_controllers();
+    //     for controller in &controllers {
+    //         if let Ok(controller_ok) = controller {
+    //             if let Ok(target) = controller_ok.downcast::<DropTarget>() {
+    //                 return Some(target);
+    //             }
+    //         }
+    //     }
+    //     None
+    // }
 
-    fn disable_or_enable_drop_controller<W: IsA<gtk::Widget>>(&self, widget: W, enable: bool) {
-        if let Some(controller) = self.find_drop_source_controller(&widget) {
-            let signal_id_int = controller.property::<u64>("drop_id");
-            let signal_id = unsafe { SignalHandlerId::from_glib(signal_id_int) };
-            if enable {
-                debug!("Enabling drop controller");
-                controller.unblock_signal(&signal_id);
-            } else {
-                debug!("Disabling drop controller");
-                controller.block_signal(&signal_id);
-            }
-        } else {
-            warn!("NO drop controller found");
-        }
-    }
+    // fn disable_or_enable_drop_controller<W: IsA<gtk::Widget>>(&self, widget: W, enable: bool) {
+    //     if let Some(controller) = self.find_drop_source_controller(&widget) {
+    //         let signal_id_int = controller.property::<u64>("drop_id");
+    //         let signal_id = unsafe { SignalHandlerId::from_glib(signal_id_int) };
+    //         if enable {
+    //             debug!("Enabling drop controller");
+    //             controller.unblock_signal(&signal_id);
+    //         } else {
+    //             debug!("Disabling drop controller");
+    //             controller.block_signal(&signal_id);
+    //         }
+    //     } else {
+    //         warn!("NO drop controller found");
+    //     }
+    // }
 
     pub fn create_drag_file(&self, file_hash: u64) -> gio::File {
         // let imp = self.imp();
@@ -566,7 +541,8 @@ impl GtkTestWindow {
     }
 
     fn drag_connect_end(&self) {
-        // let imp = self.imp();
+        let imp = self.imp();
+        imp.drag_active.set(false);
         debug!("drag end");
         // self.disable_or_enable_drop_controller(imp.image_preferences.get(), true);
         self.drag_and_drop_regeneration_popup();
