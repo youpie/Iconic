@@ -253,7 +253,7 @@ mod imp {
                 ));
             });
             klass.install_action("app.monochrome_switch", None, move |win, _, _| {
-                win.enable_monochrome_expand();
+                win.monochrome_swtich_change();
             });
             klass.install_action("app.reset_color", None, move |win, _, _| {
                 win.reset_colors();
@@ -377,7 +377,6 @@ glib::wrapper! {
         @implements gio::ActionGroup, gio::ActionMap;
 }
 
-#[gtk::template_callbacks]
 impl GtkTestWindow {
     pub fn new<P: IsA<adw::Application>>(application: &P) -> Self {
         let win = glib::Object::builder::<GtkTestWindow>()
@@ -599,46 +598,7 @@ impl GtkTestWindow {
     }
 
     pub fn setup_update(&self) {
-        self.imp().x_scale.connect_value_changed(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
-                    }
-                ));
-            }
-        ));
-        self.imp().y_scale.connect_value_changed(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
-                    }
-                ));
-            }
-        ));
-        self.imp().size.connect_value_changed(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
-                    }
-                ));
-            }
-        ));
-        self.imp().threshold_scale.connect_value_changed(clone!(
+        self.imp().monochrome_invert.connect_active_notify(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
@@ -668,19 +628,6 @@ impl GtkTestWindow {
                         if imp.stack.visible_child_name() == Some("stack_main_page".into()) {
                             win.render_to_screen().await;
                         }
-                    }
-                ));
-            }
-        ));
-        self.imp().monochrome_invert.connect_active_notify(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
                     }
                 ));
             }
@@ -939,26 +886,13 @@ impl GtkTestWindow {
     }
 
     // TODO decouple UI components from these functions
-    fn enable_monochrome_expand(&self) {
+    fn monochrome_swtich_change(&self) {
         let imp = self.imp();
         let switch_state = imp.monochrome_switch.is_active();
         debug!("Updating monochrome state to {:?}", switch_state);
         _ = imp
             .settings
             .set_boolean("monochrome-mode-active", switch_state);
-        match switch_state {
-            true => {
-                self.imp()
-                    .monochrome_action_row
-                    .set_property("enable_expansion", true);
-            }
-            false => {
-                self.imp()
-                    .monochrome_action_row
-                    .set_property("enable_expansion", false);
-            }
-        };
-
         if self.imp().stack.visible_child_name() == Some("stack_main_page".into()) {
             self.check_icon_update();
         }

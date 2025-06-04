@@ -193,6 +193,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                       has-origin: false;
                       orientation: vertical;
                       tooltip-text: _("y-position of top image");
+                      value-changed => $render_callback() swapped;
 
                       adjustment: Adjustment percentage2 {
                         lower: -50;
@@ -248,6 +249,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                         has-origin: false;
                         orientation: horizontal;
                         tooltip-text: _("x-position of top image");
+                        value-changed => $render_callback() swapped;
 
                         adjustment: Adjustment percentage {
                           lower: -50;
@@ -277,6 +279,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                       has-origin: true;
                       orientation: horizontal;
                       tooltip-text: _("size of top image");
+                      value-changed => $render_callback() swapped;
 
                       adjustment: Adjustment percentage3 {
                         lower: 0;
@@ -294,6 +297,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                 Adw.PreferencesGroup {
                   Adw.ExpanderRow monochrome_action_row {
                     title: _("Toggle Monochrome");
+                    enable-expansion: bind monochrome_switch.active;
 
                     [suffix]
                     Switch monochrome_switch {
@@ -351,6 +355,7 @@ template $GtkTestWindow: Adw.ApplicationWindow {
                         has-origin: true;
                         orientation: horizontal;
                         tooltip-text: _("Set the threshold of bright and dark for the monochrome image");
+                        value-changed => $render_callback() swapped;
 
                         adjustment: Adjustment threshold_value {
                           lower: 0;
