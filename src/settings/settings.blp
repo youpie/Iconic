@@ -12,6 +12,8 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
       Adw.ExpanderRow use_builtin_icons_expander {
         title: _("Use a built-in bottom icon");
+        expanded: bind use_builtin_icons_button.active;
+        enable-expansion: bind use_builtin_icons_button.active;
 
         [suffix]
         CheckButton use_builtin_icons_button {
@@ -41,6 +43,8 @@ template $PreferencesDialog: Adw.PreferencesDialog {
               _("Custom"),
             ]
           };
+
+          sensitive: bind use_system_color.active inverted;
         }
 
         Adw.ActionRow primary_color_row {
@@ -79,6 +83,8 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
       Adw.ExpanderRow use_external_icon_expander {
         title: _("Use custom bottom icon");
+        expanded: bind use_builtin_icons_button.active inverted;
+        enable-expansion: bind use_builtin_icons_button.active inverted;
 
         [suffix]
         CheckButton use_external_icon_button {
@@ -132,9 +138,16 @@ template $PreferencesDialog: Adw.PreferencesDialog {
     }
 
     Adw.PreferencesGroup {
+      Adw.SwitchRow meta_drop_switch {
+        title: _("Enable drop during drag");
+        subtitle: _("Enabling this option will allow you to import the current image as a layer by dragging and dropping the image back into iconic");
+      }
+
       Adw.ExpanderRow default_dnd {
         title: _("Default drag-and-drop action");
         subtitle: _("By default, after dragging and dropping a file, you have to select a layer to paste it to. Here you can disable that pop-up");
+        expanded: bind dnd_switch.active;
+        enable-expansion: bind dnd_switch.active;
 
         [suffix]
         Switch dnd_switch {

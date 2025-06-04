@@ -73,5 +73,9 @@
       <default>'438DE6'</default>
       <summary>Color of secondary part of custom folder</summary>
     </key>
+    <key name="allow-meta-drop" type="b">
+      <default>false</default>
+      <summary>Allow dropping dragged iconic images back into iconic</summary>
+    </key>
 	</schema>
 </schemalist>

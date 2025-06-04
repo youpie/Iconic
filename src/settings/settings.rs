@@ -72,6 +72,8 @@ mod imp {
         pub secondary_color_row: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub secondary_folder_color: TemplateChild<gtk::ColorDialogButton>,
+        #[template_child]
+        pub meta_drop_switch: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
     }
 
@@ -106,6 +108,7 @@ mod imp {
                 primary_folder_color: TemplateChild::default(),
                 secondary_color_row: TemplateChild::default(),
                 secondary_folder_color: TemplateChild::default(),
+                meta_drop_switch: TemplateChild::default(),
                 // reveal_custom_colors: TemplateChild::default(),
             }
         }
@@ -143,9 +146,6 @@ mod imp {
                             .set_rgba(&GtkTestWindow::to_rgba(67, 141, 230));
                     }
                 ));
-            });
-            klass.install_action("app.dnd_switch", None, move |win, _, _| {
-                win.dnd_row_expand(false);
             });
         }
 
@@ -204,9 +204,7 @@ impl PreferencesDialog {
         imp.select_bottom_color
             .set_selected(imp.settings.int("selected-accent-color-index") as u32);
         win.load_set_colors();
-        win.dnd_row_expand(true);
         win.set_path_title();
-        win.bottom_image_expander(true);
         win.disable_color_dropdown(true);
         win.setup_settings();
         win.get_file_size();
@@ -239,6 +237,19 @@ impl PreferencesDialog {
                 "active",
             )
             .build();
+        imp.settings
+            .bind("allow-meta-drop", &*imp.meta_drop_switch, "active")
+            .build();
+        imp.settings
+            .bind("default-dnd-activated", &*imp.dnd_switch, "active")
+            .build();
+        imp.settings
+            .bind(
+                "manual-bottom-image-selection",
+                &*imp.use_external_icon_button,
+                "active",
+            )
+            .build();
         imp.svg_image_size.set_value(current_value as f64);
         imp.svg_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
@@ -258,13 +269,6 @@ impl PreferencesDialog {
                 let value = win.imp().thumbnail_image_size.value() as i32;
                 debug!("{}", value);
                 let _ = win.imp().settings.set("thumbnail-size", value);
-            }
-        ));
-        imp.use_builtin_icons_button.connect_toggled(clone!(
-            #[weak (rename_to = this)]
-            self,
-            move |_| {
-                this.bottom_image_expander(false);
             }
         ));
         imp.select_bottom_color.connect_selected_item_notify(clone!(
@@ -333,13 +337,11 @@ impl PreferencesDialog {
         let switch_state = imp.use_system_color.is_active();
         match switch_state {
             true => {
-                imp.select_bottom_color.set_sensitive(false);
                 if !init {
                     let _ = imp.settings.set("selected-accent-color", "None");
                 }
             }
             false => {
-                imp.select_bottom_color.set_sensitive(true);
                 self.get_selected_accent_color(init);
             }
         };
@@ -477,62 +479,6 @@ impl PreferencesDialog {
         fs::remove_dir_all(&path)?;
         fs::create_dir(&path)?;
         Ok(())
-    }
-
-    pub fn dnd_row_expand(&self, init: bool) {
-        let switch_state = self.imp().dnd_switch.is_active();
-        if !init {
-            let _ = self
-                .imp()
-                .settings
-                .set("default-dnd-activated", switch_state);
-        }
-        debug!("Current switch state: {}", switch_state);
-        match switch_state {
-            true => {
-                self.imp()
-                    .default_dnd
-                    .set_property("enable_expansion", false);
-                self.imp()
-                    .default_dnd
-                    .set_property("enable_expansion", true);
-            }
-            false => {
-                self.imp()
-                    .default_dnd
-                    .set_property("enable_expansion", false);
-            }
-        };
-    }
-
-    fn bottom_image_expander(&self, init: bool) {
-        let imp = self.imp();
-        let button_1_active = imp.use_builtin_icons_button.is_active();
-        if !init {
-            let _ = imp
-                .settings
-                .set("manual-bottom-image-selection", !button_1_active);
-        }
-        match button_1_active {
-            true => {
-                self.imp()
-                    .use_builtin_icons_expander
-                    .set_property("enable_expansion", true);
-                self.imp()
-                    .use_external_icon_expander
-                    .set_property("enable_expansion", false);
-                imp.use_builtin_icons_expander.set_expanded(true);
-            }
-            false => {
-                self.imp()
-                    .use_builtin_icons_expander
-                    .set_property("enable_expansion", false);
-                self.imp()
-                    .use_external_icon_expander
-                    .set_property("enable_expansion", true);
-                imp.use_external_icon_expander.set_expanded(true);
-            }
-        };
     }
 
     pub fn dnd_radio_state(&self) {

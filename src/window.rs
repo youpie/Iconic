@@ -27,9 +27,11 @@ use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::Cancellable;
-use gtk::gdk::RGBA;
+use gio::glib::SignalHandlerId;
+use gio::glib::translate::FromGlib;
+use gtk::gdk::{DragAction, RGBA};
 use gtk::gdk_pixbuf::Pixbuf;
-use gtk::{gdk, glib};
+use gtk::{DropTarget, EventController, Widget, gdk, glib};
 use image::*;
 use log::*;
 use std::cell::RefCell;
@@ -41,7 +43,10 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 mod imp {
-    use std::collections::HashMap;
+    use std::{collections::HashMap, rc::Rc};
+
+    use gio::glib::SignalHandlerId;
+    use gtk::{DragSource, DropTarget};
 
     use super::*;
 
@@ -117,6 +122,7 @@ mod imp {
         pub count: RefCell<i32>,
         pub regeneration_lock: Arc<RefCell<usize>>,
         pub app_busy: Arc<()>,
+        pub drop_target_id: RefCell<Option<SignalHandlerId>>,
     }
 
     impl Default for GtkTestWindow {
@@ -161,6 +167,7 @@ mod imp {
                 last_dnd_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(RefCell::new(0)),
                 app_busy: Arc::new(()),
+                drop_target_id: RefCell::new(None),
             }
         }
     }
@@ -274,7 +281,12 @@ mod imp {
             if PROFILE == "Devel" {
                 obj.add_css_class("devel");
             }
+
             let drop_target = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+            // self.drop_target_id.borrow_mut().replace(
+            // self.drop_target_id
+            // .borrow_mut()
+            // .replace(
             drop_target.connect_drop(clone!(
                 #[strong]
                 obj,
@@ -284,7 +296,11 @@ mod imp {
                             #[weak(rename_to = win)]
                             obj,
                             async move {
-                                win.open_dragged_file(file).await;
+                                if win.imp().settings.boolean("allow-meta-drop") {
+                                    win.open_dragged_file(file).await;
+                                } else {
+                                    info!("Meta drop is disabled");
+                                }
                             }
                         ));
                         true
@@ -296,6 +312,7 @@ mod imp {
 
             let drop_target_2 =
                 gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+
             drop_target_2.connect_drop(clone!(
                 #[strong]
                 obj,
@@ -341,8 +358,8 @@ mod imp {
                 false,
                 move |_, _, drag_cancel_reason| win.drag_connect_cancel(drag_cancel_reason)
             ));
-            self.main_status_page.add_controller(drop_target);
-            self.image_preferences.add_controller(drop_target_2);
+            // self.main_status_page.add_controller(drop_target.clone());
+            self.image_preferences.add_controller(drop_target);
 
             self.image_view.add_controller(drag_source);
         }
@@ -486,8 +503,37 @@ impl GtkTestWindow {
         )))
     }
 
+    fn find_drop_source_controller<T: IsA<gtk::Widget>>(&self, widget: &T) -> Option<DropTarget> {
+        let controllers = widget.observe_controllers();
+        for controller in &controllers {
+            if let Ok(controller_ok) = controller {
+                if let Ok(target) = controller_ok.downcast::<DropTarget>() {
+                    return Some(target);
+                }
+            }
+        }
+        None
+    }
+
+    fn disable_or_enable_drop_controller<W: IsA<gtk::Widget>>(&self, widget: W, enable: bool) {
+        if let Some(controller) = self.find_drop_source_controller(&widget) {
+            let signal_id_int = controller.property::<u64>("drop_id");
+            let signal_id = unsafe { SignalHandlerId::from_glib(signal_id_int) };
+            if enable {
+                debug!("Enabling drop controller");
+                controller.unblock_signal(&signal_id);
+            } else {
+                debug!("Disabling drop controller");
+                controller.block_signal(&signal_id);
+            }
+        } else {
+            warn!("NO drop controller found");
+        }
+    }
+
     pub fn create_drag_file(&self, file_hash: u64) -> gio::File {
         // let imp = self.imp();
+        // self.disable_or_enable_drop_controller(imp.image_preferences.get(), false);
         let data_path = self.get_data_path();
         debug!("data path: {:?}", data_path);
         // let random_number = random::<u64>();
@@ -520,7 +566,9 @@ impl GtkTestWindow {
     }
 
     fn drag_connect_end(&self) {
+        // let imp = self.imp();
         debug!("drag end");
+        // self.disable_or_enable_drop_controller(imp.image_preferences.get(), true);
         self.drag_and_drop_regeneration_popup();
     }
 
