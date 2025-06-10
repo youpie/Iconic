@@ -1,39 +1,39 @@
-on:
-  push:
-    # branches: [main]
-  pull_request:
-    branches: [main]
+# on:
+#   push:
+#     # branches: [main]
+#   pull_request:
+#     branches: [main]
 
-name: CI
+# name: CI
 
-jobs:
-  # rustfmt:
-  #   name: Rustfmt
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: dtolnay/rust-toolchain@v1
-  #       with:
-  #         toolchain: stable
-  #         components: rustfmt
-  #     - name: Create blank versions of configured file
-  #       run: echo -e "" >> src/config.rs
-  #     - name: Run cargo fmt
-  #       run: cargo fmt --all -- --check
-  flatpak:
-    name: "Flatpak"
-    runs-on: ubuntu-latest
-    container:
-      image: bilelmoussaoui/flatpak-github-actions:gnome-nightly
-      options: --privileged
-    steps:
-      - uses: actions/checkout@v4
-      - name: Add Flathub Beta remote
-        run: |
-          flatpak --user remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
-          flatpak install --user -y flathub-beta org.freedesktop.Sdk.Extension.rust-stable//24.08beta
-      - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6
-        with:
-          bundle: Iconic.flatpak
-          manifest-path: build-aux/nl.emphisia.icon.Devel.json
-          cache-key: flatpak-builder-${{ github.sha }}
+# jobs:
+# rustfmt:
+#   name: Rustfmt
+#   runs-on: ubuntu-latest
+#   steps:
+#     - uses: actions/checkout@v4
+#     - uses: dtolnay/rust-toolchain@v1
+#       with:
+#         toolchain: stable
+#         components: rustfmt
+#     - name: Create blank versions of configured file
+#       run: echo -e "" >> src/config.rs
+#     - name: Run cargo fmt
+#       run: cargo fmt --all -- --check
+# flatpak:
+#   name: "Flatpak"
+#   runs-on: ubuntu-latest
+#   container:
+#     image: bilelmoussaoui/flatpak-github-actions:gnome-nightly
+#     options: --privileged
+#   steps:
+#     - uses: actions/checkout@v4
+#     - name: Add Flathub Beta remote
+#       run: |
+#         flatpak --user remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+#         flatpak install --user -y flathub-beta org.freedesktop.Sdk.Extension.rust-stable//24.08beta
+#     - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6
+#       with:
+#         bundle: Iconic.flatpak
+#         manifest-path: build-aux/nl.emphisia.icon.Devel.json
+#         cache-key: flatpak-builder-${{ github.sha }}

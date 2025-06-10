@@ -40,6 +40,7 @@ impl GtkTestWindow {
         ));
     }
 
+    // Replace the
     async fn create_custom_folder_color(&self) -> PathBuf {
         let imp = self.imp();
         info!("Creating custom folder colors");

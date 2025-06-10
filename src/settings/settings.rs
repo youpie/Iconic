@@ -225,7 +225,7 @@ impl PreferencesDialog {
 
     fn setup_settings(&self) {
         let imp = self.imp();
-        let current_value: i32 = imp.settings.get("svg-render-size");
+        let current_value: u32 = imp.settings.get("svg-render-size");
         imp.settings
             .bind("store-top-in-cache", &*imp.store_top_images, "active")
             .build();
@@ -254,18 +254,18 @@ impl PreferencesDialog {
             #[weak(rename_to = win)]
             self,
             move |_| {
-                let value = win.imp().svg_image_size.value() as i32;
+                let value = win.imp().svg_image_size.value() as u32;
                 debug!("{}", value);
                 let _ = win.imp().settings.set("svg-render-size", value);
             }
         ));
-        let current_value: i32 = imp.settings.get("thumbnail-size");
+        let current_value: u32 = imp.settings.get("thumbnail-size");
         imp.thumbnail_image_size.set_value(current_value as f64);
         imp.thumbnail_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
-                let value = win.imp().thumbnail_image_size.value() as i32;
+                let value = win.imp().thumbnail_image_size.value() as u32;
                 debug!("{}", value);
                 let _ = win.imp().settings.set("thumbnail-size", value);
             }
@@ -368,7 +368,7 @@ impl PreferencesDialog {
             let _ = imp.settings.set("selected-accent-color", selected_color);
             let _ = imp
                 .settings
-                .set("selected-accent-color-index", selected_index as i32);
+                .set("selected-accent-color-index", selected_index as u32);
         }
     }
 

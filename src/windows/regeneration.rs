@@ -49,7 +49,7 @@ impl GtkTestWindow {
         //create folder inside cache
         let cache_path = Self::get_cache_path().join("top_images");
         if !cache_path.exists() {
-            debug!("Top icon cache file does not yet exist, creating");
+            debug!("Top icon cache dir does not yet exist, creating");
             fs::create_dir(&cache_path)?;
         }
         let file_name = file.hash;
@@ -73,10 +73,14 @@ impl GtkTestWindow {
         let filestream = new_file.open_readwrite(gio::Cancellable::NONE)?;
         let test = filestream.output_stream();
         if let Some(original_file) = &file.files {
-            let buffer = original_file.load_bytes(gio::Cancellable::NONE)?;
-            test.write_bytes(&buffer.0, gio::Cancellable::NONE)?;
-            return Ok(());
+            if !file.dynamic_image_resized {
+                info!("Saving original image to cache");
+                let buffer = original_file.load_bytes(gio::Cancellable::NONE)?;
+                test.write_bytes(&buffer.0, gio::Cancellable::NONE)?;
+                return Ok(());
+            }
         }
+        info!("Saving dynamic image to cache");
         file.dynamic_image
             .save_with_format(file_path, ImageFormat::Jpeg)?;
         Ok(())
