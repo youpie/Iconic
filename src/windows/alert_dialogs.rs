@@ -203,7 +203,7 @@ impl GtkTestWindow {
 
     pub fn quit_iconic(&self) {
         let imp = self.imp();
-        if imp.image_saved.borrow().clone() {
+        if imp.image_saved.get() {
             error!("closing iconic");
             self.application().unwrap().activate_action("quit", None);
         }

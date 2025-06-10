@@ -111,14 +111,14 @@ mod imp {
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
         pub top_image_file: Arc<Mutex<Option<File>>>,
         pub saved_file: Arc<Mutex<Option<gio::File>>>,
-        pub file_created: RefCell<bool>,
-        pub image_saved: RefCell<bool>,
+        pub file_created: Cell<bool>,
+        pub image_saved: Cell<bool>,
         pub last_dnd_generated_name: RefCell<Option<gio::File>>,
         pub generated_image: RefCell<Option<DynamicImage>>,
-        pub temp_image_loaded: RefCell<bool>,
+        pub temp_image_loaded: Cell<bool>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
-        pub count: RefCell<i32>,
+        pub count: Cell<i32>,
         pub regeneration_lock: Arc<RefCell<usize>>,
         pub app_busy: Arc<()>,
         pub drag_active: Rc<Cell<bool>>,
@@ -156,13 +156,13 @@ mod imp {
                 bottom_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),
-                image_saved: RefCell::new(true),
+                image_saved: Cell::new(true),
                 generated_image: RefCell::new(None),
-                file_created: RefCell::new(false),
+                file_created: Cell::new(false),
                 signals: RefCell::new(vec![]),
                 settings: gio::Settings::new(APP_ID),
-                count: RefCell::new(0),
-                temp_image_loaded: RefCell::new(false),
+                count: Cell::new(0),
+                temp_image_loaded: Cell::new(false),
                 default_color: RefCell::new(HashMap::new()),
                 last_dnd_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(RefCell::new(0)),
@@ -475,7 +475,7 @@ impl GtkTestWindow {
             64,
             imageops::FilterType::Nearest,
         ));
-        debug!("temp image loaded {}", *imp.temp_image_loaded.borrow());
+        debug!("temp image loaded {}", imp.temp_image_loaded.get());
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
         let gio_file = self.create_drag_file(file_hash);
         imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
@@ -828,7 +828,7 @@ impl GtkTestWindow {
             debug!("Loaded temporary image for render");
             // Create image of nothing
             let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
-            (*top_image).replace(File::from_image(empty_image, 1, &folder_bottom_name));
+            (*top_image).replace(File::from_image(empty_image, 1, None, &folder_bottom_name));
             self.slider_control_sensitivity(false);
 
             if imp.stack.visible_child_name() != Some("stack_main_page".into()) {

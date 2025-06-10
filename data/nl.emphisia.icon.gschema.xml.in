@@ -9,11 +9,11 @@
       <default>'folder.svg'</default>
       <summary>name of folder icon in cache</summary>
     </key>
-	  <key name="svg-render-size" type="i">
+	  <key name="svg-render-size" type="u">
       <default>1024</default>
       <summary>SVG render resolution</summary>
     </key>
-	  <key name="thumbnail-size" type="i">
+	  <key name="thumbnail-size" type="u">
       <default>256</default>
       <summary>Thumbnail render resolution</summary>
     </key>
@@ -29,7 +29,7 @@
       <default>'None'</default>
       <summary>The accent color the user has selected in words, string is "None" if automatic change is selected</summary>
     </key>
-    <key name="selected-accent-color-index" type="i">
+    <key name="selected-accent-color-index" type="u">
       <default>0</default>
       <summary>The accent color the user has selected as index for row</summary>
     </key>

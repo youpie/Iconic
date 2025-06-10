@@ -20,6 +20,7 @@ pub struct File {
     pub filename: String,
     pub extension: String,
     pub dynamic_image: DynamicImage,
+    pub dynamic_image_resized: bool,
     pub thumbnail: DynamicImage,
     pub hash: u64,
 }
@@ -28,7 +29,7 @@ impl File {
     pub fn path_str(&self) -> String {
         self.path.clone().into_os_string().into_string().unwrap()
     }
-    pub fn new(file: gio::File, size: i32, thumbnail_size: i32) -> Result<Self, Box<dyn Error>> {
+    pub fn new(file: gio::File, size: u32, thumbnail_size: u32) -> Result<Self, Box<dyn Error>> {
         let temp_path = file.path().into_reason_result("Can't get file path")?;
         let file_info =
             file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE)?;
@@ -47,7 +48,7 @@ impl File {
             .to_string();
         let mime_type = file_info.content_type();
         debug!("Mime type: {:?}", mime_type);
-        let dynamic_image = if mime_type == Some("image/svg+xml".into()) {
+        let mut dynamic_image = if mime_type == Some("image/svg+xml".into()) {
             let path = temp_path.as_os_str().to_str().into_result()?;
             Self::load_svg(path, size)?
         } else {
@@ -62,6 +63,15 @@ impl File {
         };
         let hash = Self::create_hash(&dynamic_image);
         debug!("hash of created file: {}", hash);
+        let mut dynamic_image_resized = false;
+        // Resize the image if the file is larger than the set size
+        // Reduces cache file size, but will take even longer to load image
+        if dynamic_image.width() > size as u32 || dynamic_image.height() > size as u32 {
+            dynamic_image_resized = true;
+            dynamic_image =
+                dynamic_image.resize(size as u32, size as u32, imageops::FilterType::Nearest);
+        }
+
         let mut thumbnail = DynamicImage::new_rgb8(0, 0);
         if thumbnail_size > 0 {
             thumbnail = if file_extension == "svg" {
@@ -81,6 +91,7 @@ impl File {
             extension: mime_type.into_result()?.into(),
             filename: file_name,
             dynamic_image,
+            dynamic_image_resized,
             thumbnail,
             hash,
         })
@@ -88,8 +99,8 @@ impl File {
 
     pub fn from_path_string(
         path: &str,
-        size: i32,
-        thumbnail_size: i32,
+        size: u32,
+        thumbnail_size: u32,
     ) -> Result<Self, Box<dyn Error>> {
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(PathBuf::from(path).as_path());
@@ -98,21 +109,36 @@ impl File {
 
     pub fn from_path(
         path: PathBuf,
-        size: i32,
-        thumbnail_size: i32,
+        size: u32,
+        thumbnail_size: u32,
     ) -> Result<Self, Box<dyn Error>> {
         //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(path);
         Self::new(file, size, thumbnail_size)
     }
 
-    pub fn from_image(image: DynamicImage, thumbnail_size: i32, filename: &str) -> Self {
+    pub fn from_image(
+        image: DynamicImage,
+        thumbnail_size: u32,
+        max_size: Option<u32>,
+        filename: &str,
+    ) -> Self {
+        let mut image = image;
         let thumbnail = image.clone().resize(
-            thumbnail_size as u32,
-            thumbnail_size as u32,
+            thumbnail_size,
+            thumbnail_size,
             imageops::FilterType::Nearest,
         );
         let hash = Self::create_hash(&image);
+        let mut dynamic_image_resized = false;
+        // Resize the image if the file is larger than the set size
+        // Reduces cache file size, but will take even longer to load image
+        if let Some(size) = max_size {
+            if image.width() > size || image.height() > size {
+                dynamic_image_resized = true;
+                image = image.resize(size, size, imageops::FilterType::Nearest);
+            }
+        }
         Self {
             files: None,
             path: "".into(),
@@ -121,10 +147,11 @@ impl File {
             hash,
             dynamic_image: image,
             thumbnail,
+            dynamic_image_resized,
         }
     }
 
-    pub fn load_svg(path: &str, size: i32) -> Result<DynamicImage, Box<dyn Error>> {
+    pub fn load_svg(path: &str, size: u32) -> Result<DynamicImage, Box<dyn Error>> {
         // Load the SVG file content
         let svg_data = match fs::read(path) {
             Ok(x) => x,
@@ -144,7 +171,7 @@ impl File {
         let scale = scale_x.min(scale_y); // Maintain aspect ratio
 
         // Create a Pixmap to render into
-        let mut pixmap = Pixmap::new(size as u32, size as u32).unwrap();
+        let mut pixmap = Pixmap::new(size, size).unwrap();
 
         // Render the SVG tree to the Pixmap
         resvg::render(

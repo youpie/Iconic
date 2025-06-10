@@ -42,6 +42,10 @@ impl GtkTestWindow {
             debug!("Non-default bottom image");
             return Ok(());
         }
+        if imp.temp_image_loaded.get() {
+            debug!("Temporary bottom image loaded");
+            return Ok(());
+        }
         //create folder inside cache
         let cache_path = Self::get_cache_path().join("top_images");
         if !cache_path.exists() {
@@ -63,21 +67,18 @@ impl GtkTestWindow {
                 fs::File::create(&file_path)?;
             }
         };
-        // The dynamic image is quite a lot bigger than the original file (often), so only if there is no original file (pasted images) use the dynamic image
-        // TODO check if the dynamic image or original file bigger is
+        // Only if the orignal image path is present, and it has not been shrunk
+        // Save the original, else save the generated dynamic image
         let new_file = gio::File::for_path(&file_path);
         let filestream = new_file.open_readwrite(gio::Cancellable::NONE)?;
         let test = filestream.output_stream();
-        match &file.files {
-            Some(file) => {
-                let buffer = file.load_bytes(gio::Cancellable::NONE)?;
-                test.write_bytes(&buffer.0, gio::Cancellable::NONE)?;
-            }
-            None => {
-                file.dynamic_image
-                    .save_with_format(file_path, ImageFormat::Png)?;
-            }
+        if let Some(original_file) = &file.files {
+            let buffer = original_file.load_bytes(gio::Cancellable::NONE)?;
+            test.write_bytes(&buffer.0, gio::Cancellable::NONE)?;
+            return Ok(());
         }
+        file.dynamic_image
+            .save_with_format(file_path, ImageFormat::Jpeg)?;
         Ok(())
     }
 
@@ -317,7 +318,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         let is_default = (!imp.settings.boolean("manual-bottom-image-selection")
             && imp.settings.string("selected-accent-color").as_str() == "None"
-            && !*imp.temp_image_loaded.borrow()) as u8;
+            && !imp.temp_image_loaded.get()) as u8;
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();

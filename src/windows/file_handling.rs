@@ -87,7 +87,8 @@ impl GtkTestWindow {
     pub async fn paste_from_clipboard(&self) {
         let clipboard = self.clipboard();
         let imp = self.imp();
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let svg_size: u32 = imp.settings.get("svg-render-size");
 
         match clipboard
             .read_future(&["image/svg+xml"], glib::Priority::DEFAULT)
@@ -107,7 +108,7 @@ impl GtkTestWindow {
                         Some(true) => {
                             // Pasting from a clipboard does not get a file path, which the new_iconic_file creation function needs
                             let iconic_file = gio::spawn_blocking(move || {
-                                File::from_image(image, thumbnail_size, "pasted")
+                                File::from_image(image, thumbnail_size, Some(svg_size), "pasted")
                             })
                             .await
                             .unwrap();
@@ -117,7 +118,12 @@ impl GtkTestWindow {
                             imp.temp_image_loaded.replace(true);
                             imp.bottom_image_file.lock().unwrap().replace(
                                 gio::spawn_blocking(move || {
-                                    File::from_image(image.clone(), thumbnail_size, "pasted")
+                                    File::from_image(
+                                        image.clone(),
+                                        thumbnail_size,
+                                        Some(svg_size),
+                                        "pasted",
+                                    )
                                 })
                                 .await
                                 .unwrap(),
@@ -146,16 +152,19 @@ impl GtkTestWindow {
             Some(true) => true,
             _ => false,
         };
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let svg_render_size: i32 = imp.settings.get("svg-render-size");
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let svg_render_size: u32 = imp.settings.get("svg-render-size");
         let none_file: Option<&gio::File> = None;
         let none_cancelable: Option<&Cancellable> = None;
         let loader = rsvg::Loader::new()
             .read_stream(&stream.unwrap(), none_file, none_cancelable)
             .unwrap();
-        let surface =
-            cairo::ImageSurface::create(cairo::Format::ARgb32, svg_render_size, svg_render_size)
-                .unwrap();
+        let surface = cairo::ImageSurface::create(
+            cairo::Format::ARgb32,
+            svg_render_size as i32,
+            svg_render_size as i32,
+        )
+        .unwrap();
         let cr = cairo::Context::new(&surface).expect("Failed to create a cairo context");
         let renderer = rsvg::CairoRenderer::new(&loader);
         renderer
@@ -185,8 +194,8 @@ impl GtkTestWindow {
 
     pub async fn open_dragged_file(&self, file: gio::File) {
         let imp = self.imp();
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let svg_render_size: i32 = imp.settings.get("svg-render-size");
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let svg_render_size: u32 = imp.settings.get("svg-render-size");
 
         debug!("{:#?}", file.path().value_type());
         let file_info =
@@ -246,19 +255,29 @@ impl GtkTestWindow {
 
     pub async fn open_dragged_texture(&self, file: gdk::Texture) {
         let imp = self.imp();
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        match image::load_from_memory_with_format(
-            &file.save_to_png_bytes(),
-            image::ImageFormat::Png,
-        ) {
-            Ok(image) => {
-                let file = File::from_image(image, thumbnail_size, "dragged.png");
-                imp.top_image_file.lock().unwrap().replace(file);
-                self.check_icon_update();
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let svg_size: u32 = imp.settings.get("svg-render-size");
+        if let Ok(image) =
+            image::load_from_memory_with_format(&file.save_to_png_bytes(), image::ImageFormat::Png)
+        {
+            let file = File::from_image(image, thumbnail_size, Some(svg_size), "dragged.png");
+            let top_file_selected = self.top_or_bottom_popup().await;
+            match top_file_selected {
+                Some(true) => {
+                    imp.top_image_file.lock().unwrap().replace(file);
+                    self.check_icon_update();
+                }
+                Some(false) => {
+                    // This value must be true if a temporary bottom image is loaded
+                    // That is dumb
+                    imp.temp_image_loaded.replace(true);
+                    imp.bottom_image_file.lock().unwrap().replace(file);
+                    self.check_icon_update();
+                }
+                None => (),
             }
-            Err(error) => {
-                show_error_popup(&self, "", true, Some(Box::new(error)));
-            }
+        } else {
+            show_error_popup(&self, "Failed to load image", true, None);
         }
     }
 
@@ -427,8 +446,8 @@ impl GtkTestWindow {
 
     pub async fn load_temp_folder_icon(&self) {
         let imp = self.imp();
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let size: i32 = imp.settings.get("svg-render-size");
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let size: u32 = imp.settings.get("svg-render-size");
         match self.open_file_chooser().await {
             Some(x) => {
                 imp.temp_image_loaded.replace(true);
@@ -444,7 +463,7 @@ impl GtkTestWindow {
     }
 
     pub async fn load_folder_icon(&self, path: &str) {
-        let size: i32 = self.imp().settings.get("thumbnail-size");
+        let size: u32 = self.imp().settings.get("thumbnail-size");
         self.new_iconic_file_creation(
             None,
             Some(PathBuf::from(path)),
@@ -461,9 +480,9 @@ impl GtkTestWindow {
             imp.stack.set_visible_child_name("stack_main_page");
             imp.image_loading_spinner.set_visible(true);
         }
-        let svg_render_size: i32 = imp.settings.get("svg-render-size");
-        let size: i32 = imp.settings.get("thumbnail-size");
-        self.new_iconic_file_creation(Some(filename), None, svg_render_size, size, true)
+        let svg_render_size: u32 = imp.settings.get("svg-render-size");
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        self.new_iconic_file_creation(Some(filename), None, svg_render_size, thumbnail_size, true)
             .await;
     }
 
@@ -474,8 +493,8 @@ impl GtkTestWindow {
         &self,
         file: Option<gio::File>,
         path: Option<PathBuf>,
-        svg_render_size: i32,
-        thumbnail_render_size: i32,
+        svg_render_size: u32,
+        thumbnail_render_size: u32,
         change_top_icon: bool,
     ) -> Option<File> {
         if path.is_none() && file.is_none() {
