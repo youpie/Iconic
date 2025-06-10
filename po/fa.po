@@ -1,0 +1,928 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Iconic package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Iconic\n"
+"Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
+"POT-Creation-Date: 2025-03-27 08:44+0100\n"
+"PO-Revision-Date: 2025-06-11 01:36+0330\n"
+"Last-Translator: Danial Behzadi <dani.behzi@ubuntu.com>\n"
+"Language-Team: \n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.6\n"
+
+#: data/nl.emphisia.icon.desktop.in.in:3
+#: data/nl.emphisia.icon.metainfo.xml.in.in:5
+#: data/nl.emphisia.icon.metainfo.xml.in.in:191
+msgid "Iconic"
+msgstr "نقشکی"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:6
+msgid "Add icons on top of folders"
+msgstr "افزودن نقشک روی شاخه‌ها"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:8
+msgid "Youpie"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:14
+msgid ""
+"This program allows an easy and intuitive way to add an icon on top of a "
+"folder to help you differentiate it better."
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:15
+msgid ""
+"This program works best in combination with the app \"Icon library\" found "
+"on flathub and \"Adwaita Colors\" found on github"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:16
+msgid ""
+"This program is written in Rust and Libadwaita and is my first attempt at "
+"creating an application"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:20
+msgid "Main menu in light mode"
+msgstr "فهرست اصلی در حالت روشن"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:24
+msgid "Accent collored folders supported"
+msgstr "شاخه‌های با رنگ لهجه پشتیبانی می‌شوند"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:28
+msgid "Main menu in dark mode"
+msgstr "فهرست اصلی در حالت تیره"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:32
+msgid "Custom colored folder icons supported"
+msgstr "شاخه‌های با رنگ سفارشی پشتیبانی می‌شوند"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:39
+msgid ""
+"Here I am, once again. A new update to Iconic is here with the following "
+"changes!"
+msgstr "باز هم با به‌روز رسانی جدید برای نقشکی یا تغییرات زیر این‌جایم!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:41
+msgid "Improved code"
+msgstr "کد بهبود یافته"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:42
+msgid "Decrease storage and memory size"
+msgstr "کاهش اندازهٔ حافظه و ذخیره‌سازی"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:43
+msgid "Improved app closing"
+msgstr "بهبود بستن کاره"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+msgid "Updated to gnome 48"
+msgstr "به‌روز شده به گنوم ۴۸"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:45
+msgid "Improved \"About Iconic\" dialog"
+msgstr "گفت‌وگوی «دربارهٔ نقشکی» بهبود یافته"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+msgid "Removed donation button from hamburger menu"
+msgstr "برداشتن دکمهٔ اعانه از فهرست همبرگری"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+msgid "Added keyboard shortcuts"
+msgstr "افزودن میان‌برهای صفحه‌کلید"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+msgid "Improved accessibility"
+msgstr "دسترسی‌پذیری بهبود یافته"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:49
+msgid "Increased translatable elements"
+msgstr "عنصرهای ترجمه‌پذیر افزایش یافته"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+msgid ""
+"I am doing a lot of this because I am planning to apply to gnome circle :)"
+msgstr "بیش‌تر این کارها را می‌کنم چرا که قصد پیوستن به حلقهٔ گنوم را دارم :)"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:52
+msgid "Remember to let me know if you encounter any bugs!"
+msgstr "اگر با مشکلی مواجه شدید خبردارم کنید!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:53
+msgid "Have a beautiful day &lt;3"
+msgstr "روز خوبی داشته باشید 3>"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+msgid ""
+"A new version of Iconic! It is mostly a quality of life update, I have some "
+"fun additions planned so stay tuned!"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:59
+msgid "Here is what has changed:"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:61
+msgid "Updated to rust 2024 edition"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
+msgid "Removed regeneration screen"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:63
+msgid "Added regeneration bar on main screen"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
+msgid "Added better error handling for regeneration"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:65
+msgid "Updated pink folder, to be in line with Adwaita-colors"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:66
+msgid "Added acknowledgements in the About Iconic"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:67
+msgid "Fixed donation link"
+msgstr "پیوند اعانه درست شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:69
+msgid "As always, if you encounter any bugs. Please let me know on GitHub!"
+msgstr "مثل همیشه اگر مشکلی پیدا کردید در گیت‌هاب خبرم کنید!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:70
+msgid "Enjoy the update, and Free Palestine 🇵🇸"
+msgstr "از به‌روز رسانی لدّت ببرید؛ و آزاد باد فلسطین 🇵🇸"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:75
+msgid ""
+"I was really motivated so I made another update. Now allowing you to set "
+"custom collors for the folders. Other features include"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:77
+msgid "Made the app more responsive"
+msgstr "کاره پاسخگوتر شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:78
+msgid "Removed crashing bug"
+msgstr "اشکال فروپاشنده برداشته شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:79
+msgid "Removed small bugs"
+msgstr "اشکال‌های کوچک برداشته شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:80
+msgid "Added Right-click menu to folder view"
+msgstr "فهرست کلیک رایت به نمای شاخه افزوده شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:86
+msgid ""
+"A really big update for Iconic! You are now able to regenerate images with "
+"the correct accent color after you change it. This makes the app really nice "
+"to combine with \"Adwaita-Colors\""
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:87
+msgid ""
+"In Gnome 48, using static images in natilus might change. If that is the "
+"case I will retire the app. But for now I will keep working on the app!"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:92
+msgid ""
+"This is a nice big update to Iconic making it way more colorfull and better "
+"for gnome 47. Features include"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:94
+msgid "Custom accent color folders"
+msgstr "شاخه‌های با رنگ لهجهٔ سفارشی"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:95
+msgid "Accent color detection"
+msgstr "تشخیص رنگ لهجه"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:96
+msgid "Updated settings"
+msgstr "تنظیمات به‌روز شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:97
+msgid "Bug fixes!"
+msgstr "رفع اشکال‌ها!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:99
+msgid "As always, please let me know if you encounter any bugs!"
+msgstr "مثل همیشه اگر به مشکلی برخوردید خبرم کنید!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:104
+msgid ""
+"This update to iconic is mostly just a version bump. However I do have some "
+"fun features I want to try and implement. If it is possible, idk yet. But I "
+"have already started working on it."
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:105
+msgid "Biggest changes"
+msgstr "بزرگ‌ترین تغییرات"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:107
+msgid "Updated to gnome 47"
+msgstr "به‌روز شده به گنوم ۴۷"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:108
+msgid "Using new loading animation"
+msgstr "استفاده کردن از پویانمایی بار کردن جدید"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:109
+msgid "Using new buttons in settings"
+msgstr "استفاده کردن از دکمه‌های جدید در تنظیمات"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:115
+msgid ""
+"A new update to Iconic is here! It does not add many features but features a "
+"lot of improvements under the hood, this means the app will now crash way "
+"less often without any warning. Some changes include:"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:117
+msgid "Added ability to drag icon out of iconic directly"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:118
+msgid "Added error handling on opening files"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:119
+msgid "Added error handling on saving files"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:120
+msgid "Added donation link"
+msgstr "افزودن پیوند اعانه"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:121
+msgid "Added pop-up when dragging in files"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:122
+msgid "Updated Dutch translations"
+msgstr "ترجمه‌های هلندی به‌روز شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:124
+msgid "Please report any bugs you see! Many thanks"
+msgstr "لطفاً اشکال‌هایی که می‌بینید را گزارش کنید! سپاس بسیار"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:129
+msgid ""
+"This is a new major release of Iconic. Featuring many bug fixes and added "
+"features. Some notable ones are:"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:131
+msgid "Drag and drop support"
+msgstr "پشتیبانی از کشیدن و انداختن"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:132
+msgid "Copy-paste support"
+msgstr "پیشتبانی از رونوشت و جایگذاری"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:133
+msgid "Better file type detection"
+msgstr "تشخیص بهتر گونهٔ پرونده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:134
+msgid "Updated dutch translations"
+msgstr "ترجمه‌های هلندی به‌روز شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:135
+msgid "Added Hindi translations"
+msgstr "ترجمه‌های هندی افزوده شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:136
+msgid "Fixed spelling mistakes"
+msgstr "رفع مشکلات نوشتاری"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:137
+msgid "Fixed issues with black pixels not converting to monochrome"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:143
+msgid "Another small update with a few additions and changes"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:145
+msgid "You can now open containing folder after saving image"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:146
+msgid "Added italian translation"
+msgstr "ترجمه‌های ایتالیایی افزوده شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:147
+msgid "Updated Dutch translation"
+msgstr "ترجمه‌های هلندی به‌روز شده"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:153
+msgid "This version adds a few small features and fixes some bugs"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:155
+msgid "The app now shows some errors as pop-ups"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:156
+msgid "You can now temporarily open a new folder image"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:157
+msgid "It now first shows a pop-up when the folder image is not found"
+msgstr ""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:163
+msgid "Initial release"
+msgstr "ارائه نخستین"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:182
+msgid "icon"
+msgstr "نقشک"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:183
+msgid "create"
+msgstr "ایجاد"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:184
+msgid "folder icon"
+msgstr "نقشک شاخه"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:185
+msgid "svg"
+msgstr "svg"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:186
+msgid "png"
+msgstr "png"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:187
+msgid "gnome"
+msgstr "گنوم"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:188
+msgid "icon create"
+msgstr "ایجاد نقشک"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:189
+msgid "icon creator"
+msgstr "نقشک‌ساز"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:190
+msgid "folder icon creator"
+msgstr "سازندهٔ نقشک شاخه"
+
+#: src/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "عمومی"
+
+#: src/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "نمایش میان‌برها"
+
+#: src/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Open Preferences"
+msgstr "گشودن ترجیحات"
+
+#: src/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Quit Iconic"
+msgstr "خروج از نقشکی"
+
+#: src/gtk/help-overlay.blp:29
+msgctxt "shortcut window"
+msgid "Save Image"
+msgstr "ذخیره تصویر"
+
+#: src/gtk/help-overlay.blp:34
+msgctxt "shortcut window"
+msgid "Open top image"
+msgstr "گشودن تصویر زیری"
+
+#: src/gtk/help-overlay.blp:39
+msgctxt "shortcut window"
+msgid "Open temporary bottom image"
+msgstr "گشودن تصویر زیرین موقّتی"
+
+#: src/gtk/help-overlay.blp:44
+msgctxt "shortcut window"
+msgid "Regenerate Images"
+msgstr "بازتولید تصویرها"
+
+#: src/settings/settings.blp:8
+msgid "General"
+msgstr "عمومی"
+
+#: src/settings/settings.blp:11
+msgid "Customise"
+msgstr "شخصی‌سازی"
+
+#: src/settings/settings.blp:14
+msgid "Use a built-in bottom icon"
+msgstr "استفاده از نقشک زیرین توکار"
+
+#: src/settings/settings.blp:18
+msgid "use the built-in bottom image"
+msgstr "استفاده از تصویر زیرین توکار"
+
+#: src/settings/settings.blp:24
+msgid "Use system accent color"
+msgstr "استفاده از رنگ لهجهٔ سامانه"
+
+#: src/settings/settings.blp:28
+msgid "Manually select folder color"
+msgstr "گزینش دستی رنگ شاخه"
+
+#: src/settings/settings.blp:32
+msgid "Blue"
+msgstr "آبی"
+
+#: src/settings/settings.blp:33
+msgid "Teal"
+msgstr "سبزآبی"
+
+#: src/settings/settings.blp:34
+msgid "Green"
+msgstr "سبز"
+
+#: src/settings/settings.blp:35
+msgid "Yellow"
+msgstr "زرد"
+
+#: src/settings/settings.blp:36
+msgid "Orange"
+msgstr "نارنجی"
+
+#: src/settings/settings.blp:37
+msgid "Red"
+msgstr "قرمز"
+
+#: src/settings/settings.blp:38
+msgid "Pink"
+msgstr "صورتی"
+
+#: src/settings/settings.blp:39
+msgid "Purple"
+msgstr "بنفش"
+
+#: src/settings/settings.blp:40
+msgid "Slate"
+msgstr "سنگی"
+
+#: src/settings/settings.blp:41
+msgid "Custom"
+msgstr "سفارشی"
+
+#: src/settings/settings.blp:47
+msgid "Primary Folder Color"
+msgstr "رنگ اصلی شاخه"
+
+#: src/settings/settings.blp:64
+msgid "Secondary Folder Color"
+msgstr "رنگ دوم شاخه"
+
+#: src/settings/settings.blp:81
+msgid "Use custom bottom icon"
+msgstr "استفاده از نقشک زیرین سفارشی"
+
+#: src/settings/settings.blp:85
+msgid "use a custom bottom image"
+msgstr "استفاده از تصویر زیرین سفارشی"
+
+#: src/settings/settings.blp:91
+msgid "Currently set bottom icon"
+msgstr "نقشک زیرین تنظیم شدهٔ کنونی"
+
+#: src/settings/settings.blp:95
+msgid "Select bottom icon"
+msgstr "گزینش نقشک زیرین"
+
+#: src/settings/settings.blp:104
+msgid "Store top images in cache"
+msgstr "ذخیرهٔ تصویرهای رویی در انباره"
+
+#: src/settings/settings.blp:105
+msgid ""
+"If you change your system accent color, and want to regenerate the icons, "
+"turn this on"
+msgstr ""
+
+#: src/settings/settings.blp:109
+msgid "Regenerate automatically"
+msgstr "بازتولید خودکار"
+
+#: src/settings/settings.blp:110
+msgid ""
+"If you want to automatically regenerate images after changing accent color, "
+"turn this on"
+msgstr ""
+
+#: src/settings/settings.blp:114
+msgid "Current cache used"
+msgstr "انبارهٔ استفاده شدهٔ کنونی"
+
+#: src/settings/settings.blp:119
+msgid "Remove all cached images"
+msgstr "برداشتن همهٔ تصویرهای انبار شده"
+
+#: src/settings/settings.blp:130
+msgid "Default drag-and-drop action"
+msgstr "کنش پیش‌گزیده کشیدن و رها کردن"
+
+#: src/settings/settings.blp:131
+msgid ""
+"By default, after dragging and dropping a file, you have to select a layer "
+"to paste it to. Here you can disable that pop-up"
+msgstr ""
+
+#: src/settings/settings.blp:135
+msgid "Use a default drag and drop action"
+msgstr "استفاده از کنشی پیش‌گزیده برای کشیدن و رها کردن"
+
+#: src/settings/settings.blp:142
+msgid "Always select top layer"
+msgstr "گزینش همیشگی لایهٔ رویی"
+
+#: src/settings/settings.blp:152
+msgid "Always select bottom layer"
+msgstr "گزینش همیشگی لایهٔ زیرین"
+
+#: src/settings/settings.blp:164
+msgid "Advanced"
+msgstr "پیشرفته"
+
+#: src/settings/settings.blp:168
+msgid "You can see these options because you have enabled the Devel profile"
+msgstr ""
+
+#: src/settings/settings.blp:179
+msgid "Select size of SVG images"
+msgstr "گزینش اندازهٔ تصویرهای SVG"
+
+#: src/settings/settings.blp:180
+msgid ""
+"SVG images will by default be converted to a 1024x1024 image. You can adjust "
+"that here"
+msgstr ""
+
+#: src/settings/settings.blp:192
+msgid "Select size of Thumbnail images"
+msgstr "گزینش اندازهٔ تصویرهای بندانگشتی"
+
+#: src/settings/settings.blp:193
+msgid ""
+"Thumbnail images will by default be converted to a 255x255 image. You can "
+"adjust that here"
+msgstr ""
+
+#. visible: bind regeneration_revealer.reveal-child;
+#: src/window.blp:38 src/window.blp:153
+msgid "Regenerating icons…"
+msgstr "بازتولید کردن نقشک‌ها…"
+
+#: src/window.blp:45 src/window.blp:160
+msgid "Menu"
+msgstr "فهرست"
+
+#: src/window.blp:73
+msgid "Folder Icon Creator"
+msgstr "سازندهٔ نقشک شاخه"
+
+#: src/window.blp:74
+msgid "Click or Drag to Open Image"
+msgstr "زدن یا کشیدن برای گشودن تصویر"
+
+#: src/window.blp:85
+msgid "_Open Image"
+msgstr "_گشودن تصویر"
+
+#: src/window.blp:98
+msgid "_Show Bottom Layer"
+msgstr "_نمایش لایهٔ زیرین"
+
+#: src/window.blp:124 src/windows/alert_dialogs.rs:82
+msgid "Save"
+msgstr "ذخیره"
+
+#: src/window.blp:195
+msgid "y-position of top image"
+msgstr "موقعیت عمودی تصویر رویی"
+
+#: src/window.blp:215
+msgid "Preview window of icon, drag from here to start drag operation"
+msgstr ""
+
+#: src/window.blp:238
+msgid "New top image is loading"
+msgstr "تصویر رویی جدید دارد بار می‌شود"
+
+#: src/window.blp:250
+msgid "x-position of top image"
+msgstr "موقعیت افقی تصویر رویی"
+
+#: src/window.blp:279
+msgid "size of top image"
+msgstr "اندازهٔ تصویر رویی"
+
+#: src/window.blp:296
+msgid "Toggle Monochrome"
+msgstr "تغییر حالت تک‌رنگ"
+
+#: src/window.blp:302
+msgid "Turn on monochrome for top image"
+msgstr "روشن کردن تک‌رنگ برای تصویر رویی"
+
+#: src/window.blp:307
+msgid "Invert"
+msgstr "وارونگی"
+
+#: src/window.blp:308
+msgid "Invert bright and dark in the monochrome image"
+msgstr "وارونگی روشن و تیره در تصویر تک‌رنگ"
+
+#: src/window.blp:312
+msgid "Color"
+msgstr "رنگ"
+
+#: src/window.blp:314
+msgid "Choose the color of the monochrome image"
+msgstr "گزینش رنگ تصویر تک‌رنگ"
+
+#: src/window.blp:322
+msgid "Reset the color of the monochrome image to default"
+msgstr "بازنشانی رنگ تصویر تک‌رنگ به پیش‌گزیده"
+
+#: src/window.blp:348
+msgid "Threshold"
+msgstr "آستانه"
+
+#: src/window.blp:353
+msgid "Set the threshold of bright and dark for the monochrome image"
+msgstr "تنظیم آستانهٔ روشنی و تیرگی برای تصویر تک‌رنگ"
+
+#: src/window.blp:392
+msgid "Saving…"
+msgstr "ذخیره کردن…"
+
+#: src/window.blp:410
+msgid "_Paste Top Icon from Clipboard"
+msgstr "_جایگذاری نقشک رویی از تخته‌گیره"
+
+#: src/window.blp:415
+msgid "_Open Top Icon"
+msgstr "_گشودن نقشک رویی"
+
+#: src/window.blp:420
+msgid "_Open Bottom Icon"
+msgstr "_گشودن نقشک زیرین"
+
+#: src/window.blp:427
+msgid "_Reset Bottom Icon"
+msgstr "_بازنشانی نقشک زیرین"
+
+#: src/window.blp:432
+msgid "_Regenerate Icons"
+msgstr "_بازتولید نقشک‌ها"
+
+#: src/window.blp:439
+msgid "_Preferences"
+msgstr "_ترجیحات"
+
+#: src/window.blp:444
+msgid "_Keyboard Shortcuts"
+msgstr "_میان‌برهای صفحه‌کلید"
+
+#: src/window.blp:449
+msgid "_About Iconic"
+msgstr "_دربارهٔ نقشکی"
+
+#: src/window.blp:458
+msgid "Change Top Image"
+msgstr "تغییر تصویر رویی"
+
+#: src/window.blp:463
+msgid "Change Bottom Image"
+msgstr "تغییر تصویر زیرین"
+
+#: src/window.blp:470
+msgid "Temporarily Change Bottom Image"
+msgstr "تغییر موقّتی تصویر زیرین"
+
+#: src/window.blp:475
+msgid "Reset Temporary Bottom Image"
+msgstr "بازنشانی تصویر زیرین موقّتی"
+
+#: src/application.rs:170
+msgid "Iconic allows you to add images onto a folder."
+msgstr "نقشکی می‌گذارد تصویرها را به شاخه‌ای بیفزایید."
+
+#. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
+#: src/application.rs:176
+msgid "translator-credits"
+msgstr "دانیال بهزادی <dani.behzi@ubuntu.com>"
+
+#: src/objects/errors.rs:14 src/settings/settings.rs:435
+msgid "Error"
+msgstr "خطا"
+
+#: src/objects/errors.rs:34 src/windows/alert_dialogs.rs:29
+#: src/windows/alert_dialogs.rs:126 src/windows/alert_dialogs.rs:142
+msgid "OK"
+msgstr "قبول"
+
+#: src/settings/settings.rs:390 src/window.rs:933
+msgid "Open Document"
+msgstr "گشودن سند"
+
+#: src/settings/settings.rs:452
+msgid ""
+"Are you sure you want to clear the cache? \n"
+" Clearing the cache means you probably won't be able to regenerate a lot of "
+"images."
+msgstr ""
+
+#: src/settings/settings.rs:455 src/windows/alert_dialogs.rs:79
+msgid "Cancel"
+msgstr "لغو"
+
+#: src/settings/settings.rs:457
+msgid "Remove"
+msgstr "برداشتن"
+
+#: src/window.rs:813
+msgid "The set bottom icon could not be found, press ok to select a new one"
+msgstr ""
+
+#: src/windows/alert_dialogs.rs:25
+msgid "Drag and drop"
+msgstr "کشیدن و انداختن"
+
+#: src/windows/alert_dialogs.rs:26
+msgid ""
+"Did you know that it is possible to drag the folder image straight out of "
+"Iconic and drop it into nautilus' property window.\n"
+"No need to save!"
+msgstr ""
+
+#: src/windows/alert_dialogs.rs:48
+msgid "Do you want to load this image to the top or bottom layer?"
+msgstr ""
+
+#: src/windows/alert_dialogs.rs:49
+msgid "Hint: You can disable this pop-up in the settings"
+msgstr ""
+
+#: src/windows/alert_dialogs.rs:51
+msgid "Select layer"
+msgstr "گزینش لایه"
+
+#: src/windows/alert_dialogs.rs:56
+msgid "Top"
+msgstr "رو"
+
+#: src/windows/alert_dialogs.rs:57
+msgid "Bottom"
+msgstr "زیر"
+
+#: src/windows/alert_dialogs.rs:74
+msgid "Save Changes?"
+msgstr "ذخیرهٔ تغییرات؟"
+
+#: src/windows/alert_dialogs.rs:75
+msgid ""
+"Open image contain unsaved changes. Changes which are not saved will be "
+"permanently lost"
+msgstr ""
+"تصویر باز تغییراتی ذخیره نشده دارد. تغییراتی که ذخیره نشوند برای همیشه از "
+"دست خواهند رفت"
+
+#: src/windows/alert_dialogs.rs:80
+msgid "Discard"
+msgstr "دور ریختن"
+
+#: src/windows/alert_dialogs.rs:122
+msgid "Accent color changed"
+msgstr "رنگ لهجه تغییر کرد"
+
+#: src/windows/alert_dialogs.rs:123
+msgid ""
+"The system accent color has been changed, Iconic has automatically changed "
+"the color of the folder.\n"
+"If you do not want this, you can turn this off in the settings"
+msgstr ""
+
+#: src/windows/alert_dialogs.rs:138
+msgid "Regenerating Icons"
+msgstr "بازتولید کردن نقشک‌ها"
+
+#: src/windows/alert_dialogs.rs:139
+msgid ""
+"If you drag and drop icons and change your accent color. It is then possible "
+"to regenerate the images by pressing \"regenerate\" in the menu or by "
+"pressing ctrl+R"
+msgstr ""
+
+#: src/windows/alert_dialogs.rs:160
+msgid "Iconic is busy"
+msgstr "نقشکی مشغول است"
+
+#: src/windows/alert_dialogs.rs:161
+msgid ""
+"Iconic is currently busy, it is recommended to wait before closing to "
+"prevent data loss"
+msgstr ""
+
+#. Aparently items appear reversed from how they are defined here
+#: src/windows/alert_dialogs.rs:166
+msgid "Quit anyway"
+msgstr "خروج در هر صورت"
+
+#: src/windows/alert_dialogs.rs:168
+msgid "Wait"
+msgstr "انتظار"
+
+#: src/windows/file_handling.rs:137 src/windows/file_handling.rs:142
+msgid "No texture found"
+msgstr "هیچ بافتی پیدا نشد"
+
+#: src/windows/file_handling.rs:246
+msgid "Unsupported file type"
+msgstr "گونهٔ پروندهٔ پشتیبانی نشده"
+
+#: src/windows/file_handling.rs:255
+msgid "Nothing to save"
+msgstr "چیزی برای ذخیره وجود ندارد"
+
+#: src/windows/file_handling.rs:279
+msgid "Open Folder"
+msgstr "گشودن شاخه"
+
+#: src/windows/file_handling.rs:281
+msgid "File Saved"
+msgstr "پرونده ذخیره شد"
+
+#: src/windows/file_handling.rs:295
+msgid "File not saved"
+msgstr "پرونده ذخیره نشد"
+
+#: src/windows/file_handling.rs:384
+msgid "Icon reset"
+msgstr "بازنشانی نقشک"
+
+#: src/windows/file_handling.rs:397 src/windows/file_handling.rs:416
+msgid "Nothing selected"
+msgstr "چیزی انتخاب نشده"
+
+#: src/windows/file_handling.rs:510
+msgid "No file or path found, this is probably not your fault."
+msgstr "پرونده یا مسیری پیدا نشد. احتملاً تقصیر شما نیست."
+
+#: src/windows/regeneration.rs:78
+msgid "Regenerating icons"
+msgstr "بازتولید کردن نقشک‌ها"
+
+#: src/windows/regeneration.rs:92
+msgid "All files are not compatible for regeneration"
+msgstr "همهٔ پرونده‌ها برای بازتولید سازگار نیستند"
+
+#: src/windows/regeneration.rs:130
+msgid ""
+"file failed to regenerate\n"
+"view logs for more information"
+msgid_plural ""
+"files failed to regenerate\n"
+"view logs for more information"
+msgstr[0] ""
+"بازتولید پرونده شکست خورد\n"
+"برای اطّلاعات بیش‌تر گزارش را ببینید"
+msgstr[1] ""
+"بازتولید پرونده‌ها شکست خورد\r\n"
+"برای اطّلاعات بیش‌تر گزارش را ببینید"
+
+#: src/windows/regeneration.rs:140
+msgid "Regeneration sucessful, restart nautilus"
+msgstr "بازتولید موفّق. آغاز دوبارهٔ پرونده‌ها"
