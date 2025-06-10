@@ -3,21 +3,42 @@
 
 use gtk::{glib, prelude::*, subclass::prelude::*};
 
+use crate::config::APP_ID;
+
 mod imp {
-    use std::cell::RefCell;
+    use std::{
+        cell::{Cell, RefCell},
+        rc::Rc,
+    };
 
     use adw::subclass::prelude::*;
     use std::sync::LazyLock;
 
     use super::*;
 
-    #[derive(Debug, Default)]
+    #[derive(Debug)]
     pub struct DragOverlay {
         pub overlay: gtk::Overlay,
         pub revealer: gtk::Revealer,
         pub status: adw::StatusPage,
         pub drop_target: RefCell<Option<gtk::DropTarget>>,
         pub handler_id: RefCell<Option<glib::SignalHandlerId>>,
+        pub settings: gio::Settings,
+        pub current_drop_is_meta: RefCell<Rc<Cell<bool>>>,
+    }
+
+    impl Default for DragOverlay {
+        fn default() -> Self {
+            Self {
+                overlay: gtk::Overlay::default(),
+                revealer: gtk::Revealer::default(),
+                status: adw::StatusPage::default(),
+                drop_target: RefCell::default(),
+                handler_id: RefCell::default(),
+                settings: gio::Settings::new(APP_ID),
+                current_drop_is_meta: RefCell::default(),
+            }
+        }
     }
 
     #[glib::object_subclass]
@@ -110,27 +131,36 @@ impl DragOverlay {
     }
 
     pub fn set_drop_target(&self, drop_target: &gtk::DropTarget) {
-        let priv_ = self.imp();
+        let imp = self.imp();
 
-        if let Some(target) = priv_.drop_target.borrow_mut().take() {
+        if let Some(target) = imp.drop_target.borrow_mut().take() {
             self.remove_controller(&target);
 
-            if let Some(handler_id) = priv_.handler_id.borrow_mut().take() {
+            if let Some(handler_id) = imp.handler_id.borrow_mut().take() {
                 target.disconnect(handler_id);
             }
         }
 
         let handler_id = drop_target.connect_current_drop_notify(glib::clone!(
             #[weak (rename_to = revealer)]
-            priv_.revealer,
+            imp.revealer,
+            #[weak (rename_to = imp)]
+            imp,
             move |target| {
-                revealer.set_reveal_child(target.current_drop().is_some());
+                let meta_drop_enabled = imp.settings.boolean("allow-meta-drop");
+                let drag_active = imp.current_drop_is_meta.borrow().get();
+                let drag_valid = if !meta_drop_enabled && drag_active {
+                    false
+                } else {
+                    true
+                };
+                revealer.set_reveal_child(target.current_drop().is_some() && drag_valid);
             }
         ));
-        priv_.handler_id.replace(Some(handler_id));
+        imp.handler_id.replace(Some(handler_id));
 
         self.add_controller(drop_target.clone());
-        priv_.drop_target.replace(Some(drop_target.clone()));
+        imp.drop_target.replace(Some(drop_target.clone()));
         self.notify("drop-target");
     }
 }

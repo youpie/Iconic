@@ -41,9 +41,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 mod imp {
-    use std::{cell::Cell, collections::HashMap};
-
-    use gio::glib::SignalHandlerId;
+    use std::{cell::Cell, collections::HashMap, rc::Rc};
 
     use crate::windows::drag_overlay::DragOverlay;
 
@@ -123,7 +121,7 @@ mod imp {
         pub count: RefCell<i32>,
         pub regeneration_lock: Arc<RefCell<usize>>,
         pub app_busy: Arc<()>,
-        pub drag_active: Cell<bool>,
+        pub drag_active: Rc<Cell<bool>>,
     }
 
     impl Default for GtkTestWindow {
@@ -169,7 +167,7 @@ mod imp {
                 last_dnd_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(RefCell::new(0)),
                 app_busy: Arc::new(()),
-                drag_active: Cell::new(false),
+                drag_active: Rc::new(Cell::new(false)),
             }
         }
     }
@@ -277,8 +275,13 @@ mod imp {
     impl ObjectImpl for GtkTestWindow {
         fn constructed(&self) {
             self.parent_constructed();
-
             let obj = self.obj();
+            obj.imp()
+                .drag_overlay
+                .imp()
+                .current_drop_is_meta
+                .replace(obj.imp().drag_active.clone());
+
             // Devel Profile
             if PROFILE == "Devel" {
                 obj.add_css_class("devel");
@@ -444,6 +447,7 @@ impl GtkTestWindow {
         let b_float = (1.0 / 255.0 * b as f64) as f32;
         gdk::RGBA::new(r_float, g_float, b_float, 1.0)
     }
+
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
         let imp = self.imp();
         imp.drag_active.set(true);
@@ -478,34 +482,6 @@ impl GtkTestWindow {
         )))
     }
 
-    // fn find_drop_source_controller<T: IsA<gtk::Widget>>(&self, widget: &T) -> Option<DropTarget> {
-    //     let controllers = widget.observe_controllers();
-    //     for controller in &controllers {
-    //         if let Ok(controller_ok) = controller {
-    //             if let Ok(target) = controller_ok.downcast::<DropTarget>() {
-    //                 return Some(target);
-    //             }
-    //         }
-    //     }
-    //     None
-    // }
-
-    // fn disable_or_enable_drop_controller<W: IsA<gtk::Widget>>(&self, widget: W, enable: bool) {
-    //     if let Some(controller) = self.find_drop_source_controller(&widget) {
-    //         let signal_id_int = controller.property::<u64>("drop_id");
-    //         let signal_id = unsafe { SignalHandlerId::from_glib(signal_id_int) };
-    //         if enable {
-    //             debug!("Enabling drop controller");
-    //             controller.unblock_signal(&signal_id);
-    //         } else {
-    //             debug!("Disabling drop controller");
-    //             controller.block_signal(&signal_id);
-    //         }
-    //     } else {
-    //         warn!("NO drop controller found");
-    //     }
-    // }
-
     pub fn create_drag_file(&self, file_hash: u64) -> gio::File {
         // let imp = self.imp();
         // self.disable_or_enable_drop_controller(imp.image_preferences.get(), false);
@@ -525,6 +501,7 @@ impl GtkTestWindow {
     fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool {
         let imp = self.imp();
         let gio_file = imp.last_dnd_generated_name.borrow().clone().unwrap();
+        self.image_save_sensitive(true);
         info!(
             "Drag operation cancelled, removing file. Reason: {:?}",
             reason
