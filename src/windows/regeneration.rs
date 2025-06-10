@@ -32,11 +32,7 @@ enum FilenameProperty {
 }
 
 impl GtkTestWindow {
-    pub fn store_top_image_in_cache(
-        &self,
-        file: &File,
-        original_file: Option<&gio::File>,
-    ) -> GenResult<()> {
+    pub fn store_top_image_in_cache(&self, file: &File) -> GenResult<()> {
         let imp = self.imp();
         if !imp.settings.boolean("store-top-in-cache") {
             debug!("Top cache is disabled");
@@ -67,12 +63,12 @@ impl GtkTestWindow {
                 fs::File::create(&file_path)?;
             }
         };
-        // The dynamic image is quite a lot bigger than the original file (often), so only if there is no original file (pasted images) use the dynam icimage
+        // The dynamic image is quite a lot bigger than the original file (often), so only if there is no original file (pasted images) use the dynamic image
         // TODO check if the dynamic image or original file bigger is
         let new_file = gio::File::for_path(&file_path);
         let filestream = new_file.open_readwrite(gio::Cancellable::NONE)?;
         let test = filestream.output_stream();
-        match original_file {
+        match &file.files {
             Some(file) => {
                 let buffer = file.load_bytes(gio::Cancellable::NONE)?;
                 test.write_bytes(&buffer.0, gio::Cancellable::NONE)?;

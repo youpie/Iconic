@@ -276,6 +276,11 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
+
+            // If you read this and think of a more elegant way to achieve this, please let me know
+            // This shares the value of if a drag operation is currently active
+            // I now create a RefCell<Rc<Cell<bool>>>
+            // Where i replace the Rc<> with the same as in this file
             obj.imp()
                 .drag_overlay
                 .imp()
@@ -287,27 +292,38 @@ mod imp {
                 obj.add_css_class("devel");
             }
 
-            let drop_target = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+            let drop_target = gtk::DropTarget::new(glib::Type::INVALID, gdk::DragAction::COPY);
+            drop_target.set_types(&[gdk::Texture::static_type(), gio::File::static_type()]);
             drop_target.connect_drop(clone!(
                 #[strong]
                 obj,
                 move |_, value, _, _| {
-                    if let Ok(file) = value.get::<gio::File>() {
-                        glib::spawn_future_local(glib::clone!(
-                            #[weak(rename_to = win)]
-                            obj,
-                            async move {
-                                let imp = win.imp();
-                                let drag_active = imp.drag_active.get();
-                                if imp.settings.boolean("allow-meta-drop") || !drag_active {
-                                    win.open_dragged_file(file).await;
-                                } else {
-                                    info!("Meta drop is disabled");
+                    let imp = obj.imp();
+                    let drag_active = imp.drag_active.get();
+                    if imp.settings.boolean("allow-meta-drop") || !drag_active {
+                        if let Ok(texture) = value.get::<gdk::Texture>() {
+                            glib::spawn_future_local(glib::clone!(
+                                #[weak(rename_to = win)]
+                                obj,
+                                async move {
+                                    win.open_dragged_texture(texture).await;
                                 }
-                            }
-                        ));
-                        true
+                            ));
+                            true
+                        } else if let Ok(file) = value.get::<gio::File>() {
+                            glib::spawn_future_local(glib::clone!(
+                                #[weak(rename_to = win)]
+                                obj,
+                                async move {
+                                    win.open_dragged_file(file).await;
+                                }
+                            ));
+                            true
+                        } else {
+                            false
+                        }
                     } else {
+                        info!("Meta drag disabled");
                         false
                     }
                 }
@@ -347,6 +363,7 @@ mod imp {
         }
     }
     impl WidgetImpl for GtkTestWindow {}
+
     impl WindowImpl for GtkTestWindow {
         fn close_request(&self) -> glib::Propagation {
             warn!("close request");
@@ -451,7 +468,6 @@ impl GtkTestWindow {
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
         let imp = self.imp();
         imp.drag_active.set(true);
-        //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
         let generated_image = imp.generated_image.borrow().clone().unwrap();
         let file_hash = imp.top_image_file.lock().unwrap().clone().unwrap().hash;
         let icon = self.dynamic_image_to_texture(&generated_image.resize(
@@ -483,11 +499,8 @@ impl GtkTestWindow {
     }
 
     pub fn create_drag_file(&self, file_hash: u64) -> gio::File {
-        // let imp = self.imp();
-        // self.disable_or_enable_drop_controller(imp.image_preferences.get(), false);
         let data_path = self.get_data_path();
         debug!("data path: {:?}", data_path);
-        // let random_number = random::<u64>();
         let properties_string = self.create_image_properties_string();
         let generated_file_name = format!("folder_new-{}-{}.png", properties_string, file_hash);
         debug!("generated_file_name: {}", generated_file_name);
@@ -521,7 +534,6 @@ impl GtkTestWindow {
         let imp = self.imp();
         imp.drag_active.set(false);
         debug!("drag end");
-        // self.disable_or_enable_drop_controller(imp.image_preferences.get(), true);
         self.drag_and_drop_regeneration_popup();
     }
 

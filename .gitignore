@@ -11,3 +11,4 @@
 *.bkp
 *.drawio
 *.flatpak
+config.rs

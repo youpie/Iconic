@@ -4,7 +4,6 @@ use crate::glib::clone;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
 use adw::prelude::ComboRowExt;
-use adw::prelude::ExpanderRowExt;
 use adw::prelude::{ActionRowExt, AdwDialogExt};
 use adw::subclass::prelude::AdwDialogImpl;
 use fs_extra;
