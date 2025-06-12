@@ -350,7 +350,7 @@ impl PreferencesDialog {
         let imp = self.imp();
         let mut path = self.get_cache_path();
         path.push("top_images");
-        let file_size = fs_extra::dir::get_size(path).unwrap_or(9999);
+        let file_size = fs_extra::dir::get_size(path).unwrap_or(0);
         let file_size_float: f64 = file_size as f64 / 1000000.0;
         imp.cache_size
             .set_subtitle(&format!("{:.2} MB", file_size_float));

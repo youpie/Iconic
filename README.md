@@ -31,6 +31,7 @@ These are ideas I want to implement.
 - [ ] Add guide grid or something
 - [ ] Refer users to icon library, so they know where to find many good icons
     - I already do this in the description, but maybe somewhere in the app itself also?
+- [ ] Show how many files are regenerated and how many are left during regeneration
 
 ### Environment improvements
 - [ ] Make donation link just point to a random charity

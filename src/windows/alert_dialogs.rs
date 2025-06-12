@@ -137,7 +137,9 @@ impl GtkTestWindow {
 
     pub fn drag_and_drop_regeneration_popup(&self) {
         let imp = self.imp();
-        if !imp.settings.boolean("regeneration-hint-shown") {
+        if !imp.settings.boolean("regeneration-hint-shown")
+            && self.regeneration_current_file_uses_compatible_bottom_image()
+        {
             const RESPONSE_OK: &str = "OK";
             let dialog = adw::AlertDialog::builder()
                 .heading(&gettext("Regenerating Icons"))

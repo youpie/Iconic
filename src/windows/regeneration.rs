@@ -62,7 +62,7 @@ impl GtkTestWindow {
     }
 
     pub fn store_top_image_in_cache(&self, file: &File) -> GenResult<()> {
-        if !self.current_file_uses_compatible_bottom_image() {
+        if !self.regeneration_current_file_uses_compatible_bottom_image() {
             info!("Current file does not use a compatible bottom image. no use caching the file");
             return Ok(());
         }
@@ -102,7 +102,7 @@ impl GtkTestWindow {
         }
         info!("Saving dynamic image to cache");
         file.dynamic_image
-            .save_with_format(file_path, ImageFormat::Jpeg)?;
+            .save_with_format(file_path, ImageFormat::WebP)?;
         Ok(())
     }
 
@@ -399,7 +399,7 @@ impl GtkTestWindow {
     */
     pub fn create_image_properties_string(&self) -> String {
         let imp = self.imp();
-        let is_default = self.current_file_uses_compatible_bottom_image() as u8;
+        let is_default = self.regeneration_current_file_uses_compatible_bottom_image() as u8;
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();
@@ -429,7 +429,7 @@ impl GtkTestWindow {
         combined_string
     }
 
-    fn current_file_uses_compatible_bottom_image(&self) -> bool {
+    pub fn regeneration_current_file_uses_compatible_bottom_image(&self) -> bool {
         let imp = self.imp();
         !imp.settings.boolean("manual-bottom-image-selection")
             && imp.settings.string("selected-accent-color").as_str() == "None"

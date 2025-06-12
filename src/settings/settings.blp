@@ -8,7 +8,7 @@ template $PreferencesDialog: Adw.PreferencesDialog {
     title: _("General");
 
     Adw.PreferencesGroup {
-      title: _("Customise");
+      title: _("Bottom Image");
 
       Adw.ExpanderRow use_builtin_icons_expander {
         title: _("Use a built-in bottom icon");
@@ -106,74 +106,82 @@ template $PreferencesDialog: Adw.PreferencesDialog {
     }
 
     Adw.PreferencesGroup {
-      Adw.SwitchRow store_top_images {
-        title: _("Store top images in cache");
-        subtitle: _("If you change your system accent color, and want to regenerate the icons, turn this on");
-      }
+      title: _("Regeneration");
 
-      Adw.SwitchRow automatic_regeneration {
-        title: _("Regenerate automatically");
-        subtitle: _("If you want to automatically regenerate images after changing accent color, turn this on");
-      }
+      Adw.PreferencesGroup {
+        Adw.SwitchRow automatic_regeneration {
+          title: _("Regenerate automatically");
+          subtitle: _("If you want to automatically regenerate images after changing accent color, turn this on");
+        }
 
-      Adw.ActionRow cache_size {
-        title: _("Current cache used");
-        subtitle: "100 MB";
-      }
+        Adw.SwitchRow store_top_images {
+          title: _("Store top images in cache");
+          subtitle: _("If you change your system accent color, and want to regenerate the icons, turn this on");
+        }
 
-      Adw.ButtonRow browse_cache {
-        title: _("Browse cached images");
-        start-icon-name: "folder-visiting-symbolic";
-        activated => $open_image_cache() swapped;
-      }
+        Adw.ActionRow cache_size {
+          title: _("Current cache size");
+          subtitle: "Unknown";
+        }
 
-      Adw.ButtonRow reset_top_cache {
-        title: _("Remove all cached images");
-        start-icon-name: "user-trash-symbolic";
+        Adw.ButtonRow browse_cache {
+          title: _("Browse cached images");
+          start-icon-name: "folder-open-symbolic";
+          activated => $open_image_cache() swapped;
+        }
 
-        styles [
-          "destructive-action",
-        ]
+        Adw.ButtonRow reset_top_cache {
+          title: _("Remove all cached images");
+          start-icon-name: "user-trash-symbolic";
+
+          styles [
+            "destructive-action",
+          ]
+        }
       }
     }
 
     Adw.PreferencesGroup {
-      Adw.SwitchRow meta_drop_switch {
-        title: _("Enable drop during drag");
-        subtitle: _("Enabling this option will allow you to import the current image as a layer by dragging and dropping the image back into iconic");
-      }
+      title: _("Drag and Drop");
 
-      Adw.ExpanderRow default_dnd {
-        title: _("Default drag-and-drop action");
-        subtitle: _("By default, after dragging and dropping a file, you have to select a layer to paste it to. Here you can disable that pop-up");
-        expanded: bind dnd_switch.active;
-        enable-expansion: bind dnd_switch.active;
-
-        [suffix]
-        Switch dnd_switch {
-          tooltip-text: _("Use a default drag and drop action");
-          valign: center;
-          active: false;
-          action-name: "app.dnd_switch";
+      Adw.PreferencesGroup {
+        Adw.SwitchRow meta_drop_switch {
+          title: _("Enable drop during drag");
+          subtitle: _("Enabling this option will allow you to import the current image as a layer by dragging and dropping the image back into iconic");
         }
 
-        Adw.ActionRow {
-          title: _("Always select top layer");
-          activatable-widget: radio_button_top;
+        Adw.ExpanderRow default_dnd {
+          title: _("Default drag-and-drop action");
+          subtitle: _("By default, after dragging and dropping a file, you have to select a layer to paste it to. Here you can disable that pop-up");
+          expanded: bind dnd_switch.active;
+          enable-expansion: bind dnd_switch.active;
 
-          Gtk.CheckButton radio_button_top {
-            active: true;
+          [suffix]
+          Switch dnd_switch {
+            tooltip-text: _("Use a default drag and drop action");
             valign: center;
+            active: false;
+            action-name: "app.dnd_switch";
           }
-        }
 
-        Adw.ActionRow {
-          title: _("Always select bottom layer");
-          activatable-widget: radio_button_bottom;
+          Adw.ActionRow {
+            title: _("Always select top layer");
+            activatable-widget: radio_button_top;
 
-          Gtk.CheckButton radio_button_bottom {
-            group: radio_button_top;
-            valign: center;
+            Gtk.CheckButton radio_button_top {
+              active: true;
+              valign: center;
+            }
+          }
+
+          Adw.ActionRow {
+            title: _("Always select bottom layer");
+            activatable-widget: radio_button_bottom;
+
+            Gtk.CheckButton radio_button_bottom {
+              group: radio_button_top;
+              valign: center;
+            }
           }
         }
       }

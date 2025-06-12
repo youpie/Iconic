@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - When cached icons are saved to reduce bloated cache NOT DONE
 - Automatic folder color change no longer default
+- Slightly tweaked settings window
 
 ### Removed
 
@@ -26,4 +27,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Fixed error showing when trying to regenerate with no compatible files
 - Cleaned up a lot of code
 - Added a lot of comments to the code
+- Regeneration pop-up no longer showing when it is not supported
 
