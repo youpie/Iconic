@@ -122,7 +122,7 @@ impl GtkTestWindow {
         match compatible_files.len() {
             0 => {
                 imp.toast_overlay
-                    .add_toast(adw::Toast::new(&gettext("No icons to regenerate")));
+                    .add_toast(adw::Toast::new(&gettext("Nothing to regenerate")));
                 return Ok(());
             }
             _ => {

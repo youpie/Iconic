@@ -23,4 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - pop-up showing when you start iconic for the first time with a non-default accent color
+- Fixed error showing when trying to regenerate with no compatible files
+- Cleaned up a lot of code
+- Added a lot of comments to the code
 

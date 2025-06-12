@@ -180,7 +180,7 @@ If you like this app, feel free to donate, I would really appreciate it!",
             .license_type(License::Gpl30)
             .copyright("© 2024 YoupDeGamerNL")
             .build();
-        about.add_credit_section(Some("Supporters of iconic"), &["Nido"]);
+        about.add_credit_section(Some("Supporters of iconic"), &["Nido", "Jala015"]);
         about.add_acknowledgement_section(
             Some("Code inspiration from"),
             &[
