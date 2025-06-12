@@ -48,6 +48,9 @@ impl GtkTestWindow {
         imp.image_view.queue_draw();
     }
 
+    // This function creates the monochrome image everytime an update happens to the screen
+    // That is so inefficient, so I need to rethink that
+    // TODO rethink the monochrome implementation
     pub fn to_monochrome(
         &self,
         image: DynamicImage,
@@ -107,7 +110,7 @@ impl GtkTestWindow {
             let top = top_image;
             let base_dimension: (i64, i64) =
                 ((base.dimensions().0).into(), (base.dimensions().1).into());
-            let top = GtkTestWindow::resize_image(top, base.dimensions(), scale, filter);
+            let top = GtkTestWindow::resize_top_image(top, base.dimensions(), scale, filter);
             let top_dimension: (i64, i64) = (
                 (top.dimensions().0 / 2).into(),
                 (top.dimensions().1 / 2).into(),
@@ -131,7 +134,7 @@ impl GtkTestWindow {
         texture
     }
 
-    pub fn resize_image(
+    pub fn resize_top_image(
         image: DynamicImage,
         dimensions: (u32, u32),
         slider_position: f64,

@@ -201,7 +201,7 @@ impl PreferencesDialog {
             imp.radio_button_bottom.set_active(true);
         }
         imp.select_bottom_color
-            .set_selected(imp.settings.int("selected-accent-color-index") as u32);
+            .set_selected(imp.settings.uint("selected-accent-color-index"));
         win.load_set_colors();
         win.set_path_title();
         win.disable_color_dropdown(true);

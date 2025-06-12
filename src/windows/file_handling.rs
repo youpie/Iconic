@@ -487,9 +487,8 @@ impl GtkTestWindow {
             .await;
     }
 
-    // Creates a new folder_icon::File from a gio::file, path or dynamicimage.
+    // Creates a new folder_icon::File from a gio::file or path.
     // Will show an error if none are provided
-    // TODO rewrite this, it is REALLY confusing
     pub async fn new_iconic_file_creation(
         &self,
         file: Option<gio::File>,

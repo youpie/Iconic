@@ -15,6 +15,9 @@ use std::sync::Arc;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
+// The properties of the to be regenerated file, are stored in the filename
+// To get the properties, split the filename at the '-'.
+// This enum provides a more visual method of knowing at what index each property is..
 enum FilenameProperty {
     FileName = 0,
     DefaultBottomImage,
@@ -33,20 +36,11 @@ enum FilenameProperty {
 
 impl GtkTestWindow {
     pub fn store_top_image_in_cache(&self, file: &File) -> GenResult<()> {
-        let imp = self.imp();
-        if !imp.settings.boolean("store-top-in-cache") {
-            debug!("Top cache is disabled");
+        if !self.current_file_uses_compatible_bottom_image() {
+            info!("Current file does not use a compatible bottom image. no use caching the file");
             return Ok(());
         }
-        if imp.settings.boolean("manual-bottom-image-selection") {
-            debug!("Non-default bottom image");
-            return Ok(());
-        }
-        if imp.temp_image_loaded.get() {
-            debug!("Temporary bottom image loaded");
-            return Ok(());
-        }
-        //create folder inside cache
+        //create folder inside cache, if it does not yet exist
         let cache_path = Self::get_cache_path().join("top_images");
         if !cache_path.exists() {
             debug!("Top icon cache dir does not yet exist, creating");
@@ -86,10 +80,12 @@ impl GtkTestWindow {
         Ok(())
     }
 
-    //This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
+    // This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
         let id = *imp.regeneration_lock.borrow();
+        // First set iconic as busy. By getting a Arc reference
+        // I doubt this is the best approach, but Hey it works!
         let _iconic_busy = Arc::clone(&imp.app_busy);
         imp.toast_overlay
             .add_toast(adw::Toast::new(&gettext("Regenerating icons")));
@@ -102,22 +98,30 @@ impl GtkTestWindow {
         imp.regeneration_osd_second.set_fraction(0.0);
         let files_n = compatible_files.len();
         let mut last_animation = None;
-        let mut last_animation_second = None;
+        let mut last_animation_second = None; // Second here means 2nd not sec
         let step_size = 1.0 / files_n as f64;
         let mut regeneration_errors = vec![];
         for file in compatible_files {
+            // In the regeneration lock, a value is saved, if it has changed.
+            // It means a new regeneration instance has started. So stop this one
+            // This is done to prevent two instances from fighting if for example
+            // The accent color is changed during regeneration
             if *imp.regeneration_lock.borrow() != id {
                 error!("Stopping regeneration");
                 break;
             }
-            let path = &file.path();
+            let name = &file.file_name();
             match self.regenerate_and_save_single_icon(file).await {
                 Ok(_) => (),
                 Err(error) => {
-                    error!("Error while generating {:?}: {}", path, &error.to_string());
+                    error!("Error while generating {:?}: {}", &name, &error.to_string());
+                    // Everytime an error occurs. Push this to the errors list
                     regeneration_errors.push(error)
                 }
             }
+            // Update the progress bars
+            // I need two as the animation needs to play on both welcome and main screen which is not possible
+            // with only one animation. Unless i'm missing something
             last_animation = Some(self.progress_animation(
                 step_size,
                 last_animation,
@@ -129,6 +133,8 @@ impl GtkTestWindow {
                 imp.regeneration_osd_second.clone(),
             ));
         }
+        // If the errors list is not empty
+        // Show a pop up with the ammount of errors
         if !regeneration_errors.is_empty() {
             show_error_popup(
                 &self,
@@ -149,22 +155,38 @@ impl GtkTestWindow {
             "Regeneration sucessful, restart nautilus",
         )));
         imp.regeneration_revealer.set_reveal_child(false);
+
         self.close_iconic_busy_popup();
         Ok(())
     }
 
+    // This function regenerates a single compatible icon
     async fn regenerate_and_save_single_icon(&self, file: DirEntry) -> GenResult<()> {
+        // Get path and filename of icon saved in datadir
         let file_name = file.file_name();
         let file_path = file.path();
         let file_name = file_name.to_str().into_result()?.to_string();
+
+        // The settings of the specific icon are specified in the filename.
         let file_properties = file_name.split("-");
         let properties_list: Vec<&str> = file_properties.into_iter().collect();
+
+        // Get the current accent color
         let current_accent_color = self.get_accent_color_and_show_dialog();
+
+        // Icons that are compatible for regeneration are only allowed to use default folder images.
+        // So when regenerating icons, you need the folder which is the same color as the current accent color
         let bottom_image_path = PathBuf::from(format!(
             "/app/share/folder_icon/folders/folder_{}.svg",
             &current_accent_color
         ));
-        let hash = properties_list[12].split(".").nth(0).into_result()?;
+        // The filename of the cached top image is equal to it's hash
+        // So by looking in the cache folder, at the file of the same name as the hash,
+        // the file can be found
+        let hash = properties_list[FilenameProperty::Hash as usize]
+            .split(".")
+            .nth(0)
+            .into_result()?;
         let mut top_image_path = Self::get_cache_path().join("top_images");
         top_image_path.push(hash);
         let top_image_file = gio::spawn_blocking(move || {
@@ -173,8 +195,13 @@ impl GtkTestWindow {
         .await
         .unwrap()?
         .dynamic_image;
-        let slider_values = self.get_properties(properties_list.clone())?;
-        let top_image = self.create_top_image_for_generation(properties_list, top_image_file)?;
+
+        let slider_values = self.get_regeneration_slider_values(properties_list.clone())?;
+        // Create the top image
+        let top_image = self.set_correct_monochrome_values_based_on_regeneration_properties(
+            properties_list,
+            top_image_file,
+        )?;
         let bottom_image_file = gio::spawn_blocking(move || {
             File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
         })
@@ -182,6 +209,7 @@ impl GtkTestWindow {
         .unwrap()?
         .dynamic_image;
         info!("Generating image");
+        // Using the generic generate_image function. The icon can faithfully be recreated
         let generated_image = self
             .generate_image(
                 bottom_image_file,
@@ -205,30 +233,39 @@ impl GtkTestWindow {
         Ok(())
     }
 
+    // Search in the list of stored icons to see which ones are valid for regeneration
     fn find_regeneratable_icons(
         &self,
         dir: PathBuf,
         incompatible_files: &mut u32,
     ) -> GenResult<Vec<fs::DirEntry>> {
         let mut regeneratable: Vec<fs::DirEntry> = vec![];
+        // Walk the directory and loop over every file
         let files: fs::ReadDir = fs::read_dir(&dir)?;
         for file in files {
-            *incompatible_files += 1;
             let current_file = file?;
             let file_name = current_file.file_name();
             debug!("File found: {:?}", file_name);
             let file_name_str = file_name.to_str().into_result()?.to_string();
             let file_properties: Vec<&str> = file_name_str.split("-").collect();
+            // If the first property is not "folder_new" it's using an format for file properties
+            // Which iconic no longer supports
+            // It would have been better to use a version number
             if file_properties[FilenameProperty::FileName as usize] != "folder_new" {
                 info!("File not supported for regeneration");
+                *incompatible_files += 1;
                 continue;
             }
+            // If the image does not use the Default bottom image
+            // It is not valid for regeneration
             if !(file_properties[FilenameProperty::DefaultBottomImage as usize].parse::<usize>()?
                 != 0)
             {
                 info!("Non-default image, not converting");
+                *incompatible_files += 1;
                 continue;
             }
+            // Get the hash, which is the filename of the cached top image
             let hash = file_properties[FilenameProperty::Hash as usize]
                 .split(".")
                 .nth(0)
@@ -236,24 +273,28 @@ impl GtkTestWindow {
             let mut top_image_path = Self::get_cache_path().join("top_images");
             top_image_path.push(hash);
 
+            // If that top image does not exist, just mark it as not valid for regeneration
             if !top_image_path.exists() {
                 warn!("Top image file not found");
+                *incompatible_files += 1;
                 continue;
             }
-            *incompatible_files -= 1;
             regeneratable.push(current_file);
         }
         Ok(regeneratable)
     }
 
-    fn get_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
+    // Get the X, Y, Zoom values from the regeneration file properties
+    fn get_regeneration_slider_values(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
         let x_scale: f64 = properties[FilenameProperty::XScale as usize].parse()?;
         let y_scale: f64 = properties[FilenameProperty::YScale as usize].parse()?;
         let size: f64 = properties[FilenameProperty::ZoomVal as usize].parse()?;
         Ok((x_scale, y_scale, size))
     }
 
-    fn create_top_image_for_generation(
+    // Create the top image based on the properties of the to-be regenerated icon
+    // I am really bad at function names
+    fn set_correct_monochrome_values_based_on_regeneration_properties(
         &self,
         properties: Vec<&str>,
         top_image: DynamicImage,
@@ -320,9 +361,7 @@ impl GtkTestWindow {
     */
     pub fn create_image_properties_string(&self) -> String {
         let imp = self.imp();
-        let is_default = (!imp.settings.boolean("manual-bottom-image-selection")
-            && imp.settings.string("selected-accent-color").as_str() == "None"
-            && !imp.temp_image_loaded.get()) as u8;
+        let is_default = self.current_file_uses_compatible_bottom_image() as u8;
         let x_scale_val = imp.x_scale.value();
         let y_scale_val = imp.y_scale.value();
         let zoom_val = imp.size.value();
@@ -350,5 +389,12 @@ impl GtkTestWindow {
         );
         debug!("{}", &combined_string);
         combined_string
+    }
+
+    fn current_file_uses_compatible_bottom_image(&self) -> bool {
+        let imp = self.imp();
+        !imp.settings.boolean("manual-bottom-image-selection")
+            && imp.settings.string("selected-accent-color").as_str() == "None"
+            && !imp.temp_image_loaded.get()
     }
 }

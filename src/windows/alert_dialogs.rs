@@ -111,6 +111,8 @@ impl GtkTestWindow {
         false
     }
 
+    // Get the current accent color
+    // And show a pop-up if the accent color has changed for the first time
     pub fn get_accent_color_and_show_dialog(&self) -> String {
         let imp = self.imp();
         let accent_color = format!("{:?}", adw::StyleManager::default().accent_color());
@@ -189,6 +191,8 @@ impl GtkTestWindow {
         dialog.downcast::<AlertDialog>().ok()
     }
 
+    // If a user tries to close iconic while it is busy a pop-up is shown
+    // But after it is done being busy it is nice to just close that pop up automatically
     pub fn close_iconic_busy_popup(&self) {
         if let Some(alert_dialog) = self.get_current_alert_dialog() {
             if alert_dialog.default_response() == Some("WAIT_QUIT".into()) {

@@ -54,8 +54,8 @@ impl File {
         } else {
             match image::open(temp_path.clone().into_os_string()) {
                 Err(_) => {
-                    let mut image = ImageReader::open(temp_path.clone().into_os_string())?;
-                    image.set_format(ImageFormat::Png);
+                    let image = ImageReader::open(temp_path.clone().into_os_string())?
+                        .with_guessed_format()?;
                     image.decode()?
                 }
                 Ok(x) => x,
@@ -102,7 +102,6 @@ impl File {
         size: u32,
         thumbnail_size: u32,
     ) -> Result<Self, Box<dyn Error>> {
-        //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(PathBuf::from(path).as_path());
         Self::new(file, size, thumbnail_size)
     }
@@ -112,7 +111,6 @@ impl File {
         size: u32,
         thumbnail_size: u32,
     ) -> Result<Self, Box<dyn Error>> {
-        //let thumbnail = file.clone().resize(255, 255, imageops::FilterType::Nearest);
         let file = gio::File::for_path(path);
         Self::new(file, size, thumbnail_size)
     }
