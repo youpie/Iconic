@@ -26,7 +26,7 @@
       <summary>Whether or not the default drag-and-drop action is activated</summary>
     </key>
     <key name="selected-accent-color" type="s">
-      <default>'None'</default>
+      <default>'Blue'</default>
       <summary>The accent color the user has selected in words, string is "None" if automatic change is selected</summary>
     </key>
     <key name="selected-accent-color-index" type="u">
@@ -50,7 +50,7 @@
       <summary>If true, the pop-up informing the user that it is possible to drag images straight out of iconic has already been shown</summary>
     </key>
     <key name="store-top-in-cache" type="b">
-      <default>false</default>
+      <default>true</default>
       <summary>If true, iconic will store top images in chache</summary>
     </key>
     <key name="automatic-regeneration" type="b">

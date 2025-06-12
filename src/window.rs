@@ -113,13 +113,13 @@ mod imp {
         pub saved_file: Arc<Mutex<Option<gio::File>>>,
         pub file_created: Cell<bool>,
         pub image_saved: Cell<bool>,
-        pub last_dnd_generated_name: RefCell<Option<gio::File>>,
+        pub last_drag_n_drop_generated_name: RefCell<Option<gio::File>>,
         pub generated_image: RefCell<Option<DynamicImage>>,
         pub temp_image_loaded: Cell<bool>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
         pub count: Cell<i32>,
-        pub regeneration_lock: Arc<RefCell<usize>>,
+        pub regeneration_lock: Arc<Cell<usize>>,
         pub app_busy: Arc<()>,
         pub drag_active: Rc<Cell<bool>>,
     }
@@ -164,8 +164,8 @@ mod imp {
                 count: Cell::new(0),
                 temp_image_loaded: Cell::new(false),
                 default_color: RefCell::new(HashMap::new()),
-                last_dnd_generated_name: RefCell::new(None),
-                regeneration_lock: Arc::new(RefCell::new(0)),
+                last_drag_n_drop_generated_name: RefCell::new(None),
+                regeneration_lock: Arc::new(Cell::new(0)),
                 app_busy: Arc::new(()),
                 drag_active: Rc::new(Cell::new(false)),
             }
@@ -231,7 +231,7 @@ mod imp {
                     win,
                     async move {
                         let imp = win.imp();
-                        let id = *imp.regeneration_lock.borrow();
+                        let id = imp.regeneration_lock.get();
                         imp.regeneration_lock.replace(id + 1);
                         match win.regenerate_icons().await {
                             Ok(_) => (),
@@ -328,9 +328,8 @@ mod imp {
                     }
                 }
             ));
-            //self.drop_target_item.replace(Some(drop_target));
             let drag_source = gtk::DragSource::builder()
-                .actions(gdk::DragAction::COPY)
+                .actions(gdk::DragAction::LINK)
                 .build();
 
             drag_source.connect_prepare(clone!(
@@ -346,7 +345,6 @@ mod imp {
                 obj,
                 move |_, _, _| win.drag_connect_end()
             ));
-
             drag_source.connect_drag_cancel(clone!(
                 #[weak (rename_to = win)]
                 obj,
@@ -446,7 +444,7 @@ impl GtkTestWindow {
         self.default_sliders();
 
         imp.reset_color.set_visible(false);
-        self.check_regeneration_needed();
+        self.check_if_regeneration_needed();
         let _ = imp.settings.set_string(
             "previous-system-accent-color",
             &self.get_accent_color_and_show_dialog(),
@@ -478,7 +476,8 @@ impl GtkTestWindow {
         debug!("temp image loaded {}", imp.temp_image_loaded.get());
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
         let gio_file = self.create_drag_file(file_hash);
-        imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
+        imp.last_drag_n_drop_generated_name
+            .replace(Some(gio_file.clone()));
         let gio_file_clone = gio_file.clone();
         glib::spawn_future_local(clone!(
             #[weak (rename_to = win)]
@@ -513,7 +512,11 @@ impl GtkTestWindow {
 
     fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool {
         let imp = self.imp();
-        let gio_file = imp.last_dnd_generated_name.borrow().clone().unwrap();
+        let gio_file = imp
+            .last_drag_n_drop_generated_name
+            .borrow()
+            .clone()
+            .unwrap();
         self.image_save_sensitive(true);
         info!(
             "Drag operation cancelled, removing file. Reason: {:?}",
@@ -584,7 +587,7 @@ impl GtkTestWindow {
             move |_| {
                 if win.imp().stack.visible_child_name() != Some("regenerating_page".into()) {
                     // error!("Reloading folder image");
-                    win.check_regeneration_needed();
+                    win.check_if_regeneration_needed();
                     win.load_folder_path_from_settings();
                 }
                 let _ = win.imp().settings.set_string(
@@ -651,31 +654,6 @@ impl GtkTestWindow {
         let imp = self.imp();
         imp.image_saved.replace(!sensitive);
         imp.save_button.set_sensitive(sensitive);
-    }
-
-    fn check_regeneration_needed(&self) -> bool {
-        let imp = self.imp();
-        let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
-        let current_accent = self.get_accent_color_and_show_dialog();
-        // error!("previous {previous_accent} current {current_accent}");
-        let id = *imp.regeneration_lock.borrow();
-        imp.regeneration_lock.replace(id + 1);
-        if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
-            glib::spawn_future_local(glib::clone!(
-                #[weak(rename_to = win)]
-                self,
-                async move {
-                    match win.regenerate_icons().await {
-                        Ok(_) => info!("Regeneration succesfull!"),
-                        Err(x) => {
-                            error!("{}", x.to_string());
-                        }
-                    };
-                }
-            ));
-            return true;
-        }
-        false
     }
 
     pub fn reset_colors(&self) {

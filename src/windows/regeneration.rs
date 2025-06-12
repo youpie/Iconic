@@ -5,6 +5,7 @@ use crate::{GtkTestWindow, objects::errors::show_error_popup};
 use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::{gettext, ngettext};
+use gio::glib;
 use gtk::gdk::RGBA;
 use gtk::gio;
 use image::*;
@@ -35,6 +36,31 @@ enum FilenameProperty {
 }
 
 impl GtkTestWindow {
+    pub fn check_if_regeneration_needed(&self) -> bool {
+        let imp = self.imp();
+        let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
+        let current_accent = self.get_accent_color_and_show_dialog();
+        // error!("previous {previous_accent} current {current_accent}");
+        let id = imp.regeneration_lock.get();
+        imp.regeneration_lock.replace(id + 1);
+        if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
+            glib::spawn_future_local(glib::clone!(
+                #[weak(rename_to = win)]
+                self,
+                async move {
+                    match win.regenerate_icons().await {
+                        Ok(_) => info!("Regeneration succesfull!"),
+                        Err(x) => {
+                            error!("{}", x.to_string());
+                        }
+                    };
+                }
+            ));
+            return true;
+        }
+        false
+    }
+
     pub fn store_top_image_in_cache(&self, file: &File) -> GenResult<()> {
         if !self.current_file_uses_compatible_bottom_image() {
             info!("Current file does not use a compatible bottom image. no use caching the file");
@@ -83,16 +109,27 @@ impl GtkTestWindow {
     // This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
-        let id = *imp.regeneration_lock.borrow();
+        let id = imp.regeneration_lock.get();
         // First set iconic as busy. By getting a Arc reference
         // I doubt this is the best approach, but Hey it works!
         let _iconic_busy = Arc::clone(&imp.app_busy);
-        imp.toast_overlay
-            .add_toast(adw::Toast::new(&gettext("Regenerating icons")));
         let data_path = self.get_data_path();
         let mut incompatible_files_n: u32 = 0;
         let compatible_files =
             self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
+
+        // Stop if there are no files to regenerate
+        match compatible_files.len() {
+            0 => {
+                imp.toast_overlay
+                    .add_toast(adw::Toast::new(&gettext("No icons to regenerate")));
+                return Ok(());
+            }
+            _ => {
+                imp.toast_overlay
+                    .add_toast(adw::Toast::new(&gettext("Regenerating icons")));
+            }
+        }
         imp.regeneration_revealer.set_reveal_child(true);
         imp.regeneration_osd.set_fraction(0.0);
         imp.regeneration_osd_second.set_fraction(0.0);
@@ -101,12 +138,13 @@ impl GtkTestWindow {
         let mut last_animation_second = None; // Second here means 2nd not sec
         let step_size = 1.0 / files_n as f64;
         let mut regeneration_errors = vec![];
+
         for file in compatible_files {
             // In the regeneration lock, a value is saved, if it has changed.
             // It means a new regeneration instance has started. So stop this one
             // This is done to prevent two instances from fighting if for example
             // The accent color is changed during regeneration
-            if *imp.regeneration_lock.borrow() != id {
+            if imp.regeneration_lock.get() != id {
                 error!("Stopping regeneration");
                 break;
             }
