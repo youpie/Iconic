@@ -187,6 +187,67 @@ template $PreferencesDialog: Adw.PreferencesDialog {
       }
     }
 
+    Adw.PreferencesGroup {
+      title: _("Regeneration");
+
+      Adw.PreferencesGroup {
+        Adw.ExpanderRow {
+          title: _("What is Regeneration?");
+          selectable: false;
+
+          Label {
+            wrap: true;
+            selectable: true;
+            valign: start;
+            use-markup: true;
+            margin-start: 10;
+            margin-end: 10;
+            label: _("Iconic is able to <i>Regenerate</i> compatible icons. It is the ability to change to color of the folder image after changing the system icon theme.\nThis is most useful in combination with <b>Adwaita Colors</b> which automatically changes the color of all folders based on the system accent color.\nAfter regeneration, it is likely required to log out and in again to see the changes");
+          }
+        }
+
+        Adw.SwitchRow automatic_regeneration {
+          title: _("Regenerate automatically");
+          subtitle: _("If you want folder icons to be able change color according the system accent color, turn this on");
+        }
+
+        Adw.SwitchRow strict_regeneration {
+          title: _("Strict regeneration");
+          subtitle: _("Turn this on to only allow regeneration for folder icons that were made with the \"Use system folder color\" option enabled");
+        }
+
+        Adw.SwitchRow store_top_images {
+          title: _("Store top images in cache");
+          subtitle: _("If disabled, folder icons can't be regenerated for different system accent colors");
+        }
+
+        Adw.ActionRow cache_size {
+          title: _("Currently used cache size");
+          subtitle: "Unknown";
+
+          styles [
+            "property",
+            "numeric",
+          ]
+        }
+
+        Adw.ButtonRow browse_cache {
+          title: _("Browse cached images");
+          start-icon-name: "folder-open-symbolic";
+          activated => $open_image_cache() swapped;
+        }
+
+        Adw.ButtonRow reset_top_cache {
+          title: _("Remove all cached images");
+          start-icon-name: "user-trash-symbolic";
+
+          styles [
+            "destructive-action",
+          ]
+        }
+      }
+    }
+
     Adw.PreferencesGroup advanced_settings {
       title: _("Advanced");
 
