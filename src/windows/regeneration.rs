@@ -1,6 +1,6 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
-use crate::objects::properties::{FileProperties, FilenameProperty};
+use crate::objects::properties::FileProperties;
 use crate::{GtkTestWindow, objects::errors::show_error_popup};
 
 use adw::TimedAnimation;

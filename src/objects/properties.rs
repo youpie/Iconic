@@ -1,5 +1,4 @@
-use std::fs::File;
-
+use log::debug;
 use thiserror::Error;
 
 use crate::GenResult;
@@ -19,9 +18,13 @@ pub struct FileProperties {
 }
 
 impl FileProperties {
+    // Load all properties from the filename
     pub fn from_filename(filename: String) -> GenResult<Self> {
-        // Load all properties from the filename
+        // I assume one day ill forget that i do this and get confused
+        let filename = filename.replace(".png", "");
+        debug!("parsing: {}", filename);
         let file_properties = filename.split("-");
+
         let properties_list: Vec<&str> = file_properties.into_iter().collect();
 
         // If filename is not folder_new it is not compatible
@@ -32,10 +35,14 @@ impl FileProperties {
         let x_val: f64 = properties_list[FilenameProperty::XScale as usize].parse()?;
         let y_val: f64 = properties_list[FilenameProperty::YScale as usize].parse()?;
         let zoom_val: f64 = properties_list[FilenameProperty::ZoomVal as usize].parse()?;
-        let monochrome_toggle: bool =
-            properties_list[FilenameProperty::MonochromeSelected as usize].parse()?;
-        let monochrome_invert: bool =
-            properties_list[FilenameProperty::MonochromeInverted as usize].parse()?;
+        let monochrome_toggle: bool = properties_list
+            [FilenameProperty::MonochromeSelected as usize]
+            .parse::<u8>()?
+            .to_bool();
+        let monochrome_invert: bool = properties_list
+            [FilenameProperty::MonochromeInverted as usize]
+            .parse::<u8>()?
+            .to_bool();
         let monochrome_default: bool =
             properties_list[FilenameProperty::DefaultMonochromeColor as usize].parse()?;
         let monochrome_threshold_val: u8 =
@@ -50,11 +57,13 @@ impl FileProperties {
             None
         };
         let top_image_hash: u64 = properties_list[FilenameProperty::Hash as usize].parse()?;
-        let bottom_image_type =
-            match properties_list[FilenameProperty::DefaultBottomImage as usize].parse()? {
-                true => BottomImageType::FolderSystem,
-                false => BottomImageType::Unknown,
-            };
+        let bottom_image_type = match properties_list[FilenameProperty::DefaultBottomImage as usize]
+            .parse::<u8>()?
+            .to_bool()
+        {
+            true => BottomImageType::FolderSystem,
+            false => BottomImageType::Unknown,
+        };
 
         Ok(Self {
             x_val,
@@ -118,4 +127,15 @@ pub enum FilenameProperty {
     MonochromeInverted,
     DefaultMonochromeColor,
     Hash,
+}
+
+// Why must this exist!!!!
+trait ToBool {
+    fn to_bool(&self) -> bool;
+}
+
+impl ToBool for u8 {
+    fn to_bool(&self) -> bool {
+        *self != 0
+    }
 }
