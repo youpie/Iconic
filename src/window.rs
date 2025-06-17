@@ -43,7 +43,7 @@ use std::sync::{Arc, Mutex};
 mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc};
 
-    use crate::windows::drag_overlay::DragOverlay;
+    use crate::{objects::properties::FileProperties, windows::drag_overlay::DragOverlay};
 
     use super::*;
 
@@ -122,6 +122,7 @@ mod imp {
         pub regeneration_lock: Arc<Cell<usize>>,
         pub app_busy: Arc<()>,
         pub drag_active: Rc<Cell<bool>>,
+        pub file_properties: RefCell<FileProperties>,
     }
 
     impl Default for GtkTestWindow {
@@ -168,6 +169,7 @@ mod imp {
                 regeneration_lock: Arc::new(Cell::new(0)),
                 app_busy: Arc::new(()),
                 drag_active: Rc::new(Cell::new(false)),
+                file_properties: RefCell::new(FileProperties::default()),
             }
         }
     }

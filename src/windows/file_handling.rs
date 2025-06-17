@@ -1,5 +1,6 @@
 use crate::objects::errors::{IntoResult, show_error_popup};
 use crate::objects::file::File;
+use crate::objects::properties::BottomImageType;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::*;
@@ -14,6 +15,8 @@ use std::sync::Arc;
 use crate::{GenResult, GtkTestWindow};
 
 impl GtkTestWindow {
+    // Load the correct folder based on settings
+    // TODO This function is quite confusingly written
     pub fn load_folder_path_from_settings(&self) {
         glib::spawn_future_local(glib::clone!(
             #[weak(rename_to = win)]
@@ -22,13 +25,29 @@ impl GtkTestWindow {
                 let imp = win.imp();
                 let path;
                 imp.temp_image_loaded.replace(false);
+                let mut file_properties = imp.file_properties.borrow_mut();
                 if imp.settings.boolean("manual-bottom-image-selection") {
+                    file_properties.bottom_image_type = BottomImageType::Custom;
                     let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
                     path = win.check_chache_icon(cache_file_name).await;
                 } else if imp.settings.string("selected-accent-color") == "Custom" {
-                    path = win.create_custom_folder_color().await;
+                    let custom_primary_color: String =
+                        imp.settings.string("primary-folder-color").into();
+                    let custom_secondary_color: String =
+                        imp.settings.string("secondary-folder-color").into();
+                    path = win
+                        .create_custom_folder_color(&custom_primary_color, &custom_secondary_color)
+                        .await;
+                    file_properties.bottom_image_type =
+                        BottomImageType::FolderCustom(custom_primary_color, custom_secondary_color);
                 } else {
-                    path = win.load_built_in_bottom_icon().await;
+                    let set_folder_color: String =
+                        imp.settings.string("selected-accent-color").into();
+                    path = win.load_built_in_bottom_icon(&set_folder_color).await;
+                    file_properties.bottom_image_type = match set_folder_color.as_str() {
+                        "None" => BottomImageType::FolderSystem,
+                        _ => BottomImageType::Folder(set_folder_color),
+                    }
                 }
                 if !imp.reset_color.is_visible() {
                     win.reset_colors();
@@ -41,19 +60,20 @@ impl GtkTestWindow {
     }
 
     // Replace the
-    async fn create_custom_folder_color(&self) -> PathBuf {
-        let imp = self.imp();
+    async fn create_custom_folder_color(
+        &self,
+        primary_color: &str,
+        secondary_color: &str,
+    ) -> PathBuf {
         info!("Creating custom folder colors");
-        let custom_primary_color = imp.settings.string("primary-folder-color");
-        let custom_secondary_color = imp.settings.string("secondary-folder-color");
         let folder_svg_file =
             std::fs::read_to_string("/app/share/folder_icon/folders/folder_Custom.svg").unwrap();
         let folder_svg_lines = folder_svg_file.lines();
         let new_custom_folder: String = folder_svg_lines
             .map(|row| {
                 let row_clone = row.to_string();
-                let row_clone = row_clone.replace("a4caee", &custom_primary_color);
-                let mut row_clone = row_clone.replace("438de6", &custom_secondary_color);
+                let row_clone = row_clone.replace("a4caee", &primary_color);
+                let mut row_clone = row_clone.replace("438de6", &secondary_color);
                 row_clone.push_str("\n");
                 row_clone
             })
@@ -71,10 +91,9 @@ impl GtkTestWindow {
         cache_location
     }
 
-    pub async fn load_built_in_bottom_icon(&self) -> PathBuf {
+    pub async fn load_built_in_bottom_icon(&self, accent_color_setting: &str) -> PathBuf {
         let imp = self.imp();
-        let current_set_accent_color = imp.settings.string("selected-accent-color");
-        let folder_color_name = match current_set_accent_color.as_str() {
+        let folder_color_name = match accent_color_setting {
             "None" => self.get_accent_color_and_show_dialog(),
             x => x.to_string(),
         };

@@ -1,5 +1,6 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
+use crate::objects::properties::FilenameProperty;
 use crate::{GtkTestWindow, objects::errors::show_error_popup};
 
 use adw::TimedAnimation;
@@ -15,25 +16,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
-
-// The properties of the to be regenerated file, are stored in the filename
-// To get the properties, split the filename at the '-'.
-// This enum provides a more visual method of knowing at what index each property is..
-enum FilenameProperty {
-    FileName = 0,
-    DefaultBottomImage,
-    XScale,
-    YScale,
-    ZoomVal,
-    MonochromeSelected,
-    MonochromeThreshold,
-    MonochromeRed,
-    MonochromeGreen,
-    MonochromeBlue,
-    MonochromeInverted,
-    DefaultMonochromeColor,
-    Hash,
-}
 
 impl GtkTestWindow {
     pub fn check_if_regeneration_needed(&self) -> bool {
