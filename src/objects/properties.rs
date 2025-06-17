@@ -15,7 +15,7 @@ pub struct FileProperties {
     pub monochrome_invert: bool,
     pub monochrome_default: bool,
     pub monochrome_color: Option<(u8, u8, u8)>,
-    pub monochrome_threshold_val: f64,
+    pub monochrome_threshold_val: u8,
 }
 
 impl FileProperties {
@@ -38,7 +38,7 @@ impl FileProperties {
             properties_list[FilenameProperty::MonochromeInverted as usize].parse()?;
         let monochrome_default: bool =
             properties_list[FilenameProperty::DefaultMonochromeColor as usize].parse()?;
-        let monochrome_threshold_val: f64 =
+        let monochrome_threshold_val: u8 =
             properties_list[FilenameProperty::MonochromeThreshold as usize].parse()?;
         let monochrome_color = if !monochrome_default {
             let mut rgb: (u8, u8, u8) = (0, 0, 0);
@@ -91,7 +91,7 @@ pub enum BottomImageType {
 impl BottomImageType {
     // Whether this image is able to be regenerate with strict mode enabled
     // By returning none, the image is not at all compatible for regeneration
-    fn is_strict_type(&self) -> Option<bool> {
+    pub fn is_strict_type(&self) -> Option<bool> {
         match self {
             Self::FolderSystem => Some(true),
             Self::FolderCustom(_, _) => Some(false),

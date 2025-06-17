@@ -1,6 +1,6 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
-use crate::objects::properties::FilenameProperty;
+use crate::objects::properties::{FileProperties, FilenameProperty};
 use crate::{GtkTestWindow, objects::errors::show_error_popup};
 
 use adw::TimedAnimation;
@@ -130,8 +130,8 @@ impl GtkTestWindow {
                 error!("Stopping regeneration");
                 break;
             }
-            let name = &file.file_name();
-            match self.regenerate_and_save_single_icon(file).await {
+            let name = &file.1.file_name();
+            match self.regenerate_and_save_single_icon(file.1, file.0).await {
                 Ok(_) => (),
                 Err(error) => {
                     error!("Error while generating {:?}: {}", &name, &error.to_string());
@@ -181,15 +181,13 @@ impl GtkTestWindow {
     }
 
     // This function regenerates a single compatible icon
-    async fn regenerate_and_save_single_icon(&self, file: DirEntry) -> GenResult<()> {
+    async fn regenerate_and_save_single_icon(
+        &self,
+        file: DirEntry,
+        properties: FileProperties,
+    ) -> GenResult<()> {
         // Get path and filename of icon saved in datadir
-        let file_name = file.file_name();
         let file_path = file.path();
-        let file_name = file_name.to_str().into_result()?.to_string();
-
-        // The settings of the specific icon are specified in the filename.
-        let file_properties = file_name.split("-");
-        let properties_list: Vec<&str> = file_properties.into_iter().collect();
 
         // Get the current accent color
         let current_accent_color = self.get_accent_color_and_show_dialog();
@@ -200,26 +198,20 @@ impl GtkTestWindow {
             "/app/share/folder_icon/folders/folder_{}.svg",
             &current_accent_color
         ));
-        // The filename of the cached top image is equal to it's hash
-        // So by looking in the cache folder, at the file of the same name as the hash,
-        // the file can be found
-        let hash = properties_list[FilenameProperty::Hash as usize]
-            .split(".")
-            .nth(0)
-            .into_result()?;
+
+        // Create the path where the top image of this file is located
+        // The top image has the same name as the hash of that image
         let mut top_image_path = Self::get_cache_path().join("top_images");
-        top_image_path.push(hash);
+        top_image_path.push(properties.top_image_hash.to_string());
         let top_image_file = gio::spawn_blocking(move || {
             File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
         })
         .await
         .unwrap()?
         .dynamic_image;
-
-        let slider_values = self.get_regeneration_slider_values(properties_list.clone())?;
         // Create the top image
         let top_image = self.set_correct_monochrome_values_based_on_regeneration_properties(
-            properties_list,
+            &properties,
             top_image_file,
         )?;
         let bottom_image_file = gio::spawn_blocking(move || {
@@ -235,9 +227,9 @@ impl GtkTestWindow {
                 bottom_image_file,
                 top_image,
                 imageops::FilterType::Gaussian,
-                slider_values.0,
-                slider_values.1,
-                slider_values.2,
+                properties.x_val,
+                properties.y_val,
+                properties.zoom_val,
             )
             .await;
         info!("Saving image");
@@ -258,40 +250,40 @@ impl GtkTestWindow {
         &self,
         dir: PathBuf,
         incompatible_files: &mut u32,
-    ) -> GenResult<Vec<fs::DirEntry>> {
-        let mut regeneratable: Vec<fs::DirEntry> = vec![];
+    ) -> GenResult<Vec<(FileProperties, fs::DirEntry)>> {
+        let mut regeneratable: Vec<(FileProperties, fs::DirEntry)> = vec![];
         // Walk the directory and loop over every file
         let files: fs::ReadDir = fs::read_dir(&dir)?;
         for file in files {
             let current_file = file?;
             let file_name = current_file.file_name();
             debug!("File found: {:?}", file_name);
-            let file_name_str = file_name.to_str().into_result()?.to_string();
-            let file_properties: Vec<&str> = file_name_str.split("-").collect();
-            // If the first property is not "folder_new" it's using an format for file properties
-            // Which iconic no longer supports
-            // It would have been better to use a version number
-            if file_properties[FilenameProperty::FileName as usize] != "folder_new" {
-                info!("File not supported for regeneration");
+            // Get the file properties of the file
+            // Currently does not care what
+            let properties = match FileProperties::from_filename(
+                file_name.to_str().unwrap_or_default().to_owned(),
+            ) {
+                Ok(file_properties) => file_properties,
+                Err(err) => {
+                    *incompatible_files += 1;
+                    warn!(
+                        "file {:?} failed to be parsed. Err: {}",
+                        file_name,
+                        err.to_string()
+                    );
+                    continue;
+                }
+            };
+            if properties.bottom_image_type.is_strict_type().is_none() {
                 *incompatible_files += 1;
+                warn!(
+                    "file {:?} is never compatible for be regeneration.",
+                    file_name
+                );
                 continue;
             }
-            // If the image does not use the Default bottom image
-            // It is not valid for regeneration
-            if !(file_properties[FilenameProperty::DefaultBottomImage as usize].parse::<usize>()?
-                != 0)
-            {
-                info!("Non-default image, not converting");
-                *incompatible_files += 1;
-                continue;
-            }
-            // Get the hash, which is the filename of the cached top image
-            let hash = file_properties[FilenameProperty::Hash as usize]
-                .split(".")
-                .nth(0)
-                .into_result()?;
             let mut top_image_path = Self::get_cache_path().join("top_images");
-            top_image_path.push(hash);
+            top_image_path.push(properties.top_image_hash.to_string());
 
             // If that top image does not exist, just mark it as not valid for regeneration
             if !top_image_path.exists() {
@@ -299,44 +291,33 @@ impl GtkTestWindow {
                 *incompatible_files += 1;
                 continue;
             }
-            regeneratable.push(current_file);
+            regeneratable.push((properties, current_file));
         }
         Ok(regeneratable)
-    }
-
-    // Get the X, Y, Zoom values from the regeneration file properties
-    fn get_regeneration_slider_values(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
-        let x_scale: f64 = properties[FilenameProperty::XScale as usize].parse()?;
-        let y_scale: f64 = properties[FilenameProperty::YScale as usize].parse()?;
-        let size: f64 = properties[FilenameProperty::ZoomVal as usize].parse()?;
-        Ok((x_scale, y_scale, size))
     }
 
     // Create the top image based on the properties of the to-be regenerated icon
     // I am really bad at function names
     fn set_correct_monochrome_values_based_on_regeneration_properties(
         &self,
-        properties: Vec<&str>,
+        properties: &FileProperties,
         top_image: DynamicImage,
     ) -> GenResult<DynamicImage> {
-        let color = match properties[FilenameProperty::DefaultMonochromeColor as usize] {
-            "false" => RGBA::new(
-                properties[FilenameProperty::MonochromeRed as usize].parse()?,
-                properties[FilenameProperty::MonochromeGreen as usize].parse()?,
-                properties[FilenameProperty::MonochromeBlue as usize].parse()?,
+        let color = match properties.monochrome_default {
+            false => RGBA::new(
+                properties.monochrome_color.unwrap_or_default().0 as f32,
+                properties.monochrome_color.unwrap_or_default().1 as f32,
+                properties.monochrome_color.unwrap_or_default().2 as f32,
                 1.0,
             ),
             _ => self.current_accent_rgba()?,
         };
-        match properties[FilenameProperty::MonochromeSelected as usize] {
-            "1" => Ok(self.to_monochrome(
+        match properties.monochrome_toggle {
+            true => Ok(self.to_monochrome(
                 top_image,
-                properties[FilenameProperty::MonochromeThreshold as usize].parse()?,
+                properties.monochrome_threshold_val,
                 color,
-                Some(
-                    properties[FilenameProperty::MonochromeInverted as usize].parse::<usize>()?
-                        != 0,
-                ),
+                Some(properties.monochrome_invert),
             )),
             _ => Ok(top_image),
         }
