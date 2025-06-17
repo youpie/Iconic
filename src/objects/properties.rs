@@ -1,3 +1,5 @@
+use std::fs::File;
+
 use thiserror::Error;
 
 use crate::GenResult;
@@ -5,7 +7,7 @@ use crate::GenResult;
 #[derive(Debug, Clone, Default)]
 pub struct FileProperties {
     pub bottom_image_type: BottomImageType,
-    pub top_image_hash: Option<u64>,
+    pub top_image_hash: u64,
     pub x_val: f64,
     pub y_val: f64,
     pub zoom_val: f64,
@@ -21,6 +23,12 @@ impl FileProperties {
         // Load all properties from the filename
         let file_properties = filename.split("-");
         let properties_list: Vec<&str> = file_properties.into_iter().collect();
+
+        // If filename is not folder_new it is not compatible
+        match properties_list[FilenameProperty::FileName as usize] {
+            "folder_new" => (),
+            _ => return Err(Box::new(PropertiesError::Incompatible)),
+        }
         let x_val: f64 = properties_list[FilenameProperty::XScale as usize].parse()?;
         let y_val: f64 = properties_list[FilenameProperty::YScale as usize].parse()?;
         let zoom_val: f64 = properties_list[FilenameProperty::ZoomVal as usize].parse()?;
@@ -30,8 +38,36 @@ impl FileProperties {
             properties_list[FilenameProperty::MonochromeInverted as usize].parse()?;
         let monochrome_default: bool =
             properties_list[FilenameProperty::DefaultMonochromeColor as usize].parse()?;
-        let monochrome_threshold_val =
+        let monochrome_threshold_val: f64 =
             properties_list[FilenameProperty::MonochromeThreshold as usize].parse()?;
+        let monochrome_color = if !monochrome_default {
+            let mut rgb: (u8, u8, u8) = (0, 0, 0);
+            rgb.0 = properties_list[FilenameProperty::MonochromeRed as usize].parse()?;
+            rgb.1 = properties_list[FilenameProperty::MonochromeGreen as usize].parse()?;
+            rgb.2 = properties_list[FilenameProperty::MonochromeBlue as usize].parse()?;
+            Some(rgb)
+        } else {
+            None
+        };
+        let top_image_hash: u64 = properties_list[FilenameProperty::Hash as usize].parse()?;
+        let bottom_image_type =
+            match properties_list[FilenameProperty::DefaultBottomImage as usize].parse()? {
+                true => BottomImageType::FolderSystem,
+                false => BottomImageType::Unknown,
+            };
+
+        Ok(Self {
+            x_val,
+            y_val,
+            zoom_val,
+            monochrome_color,
+            monochrome_default,
+            monochrome_invert,
+            monochrome_threshold_val,
+            monochrome_toggle,
+            top_image_hash,
+            bottom_image_type,
+        })
     }
 }
 
