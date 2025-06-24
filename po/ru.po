@@ -1,0 +1,980 @@
+# Russian translation for Iconic.
+# Copyright (C) 2025 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Iconic package.
+# AnmiTaliDev <anmitali198@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Iconic\n"
+"Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
+"POT-Creation-Date: 2025-03-27 08:44+0100\n"
+"PO-Revision-Date: 2025-06-24 14:00+0600\n"
+"Last-Translator: AnmiTaliDev <anmitali198@gmail.com>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: data/nl.emphisia.icon.desktop.in.in:3
+#: data/nl.emphisia.icon.metainfo.xml.in.in:5
+#: data/nl.emphisia.icon.metainfo.xml.in.in:191
+msgid "Iconic"
+msgstr "Iconic"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:6
+msgid "Add icons on top of folders"
+msgstr "Добавление значков поверх папок"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:8
+msgid "Youpie"
+msgstr "Youpie"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:14
+msgid ""
+"This program allows an easy and intuitive way to add an icon on top of a "
+"folder to help you differentiate it better."
+msgstr ""
+"Эта программа предоставляет простой и интуитивно понятный способ добавления "
+"значка поверх папки, чтобы помочь вам лучше различать их."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:15
+msgid ""
+"This program works best in combination with the app \"Icon library\" found "
+"on flathub and \"Adwaita Colors\" found on github"
+msgstr ""
+"Эта программа лучше всего работает в сочетании с приложением \"Icon library\" "
+"из Flathub и \"Adwaita Colors\" с GitHub"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:16
+msgid ""
+"This program is written in Rust and Libadwaita and is my first attempt at "
+"creating an application"
+msgstr ""
+"Эта программа написана на Rust и Libadwaita и является моей первой попыткой "
+"создания приложения"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:20
+msgid "Main menu in light mode"
+msgstr "Главное меню в светлом режиме"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:24
+msgid "Accent collored folders supported"
+msgstr "Поддержка папок с акцентным цветом"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:28
+msgid "Main menu in dark mode"
+msgstr "Главное меню в темном режиме"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:32
+msgid "Custom colored folder icons supported"
+msgstr "Поддержка значков папок с пользовательскими цветами"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:39
+msgid ""
+"Here I am, once again. A new update to Iconic is here with the following "
+"changes!"
+msgstr ""
+"Вот и я снова. Новое обновление Iconic с следующими изменениями!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:41
+msgid "Improved code"
+msgstr "Улучшенный код"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:42
+msgid "Decrease storage and memory size"
+msgstr "Уменьшение размера хранилища и памяти"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:43
+msgid "Improved app closing"
+msgstr "Улучшенное закрытие приложения"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+msgid "Updated to gnome 48"
+msgstr "Обновлено до GNOME 48"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:45
+msgid "Improved \"About Iconic\" dialog"
+msgstr "Улучшенный диалог \"О программе Iconic\""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+msgid "Removed donation button from hamburger menu"
+msgstr "Удалена кнопка пожертвований из меню-гамбургера"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+msgid "Added keyboard shortcuts"
+msgstr "Добавлены комбинации клавиш"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+msgid "Improved accessibility"
+msgstr "Улучшенная доступность"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:49
+msgid "Increased translatable elements"
+msgstr "Увеличено количество переводимых элементов"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+msgid ""
+"I am doing a lot of this because I am planning to apply to gnome circle :)"
+msgstr ""
+"Я делаю все это, потому что планирую подать заявку в GNOME Circle :)"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:52
+msgid "Remember to let me know if you encounter any bugs!"
+msgstr "Не забудьте сообщить мне, если обнаружите какие-либо ошибки!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:53
+msgid "Have a beautiful day &lt;3"
+msgstr "Хорошего дня &lt;3"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+msgid ""
+"A new version of Iconic! It is mostly a quality of life update, I have some "
+"fun additions planned so stay tuned!"
+msgstr ""
+"Новая версия Iconic! В основном это обновление качества жизни, у меня "
+"запланированы интересные дополнения, так что следите за обновлениями!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:59
+msgid "Here is what has changed:"
+msgstr "Вот что изменилось:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:61
+msgid "Updated to rust 2024 edition"
+msgstr "Обновлено до Rust 2024 edition"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
+msgid "Removed regeneration screen"
+msgstr "Удален экран регенерации"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:63
+msgid "Added regeneration bar on main screen"
+msgstr "Добавлена полоса регенерации на главном экране"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
+msgid "Added better error handling for regeneration"
+msgstr "Добавлена улучшенная обработка ошибок для регенерации"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:65
+msgid "Updated pink folder, to be in line with Adwaita-colors"
+msgstr "Обновлена розовая папка в соответствии с Adwaita-colors"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:66
+msgid "Added acknowledgements in the About Iconic"
+msgstr "Добавлены благодарности в \"О программе Iconic\""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:67
+msgid "Fixed donation link"
+msgstr "Исправлена ссылка для пожертвований"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:69
+msgid "As always, if you encounter any bugs. Please let me know on GitHub!"
+msgstr "Как всегда, если вы обнаружите ошибки, сообщите мне на GitHub!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:70
+msgid "Enjoy the update, and Free Palestine 🇵🇸"
+msgstr "Наслаждайтесь обновлением, и Свободу Палестине 🇵🇸"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:75
+msgid ""
+"I was really motivated so I made another update. Now allowing you to set "
+"custom collors for the folders. Other features include"
+msgstr ""
+"Я был очень мотивирован, поэтому сделал еще одно обновление. Теперь можно "
+"устанавливать пользовательские цвета для папок. Другие функции включают"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:77
+msgid "Made the app more responsive"
+msgstr "Сделал приложение более отзывчивым"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:78
+msgid "Removed crashing bug"
+msgstr "Исправлена ошибка с вылетами"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:79
+msgid "Removed small bugs"
+msgstr "Исправлены мелкие ошибки"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:80
+msgid "Added Right-click menu to folder view"
+msgstr "Добавлено контекстное меню для просмотра папок"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:86
+msgid ""
+"A really big update for Iconic! You are now able to regenerate images with "
+"the correct accent color after you change it. This makes the app really nice "
+"to combine with \"Adwaita-Colors\""
+msgstr ""
+"Действительно большое обновление для Iconic! Теперь вы можете регенерировать "
+"изображения с правильным акцентным цветом после его изменения. Это делает "
+"приложение очень хорошим в сочетании с \"Adwaita-Colors\""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:87
+msgid ""
+"In Gnome 48, using static images in natilus might change. If that is the "
+"case I will retire the app. But for now I will keep working on the app!"
+msgstr ""
+"В GNOME 48 использование статических изображений в Nautilus может измениться. "
+"Если это произойдет, я прекращу разработку приложения. Но пока я продолжу "
+"работать над приложением!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:92
+msgid ""
+"This is a nice big update to Iconic making it way more colorfull and better "
+"for gnome 47. Features include"
+msgstr ""
+"Это хорошее большое обновление Iconic, делающее его намного более красочным "
+"и лучшим для GNOME 47. Функции включают"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:94
+msgid "Custom accent color folders"
+msgstr "Папки с пользовательским акцентным цветом"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:95
+msgid "Accent color detection"
+msgstr "Определение акцентного цвета"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:96
+msgid "Updated settings"
+msgstr "Обновленные настройки"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:97
+msgid "Bug fixes!"
+msgstr "Исправления ошибок!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:99
+msgid "As always, please let me know if you encounter any bugs!"
+msgstr "Как всегда, сообщите мне, если обнаружите ошибки!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:104
+msgid ""
+"This update to iconic is mostly just a version bump. However I do have some "
+"fun features I want to try and implement. If it is possible, idk yet. But I "
+"have already started working on it."
+msgstr ""
+"Это обновление Iconic в основном просто увеличение версии. Однако у меня есть "
+"несколько интересных функций, которые я хочу попробовать реализовать. Если это "
+"возможно, я пока не знаю. Но я уже начал работать над этим."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:105
+msgid "Biggest changes"
+msgstr "Самые большие изменения"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:107
+msgid "Updated to gnome 47"
+msgstr "Обновлено до GNOME 47"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:108
+msgid "Using new loading animation"
+msgstr "Использование новой анимации загрузки"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:109
+msgid "Using new buttons in settings"
+msgstr "Использование новых кнопок в настройках"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:115
+msgid ""
+"A new update to Iconic is here! It does not add many features but features a "
+"lot of improvements under the hood, this means the app will now crash way "
+"less often without any warning. Some changes include:"
+msgstr ""
+"Новое обновление Iconic здесь! Оно не добавляет много функций, но включает "
+"множество улучшений под капотом, это означает, что приложение теперь будет "
+"вылетать гораздо реже без предупреждения. Некоторые изменения включают:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:117
+msgid "Added ability to drag icon out of iconic directly"
+msgstr "Добавлена возможность перетаскивать значок прямо из Iconic"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:118
+msgid "Added error handling on opening files"
+msgstr "Добавлена обработка ошибок при открытии файлов"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:119
+msgid "Added error handling on saving files"
+msgstr "Добавлена обработка ошибок при сохранении файлов"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:120
+msgid "Added donation link"
+msgstr "Добавлена ссылка для пожертвований"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:121
+msgid "Added pop-up when dragging in files"
+msgstr "Добавлено всплывающее окно при перетаскивании файлов"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:122
+msgid "Updated Dutch translations"
+msgstr "Обновлены голландские переводы"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:124
+msgid "Please report any bugs you see! Many thanks"
+msgstr "Пожалуйста, сообщайте о любых ошибках, которые видите! Большое спасибо"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:129
+msgid ""
+"This is a new major release of Iconic. Featuring many bug fixes and added "
+"features. Some notable ones are:"
+msgstr ""
+"Это новый основной выпуск Iconic. Включает множество исправлений ошибок и "
+"добавленных функций. Некоторые заметные:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:131
+msgid "Drag and drop support"
+msgstr "Поддержка перетаскивания"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:132
+msgid "Copy-paste support"
+msgstr "Поддержка копирования-вставки"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:133
+msgid "Better file type detection"
+msgstr "Улучшенное определение типа файла"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:134
+msgid "Updated dutch translations"
+msgstr "Обновлены голландские переводы"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:135
+msgid "Added Hindi translations"
+msgstr "Добавлены переводы на хинди"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:136
+msgid "Fixed spelling mistakes"
+msgstr "Исправлены орфографические ошибки"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:137
+msgid "Fixed issues with black pixels not converting to monochrome"
+msgstr "Исправлены проблемы с черными пикселями, не преобразующимися в монохром"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:143
+msgid "Another small update with a few additions and changes"
+msgstr "Еще одно небольшое обновление с несколькими дополнениями и изменениями"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:145
+msgid "You can now open containing folder after saving image"
+msgstr "Теперь можно открыть содержащую папку после сохранения изображения"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:146
+msgid "Added italian translation"
+msgstr "Добавлен итальянский перевод"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:147
+msgid "Updated Dutch translation"
+msgstr "Обновлен голландский перевод"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:153
+msgid "This version adds a few small features and fixes some bugs"
+msgstr "Эта версия добавляет несколько небольших функций и исправляет ошибки"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:155
+msgid "The app now shows some errors as pop-ups"
+msgstr "Приложение теперь показывает некоторые ошибки во всплывающих окнах"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:156
+msgid "You can now temporarily open a new folder image"
+msgstr "Теперь можно временно открыть новое изображение папки"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:157
+msgid "It now first shows a pop-up when the folder image is not found"
+msgstr "Теперь сначала показывается всплывающее окно, когда изображение папки не найдено"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:163
+msgid "Initial release"
+msgstr "Первоначальный выпуск"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:182
+msgid "icon"
+msgstr "значок"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:183
+msgid "create"
+msgstr "создать"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:184
+msgid "folder icon"
+msgstr "значок папки"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:185
+msgid "svg"
+msgstr "svg"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:186
+msgid "png"
+msgstr "png"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:187
+msgid "gnome"
+msgstr "gnome"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:188
+msgid "icon create"
+msgstr "создание значков"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:189
+msgid "icon creator"
+msgstr "создатель значков"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:190
+msgid "folder icon creator"
+msgstr "создатель значков папок"
+
+#: src/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "Общие"
+
+#: src/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Показать комбинации клавиш"
+
+#: src/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Open Preferences"
+msgstr "Открыть настройки"
+
+#: src/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Quit Iconic"
+msgstr "Выйти из Iconic"
+
+#: src/gtk/help-overlay.blp:29
+msgctxt "shortcut window"
+msgid "Save Image"
+msgstr "Сохранить изображение"
+
+#: src/gtk/help-overlay.blp:34
+msgctxt "shortcut window"
+msgid "Open top image"
+msgstr "Открыть верхнее изображение"
+
+#: src/gtk/help-overlay.blp:39
+msgctxt "shortcut window"
+msgid "Open temporary bottom image"
+msgstr "Открыть временное нижнее изображение"
+
+#: src/gtk/help-overlay.blp:44
+msgctxt "shortcut window"
+msgid "Regenerate Images"
+msgstr "Регенерировать изображения"
+
+#: src/settings/settings.blp:8
+msgid "General"
+msgstr "Общие"
+
+#: src/settings/settings.blp:11
+msgid "Customise"
+msgstr "Настроить"
+
+#: src/settings/settings.blp:14
+msgid "Use a built-in bottom icon"
+msgstr "Использовать встроенный нижний значок"
+
+#: src/settings/settings.blp:18
+msgid "use the built-in bottom image"
+msgstr "использовать встроенное нижнее изображение"
+
+#: src/settings/settings.blp:24
+msgid "Use system accent color"
+msgstr "Использовать системный акцентный цвет"
+
+#: src/settings/settings.blp:28
+msgid "Manually select folder color"
+msgstr "Выбрать цвет папки вручную"
+
+#: src/settings/settings.blp:32
+msgid "Blue"
+msgstr "Синий"
+
+#: src/settings/settings.blp:33
+msgid "Teal"
+msgstr "Бирюзовый"
+
+#: src/settings/settings.blp:34
+msgid "Green"
+msgstr "Зеленый"
+
+#: src/settings/settings.blp:35
+msgid "Yellow"
+msgstr "Желтый"
+
+#: src/settings/settings.blp:36
+msgid "Orange"
+msgstr "Оранжевый"
+
+#: src/settings/settings.blp:37
+msgid "Red"
+msgstr "Красный"
+
+#: src/settings/settings.blp:38
+msgid "Pink"
+msgstr "Розовый"
+
+#: src/settings/settings.blp:39
+msgid "Purple"
+msgstr "Фиолетовый"
+
+#: src/settings/settings.blp:40
+msgid "Slate"
+msgstr "Серый"
+
+#: src/settings/settings.blp:41
+msgid "Custom"
+msgstr "Пользовательский"
+
+#: src/settings/settings.blp:47
+msgid "Primary Folder Color"
+msgstr "Основной цвет папки"
+
+#: src/settings/settings.blp:64
+msgid "Secondary Folder Color"
+msgstr "Дополнительный цвет папки"
+
+#: src/settings/settings.blp:81
+msgid "Use custom bottom icon"
+msgstr "Использовать пользовательский нижний значок"
+
+#: src/settings/settings.blp:85
+msgid "use a custom bottom image"
+msgstr "использовать пользовательское нижнее изображение"
+
+#: src/settings/settings.blp:91
+msgid "Currently set bottom icon"
+msgstr "Текущий нижний значок"
+
+#: src/settings/settings.blp:95
+msgid "Select bottom icon"
+msgstr "Выбрать нижний значок"
+
+#: src/settings/settings.blp:104
+msgid "Store top images in cache"
+msgstr "Сохранять верхние изображения в кэше"
+
+#: src/settings/settings.blp:105
+msgid ""
+"If you change your system accent color, and want to regenerate the icons, "
+"turn this on"
+msgstr ""
+"Если вы изменили системный акцентный цвет и хотите регенерировать значки, "
+"включите это"
+
+#: src/settings/settings.blp:109
+msgid "Regenerate automatically"
+msgstr "Регенерировать автоматически"
+
+#: src/settings/settings.blp:110
+msgid ""
+"If you want to automatically regenerate images after changing accent color, "
+"turn this on"
+msgstr ""
+"Если хотите автоматически регенерировать изображения после изменения акцентного "
+"цвета, включите это"
+
+#: src/settings/settings.blp:114
+msgid "Current cache used"
+msgstr "Текущий использованный кэш"
+
+#: src/settings/settings.blp:119
+msgid "Remove all cached images"
+msgstr "Удалить все кэшированные изображения"
+
+#: src/settings/settings.blp:130
+msgid "Default drag-and-drop action"
+msgstr "Действие перетаскивания по умолчанию"
+
+#: src/settings/settings.blp:131
+msgid ""
+"By default, after dragging and dropping a file, you have to select a layer "
+"to paste it to. Here you can disable that pop-up"
+msgstr ""
+"По умолчанию после перетаскивания файла нужно выбрать слой для вставки. "
+"Здесь можно отключить это всплывающее окно"
+
+#: src/settings/settings.blp:135
+msgid "Use a default drag and drop action"
+msgstr "Использовать действие перетаскивания по умолчанию"
+
+#: src/settings/settings.blp:142
+msgid "Always select top layer"
+msgstr "Всегда выбирать верхний слой"
+
+#: src/settings/settings.blp:152
+msgid "Always select bottom layer"
+msgstr "Всегда выбирать нижний слой"
+
+#: src/settings/settings.blp:164
+msgid "Advanced"
+msgstr "Дополнительно"
+
+#: src/settings/settings.blp:168
+msgid "You can see these options because you have enabled the Devel profile"
+msgstr "Вы видите эти опции, потому что включили профиль разработчика"
+
+#: src/settings/settings.blp:179
+msgid "Select size of SVG images"
+msgstr "Выбрать размер SVG изображений"
+
+#: src/settings/settings.blp:180
+msgid ""
+"SVG images will by default be converted to a 1024x1024 image. You can adjust "
+"that here"
+msgstr ""
+"SVG изображения по умолчанию будут преобразованы в изображение 1024x1024. "
+"Здесь можно это настроить"
+
+#: src/settings/settings.blp:192
+msgid "Select size of Thumbnail images"
+msgstr "Выбрать размер миниатюр"
+
+#: src/settings/settings.blp:193
+msgid ""
+"Thumbnail images will by default be converted to a 255x255 image. You can "
+"adjust that here"
+msgstr ""
+"Миниатюры по умолчанию будут преобразованы в изображение 255x255. "
+"Здесь можно это настроить"
+
+#. visible: bind regeneration_revealer.reveal-child;
+#: src/window.blp:38 src/window.blp:153
+msgid "Regenerating icons…"
+msgstr "Регенерация значков…"
+
+#: src/window.blp:45 src/window.blp:160
+msgid "Menu"
+msgstr "Меню"
+
+#: src/window.blp:73
+msgid "Folder Icon Creator"
+msgstr "Создатель значков папок"
+
+#: src/window.blp:74
+msgid "Click or Drag to Open Image"
+msgstr "Нажмите или перетащите для открытия изображения"
+
+#: src/window.blp:85
+msgid "_Open Image"
+msgstr "_Открыть изображение"
+
+#: src/window.blp:98
+msgid "_Show Bottom Layer"
+msgstr "_Показать нижний слой"
+
+#: src/window.blp:124 src/windows/alert_dialogs.rs:82
+msgid "Save"
+msgstr "Сохранить"
+
+#: src/window.blp:195
+msgid "y-position of top image"
+msgstr "y-позиция верхнего изображения"
+
+#: src/window.blp:215
+msgid "Preview window of icon, drag from here to start drag operation"
+msgstr "Окно предварительного просмотра значка, перетащите отсюда для начала операции перетаскивания"
+
+#: src/window.blp:238
+msgid "New top image is loading"
+msgstr "Загружается новое верхнее изображение"
+
+#: src/window.blp:250
+msgid "x-position of top image"
+msgstr "x-позиция верхнего изображения"
+
+#: src/window.blp:279
+msgid "size of top image"
+msgstr "размер верхнего изображения"
+
+#: src/window.blp:296
+msgid "Toggle Monochrome"
+msgstr "Переключить монохром"
+
+#: src/window.blp:302
+msgid "Turn on monochrome for top image"
+msgstr "Включить монохром для верхнего изображения"
+
+#: src/window.blp:307
+msgid "Invert"
+msgstr "Инвертировать"
+
+#: src/window.blp:308
+msgid "Invert bright and dark in the monochrome image"
+msgstr "Инвертировать светлое и темное в монохромном изображении"
+
+#: src/window.blp:312
+msgid "Color"
+msgstr "Цвет"
+
+#: src/window.blp:314
+msgid "Choose the color of the monochrome image"
+msgstr "Выбрать цвет монохромного изображения"
+
+#: src/window.blp:322
+msgid "Reset the color of the monochrome image to default"
+msgstr "Сбросить цвет монохромного изображения на стандартный"
+
+#: src/window.blp:348
+msgid "Threshold"
+msgstr "Порог"
+
+#: src/window.blp:353
+msgid "Set the threshold of bright and dark for the monochrome image"
+msgstr "Установить порог светлого и темного для монохромного изображения"
+
+#: src/window.blp:392
+msgid "Saving…"
+msgstr "Сохранение…"
+
+#: src/window.blp:410
+msgid "_Paste Top Icon from Clipboard"
+msgstr "_Вставить верхний значок из буфера обмена"
+
+#: src/window.blp:415
+msgid "_Open Top Icon"
+msgstr "_Открыть верхний значок"
+
+#: src/window.blp:420
+msgid "_Open Bottom Icon"
+msgstr "_Открыть нижний значок"
+
+#: src/window.blp:427
+msgid "_Reset Bottom Icon"
+msgstr "_Сбросить нижний значок"
+
+#: src/window.blp:432
+msgid "_Regenerate Icons"
+msgstr "_Регенерировать значки"
+
+#: src/window.blp:439
+msgid "_Preferences"
+msgstr "_Настройки"
+
+#: src/window.blp:444
+msgid "_Keyboard Shortcuts"
+msgstr "_Комбинации клавиш"
+
+#: src/window.blp:449
+msgid "_About Iconic"
+msgstr "_О программе Iconic"
+
+#: src/window.blp:458
+msgid "Change Top Image"
+msgstr "Изменить верхнее изображение"
+
+#: src/window.blp:463
+msgid "Change Bottom Image"
+msgstr "Изменить нижнее изображение"
+
+#: src/window.blp:470
+msgid "Temporarily Change Bottom Image"
+msgstr "Временно изменить нижнее изображение"
+
+#: src/window.blp:475
+msgid "Reset Temporary Bottom Image"
+msgstr "Сбросить временное нижнее изображение"
+
+#: src/application.rs:170
+msgid "Iconic allows you to add images onto a folder."
+msgstr "Iconic позволяет добавлять изображения на папку."
+
+#. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
+#: src/application.rs:176
+msgid "translator-credits"
+msgstr "AnmiTaliDev <anmitali198@gmail.com>"
+
+#: src/objects/errors.rs:14 src/settings/settings.rs:435
+msgid "Error"
+msgstr "Ошибка"
+
+#: src/objects/errors.rs:34 src/windows/alert_dialogs.rs:29
+#: src/windows/alert_dialogs.rs:126 src/windows/alert_dialogs.rs:142
+msgid "OK"
+msgstr "ОК"
+
+#: src/settings/settings.rs:390 src/window.rs:933
+msgid "Open Document"
+msgstr "Открыть документ"
+
+#: src/settings/settings.rs:452
+msgid ""
+"Are you sure you want to clear the cache? \n"
+" Clearing the cache means you probably won't be able to regenerate a lot of "
+"images."
+msgstr ""
+"Вы уверены, что хотите очистить кэш? \n"
+" Очистка кэша означает, что вы, вероятно, не сможете регенерировать много "
+"изображений."
+
+#: src/settings/settings.rs:455 src/windows/alert_dialogs.rs:79
+msgid "Cancel"
+msgstr "Отмена"
+
+#: src/settings/settings.rs:457
+msgid "Remove"
+msgstr "Удалить"
+
+#: src/window.rs:813
+msgid "The set bottom icon could not be found, press ok to select a new one"
+msgstr "Установленный нижний значок не найден, нажмите OK для выбора нового"
+
+#: src/windows/alert_dialogs.rs:25
+msgid "Drag and drop"
+msgstr "Перетаскивание"
+
+#: src/windows/alert_dialogs.rs:26
+msgid ""
+"Did you know that it is possible to drag the folder image straight out of "
+"Iconic and drop it into nautilus' property window.\n"
+"No need to save!"
+msgstr ""
+"Знаете ли вы, что можно перетащить изображение папки прямо из Iconic "
+"и поместить его в окно свойств Nautilus.\n"
+"Не нужно сохранять!"
+
+#: src/windows/alert_dialogs.rs:48
+msgid "Do you want to load this image to the top or bottom layer?"
+msgstr "Хотите загрузить это изображение на верхний или нижний слой?"
+
+#: src/windows/alert_dialogs.rs:49
+msgid "Hint: You can disable this pop-up in the settings"
+msgstr "Подсказка: Вы можете отключить это всплывающее окно в настройках"
+
+#: src/windows/alert_dialogs.rs:51
+msgid "Select layer"
+msgstr "Выбрать слой"
+
+#: src/windows/alert_dialogs.rs:56
+msgid "Top"
+msgstr "Верхний"
+
+#: src/windows/alert_dialogs.rs:57
+msgid "Bottom"
+msgstr "Нижний"
+
+#: src/windows/alert_dialogs.rs:74
+msgid "Save Changes?"
+msgstr "Сохранить изменения?"
+
+#: src/windows/alert_dialogs.rs:75
+msgid ""
+"Open image contain unsaved changes. Changes which are not saved will be "
+"permanently lost"
+msgstr ""
+"Открытое изображение содержит несохраненные изменения. Изменения, которые "
+"не сохранены, будут навсегда потеряны"
+
+#: src/windows/alert_dialogs.rs:80
+msgid "Discard"
+msgstr "Отбросить"
+
+#: src/windows/alert_dialogs.rs:122
+msgid "Accent color changed"
+msgstr "Акцентный цвет изменен"
+
+#: src/windows/alert_dialogs.rs:123
+msgid ""
+"The system accent color has been changed, Iconic has automatically changed "
+"the color of the folder.\n"
+"If you do not want this, you can turn this off in the settings"
+msgstr ""
+"Системный акцентный цвет был изменен, Iconic автоматически изменил цвет папки.\n"
+"Если вы не хотите этого, вы можете отключить это в настройках"
+
+#: src/windows/alert_dialogs.rs:138
+msgid "Regenerating Icons"
+msgstr "Регенерация значков"
+
+#: src/windows/alert_dialogs.rs:139
+msgid ""
+"If you drag and drop icons and change your accent color. It is then possible "
+"to regenerate the images by pressing \"regenerate\" in the menu or by "
+"pressing ctrl+R"
+msgstr ""
+"Если вы перетаскиваете значки и изменяете акцентный цвет, то можно "
+"регенерировать изображения, нажав \"регенерировать\" в меню или нажав Ctrl+R"
+
+#: src/windows/alert_dialogs.rs:160
+msgid "Iconic is busy"
+msgstr "Iconic занят"
+
+#: src/windows/alert_dialogs.rs:161
+msgid ""
+"Iconic is currently busy, it is recommended to wait before closing to "
+"prevent data loss"
+msgstr ""
+"Iconic в данный момент занят, рекомендуется подождать перед закрытием, "
+"чтобы предотвратить потерю данных"
+
+#. Aparently items appear reversed from how they are defined here
+#: src/windows/alert_dialogs.rs:166
+msgid "Quit anyway"
+msgstr "Все равно выйти"
+
+#: src/windows/alert_dialogs.rs:168
+msgid "Wait"
+msgstr "Подождать"
+
+#: src/windows/file_handling.rs:137 src/windows/file_handling.rs:142
+msgid "No texture found"
+msgstr "Текстура не найдена"
+
+#: src/windows/file_handling.rs:246
+msgid "Unsupported file type"
+msgstr "Неподдерживаемый тип файла"
+
+#: src/windows/file_handling.rs:255
+msgid "Nothing to save"
+msgstr "Нечего сохранять"
+
+#: src/windows/file_handling.rs:279
+msgid "Open Folder"
+msgstr "Открыть папку"
+
+#: src/windows/file_handling.rs:281
+msgid "File Saved"
+msgstr "Файл сохранен"
+
+#: src/windows/file_handling.rs:295
+msgid "File not saved"
+msgstr "Файл не сохранен"
+
+#: src/windows/file_handling.rs:384
+msgid "Icon reset"
+msgstr "Значок сброшен"
+
+#: src/windows/file_handling.rs:397 src/windows/file_handling.rs:416
+msgid "Nothing selected"
+msgstr "Ничего не выбрано"
+
+#: src/windows/file_handling.rs:510
+msgid "No file or path found, this is probably not your fault."
+msgstr "Файл или путь не найден, это, вероятно, не ваша вина."
+
+#: src/windows/regeneration.rs:78
+msgid "Regenerating icons"
+msgstr "Регенерация значков"
+
+#: src/windows/regeneration.rs:92
+msgid "All files are not compatible for regeneration"
+msgstr "Все файлы несовместимы для регенерации"
+
+#: src/windows/regeneration.rs:130
+msgid ""
+"file failed to regenerate\n"
+"view logs for more information"
+msgid_plural ""
+"files failed to regenerate\n"
+"view logs for more information"
+msgstr[0] ""
+"файл не удалось регенерировать\n"
+"посмотрите журналы для получения дополнительной информации"
+msgstr[1] ""
+"файла не удалось регенерировать\n"
+"посмотрите журналы для получения дополнительной информации"
+msgstr[2] ""
+"файлов не удалось регенерировать\n"
+"посмотрите журналы для получения дополнительной информации"
+
+#: src/windows/regeneration.rs:140
+msgid "Regeneration sucessful, restart nautilus"
+msgstr "Регенерация успешна, перезапустите Nautilus"
