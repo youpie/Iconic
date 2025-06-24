@@ -17,6 +17,13 @@ use std::sync::Arc;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
+#[derive(Debug,PartialEq)]
+pub enum IconRegeneratable {
+    Yes,
+    No,
+    NotStrictOnly
+}
+
 impl GtkTestWindow {
     pub fn check_if_regeneration_needed(&self) -> bool {
         let imp = self.imp();
@@ -44,7 +51,7 @@ impl GtkTestWindow {
     }
 
     pub fn store_top_image_in_cache(&self, file: &File) -> GenResult<()> {
-        if !self.regeneration_current_file_uses_compatible_bottom_image() {
+        if self.regeneration_current_file_uses_compatible_bottom_image() == IconRegeneratable::No {
             info!("Current file does not use a compatible bottom image. no use caching the file");
             return Ok(());
         }
@@ -392,10 +399,15 @@ impl GtkTestWindow {
         combined_string
     }
 
-    pub fn regeneration_current_file_uses_compatible_bottom_image(&self) -> bool {
+    pub fn regeneration_current_file_uses_compatible_bottom_image(&self) -> IconRegeneratable {
         let imp = self.imp();
-        !imp.settings.boolean("manual-bottom-image-selection")
-            && imp.settings.string("selected-accent-color").as_str() == "None"
-            && !imp.temp_image_loaded.get()
+        let definitely_not_regeneratable = !imp.settings.boolean("manual-bottom-image-selection")
+            && !imp.temp_image_loaded.get();
+        match definitely_not_regeneratable {
+            true if imp.settings.string("selected-accent-color").as_str() == "None" => IconRegeneratable::Yes,
+            true if imp.settings.string("selected-accent-color").as_str() != "None" => IconRegeneratable::NotStrictOnly,
+            false => IconRegeneratable::No,
+            _ => unreachable!()
+        }
     }
 }
