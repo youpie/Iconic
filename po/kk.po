@@ -1,0 +1,973 @@
+# Kazakh translation for Iconic.
+# Copyright (C) 2025 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Iconic package.
+# AnmiTaliDev <anmitali198@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Iconic\n"
+"Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
+"POT-Creation-Date: 2025-03-27 08:44+0100\n"
+"PO-Revision-Date: 2025-06-24 15:00+0600\n"
+"Last-Translator: AnmiTaliDev <anmitali198@gmail.com>\n"
+"Language-Team: Kazakh <kk_KZ@googlegroups.com>\n"
+"Language: kk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: data/nl.emphisia.icon.desktop.in.in:3
+#: data/nl.emphisia.icon.metainfo.xml.in.in:5
+#: data/nl.emphisia.icon.metainfo.xml.in.in:191
+msgid "Iconic"
+msgstr "Iconic"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:6
+msgid "Add icons on top of folders"
+msgstr "Бумалардың үстіне таңбашалар қосу"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:8
+msgid "Youpie"
+msgstr "Youpie"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:14
+msgid ""
+"This program allows an easy and intuitive way to add an icon on top of a "
+"folder to help you differentiate it better."
+msgstr ""
+"Бұл бағдарлама буманың үстіне таңбаша қосудың оңай және интуитивті жолын "
+"ұсынады, бұл оларды жақсырақ ажыратуға көмектеседі."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:15
+msgid ""
+"This program works best in combination with the app \"Icon library\" found "
+"on flathub and \"Adwaita Colors\" found on github"
+msgstr ""
+"Бұл бағдарлама Flathub-тан табылатын \"Icon library\" қолданбасымен және "
+"GitHub-тан табылатын \"Adwaita Colors\" қолданбасымен үйлескенде ең жақсы жұмыс істейді"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:16
+msgid ""
+"This program is written in Rust and Libadwaita and is my first attempt at "
+"creating an application"
+msgstr ""
+"Бұл бағдарлама Rust және Libadwaita тілдерінде жазылған және менің қолданба "
+"жасаудағы алғашқы әрекетім"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:20
+msgid "Main menu in light mode"
+msgstr "Ашық режимдегі негізгі мәзір"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:24
+msgid "Accent collored folders supported"
+msgstr "Екпін түсті бумалар қолдау табады"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:28
+msgid "Main menu in dark mode"
+msgstr "Қараңғы режимдегі негізгі мәзір"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:32
+msgid "Custom colored folder icons supported"
+msgstr "Пайдаланушылық түсті бума таңбашалары қолдау табады"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:39
+msgid ""
+"Here I am, once again. A new update to Iconic is here with the following "
+"changes!"
+msgstr ""
+"Міне мен қайтадан келдім. Iconic-тің жаңа жаңартуы келесі өзгерістермен келді!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:41
+msgid "Improved code"
+msgstr "Жақсартылған код"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:42
+msgid "Decrease storage and memory size"
+msgstr "Сақтау және жады көлемін азайту"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:43
+msgid "Improved app closing"
+msgstr "Жақсартылған қолданба жабу"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+msgid "Updated to gnome 48"
+msgstr "GNOME 48-ге жаңартылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:45
+msgid "Improved \"About Iconic\" dialog"
+msgstr "\"Iconic туралы\" диалогы жақсартылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+msgid "Removed donation button from hamburger menu"
+msgstr "Гамбургер мәзірінен қайырымдылық түймесі алынып тасталды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+msgid "Added keyboard shortcuts"
+msgstr "Пернетақта жылдам пернелері қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+msgid "Improved accessibility"
+msgstr "Жақсартылған қолжетімділік"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:49
+msgid "Increased translatable elements"
+msgstr "Аударылатын элементтер көбейтілді"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+msgid ""
+"I am doing a lot of this because I am planning to apply to gnome circle :)"
+msgstr ""
+"Мен мұны көп істеп жатырмын, өйткені GNOME circle-ға өтініш беруді жоспарлап отырмын :)"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:52
+msgid "Remember to let me know if you encounter any bugs!"
+msgstr "Қателер кездессе маған хабарлауды ұмытпаңыз!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:53
+msgid "Have a beautiful day &lt;3"
+msgstr "Сәтті күн болсын &lt;3"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+msgid ""
+"A new version of Iconic! It is mostly a quality of life update, I have some "
+"fun additions planned so stay tuned!"
+msgstr ""
+"Iconic-тің жаңа нұсқасы! Бұл негізінен өмір сапасының жаңартуы, қызықты "
+"қосымшалар жоспарланған, сондықтан бақылауда болыңыз!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:59
+msgid "Here is what has changed:"
+msgstr "Міне не өзгерді:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:61
+msgid "Updated to rust 2024 edition"
+msgstr "Rust 2024 edition-ға жаңартылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
+msgid "Removed regeneration screen"
+msgstr "Қайта жасау экраны алынып тасталды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:63
+msgid "Added regeneration bar on main screen"
+msgstr "Негізгі экранға қайта жасау жолағы қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
+msgid "Added better error handling for regeneration"
+msgstr "Қайта жасау үшін қателерді жақсырақ өңдеу қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:65
+msgid "Updated pink folder, to be in line with Adwaita-colors"
+msgstr "Қызғылт бума Adwaita-colors-қа сай болу үшін жаңартылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:66
+msgid "Added acknowledgements in the About Iconic"
+msgstr "\"Iconic туралы\" бөлімінде алғыстар қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:67
+msgid "Fixed donation link"
+msgstr "Қайырымдылық сілтемесі түзетілді"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:69
+msgid "As always, if you encounter any bugs. Please let me know on GitHub!"
+msgstr "Әрқашанша, қателер кездессе GitHub арқылы маған хабарлаңыз!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:70
+msgid "Enjoy the update, and Free Palestine 🇵🇸"
+msgstr "Жаңартудан ләззат алыңыз, және Палестинаға еркіндік 🇵🇸"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:75
+msgid ""
+"I was really motivated so I made another update. Now allowing you to set "
+"custom collors for the folders. Other features include"
+msgstr ""
+"Мен шынымен ынталы болдым, сондықтан тағы бір жаңарту жасадым. Енді бумалар "
+"үшін пайдаланушылық түстерді орнатуға болады. Басқа мүмкіндіктер"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:77
+msgid "Made the app more responsive"
+msgstr "Қолданбаны жауап беруге жақсырақ етті"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:78
+msgid "Removed crashing bug"
+msgstr "Құлау қатесі жойылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:79
+msgid "Removed small bugs"
+msgstr "Кіші қателер жойылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:80
+msgid "Added Right-click menu to folder view"
+msgstr "Бума көрінісіне оң жақпен басу мәзірі қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:86
+msgid ""
+"A really big update for Iconic! You are now able to regenerate images with "
+"the correct accent color after you change it. This makes the app really nice "
+"to combine with \"Adwaita-Colors\""
+msgstr ""
+"Iconic үшін шынымен үлкен жаңарту! Енді екпін түсін өзгерткеннен кейін дұрыс "
+"екпін түсімен кескіндерді қайта жасауға болады. Бұл қолданбаны \"Adwaita-Colors\" "
+"қолданбасымен үйлестіруді өте жақсы етеді"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:87
+msgid ""
+"In Gnome 48, using static images in natilus might change. If that is the "
+"case I will retire the app. But for now I will keep working on the app!"
+msgstr ""
+"GNOME 48-де Nautilus-та статикалық кескіндерді пайдалану өзгеруі мүмкін. "
+"Егер солай болса, мен қолданбаны тоқтатамын. Бірақ қазір қолданбада жұмыс "
+"жасауды жалғастырамын!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:92
+msgid ""
+"This is a nice big update to Iconic making it way more colorfull and better "
+"for gnome 47. Features include"
+msgstr ""
+"Бұл Iconic үшін жақсы үлкен жаңарту, оны GNOME 47 үшін әлдеқайда түрлі-түсті "
+"және жақсырақ етеді. Мүмкіндіктер"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:94
+msgid "Custom accent color folders"
+msgstr "Пайдаланушылық екпін түсті бумалар"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:95
+msgid "Accent color detection"
+msgstr "Екпін түсін анықтау"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:96
+msgid "Updated settings"
+msgstr "Жаңартылған баптаулар"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:97
+msgid "Bug fixes!"
+msgstr "Қате түзетулер!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:99
+msgid "As always, please let me know if you encounter any bugs!"
+msgstr "Әрқашанша, қателер кездессе маған хабарлаңыз!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:104
+msgid ""
+"This update to iconic is mostly just a version bump. However I do have some "
+"fun features I want to try and implement. If it is possible, idk yet. But I "
+"have already started working on it."
+msgstr ""
+"Iconic-тің бұл жаңартуы негізінен нұсқа көтерілуі ғана. Алайда менің "
+"жүзеге асырып көргім келетін қызықты мүмкіндіктерім бар. Мүмкін болса, "
+"әлі білмеймін. Бірақ оған жұмыс істеуді бастап кеттім."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:105
+msgid "Biggest changes"
+msgstr "Ең үлкен өзгерістер"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:107
+msgid "Updated to gnome 47"
+msgstr "GNOME 47-ге жаңартылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:108
+msgid "Using new loading animation"
+msgstr "Жаңа жүктелу анимациясын пайдалану"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:109
+msgid "Using new buttons in settings"
+msgstr "Баптауларда жаңа түймелерді пайдалану"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:115
+msgid ""
+"A new update to Iconic is here! It does not add many features but features a "
+"lot of improvements under the hood, this means the app will now crash way "
+"less often without any warning. Some changes include:"
+msgstr ""
+"Iconic-тің жаңа жаңартуы келді! Ол көп мүмкіндіктер қоспайды, бірақ ішкі "
+"жақсартулар көп, бұл қолданба енді ескертусіз әлдеқайда аз құлайтынын білдіреді. "
+"Кейбір өзгерістер:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:117
+msgid "Added ability to drag icon out of iconic directly"
+msgstr "Таңбашаны Iconic-тан тікелей сүйреп шығару мүмкіндігі қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:118
+msgid "Added error handling on opening files"
+msgstr "Файлдарды ашу кезіндегі қате өңдеу қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:119
+msgid "Added error handling on saving files"
+msgstr "Файлдарды сақтау кезіндегі қате өңдеу қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:120
+msgid "Added donation link"
+msgstr "Қайырымдылық сілтемесі қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:121
+msgid "Added pop-up when dragging in files"
+msgstr "Файлдарды сүйреу кезінде қалқымалы терезе қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:122
+msgid "Updated Dutch translations"
+msgstr "Голланд тіліндегі аудармалар жаңартылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:124
+msgid "Please report any bugs you see! Many thanks"
+msgstr "Көрген қателеріңізді хабарлаңыз! Көп рахмет"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:129
+msgid ""
+"This is a new major release of Iconic. Featuring many bug fixes and added "
+"features. Some notable ones are:"
+msgstr ""
+"Бұл Iconic-тің жаңа негізгі шығарылымы. Көптеген қате түзетулер мен қосылған "
+"мүмкіндіктер бар. Кейбір назар аударарлықтары:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:131
+msgid "Drag and drop support"
+msgstr "Сүйреп тастау қолдауы"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:132
+msgid "Copy-paste support"
+msgstr "Көшіру-қою қолдауы"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:133
+msgid "Better file type detection"
+msgstr "Файл түрін жақсырақ анықтау"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:134
+msgid "Updated dutch translations"
+msgstr "Голланд тіліндегі аудармалар жаңартылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:135
+msgid "Added Hindi translations"
+msgstr "Хинди тіліндегі аудармалар қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:136
+msgid "Fixed spelling mistakes"
+msgstr "Емле қателері түзетілді"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:137
+msgid "Fixed issues with black pixels not converting to monochrome"
+msgstr "Қара пиксельдердің монохромға түрленбеу мәселелері түзетілді"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:143
+msgid "Another small update with a few additions and changes"
+msgstr "Бірнеше қосымшалар мен өзгерістермен тағы бір кіші жаңарту"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:145
+msgid "You can now open containing folder after saving image"
+msgstr "Енді кескінді сақтағаннан кейін қамтитын буманы ашуға болады"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:146
+msgid "Added italian translation"
+msgstr "Итальян тіліндегі аударма қосылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:147
+msgid "Updated Dutch translation"
+msgstr "Голланд тіліндегі аударма жаңартылды"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:153
+msgid "This version adds a few small features and fixes some bugs"
+msgstr "Бұл нұсқа бірнеше кіші мүмкіндіктер қосады және кейбір қателерді түзетеді"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:155
+msgid "The app now shows some errors as pop-ups"
+msgstr "Қолданба енді кейбір қателерді қалқымалы терезе ретінде көрсетеді"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:156
+msgid "You can now temporarily open a new folder image"
+msgstr "Енді жаңа бума кескінін уақытша ашуға болады"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:157
+msgid "It now first shows a pop-up when the folder image is not found"
+msgstr "Енді бума кескіні табылмаған кезде алдымен қалқымалы терезе көрсетеді"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:163
+msgid "Initial release"
+msgstr "Алғашқы шығарылым"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:182
+msgid "icon"
+msgstr "таңбаша"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:183
+msgid "create"
+msgstr "жасау"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:184
+msgid "folder icon"
+msgstr "бума таңбашасы"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:185
+msgid "svg"
+msgstr "svg"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:186
+msgid "png"
+msgstr "png"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:187
+msgid "gnome"
+msgstr "gnome"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:188
+msgid "icon create"
+msgstr "таңбаша жасау"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:189
+msgid "icon creator"
+msgstr "таңбаша жасаушы"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:190
+msgid "folder icon creator"
+msgstr "бума таңбашасын жасаушы"
+
+#: src/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "Жалпы"
+
+#: src/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Жылдам пернелерді көрсету"
+
+#: src/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Open Preferences"
+msgstr "Баптауларды ашу"
+
+#: src/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Quit Iconic"
+msgstr "Iconic-тан шығу"
+
+#: src/gtk/help-overlay.blp:29
+msgctxt "shortcut window"
+msgid "Save Image"
+msgstr "Кескінді сақтау"
+
+#: src/gtk/help-overlay.blp:34
+msgctxt "shortcut window"
+msgid "Open top image"
+msgstr "Үстіңгі кескінді ашу"
+
+#: src/gtk/help-overlay.blp:39
+msgctxt "shortcut window"
+msgid "Open temporary bottom image"
+msgstr "Уақытша астыңғы кескінді ашу"
+
+#: src/gtk/help-overlay.blp:44
+msgctxt "shortcut window"
+msgid "Regenerate Images"
+msgstr "Кескіндерді қайта жасау"
+
+#: src/settings/settings.blp:8
+msgid "General"
+msgstr "Жалпы"
+
+#: src/settings/settings.blp:11
+msgid "Customise"
+msgstr "Теңшеу"
+
+#: src/settings/settings.blp:14
+msgid "Use a built-in bottom icon"
+msgstr "Кіріктірілген астыңғы таңбашаны пайдалану"
+
+#: src/settings/settings.blp:18
+msgid "use the built-in bottom image"
+msgstr "кіріктірілген астыңғы кескінді пайдалану"
+
+#: src/settings/settings.blp:24
+msgid "Use system accent color"
+msgstr "Жүйелік екпін түсін пайдалану"
+
+#: src/settings/settings.blp:28
+msgid "Manually select folder color"
+msgstr "Бума түсін қолмен таңдау"
+
+#: src/settings/settings.blp:32
+msgid "Blue"
+msgstr "Көк"
+
+#: src/settings/settings.blp:33
+msgid "Teal"
+msgstr "Теңіз толқыны"
+
+#: src/settings/settings.blp:34
+msgid "Green"
+msgstr "Жасыл"
+
+#: src/settings/settings.blp:35
+msgid "Yellow"
+msgstr "Сары"
+
+#: src/settings/settings.blp:36
+msgid "Orange"
+msgstr "Қызғылт сары"
+
+#: src/settings/settings.blp:37
+msgid "Red"
+msgstr "Қызыл"
+
+#: src/settings/settings.blp:38
+msgid "Pink"
+msgstr "Қызғылт"
+
+#: src/settings/settings.blp:39
+msgid "Purple"
+msgstr "Күлгін"
+
+#: src/settings/settings.blp:40
+msgid "Slate"
+msgstr "Тас сұр"
+
+#: src/settings/settings.blp:41
+msgid "Custom"
+msgstr "Пайдаланушылық"
+
+#: src/settings/settings.blp:47
+msgid "Primary Folder Color"
+msgstr "Бастапқы бума түсі"
+
+#: src/settings/settings.blp:64
+msgid "Secondary Folder Color"
+msgstr "Екінші бума түсі"
+
+#: src/settings/settings.blp:81
+msgid "Use custom bottom icon"
+msgstr "Пайдаланушылық астыңғы таңбашаны пайдалану"
+
+#: src/settings/settings.blp:85
+msgid "use a custom bottom image"
+msgstr "пайдаланушылық астыңғы кескінді пайдалану"
+
+#: src/settings/settings.blp:91
+msgid "Currently set bottom icon"
+msgstr "Қазіргі орнатылған астыңғы таңбаша"
+
+#: src/settings/settings.blp:95
+msgid "Select bottom icon"
+msgstr "Астыңғы таңбашаны таңдау"
+
+#: src/settings/settings.blp:104
+msgid "Store top images in cache"
+msgstr "Үстіңгі кескіндерді кэште сақтау"
+
+#: src/settings/settings.blp:105
+msgid ""
+"If you change your system accent color, and want to regenerate the icons, "
+"turn this on"
+msgstr ""
+"Егер жүйелік екпін түсіңізді өзгертсеңіз және таңбашаларды қайта жасағыңыз "
+"келсе, мұны қосыңыз"
+
+#: src/settings/settings.blp:109
+msgid "Regenerate automatically"
+msgstr "Автоматты түрде қайта жасау"
+
+#: src/settings/settings.blp:110
+msgid ""
+"If you want to automatically regenerate images after changing accent color, "
+"turn this on"
+msgstr ""
+"Егер екпін түсін өзгерткеннен кейін кескіндерді автоматты түрде қайта жасағыңыз "
+"келсе, мұны қосыңыз"
+
+#: src/settings/settings.blp:114
+msgid "Current cache used"
+msgstr "Қазіргі пайдаланылған кэш"
+
+#: src/settings/settings.blp:119
+msgid "Remove all cached images"
+msgstr "Барлық кэштелген кескіндерді жою"
+
+#: src/settings/settings.blp:130
+msgid "Default drag-and-drop action"
+msgstr "Әдепкі сүйреп тастау әрекеті"
+
+#: src/settings/settings.blp:131
+msgid ""
+"By default, after dragging and dropping a file, you have to select a layer "
+"to paste it to. Here you can disable that pop-up"
+msgstr ""
+"Әдепкі бойынша, файлды сүйреп тастағаннан кейін оны қою үшін қабатты таңдау "
+"керек. Мұнда сол қалқымалы терезені өшіруге болады"
+
+#: src/settings/settings.blp:135
+msgid "Use a default drag and drop action"
+msgstr "Әдепкі сүйреп тастау әрекетін пайдалану"
+
+#: src/settings/settings.blp:142
+msgid "Always select top layer"
+msgstr "Әрқашан үстіңгі қабатты таңдау"
+
+#: src/settings/settings.blp:152
+msgid "Always select bottom layer"
+msgstr "Әрқашан астыңғы қабатты таңдау"
+
+#: src/settings/settings.blp:164
+msgid "Advanced"
+msgstr "Кеңейтілген"
+
+#: src/settings/settings.blp:168
+msgid "You can see these options because you have enabled the Devel profile"
+msgstr "Бұл опцияларды көре аласыз, өйткені Devel профилін қосқансыз"
+
+#: src/settings/settings.blp:179
+msgid "Select size of SVG images"
+msgstr "SVG кескіндерінің өлшемін таңдау"
+
+#: src/settings/settings.blp:180
+msgid ""
+"SVG images will by default be converted to a 1024x1024 image. You can adjust "
+"that here"
+msgstr ""
+"SVG кескіндері әдепкі бойынша 1024x1024 кескініне түрлендіріледі. Мұны осында "
+"реттеуге болады"
+
+#: src/settings/settings.blp:192
+msgid "Select size of Thumbnail images"
+msgstr "Нобай кескіндерінің өлшемін таңдау"
+
+#: src/settings/settings.blp:193
+msgid ""
+"Thumbnail images will by default be converted to a 255x255 image. You can "
+"adjust that here"
+msgstr ""
+"Нобай кескіндері әдепкі бойынша 255x255 кескініне түрлендіріледі. Мұны осында "
+"реттеуге болады"
+
+#. visible: bind regeneration_revealer.reveal-child;
+#: src/window.blp:38 src/window.blp:153
+msgid "Regenerating icons…"
+msgstr "Таңбашаларды қайта жасау…"
+
+#: src/window.blp:45 src/window.blp:160
+msgid "Menu"
+msgstr "Мәзір"
+
+#: src/window.blp:73
+msgid "Folder Icon Creator"
+msgstr "Бума таңбашасын жасаушы"
+
+#: src/window.blp:74
+msgid "Click or Drag to Open Image"
+msgstr "Кескінді ашу үшін басыңыз немесе сүйреңіз"
+
+#: src/window.blp:85
+msgid "_Open Image"
+msgstr "_Кескінді ашу"
+
+#: src/window.blp:98
+msgid "_Show Bottom Layer"
+msgstr "_Астыңғы қабатты көрсету"
+
+#: src/window.blp:124 src/windows/alert_dialogs.rs:82
+msgid "Save"
+msgstr "Сақтау"
+
+#: src/window.blp:195
+msgid "y-position of top image"
+msgstr "үстіңгі кескіннің y-позициясы"
+
+#: src/window.blp:215
+msgid "Preview window of icon, drag from here to start drag operation"
+msgstr "Таңбашаның алдын ала қарау терезесі, сүйреу операциясын бастау үшін осыдан сүйреңіз"
+
+#: src/window.blp:238
+msgid "New top image is loading"
+msgstr "Жаңа үстіңгі кескін жүктелуде"
+
+#: src/window.blp:250
+msgid "x-position of top image"
+msgstr "үстіңгі кескіннің x-позициясы"
+
+#: src/window.blp:279
+msgid "size of top image"
+msgstr "үстіңгі кескіннің өлшемі"
+
+#: src/window.blp:296
+msgid "Toggle Monochrome"
+msgstr "Монохромды ауыстыру"
+
+#: src/window.blp:302
+msgid "Turn on monochrome for top image"
+msgstr "Үстіңгі кескін үшін монохромды қосу"
+
+#: src/window.blp:307
+msgid "Invert"
+msgstr "Кері айналдыру"
+
+#: src/window.blp:308
+msgid "Invert bright and dark in the monochrome image"
+msgstr "Монохром кескіндегі ашық пен қараңғыды кері айналдыру"
+
+#: src/window.blp:312
+msgid "Color"
+msgstr "Түс"
+
+#: src/window.blp:314
+msgid "Choose the color of the monochrome image"
+msgstr "Монохром кескіннің түсін таңдау"
+
+#: src/window.blp:322
+msgid "Reset the color of the monochrome image to default"
+msgstr "Монохром кескіннің түсін әдепкіге қайтару"
+
+#: src/window.blp:348
+msgid "Threshold"
+msgstr "Табалдырық"
+
+#: src/window.blp:353
+msgid "Set the threshold of bright and dark for the monochrome image"
+msgstr "Монохром кескін үшін ашық пен қараңғының табалдырығын орнату"
+
+#: src/window.blp:392
+msgid "Saving…"
+msgstr "Сақталуда…"
+
+#: src/window.blp:410
+msgid "_Paste Top Icon from Clipboard"
+msgstr "_Үстіңгі таңбашаны алмасу буферінен қою"
+
+#: src/window.blp:415
+msgid "_Open Top Icon"
+msgstr "_Үстіңгі таңбашаны ашу"
+
+#: src/window.blp:420
+msgid "_Open Bottom Icon"
+msgstr "_Астыңғы таңбашаны ашу"
+
+#: src/window.blp:427
+msgid "_Reset Bottom Icon"
+msgstr "_Астыңғы таңбашаны қайтару"
+
+#: src/window.blp:432
+msgid "_Regenerate Icons"
+msgstr "_Таңбашаларды қайта жасау"
+
+#: src/window.blp:439
+msgid "_Preferences"
+msgstr "_Баптаулар"
+
+#: src/window.blp:444
+msgid "_Keyboard Shortcuts"
+msgstr "_Пернетақта жылдам пернелері"
+
+#: src/window.blp:449
+msgid "_About Iconic"
+msgstr "_Iconic туралы"
+
+#: src/window.blp:458
+msgid "Change Top Image"
+msgstr "Үстіңгі кескінді өзгерту"
+
+#: src/window.blp:463
+msgid "Change Bottom Image"
+msgstr "Астыңғы кескінді өзгерту"
+
+#: src/window.blp:470
+msgid "Temporarily Change Bottom Image"
+msgstr "Астыңғы кескінді уақытша өзгерту"
+
+#: src/window.blp:475
+msgid "Reset Temporary Bottom Image"
+msgstr "Уақытша астыңғы кескінді қайтару"
+
+#: src/application.rs:170
+msgid "Iconic allows you to add images onto a folder."
+msgstr "Iconic буманың үстіне кескіндер қосуға мүмкіндік береді."
+
+#. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
+#: src/application.rs:176
+msgid "translator-credits"
+msgstr "AnmiTaliDev <anmitali198@gmail.com>"
+
+#: src/objects/errors.rs:14 src/settings/settings.rs:435
+msgid "Error"
+msgstr "Қате"
+
+#: src/objects/errors.rs:34 src/windows/alert_dialogs.rs:29
+#: src/windows/alert_dialogs.rs:126 src/windows/alert_dialogs.rs:142
+msgid "OK"
+msgstr "Жақсы"
+
+#: src/settings/settings.rs:390 src/window.rs:933
+msgid "Open Document"
+msgstr "Құжатты ашу"
+
+#: src/settings/settings.rs:452
+msgid ""
+"Are you sure you want to clear the cache? \n"
+" Clearing the cache means you probably won't be able to regenerate a lot of "
+"images."
+msgstr ""
+"Кэшті тазалағыңыз келетініне сенімдісіз бе? \n"
+" Кэшті тазалау көптеген кескіндерді қайта жасай алмайтыныңызды білдіреді."
+
+#: src/settings/settings.rs:455 src/windows/alert_dialogs.rs:79
+msgid "Cancel"
+msgstr "Болдырмау"
+
+#: src/settings/settings.rs:457
+msgid "Remove"
+msgstr "Жою"
+
+#: src/window.rs:813
+msgid "The set bottom icon could not be found, press ok to select a new one"
+msgstr "Орнатылған астыңғы таңбаша табылмады, жаңасын таңдау үшін жақсы басыңыз"
+
+#: src/windows/alert_dialogs.rs:25
+msgid "Drag and drop"
+msgstr "Сүйреп тастау"
+
+#: src/windows/alert_dialogs.rs:26
+msgid ""
+"Did you know that it is possible to drag the folder image straight out of "
+"Iconic and drop it into nautilus' property window.\n"
+"No need to save!"
+msgstr ""
+"Бума кескінін Iconic-тан тікелей сүйреп Nautilus-тың қасиеттер терезесіне "
+"тастауға болатынын білесіз бе.\n"
+"Сақтаудың қажеті жоқ!"
+
+#: src/windows/alert_dialogs.rs:48
+msgid "Do you want to load this image to the top or bottom layer?"
+msgstr "Бұл кескінді үстіңгі немесе астыңғы қабатқа жүктегіңіз келе ме?"
+
+#: src/windows/alert_dialogs.rs:49
+msgid "Hint: You can disable this pop-up in the settings"
+msgstr "Кеңес: Бұл қалқымалы терезені баптауларда өшіруге болады"
+
+#: src/windows/alert_dialogs.rs:51
+msgid "Select layer"
+msgstr "Қабатты таңдау"
+
+#: src/windows/alert_dialogs.rs:56
+msgid "Top"
+msgstr "Үстіңгі"
+
+#: src/windows/alert_dialogs.rs:57
+msgid "Bottom"
+msgstr "Астыңғы"
+
+#: src/windows/alert_dialogs.rs:74
+msgid "Save Changes?"
+msgstr "Өзгерістерді сақтау керек пе?"
+
+#: src/windows/alert_dialogs.rs:75
+msgid ""
+"Open image contain unsaved changes. Changes which are not saved will be "
+"permanently lost"
+msgstr ""
+"Ашық кескінде сақталмаған өзгерістер бар. Сақталмаған өзгерістер мәңгілікке "
+"жоғалады"
+
+#: src/windows/alert_dialogs.rs:80
+msgid "Discard"
+msgstr "Тастау"
+
+#: src/windows/alert_dialogs.rs:122
+msgid "Accent color changed"
+msgstr "Екпін түсі өзгертілді"
+
+#: src/windows/alert_dialogs.rs:123
+msgid ""
+"The system accent color has been changed, Iconic has automatically changed "
+"the color of the folder.\n"
+"If you do not want this, you can turn this off in the settings"
+msgstr ""
+"Жүйелік екпін түсі өзгертілді, Iconic бума түсін автоматты түрде өзгертті.\n"
+"Егер мұны қаламасаңыз, баптауларда өшіруге болады"
+
+#: src/windows/alert_dialogs.rs:138
+msgid "Regenerating Icons"
+msgstr "Таңбашаларды қайта жасау"
+
+#: src/windows/alert_dialogs.rs:139
+msgid ""
+"If you drag and drop icons and change your accent color. It is then possible "
+"to regenerate the images by pressing \"regenerate\" in the menu or by "
+"pressing ctrl+R"
+msgstr ""
+"Егер таңбашаларды сүйреп тастап, екпін түсіңізді өзгертсеңіз, кескіндерді "
+"мәзірдегі \"қайта жасау\" түймесін немесе Ctrl+R пернесін басу арқылы қайта "
+"жасауға болады"
+
+#: src/windows/alert_dialogs.rs:160
+msgid "Iconic is busy"
+msgstr "Iconic бос емес"
+
+#: src/windows/alert_dialogs.rs:161
+msgid ""
+"Iconic is currently busy, it is recommended to wait before closing to "
+"prevent data loss"
+msgstr ""
+"Iconic қазір бос емес, деректердің жоғалуын болдырмау үшін жабу алдында күтуді "
+"ұсынамыз"
+
+#. Aparently items appear reversed from how they are defined here
+#: src/windows/alert_dialogs.rs:166
+msgid "Quit anyway"
+msgstr "Бәрібір шығу"
+
+#: src/windows/alert_dialogs.rs:168
+msgid "Wait"
+msgstr "Күту"
+
+#: src/windows/file_handling.rs:137 src/windows/file_handling.rs:142
+msgid "No texture found"
+msgstr "Текстура табылмады"
+
+#: src/windows/file_handling.rs:246
+msgid "Unsupported file type"
+msgstr "Қолданбайтын файл түрі"
+
+#: src/windows/file_handling.rs:255
+msgid "Nothing to save"
+msgstr "Сақтайтын ешнәрсе жоқ"
+
+#: src/windows/file_handling.rs:279
+msgid "Open Folder"
+msgstr "Буманы ашу"
+
+#: src/windows/file_handling.rs:281
+msgid "File Saved"
+msgstr "Файл сақталды"
+
+#: src/windows/file_handling.rs:295
+msgid "File not saved"
+msgstr "Файл сақталмады"
+
+#: src/windows/file_handling.rs:384
+msgid "Icon reset"
+msgstr "Таңбаша қайтарылды"
+
+#: src/windows/file_handling.rs:397 src/windows/file_handling.rs:416
+msgid "Nothing selected"
+msgstr "Ештеңе таңдалмады"
+
+#: src/windows/file_handling.rs:510
+msgid "No file or path found, this is probably not your fault."
+msgstr "Файл немесе жол табылмады, бұл сіздің кінәңіз емес шығар."
+
+#: src/windows/regeneration.rs:78
+msgid "Regenerating icons"
+msgstr "Таңбашаларды қайта жасау"
+
+#: src/windows/regeneration.rs:92
+msgid "All files are not compatible for regeneration"
+msgstr "Барлық файлдар қайта жасауға үйлесімсіз"
+
+#: src/windows/regeneration.rs:130
+msgid ""
+"file failed to regenerate\n"
+"view logs for more information"
+msgid_plural ""
+"files failed to regenerate\n"
+"view logs for more information"
+msgstr[0] ""
+"файлды қайта жасау сәтсіз аяқталды\n"
+"қосымша ақпарат үшін журналдарды қараңыз"
+
+#: src/windows/regeneration.rs:140
+msgid "Regeneration sucessful, restart nautilus"
+msgstr "Қайта жасау сәтті, Nautilus-ты қайта іске қосыңыз"
