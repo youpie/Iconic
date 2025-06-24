@@ -123,6 +123,7 @@ mod imp {
         pub app_busy: Arc<()>,
         pub drag_active: Rc<Cell<bool>>,
         pub file_properties: RefCell<FileProperties>,
+        pub drag_cancelled: Cell<bool>
     }
 
     impl Default for GtkTestWindow {
@@ -170,6 +171,7 @@ mod imp {
                 app_busy: Arc::new(()),
                 drag_active: Rc::new(Cell::new(false)),
                 file_properties: RefCell::new(FileProperties::default()),
+                drag_cancelled: Cell::new(false),
             }
         }
     }
@@ -532,6 +534,7 @@ impl GtkTestWindow {
                 warn!("Could not delete drag file, error: {:?}", e);
             }
         };
+        imp.drag_cancelled.set(true);
         false
     }
 
@@ -539,7 +542,18 @@ impl GtkTestWindow {
         let imp = self.imp();
         imp.drag_active.set(false);
         debug!("drag end");
-        self.drag_and_drop_regeneration_popup();
+        if !imp.drag_cancelled.get() {      // Drag event was not cancelled. I couldn't find a signal that fires only on a succseful drag
+            debug!("succesful drag");
+            let top_image = imp.top_image_file.lock().unwrap().clone().unwrap();
+            match self.store_top_image_in_cache(&top_image) {
+                Err(x) => {
+                    show_error_popup(&self, "", true, Some(x));
+                }
+                _ => (),
+            };
+            self.drag_and_drop_regeneration_popup();
+        }
+        imp.drag_cancelled.set(false);
     }
 
     pub fn setup_settings(&self) {

@@ -401,13 +401,6 @@ impl GtkTestWindow {
             .as_ref()
             .into_reason_result("No top image found")?;
 
-        match self.store_top_image_in_cache(&top_image) {
-            Err(x) => {
-                show_error_popup(&self, "", true, Some(x));
-            }
-            _ => (),
-        };
-
         let mut top_image_dynamicimage = top_image.dynamic_image.clone();
         if use_monochrome {
             let (monochrome_threshold, monochrome_color) = match manual_monochrome_values {

@@ -17,9 +17,9 @@ strip = "symbols"
 [dependencies]
 gettext-rs = { version = "0.7.2", features = ["gettext-system"] }
 image = "0.25.6"
-gio = "0.20.11"
+gio = "0.20.12"
 librsvg = "2.60.0"
-cairo-rs = "0.20.10"
+cairo-rs = "0.20.12"
 resvg = "0.45.1"
 usvg = "0.45.1"
 log = "0.4.22"
@@ -32,7 +32,7 @@ thiserror = "2.0.12"
 
 [dependencies.gtk]
 package = "gtk4"
-version = "0.9.6"
+version = "0.9.7"
 features = ["v4_18"]
 
 [dependencies.adw]
