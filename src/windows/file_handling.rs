@@ -396,12 +396,13 @@ impl GtkTestWindow {
             .into_reason_result("No bottom image found")?
             .dynamic_image
             .clone();
-        let _top_image_lock = imp.top_image_file.lock()?;
-        let top_image = _top_image_lock
-            .as_ref()
-            .into_reason_result("No top image found")?;
-
-        let mut top_image_dynamicimage = top_image.dynamic_image.clone();
+        
+        let mut top_image_dynamicimage = {
+            let _top_image_lock = imp.top_image_file.lock()?;
+            let top_image = _top_image_lock
+                .as_ref()
+                .into_reason_result("No top image found")?;
+            top_image.dynamic_image.clone()};
         if use_monochrome {
             let (monochrome_threshold, monochrome_color) = match manual_monochrome_values {
                 Some((threshold, color)) => (threshold, color),

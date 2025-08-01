@@ -333,7 +333,7 @@ mod imp {
                 }
             ));
             let drag_source = gtk::DragSource::builder()
-                .actions(gdk::DragAction::LINK)
+                .actions(gdk::DragAction::COPY)
                 .build();
 
             drag_source.connect_prepare(clone!(
@@ -544,7 +544,7 @@ impl GtkTestWindow {
         debug!("drag end");
         if !imp.drag_cancelled.get() {      // Drag event was not cancelled. I couldn't find a signal that fires only on a succseful drag
             debug!("succesful drag");
-            let top_image = imp.top_image_file.lock().unwrap().clone().unwrap();
+            let top_image = imp.top_image_file.lock().unwrap().clone().unwrap();        // Currently blocks
             match self.store_top_image_in_cache(&top_image) {
                 Err(x) => {
                     show_error_popup(&self, "", true, Some(x));
