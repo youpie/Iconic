@@ -7,6 +7,7 @@ use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::{gettext, ngettext};
 use gio::glib;
+use gio::prelude::SettingsExt;
 use gtk::gdk::RGBA;
 use gtk::gio;
 use image::*;

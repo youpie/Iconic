@@ -39,6 +39,7 @@ use std::fs;
 use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+use gio::prelude::SettingsExt;
 
 mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc};
@@ -388,7 +389,15 @@ mod imp {
 glib::wrapper! {
     pub struct GtkTestWindow(ObjectSubclass<imp::GtkTestWindow>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,
-        @implements gio::ActionGroup, gio::ActionMap;
+        @implements 
+            gio::ActionGroup, 
+            gio::ActionMap, 
+            gtk::Accessible, 
+            gtk::Buildable, 
+            gtk::ConstraintTarget, 
+            gtk::Native, 
+            gtk::Root, 
+            gtk::ShortcutManager;
 }
 
 impl GtkTestWindow {

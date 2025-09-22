@@ -169,14 +169,19 @@ mod imp {
     }
 
     impl WidgetImpl for PreferencesDialog {}
-    impl WindowImpl for PreferencesDialog {}
+    // impl WindowImpl for PreferencesDialog {}
     impl AdwDialogImpl for PreferencesDialog {}
     impl PreferencesDialogImpl for PreferencesDialog {}
 }
 
 glib::wrapper! {
     pub struct PreferencesDialog(ObjectSubclass<imp::PreferencesDialog>)
-    @extends gtk::Widget, gtk::Window, adw::Dialog, adw::PreferencesDialog;
+    @extends gtk::Widget, gtk::Window, adw::Dialog, adw::PreferencesDialog,
+    @implements
+        gtk::Accessible,
+        gtk::Buildable,
+        gtk::ConstraintTarget,
+        gtk::ShortcutManager;
 }
 
 #[gtk::template_callbacks]
