@@ -92,7 +92,7 @@ impl GtkTestWindow {
     }
 
     pub async fn load_built_in_bottom_icon(&self, accent_color_setting: &str) -> PathBuf {
-        let imp = self.imp();
+        // let imp = self.imp();
         let folder_color_name = match accent_color_setting {
             "None" => self.get_accent_color_and_show_dialog(),
             x => x.to_string(),

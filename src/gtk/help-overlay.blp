@@ -1,55 +1,45 @@
 using Gtk 4.0;
 using Adw 1;
 
-Adw.PreferencesDialog help_overlay {
+Adw.ShortcutsDialog help_overlay {
   title: _("Keyboard Shortcuts");
 
-  Adw.PreferencesPage {
-    Adw.PreferencesGroup {
-      title: _("Global");
+  Adw.ShortcutsSection {
+    title: _("Global");
 
-      Box {
-        margin-top: 5;
-        margin-bottom: 5;
-        margin-start: 5;
-        orientation: vertical;
-        spacing: 7;
-
-        ShortcutsShortcut {
-          title: C_("shortcut window", "Show Shortcuts");
-          action-name: "win.show-help-overlay";
-        }
-
-        ShortcutsShortcut {
-          title: C_("shortcut window", "Open Preferences");
-          action-name: "app.preferences";
-        }
-
-        ShortcutsShortcut {
-          title: C_("shortcut window", "Quit Iconic");
-          action-name: "app.quit";
-        }
-
-        ShortcutsShortcut {
-          title: C_("shortcut window", "Save Image");
-          action-name: "app.save_button";
-        }
-
-        ShortcutsShortcut {
-          title: C_("shortcut window", "Open top image");
-          action-name: "app.open_top_icon";
-        }
-
-        ShortcutsShortcut {
-          title: C_("shortcut window", "Open temporary bottom image");
-          action-name: "app.select_folder";
-        }
-
-        ShortcutsShortcut {
-          title: C_("shortcut window", "Regenerate Images");
-          action-name: "app.regenerate";
-        }
-      }
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Show Shortcuts");
+      action-name: "win.show-help-overlay";
     }
-  }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Open Preferences");
+      action-name: "app.preferences";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Quit Iconic");
+      action-name: "app.quit";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Save Image");
+      action-name: "app.save_button";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Open top image");
+      action-name: "app.open_top_icon";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Open temporary bottom image");
+      action-name: "app.select_folder";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Regenerate Images");
+      action-name: "app.regenerate";
+    }
+  }0
 }
