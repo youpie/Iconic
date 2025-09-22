@@ -37,6 +37,7 @@ use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::hash::RandomState;
+use std::io::{BufReader, Read};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use gio::prelude::SettingsExt;
@@ -116,7 +117,7 @@ mod imp {
         pub image_saved: Cell<bool>,
         pub last_drag_n_drop_generated_name: RefCell<Option<gio::File>>,
         pub generated_image: RefCell<Option<DynamicImage>>,
-        pub temp_image_loaded: Cell<bool>,
+        pub temp_bottom_image_loaded: Cell<bool>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
         pub count: Cell<i32>,
@@ -165,7 +166,7 @@ mod imp {
                 signals: RefCell::new(vec![]),
                 settings: gio::Settings::new(APP_ID),
                 count: Cell::new(0),
-                temp_image_loaded: Cell::new(false),
+                temp_bottom_image_loaded: Cell::new(false),
                 default_color: RefCell::new(HashMap::new()),
                 last_drag_n_drop_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(Cell::new(0)),
@@ -486,9 +487,10 @@ impl GtkTestWindow {
             64,
             imageops::FilterType::Nearest,
         ));
-        debug!("temp image loaded {}", imp.temp_image_loaded.get());
+        debug!("temp image loaded {}", imp.temp_bottom_image_loaded.get());
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
         let gio_file = self.create_drag_file(file_hash);
+        let path = gio_file.path().unwrap();
         imp.last_drag_n_drop_generated_name
             .replace(Some(gio_file.clone()));
         let gio_file_clone = gio_file.clone();

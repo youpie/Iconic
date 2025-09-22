@@ -30,6 +30,7 @@ hex = "0.4.3"
 thiserror = "2.0.16"
 gdk4 = "0.10.1"
 gsk4 = "0.10.1"
+rexiv2 = "0.10.0"
 
 
 [dependencies.gtk]

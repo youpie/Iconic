@@ -25,8 +25,6 @@
         }
     },
     "cleanup": [
-        "/include",
-        "/lib/pkgconfig",
         "/man",
         "/share/doc",
         "/share/gtk-doc",
@@ -48,6 +46,48 @@
                     "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
                     "tag": "v0.16.0"
                 }
+            ]
+        },
+        {
+            "name": "exiv2",
+            "buildsystem": "cmake-ninja",
+            "builddir": true,
+            "config-opts": [
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DEXIV2_ENABLE_INIH=OFF",
+                "-DEXIV2_BUILD_SAMPLES=OFF",
+                "-DEXIV2_BUILD_EXIV2_COMMAND=OFF",
+                "-DEXIV2_ENABLE_BMFF=ON"
+            ],
+            "cleanup": [
+                "/bin",
+                "/share/man"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://github.com/Exiv2/exiv2",
+                    "tag": "v0.28.7"
+                }
+            ]
+        },
+        {
+            "name": "gexiv2",
+            "buildsystem": "meson",
+            "builddir": true,
+            "config-opts": [
+                "-Dintrospection=true",
+                "-Dvapi=false"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://gitlab.gnome.org/GNOME/gexiv2",
+                    "tag": "0.16.0"
+                }
+            ],
+            "post-install": [
+                "mv /app/lib/pkgconfig/gexiv2-0.16.pc /app/lib/pkgconfig/gexiv2.pc"
             ]
         },
         {

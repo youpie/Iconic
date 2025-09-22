@@ -24,7 +24,7 @@ impl GtkTestWindow {
             async move {
                 let imp = win.imp();
                 let path;
-                imp.temp_image_loaded.replace(false);
+                imp.temp_bottom_image_loaded.replace(false);
                 let mut file_properties = imp.file_properties.borrow_mut();
                 if imp.settings.boolean("manual-bottom-image-selection") {
                     file_properties.bottom_image_type = BottomImageType::Custom;
@@ -135,7 +135,7 @@ impl GtkTestWindow {
                             imp.top_image_file.lock().unwrap().replace(iconic_file);
                         }
                         _ => {
-                            imp.temp_image_loaded.replace(true);
+                            imp.temp_bottom_image_loaded.replace(true);
                             imp.bottom_image_file.lock().unwrap().replace(
                                 gio::spawn_blocking(move || {
                                     File::from_image(
@@ -252,7 +252,7 @@ impl GtkTestWindow {
                         .await;
                     }
                     Some(false) => {
-                        imp.temp_image_loaded.replace(true);
+                        imp.temp_bottom_image_loaded.replace(true);
                         imp.stack.set_visible_child_name("stack_main_page");
                         self.new_iconic_file_creation(
                             Some(file),
@@ -290,7 +290,7 @@ impl GtkTestWindow {
                 Some(false) => {
                     // This value must be true if a temporary bottom image is loaded
                     // That is dumb
-                    imp.temp_image_loaded.replace(true);
+                    imp.temp_bottom_image_loaded.replace(true);
                     imp.bottom_image_file.lock().unwrap().replace(file);
                     self.check_icon_update();
                 }
@@ -464,7 +464,7 @@ impl GtkTestWindow {
         let size: u32 = imp.settings.get("svg-render-size");
         match self.open_file_chooser().await {
             Some(x) => {
-                imp.temp_image_loaded.replace(true);
+                imp.temp_bottom_image_loaded.replace(true);
                 imp.stack.set_visible_child_name("stack_main_page");
                 self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
                     .await;

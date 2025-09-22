@@ -403,7 +403,7 @@ impl GtkTestWindow {
     pub fn regeneration_current_file_uses_compatible_bottom_image(&self) -> IconRegeneratable {
         let imp = self.imp();
         let definitely_not_regeneratable = !imp.settings.boolean("manual-bottom-image-selection")
-            && !imp.temp_image_loaded.get();
+            && !imp.temp_bottom_image_loaded.get();
         match definitely_not_regeneratable {
             true if imp.settings.string("selected-accent-color").as_str() == "None" => IconRegeneratable::Yes,
             true if imp.settings.string("selected-accent-color").as_str() != "None" => IconRegeneratable::NotStrictOnly,
