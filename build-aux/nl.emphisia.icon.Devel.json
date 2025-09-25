@@ -76,7 +76,6 @@
             "buildsystem": "meson",
             "builddir": true,
             "config-opts": [
-                "-Dintrospection=true",
                 "-Dvapi=false"
             ],
             "sources": [

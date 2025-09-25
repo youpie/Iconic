@@ -507,6 +507,9 @@ impl GtkTestWindow {
                 .unwrap();
             }
         ));
+        let mut meta = rexiv2::Metadata::new_from_path(&path).unwrap();
+        meta.set_tag_string("Xmp.dc.creator", "Peter P.").unwrap();
+        meta.save_to_file(path);
         Some(gdk::ContentProvider::for_value(&glib::Value::from(
             &gio_file,
         )))
