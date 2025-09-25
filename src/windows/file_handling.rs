@@ -428,8 +428,9 @@ impl GtkTestWindow {
                 imp.size.value(),
             )
             .await;
+        let path = file.path().unwrap();
         let _ = gio::spawn_blocking(move || {
-            generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)
+            generated_image.save_with_format(path, ImageFormat::Png)
         })
         .await
         .unwrap()?;

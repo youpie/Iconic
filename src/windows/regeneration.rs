@@ -268,8 +268,8 @@ impl GtkTestWindow {
             debug!("File found: {:?}", file_name);
             // Get the file properties of the file
             // Currently does not care what
-            let properties = match FileProperties::from_filename(
-                file_name.to_str().unwrap_or_default().to_owned(),
+            let properties = match FileProperties::get_file_properties(
+                &current_file,
             ) {
                 Ok(file_properties) => file_properties,
                 Err(err) => {

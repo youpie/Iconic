@@ -1,7 +1,11 @@
-use log::debug;
-use thiserror::Error;
+use std::fs::DirEntry;
 
-use crate::GenResult;
+use log::debug;
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
+use xmp_toolkit::{xmp_ns, XmpMeta};
+
+use crate::{objects::errors::IntoResult, GenResult};
 
 #[derive(Debug, Clone, Default)]
 pub struct FileProperties {
@@ -18,8 +22,17 @@ pub struct FileProperties {
 }
 
 impl FileProperties {
+    pub fn get_file_properties(file: &DirEntry) -> GenResult<Self> {
+        if let Ok(xmp_data) = XmpMeta::from_file(file.path()) {
+            Self::from_xmp_data(xmp_data)
+        }
+        else {
+            let file_name = file.file_name();
+            Self::from_filename(file_name.to_string_lossy().to_string())
+        }
+    }
     // Load all properties from the filename
-    pub fn from_filename(filename: String) -> GenResult<Self> {
+    fn from_filename(filename: String) -> GenResult<Self> {
         // I assume one day ill forget that i do this and get confused
         let filename = filename.replace(".png", "");
         debug!("parsing: {}", filename);
@@ -78,6 +91,37 @@ impl FileProperties {
             bottom_image_type,
         })
     }
+    fn from_xmp_data(xmp_data: XmpMeta) -> GenResult<Self> {
+        let x_val:f64 = xmp_data.property(xmp_ns::XMP, "x_val").into_reason_result("XMP X-val")?.value.parse()?;
+        let y_val:f64 = xmp_data.property(xmp_ns::XMP, "y_val").into_reason_result("XMP Y-val")?.value.parse()?;
+        let zoom_val:f64 = xmp_data.property(xmp_ns::XMP, "zoom_val").into_reason_result("XMP Zoom-val")?.value.parse()?;
+        let monochrome_toggle: bool = xmp_data.property(xmp_ns::XMP, "monochrome_toggle").into_reason_result("XMP monochrome_toggle")?.value.parse()?;
+        let monochrome_color: Option<(u8,u8,u8)> = if monochrome_toggle {
+            let red: u8 = xmp_data.property(xmp_ns::XMP, "monochrome_red").into_reason_result("XMP monochrome_red")?.value.parse()?;
+            let green: u8 = xmp_data.property(xmp_ns::XMP, "monochrome_green").into_reason_result("XMP monochrome_green")?.value.parse()?;
+            let blue: u8 = xmp_data.property(xmp_ns::XMP, "monochrome_blue").into_reason_result("XMP monochrome_blue")?.value.parse()?;
+            Some((red,green,blue))
+        } else {
+            None
+        };
+        let monochrome_default: bool = xmp_data.property(xmp_ns::XMP, "monochrome_default").into_reason_result("XMP monochrome_default")?.value.parse()?;
+        let monochrome_invert: bool = xmp_data.property(xmp_ns::XMP, "monochrome_invert").into_reason_result("XMP monochrome_invert")?.value.parse()?;
+        let monochrome_threshold_val: u8 = xmp_data.property(xmp_ns::XMP, "monochrome_threshold").into_reason_result("XMP monochrome_threshold")?.value.parse()?;
+        let top_image_hash: u64 = xmp_data.property(xmp_ns::XMP, "top_image_hash").into_reason_result("XMP top_image_hash")?.value.parse()?;
+        let bottom_image_type: BottomImageType = serde_json::from_str(&xmp_data.property(xmp_ns::XMP, "bottom_image_type").into_reason_result("XMP bottom_image_type")?.value)?;
+        Ok(Self {
+            x_val,
+            y_val,
+            zoom_val,
+            monochrome_color,
+            monochrome_default,
+            monochrome_invert,
+            monochrome_threshold_val,
+            monochrome_toggle,
+            top_image_hash,
+            bottom_image_type
+        })
+    }
 }
 
 #[derive(Debug, Error)]
@@ -86,7 +130,7 @@ pub enum PropertiesError {
     Incompatible,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub enum BottomImageType {
     #[default]
     Unknown,
@@ -106,6 +150,16 @@ impl BottomImageType {
             Self::FolderCustom(_, _) => Some(false),
             Self::Folder(value) if value != "Unknown" => Some(false),
             _ => None,
+        }
+    }
+    pub fn bottom_image_type_int(&self) -> usize {
+        match self {
+            Self::Unknown => 0,
+            Self::FolderSystem => 1,
+            Self::Folder(_) => 2,
+            Self::FolderCustom(_, _) => 3,
+            Self::Custom => 4,
+            Self::Temporary => 5
         }
     }
 }

@@ -37,7 +37,6 @@ use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::hash::RandomState;
-use std::io::{BufReader, Read};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use gio::prelude::SettingsExt;
@@ -490,7 +489,6 @@ impl GtkTestWindow {
         debug!("temp image loaded {}", imp.temp_bottom_image_loaded.get());
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
         let gio_file = self.create_drag_file(file_hash);
-        let path = gio_file.path().unwrap();
         imp.last_drag_n_drop_generated_name
             .replace(Some(gio_file.clone()));
         let gio_file_clone = gio_file.clone();
@@ -507,9 +505,7 @@ impl GtkTestWindow {
                 .unwrap();
             }
         ));
-        let mut meta = rexiv2::Metadata::new_from_path(&path).unwrap();
-        meta.set_tag_string("Xmp.dc.creator", "Peter P.").unwrap();
-        meta.save_to_file(path);
+        
         Some(gdk::ContentProvider::for_value(&glib::Value::from(
             &gio_file,
         )))
