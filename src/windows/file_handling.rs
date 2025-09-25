@@ -1,12 +1,13 @@
 use crate::objects::errors::{IntoResult, show_error_popup};
 use crate::objects::file::File;
-use crate::objects::properties::BottomImageType;
+use crate::objects::properties::{BottomImageType, FileProperties};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::*;
 use gtk::{gdk, glib};
 use image::*;
 use log::*;
+use xmp_toolkit::{xmp_ns, OpenFileOptions, XmpFile, XmpMeta, XmpValue};
 use std::env;
 use std::error::Error;
 use std::path::PathBuf;
@@ -429,11 +430,13 @@ impl GtkTestWindow {
             )
             .await;
         let path = file.path().unwrap();
+        let path_clone = path.clone();
         let _ = gio::spawn_blocking(move || {
             generated_image.save_with_format(path, ImageFormat::Png)
         })
         .await
         .unwrap()?;
+        self.add_image_metadata(path_clone).unwrap();
         Ok(true)
     }
 
@@ -551,5 +554,29 @@ impl GtkTestWindow {
 
         self.check_icon_update();
         Some(new_file)
+    }
+
+    fn add_image_metadata(&self, path: PathBuf) -> GenResult<()> {
+        let properties = FileProperties::new(&self, None, self.get_default_color());
+        let mut file = XmpFile::new()?;
+        file.open_file(path, OpenFileOptions::default().for_update())?;
+        let mut metadata = XmpMeta::new()?;
+        metadata.set_property(xmp_ns::XMP, "x_val", &XmpValue::new(properties.x_val.to_string()))?;
+        metadata.set_property(xmp_ns::XMP, "y_val", &XmpValue::new(properties.y_val.to_string()))?;
+        metadata.set_property(xmp_ns::XMP, "zoom_val", &XmpValue::new(properties.zoom_val.to_string()))?;
+        metadata.set_property(xmp_ns::XMP, "monochrome_toggle", &XmpValue::new(properties.monochrome_toggle.to_string()))?;
+        if let Some(colors) = properties.monochrome_color {
+            metadata.set_property(xmp_ns::XMP, "monochrome_red", &XmpValue::new(colors.0.to_string()))?;
+            metadata.set_property(xmp_ns::XMP, "monochrome_blue", &XmpValue::new(colors.1.to_string()))?;
+            metadata.set_property(xmp_ns::XMP, "monochrome_green", &XmpValue::new(colors.2.to_string()))?;
+        }
+        metadata.set_property(xmp_ns::XMP, "monochrome_default", &XmpValue::new(properties.monochrome_default.to_string()))?;
+        metadata.set_property(xmp_ns::XMP, "monochrome_invert", &XmpValue::new(properties.monochrome_invert.to_string()))?;
+        metadata.set_property(xmp_ns::XMP, "monochrome_threshold", &XmpValue::new(properties.monochrome_threshold_val.to_string()))?;
+        if let Some(hash) = properties.top_image_hash {
+            metadata.set_property(xmp_ns::XMP, "top_image_hash", &XmpValue::new(hash.to_string()))?;
+        }
+        metadata.set_property(xmp_ns::XMP, "bottom_image_type", &XmpValue::new(serde_json::to_string(&properties.bottom_image_type)?))?;
+        Ok(())
     }
 }

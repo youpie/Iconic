@@ -210,7 +210,7 @@ impl GtkTestWindow {
         // Create the path where the top image of this file is located
         // The top image has the same name as the hash of that image
         let mut top_image_path = Self::get_cache_path().join("top_images");
-        top_image_path.push(properties.top_image_hash.to_string());
+        top_image_path.push(properties.top_image_hash.into_reason_result("Getting top image hash")?.to_string());
         let top_image_file = gio::spawn_blocking(move || {
             File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
         })
@@ -259,6 +259,7 @@ impl GtkTestWindow {
         dir: PathBuf,
         incompatible_files: &mut u32,
     ) -> GenResult<Vec<(FileProperties, fs::DirEntry)>> {
+        let top_image_path = Self::get_cache_path().join("top_images");
         let mut regeneratable: Vec<(FileProperties, fs::DirEntry)> = vec![];
         // Walk the directory and loop over every file
         let files: fs::ReadDir = fs::read_dir(&dir)?;
@@ -290,8 +291,8 @@ impl GtkTestWindow {
                 );
                 continue;
             }
-            let mut top_image_path = Self::get_cache_path().join("top_images");
-            top_image_path.push(properties.top_image_hash.to_string());
+            let mut top_image_path_clone = top_image_path.clone();
+            top_image_path_clone.push(properties.top_image_hash.unwrap_or_default().to_string());
 
             // If that top image does not exist, just mark it as not valid for regeneration
             if !top_image_path.exists() {
