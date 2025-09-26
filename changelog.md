@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
-## [Unreleased]
+## [2025.9.1]
 
 ### Added
 
@@ -12,11 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Ability to drag images from browsers
 - New view when images are dragged into iconic
 - Ability to disable meta drag
+- Iconic file properties are now stored as XMP data
 
 ### Changed
 
-- When cached icons are saved to reduce bloated cache NOT DONE
-- Automatic folder color change no longer default
+- When cached icons are saved to reduce bloated cache
+- Automatic folder color change is no longer the default
 - Slightly tweaked settings window
 
 ### Removed

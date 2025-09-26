@@ -325,7 +325,7 @@ impl GtkTestWindow {
         match file_chooser.save_future(Some(self)).await {
             Ok(file) => {
                 let saved_file = self
-                    .save_file(file, imp.monochrome_switch.is_active(), None)
+                    .save_file(file, imp.monochrome_switch.is_active(), None, None)
                     .await?;
                 self.imp().stack.set_visible_child_name("stack_main_page");
                 imp.toast_overlay.add_toast(
@@ -385,6 +385,7 @@ impl GtkTestWindow {
         file: gio::File,
         use_monochrome: bool,
         manual_monochrome_values: Option<(u8, gtk::gdk::RGBA)>,
+        top_image_hash: Option<u64>
     ) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
         let _busy_lock = Arc::clone(&imp.app_busy);
@@ -436,7 +437,7 @@ impl GtkTestWindow {
         })
         .await
         .unwrap()?;
-        self.add_image_metadata(path_clone).unwrap();
+        self.add_image_metadata(path_clone, top_image_hash).unwrap();
         Ok(true)
     }
 
@@ -556,8 +557,8 @@ impl GtkTestWindow {
         Some(new_file)
     }
 
-    fn add_image_metadata(&self, path: PathBuf) -> GenResult<()> {
-        let properties = FileProperties::new(&self, None, self.get_default_color());
+    fn add_image_metadata(&self, path: PathBuf, top_image_hash: Option<u64>) -> GenResult<()> {
+        let properties = FileProperties::new(&self, top_image_hash, self.get_default_color());
         let mut file = XmpFile::new()?;
         file.open_file(path, OpenFileOptions::default().for_update())?;
         let mut metadata = XmpMeta::new()?;
@@ -577,6 +578,8 @@ impl GtkTestWindow {
             metadata.set_property(xmp_ns::XMP, "top_image_hash", &XmpValue::new(hash.to_string()))?;
         }
         metadata.set_property(xmp_ns::XMP, "bottom_image_type", &XmpValue::new(serde_json::to_string(&properties.bottom_image_type)?))?;
+        file.put_xmp(&metadata)?;
+        file.close();
         Ok(())
     }
 }

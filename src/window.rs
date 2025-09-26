@@ -488,7 +488,7 @@ impl GtkTestWindow {
         ));
         debug!("temp image loaded {}", imp.temp_bottom_image_loaded.get());
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
-        let gio_file = self.create_drag_file(file_hash);
+        let gio_file = self.create_drag_file();
         imp.last_drag_n_drop_generated_name
             .replace(Some(gio_file.clone()));
         let gio_file_clone = gio_file.clone();
@@ -500,6 +500,7 @@ impl GtkTestWindow {
                     gio_file_clone,
                     win.imp().monochrome_switch.is_active(),
                     None,
+                    Some(file_hash)
                 )
                 .await
                 .unwrap();
@@ -511,11 +512,11 @@ impl GtkTestWindow {
         )))
     }
 
-    pub fn create_drag_file(&self, file_hash: u64) -> gio::File {
+    pub fn create_drag_file(&self) -> gio::File {
         let data_path = self.get_data_path();
         debug!("data path: {:?}", data_path);
-        let properties_string = self.create_image_properties_string();
-        let generated_file_name = format!("folder_new-{}-{}.png", properties_string, file_hash);
+        let random_string = random_str::get_string(10, true, true, true, false);
+        let generated_file_name = format!("folder-{}.png", random_string);
         debug!("generated_file_name: {}", generated_file_name);
         let mut file_path = data_path.clone();
         file_path.push(generated_file_name.clone());
