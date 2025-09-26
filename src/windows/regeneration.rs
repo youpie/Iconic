@@ -1,6 +1,6 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
-use crate::objects::properties::FileProperties;
+use crate::objects::properties::{BottomImageType, FileProperties};
 use crate::{GtkTestWindow, objects::errors::show_error_popup};
 
 use adw::TimedAnimation;
@@ -18,11 +18,11 @@ use std::sync::Arc;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum IconRegeneratable {
     Yes,
     No,
-    NotStrictOnly
+    NotStrictOnly,
 }
 
 impl GtkTestWindow {
@@ -194,23 +194,38 @@ impl GtkTestWindow {
         file: DirEntry,
         properties: FileProperties,
     ) -> GenResult<()> {
+        let imp = self.imp();
+
         // Get path and filename of icon saved in datadir
         let file_path = file.path();
 
-        // Get the current accent color
-        let current_accent_color = self.get_accent_color_and_show_dialog();
+        // let scrict_mode_enabled = imp.settings.boolean("key")
 
         // Icons that are compatible for regeneration are only allowed to use default folder images.
         // So when regenerating icons, you need the folder which is the same color as the current accent color
-        let bottom_image_path = PathBuf::from(format!(
-            "/app/share/folder_icon/folders/folder_{}.svg",
-            &current_accent_color
-        ));
+        let (bottom_image_file, custom_accent_color) = match properties.bottom_image_type.clone() {
+            BottomImageType::FolderSystem => (
+                self.get_bottom_icon_from_accent_color(None, false).await?,
+                None,
+            ),
+            BottomImageType::Folder(color) => (
+                self.get_bottom_icon_from_accent_color(Some(color.clone()), true)
+                    .await?,
+                Some(color),
+            ),
+            _ => return Err("Incompatible bottom type".into()),
+        };
+        info!("Generating image");
 
         // Create the path where the top image of this file is located
         // The top image has the same name as the hash of that image
         let mut top_image_path = Self::get_cache_path().join("top_images");
-        top_image_path.push(properties.top_image_hash.into_reason_result("Getting top image hash")?.to_string());
+        top_image_path.push(
+            properties
+                .top_image_hash
+                .into_reason_result("Getting top image hash")?
+                .to_string(),
+        );
         let top_image_file = gio::spawn_blocking(move || {
             File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
         })
@@ -218,17 +233,13 @@ impl GtkTestWindow {
         .unwrap()?
         .dynamic_image;
         // Create the top image
-        let top_image = self.set_correct_monochrome_values_based_on_regeneration_properties(
+        let top_image = self.set_correct_monochrome_values_based_on_image_properties(
             &properties,
             top_image_file,
+            custom_accent_color,
+            None,
         )?;
-        let bottom_image_file = gio::spawn_blocking(move || {
-            File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
-        })
-        .await
-        .unwrap()?
-        .dynamic_image;
-        info!("Generating image");
+
         // Using the generic generate_image function. The icon can faithfully be recreated
         let generated_image = self
             .generate_image(
@@ -253,6 +264,30 @@ impl GtkTestWindow {
         Ok(())
     }
 
+    async fn get_bottom_icon_from_accent_color(
+        &self,
+        color: Option<String>,
+        strict: bool,
+    ) -> GenResult<DynamicImage> {
+        let accent_color = match color {
+            Some(color) if strict => color,
+            _ => self.get_accent_color_and_show_dialog(),
+        };
+
+        // Icons that are compatible for regeneration are only allowed to use default folder images.
+        // So when regenerating icons, you need the folder which is the same color as the current accent color
+        let bottom_image_path = PathBuf::from(format!(
+            "/app/share/folder_icon/folders/folder_{}.svg",
+            &accent_color
+        ));
+        Ok(gio::spawn_blocking(move || {
+            File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
+        })
+        .await
+        .unwrap()?
+        .dynamic_image)
+    }
+
     // Search in the list of stored icons to see which ones are valid for regeneration
     fn find_regeneratable_icons(
         &self,
@@ -269,9 +304,7 @@ impl GtkTestWindow {
             debug!("File found: {:?}", file_name);
             // Get the file properties of the file
             // Currently does not care what
-            let properties = match FileProperties::get_file_properties(
-                &current_file,
-            ) {
+            let properties = match FileProperties::get_file_properties(&current_file) {
                 Ok(file_properties) => file_properties,
                 Err(err) => {
                     *incompatible_files += 1;
@@ -307,10 +340,12 @@ impl GtkTestWindow {
 
     // Create the top image based on the properties of the to-be regenerated icon
     // I am really bad at function names
-    fn set_correct_monochrome_values_based_on_regeneration_properties(
+    fn set_correct_monochrome_values_based_on_image_properties(
         &self,
         properties: &FileProperties,
         top_image: DynamicImage,
+        accent_color: Option<String>,
+        rgb_string_color: Option<String>,
     ) -> GenResult<DynamicImage> {
         let color = match properties.monochrome_default {
             false => RGBA::new(
@@ -319,7 +354,7 @@ impl GtkTestWindow {
                 properties.monochrome_color.unwrap_or_default().2 as f32,
                 1.0,
             ),
-            _ => self.current_accent_rgba()?,
+            true => self.current_accent_rgba(accent_color)?,
         };
         match properties.monochrome_toggle {
             true => Ok(self.to_monochrome(
@@ -332,9 +367,12 @@ impl GtkTestWindow {
         }
     }
 
-    fn current_accent_rgba(&self) -> GenResult<RGBA> {
+    fn current_accent_rgba(&self, accent_color: Option<String>) -> GenResult<RGBA> {
         let imp = self.imp();
-        let accent_color = self.get_accent_color_and_show_dialog();
+        let accent_color = match accent_color {
+            Some(color) => color,
+            None => self.get_accent_color_and_show_dialog(),
+        };
         Ok(imp
             .default_color
             .borrow()
@@ -406,10 +444,14 @@ impl GtkTestWindow {
         let definitely_not_regeneratable = !imp.settings.boolean("manual-bottom-image-selection")
             && !imp.temp_bottom_image_loaded.get();
         match definitely_not_regeneratable {
-            true if imp.settings.string("selected-accent-color").as_str() == "None" => IconRegeneratable::Yes,
-            true if imp.settings.string("selected-accent-color").as_str() != "None" => IconRegeneratable::NotStrictOnly,
+            true if imp.settings.string("selected-accent-color").as_str() == "None" => {
+                IconRegeneratable::Yes
+            }
+            true if imp.settings.string("selected-accent-color").as_str() != "None" => {
+                IconRegeneratable::NotStrictOnly
+            }
             false => IconRegeneratable::No,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }
