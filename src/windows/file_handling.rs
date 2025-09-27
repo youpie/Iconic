@@ -607,12 +607,12 @@ impl GtkTestWindow {
             )?;
             metadata.set_property(
                 xmp_ns::XMP,
-                "monochrome_blue",
+                "monochrome_green",
                 &XmpValue::new(colors.1.to_string()),
             )?;
             metadata.set_property(
                 xmp_ns::XMP,
-                "monochrome_green",
+                "monochrome_blue",
                 &XmpValue::new(colors.2.to_string()),
             )?;
         }

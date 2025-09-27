@@ -243,6 +243,7 @@ impl GtkTestWindow {
         };
         info!("Generating image");
 
+        // If strict mode is disabled and the image is not regenerated during strict mode. And the image is regenerated, is has te be regenerated to mark it as no longer default
         properties.default = if !strict_mode_enabled && properties.bottom_image_type.is_strict_compatible() == Some(false)  {
             false
         } else {
