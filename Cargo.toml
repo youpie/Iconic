@@ -5,7 +5,7 @@ edition = "2024"
 
 # override package level optimization, to always be maximum
 [profile.release.package."*"]
-opt-level = 3
+opt-level = "z"
 
 [profile.release]
 opt-level = "z"   # Optimize for size.
@@ -32,7 +32,7 @@ gdk4 = "0.10.1"
 gsk4 = "0.10.1"
 xmp_toolkit = "1.11.0"
 serde_json = "1.0.145"
-serde = { version = "1.0.226", features = ["serde_derive"] }
+serde = { version = "1.0.227", features = ["serde_derive"] }
 random_str = "0.1.2"
 
 

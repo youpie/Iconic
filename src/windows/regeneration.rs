@@ -1,6 +1,6 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
-use crate::objects::properties::{BottomImageType, FileProperties};
+use crate::objects::properties::{BottomImageType, FileProperties, PropertiesSource};
 use crate::settings::settings::PreferencesDialog;
 use crate::{GtkTestWindow, objects::errors::show_error_popup};
 
@@ -18,13 +18,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
-
-#[derive(Debug, PartialEq)]
-pub enum IconRegeneratable {
-    Yes,
-    No,
-    NotStrictOnly,
-}
 
 impl GtkTestWindow {
     pub fn check_if_regeneration_needed(&self) -> bool {
@@ -53,7 +46,8 @@ impl GtkTestWindow {
     }
 
     pub fn store_top_image_in_cache(&self, file: &File) -> GenResult<()> {
-        if self.regeneration_current_file_uses_compatible_bottom_image() == IconRegeneratable::No {
+        let imp = self.imp();
+        if imp.file_properties.borrow().bottom_image_type.is_strict_compatible() == None {
             info!("Current file does not use a compatible bottom image. no use caching the file");
             return Ok(());
         }
@@ -140,7 +134,7 @@ impl GtkTestWindow {
                 break;
             }
             let name = &file.1.file_name();
-            match self.regenerate_and_save_single_icon(file.1, file.0).await {
+            match self.regenerate_and_save_single_icon(file.0, file.1, file.2).await {
                 Ok(_) => (),
                 Err(error) => {
                     error!("Error while generating {:?}: {}", &name, &error.to_string());
@@ -192,8 +186,9 @@ impl GtkTestWindow {
     // This function regenerates a single compatible icon
     async fn regenerate_and_save_single_icon(
         &self,
+        mut properties: FileProperties,
         file: DirEntry,
-        properties: FileProperties,
+        property_source: PropertiesSource
     ) -> GenResult<()> {
         let imp = self.imp();
 
@@ -214,13 +209,13 @@ impl GtkTestWindow {
                 None,
                 None,
             ),
-            BottomImageType::Folder(color) => (
+            BottomImageType::Folder(color) if !properties.default || !strict_mode_enabled => (
                 self.get_bottom_icon_from_accent_color(Some(color.clone()), strict_mode_enabled)
                     .await?,
                 Some(color),
                 None,
             ),
-            BottomImageType::FolderCustom(foreground, background) => {
+            BottomImageType::FolderCustom(foreground, background) if !properties.default || !strict_mode_enabled => {
                 if strict_mode_enabled {
                     let folder_path = self
                         .create_custom_folder_color(&foreground, &background, true)
@@ -244,9 +239,15 @@ impl GtkTestWindow {
                     )
                 }
             }
-            _ => return Err("Incompatible bottom type".into()),
+            _ => return Ok(()),
         };
         info!("Generating image");
+
+        properties.default = if !strict_mode_enabled && properties.bottom_image_type.is_strict_compatible() == Some(false)  {
+            false
+        } else {
+            true
+        };
 
         // Create the path where the top image of this file is located
         // The top image has the same name as the hash of that image
@@ -293,7 +294,7 @@ impl GtkTestWindow {
         {
             Ok(_) => {
                 info!("Saving Succesful");
-                self.add_image_metadata(file_path_clone, None, Some(properties))?
+                if property_source == PropertiesSource::XMP {self.add_image_metadata(file_path_clone, None, Some(properties))?}
             }
             Err(x) => error!("Saving failed: {:?}", x),
         };
@@ -329,9 +330,9 @@ impl GtkTestWindow {
         &self,
         dir: PathBuf,
         incompatible_files: &mut u32,
-    ) -> GenResult<Vec<(FileProperties, fs::DirEntry)>> {
+    ) -> GenResult<Vec<(FileProperties, fs::DirEntry, PropertiesSource)>> {
         let top_image_path = Self::get_cache_path().join("top_images");
-        let mut regeneratable: Vec<(FileProperties, fs::DirEntry)> = vec![];
+        let mut regeneratable: Vec<(FileProperties, fs::DirEntry, PropertiesSource)> = vec![];
         // Walk the directory and loop over every file
         let files: fs::ReadDir = fs::read_dir(&dir)?;
         for file in files {
@@ -352,7 +353,7 @@ impl GtkTestWindow {
                     continue;
                 }
             };
-            if properties.bottom_image_type.is_strict_type().is_none() {
+            if properties.0.bottom_image_type.is_strict_compatible().is_none() {
                 *incompatible_files += 1;
                 warn!(
                     "file {:?} is never compatible for be regeneration.",
@@ -361,7 +362,7 @@ impl GtkTestWindow {
                 continue;
             }
             let mut top_image_path_clone = top_image_path.clone();
-            top_image_path_clone.push(properties.top_image_hash.unwrap_or_default().to_string());
+            top_image_path_clone.push(properties.0.top_image_hash.unwrap_or_default().to_string());
 
             // If that top image does not exist, just mark it as not valid for regeneration
             if !top_image_path.exists() {
@@ -369,7 +370,7 @@ impl GtkTestWindow {
                 *incompatible_files += 1;
                 continue;
             }
-            regeneratable.push((properties, current_file));
+            regeneratable.push((properties.0, current_file, properties.1));
         }
         Ok(regeneratable)
     }
@@ -442,56 +443,5 @@ impl GtkTestWindow {
             .build();
         animation.play();
         animation
-    }
-
-    /* This function is used to create a string with all properties applied to the current image.
-    This makes it possible to completely recreate the image if the top image is still available
-    */
-    pub fn create_image_properties_string(&self) -> String {
-        let imp = self.imp();
-        let is_default = self.regeneration_current_file_uses_compatible_bottom_image() as u8;
-        let x_scale_val = imp.x_scale.value();
-        let y_scale_val = imp.y_scale.value();
-        let zoom_val = imp.size.value();
-        let is_monochrome = imp.monochrome_switch.is_active() as u8;
-        let monochrome_slider = imp.threshold_scale.value();
-        let monochrome_red_val = imp.monochrome_color.rgba().red().to_string();
-        let monochrome_green_val = imp.monochrome_color.rgba().green().to_string();
-        let monochrome_blue_val = imp.monochrome_color.rgba().blue().to_string();
-        let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
-        let is_default_monochrome = imp.monochrome_color.rgba() == self.get_default_color();
-        debug!("is default? {}", is_default_monochrome);
-        let combined_string = format!(
-            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
-            is_default,
-            x_scale_val,
-            y_scale_val,
-            zoom_val,
-            is_monochrome,
-            monochrome_slider,
-            monochrome_red_val,
-            monochrome_green_val,
-            monochrome_blue_val,
-            monochrome_inverted,
-            is_default_monochrome
-        );
-        debug!("{}", &combined_string);
-        combined_string
-    }
-
-    pub fn regeneration_current_file_uses_compatible_bottom_image(&self) -> IconRegeneratable {
-        let imp = self.imp();
-        let definitely_not_regeneratable = !imp.settings.boolean("manual-bottom-image-selection")
-            && !imp.temp_bottom_image_loaded.get();
-        match definitely_not_regeneratable {
-            true if imp.settings.string("selected-accent-color").as_str() == "None" => {
-                IconRegeneratable::Yes
-            }
-            true if imp.settings.string("selected-accent-color").as_str() != "None" => {
-                IconRegeneratable::NotStrictOnly
-            }
-            false => IconRegeneratable::No,
-            _ => unreachable!(),
-        }
     }
 }

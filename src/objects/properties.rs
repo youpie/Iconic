@@ -6,9 +6,15 @@ use gtk::prelude::RangeExt;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use xmp_toolkit::{XmpMeta, xmp_ns};
+use xmp_toolkit::{xmp_ns, XmpMeta, XmpValue};
 
 use crate::{GenResult, objects::errors::IntoResult, window::GtkTestWindow};
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum PropertiesSource {
+    XMP,
+    Filename
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct FileProperties {
@@ -22,6 +28,7 @@ pub struct FileProperties {
     pub monochrome_default: bool,
     pub monochrome_color: Option<(u8, u8, u8)>,
     pub monochrome_threshold_val: u8,
+    pub default: bool // If the values above are still equal with the generated image. False if for example, the image was regenerated
 }
 
 impl FileProperties {
@@ -58,17 +65,18 @@ impl FileProperties {
             monochrome_invert,
             monochrome_threshold_val,
             monochrome_toggle,
+            default: true
         }
     }
 
-    pub fn get_file_properties(file: &DirEntry) -> GenResult<Self> {
+    pub fn get_file_properties(file: &DirEntry) -> GenResult<(Self, PropertiesSource)> {
         if let Ok(xmp_data) = XmpMeta::from_file(file.path()) {
             info!("loading image from XMP");
-            Self::from_xmp_data(xmp_data)
+            Ok((Self::from_xmp_data(xmp_data)?, PropertiesSource::XMP))
         } else {
             info!("loading image from Filename");
             let file_name = file.file_name();
-            Self::from_filename(file_name.to_string_lossy().to_string())
+            Ok((Self::from_filename(file_name.to_string_lossy().to_string())?, PropertiesSource::Filename))
         }
     }
     // Load all properties from the filename
@@ -133,6 +141,7 @@ impl FileProperties {
             monochrome_toggle,
             top_image_hash,
             bottom_image_type,
+            default: true
         })
     }
     fn from_xmp_data(xmp_data: XmpMeta) -> GenResult<Self> {
@@ -200,6 +209,11 @@ impl FileProperties {
                 .into_reason_result("XMP bottom_image_type")?
                 .value,
         )?;
+        let default: bool = xmp_data
+            .property(xmp_ns::XMP, "default")
+            .unwrap_or(XmpValue::new("true".to_owned()))
+            .value
+            .parse()?;
         Ok(Self {
             x_val,
             y_val,
@@ -211,6 +225,7 @@ impl FileProperties {
             monochrome_toggle,
             top_image_hash,
             bottom_image_type,
+            default
         })
     }
 }
@@ -238,22 +253,12 @@ pub enum BottomImageType {
 impl BottomImageType {
     // Whether this image is able to be regenerate with strict mode enabled
     // By returning none, the image is not at all compatible for regeneration
-    pub fn is_strict_type(&self) -> Option<bool> {
+    pub fn is_strict_compatible(&self) -> Option<bool> {
         match self {
             Self::FolderSystem => Some(true),
             Self::FolderCustom(_, _) => Some(false),
             Self::Folder(value) if value != "Unknown" => Some(false),
             _ => None,
-        }
-    }
-    pub fn bottom_image_type_int(&self) -> usize {
-        match self {
-            Self::Unknown => 0,
-            Self::FolderSystem => 1,
-            Self::Folder(_) => 2,
-            Self::FolderCustom(_, _) => 3,
-            Self::Custom => 4,
-            Self::Temporary => 5,
         }
     }
 }

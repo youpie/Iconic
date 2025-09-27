@@ -643,6 +643,11 @@ impl GtkTestWindow {
             "bottom_image_type",
             &XmpValue::new(serde_json::to_string(&properties.bottom_image_type)?),
         )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "default",
+            &XmpValue::new(properties.default.to_string()),
+        )?;
         file.put_xmp(&metadata)?;
         file.close();
         Ok(())
