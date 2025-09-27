@@ -7,11 +7,11 @@ use gio::*;
 use gtk::{gdk, glib};
 use image::*;
 use log::*;
-use xmp_toolkit::{xmp_ns, OpenFileOptions, XmpFile, XmpMeta, XmpValue};
 use std::env;
 use std::error::Error;
 use std::path::PathBuf;
 use std::sync::Arc;
+use xmp_toolkit::{OpenFileOptions, XmpFile, XmpMeta, XmpValue, xmp_ns};
 
 use crate::{GenResult, GtkTestWindow};
 
@@ -37,7 +37,11 @@ impl GtkTestWindow {
                     let custom_secondary_color: String =
                         imp.settings.string("secondary-folder-color").into();
                     path = win
-                        .create_custom_folder_color(&custom_primary_color, &custom_secondary_color)
+                        .create_custom_folder_color(
+                            &custom_primary_color,
+                            &custom_secondary_color,
+                            false,
+                        )
                         .await;
                     file_properties.bottom_image_type =
                         BottomImageType::FolderCustom(custom_primary_color, custom_secondary_color);
@@ -61,10 +65,11 @@ impl GtkTestWindow {
     }
 
     // Replace the
-    async fn create_custom_folder_color(
+    pub async fn create_custom_folder_color(
         &self,
         primary_color: &str,
         secondary_color: &str,
+        regeneration: bool,
     ) -> PathBuf {
         info!("Creating custom folder colors");
         let folder_svg_file =
@@ -81,7 +86,10 @@ impl GtkTestWindow {
             .collect();
         let new_custom_folder_bytes = new_custom_folder.as_bytes().to_owned();
         let mut cache_location = Self::get_cache_path();
-        cache_location.push("custom_folder.svg");
+        cache_location.push(format!(
+            "custom_folder{}.svg",
+            if regeneration { "_regeneration" } else { "" }
+        ));
         let cache_location_clone = cache_location.clone();
 
         gio::spawn_blocking(move || {
@@ -385,7 +393,7 @@ impl GtkTestWindow {
         file: gio::File,
         use_monochrome: bool,
         manual_monochrome_values: Option<(u8, gtk::gdk::RGBA)>,
-        top_image_hash: Option<u64>
+        top_image_hash: Option<u64>,
     ) -> Result<bool, Box<dyn Error + '_>> {
         let imp = self.imp();
         let _busy_lock = Arc::clone(&imp.app_busy);
@@ -398,13 +406,14 @@ impl GtkTestWindow {
             .into_reason_result("No bottom image found")?
             .dynamic_image
             .clone();
-        
+
         let mut top_image_dynamicimage = {
             let _top_image_lock = imp.top_image_file.lock()?;
             let top_image = _top_image_lock
                 .as_ref()
                 .into_reason_result("No top image found")?;
-            top_image.dynamic_image.clone()};
+            top_image.dynamic_image.clone()
+        };
         if use_monochrome {
             let (monochrome_threshold, monochrome_color) = match manual_monochrome_values {
                 Some((threshold, color)) => (threshold, color),
@@ -432,12 +441,11 @@ impl GtkTestWindow {
             .await;
         let path = file.path().unwrap();
         let path_clone = path.clone();
-        let _ = gio::spawn_blocking(move || {
-            generated_image.save_with_format(path, ImageFormat::Png)
-        })
-        .await
-        .unwrap()?;
-        self.add_image_metadata(path_clone, top_image_hash).unwrap();
+        let _ =
+            gio::spawn_blocking(move || generated_image.save_with_format(path, ImageFormat::Png))
+                .await
+                .unwrap()?;
+        self.add_image_metadata(path_clone, top_image_hash, None)?;
         Ok(true)
     }
 
@@ -557,27 +565,84 @@ impl GtkTestWindow {
         Some(new_file)
     }
 
-    fn add_image_metadata(&self, path: PathBuf, top_image_hash: Option<u64>) -> GenResult<()> {
-        let properties = FileProperties::new(&self, top_image_hash, self.get_default_color());
+    pub fn add_image_metadata(
+        &self,
+        path: PathBuf,
+        top_image_hash: Option<u64>,
+        custom_properties: Option<FileProperties>,
+    ) -> GenResult<()> {
+        let properties = custom_properties.unwrap_or(FileProperties::new(
+            &self,
+            top_image_hash,
+            self.get_default_color(),
+        ));
         let mut file = XmpFile::new()?;
         file.open_file(path, OpenFileOptions::default().for_update())?;
         let mut metadata = XmpMeta::new()?;
-        metadata.set_property(xmp_ns::XMP, "x_val", &XmpValue::new(properties.x_val.to_string()))?;
-        metadata.set_property(xmp_ns::XMP, "y_val", &XmpValue::new(properties.y_val.to_string()))?;
-        metadata.set_property(xmp_ns::XMP, "zoom_val", &XmpValue::new(properties.zoom_val.to_string()))?;
-        metadata.set_property(xmp_ns::XMP, "monochrome_toggle", &XmpValue::new(properties.monochrome_toggle.to_string()))?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "x_val",
+            &XmpValue::new(properties.x_val.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "y_val",
+            &XmpValue::new(properties.y_val.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "zoom_val",
+            &XmpValue::new(properties.zoom_val.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "monochrome_toggle",
+            &XmpValue::new(properties.monochrome_toggle.to_string()),
+        )?;
         if let Some(colors) = properties.monochrome_color {
-            metadata.set_property(xmp_ns::XMP, "monochrome_red", &XmpValue::new(colors.0.to_string()))?;
-            metadata.set_property(xmp_ns::XMP, "monochrome_blue", &XmpValue::new(colors.1.to_string()))?;
-            metadata.set_property(xmp_ns::XMP, "monochrome_green", &XmpValue::new(colors.2.to_string()))?;
+            metadata.set_property(
+                xmp_ns::XMP,
+                "monochrome_red",
+                &XmpValue::new(colors.0.to_string()),
+            )?;
+            metadata.set_property(
+                xmp_ns::XMP,
+                "monochrome_blue",
+                &XmpValue::new(colors.1.to_string()),
+            )?;
+            metadata.set_property(
+                xmp_ns::XMP,
+                "monochrome_green",
+                &XmpValue::new(colors.2.to_string()),
+            )?;
         }
-        metadata.set_property(xmp_ns::XMP, "monochrome_default", &XmpValue::new(properties.monochrome_default.to_string()))?;
-        metadata.set_property(xmp_ns::XMP, "monochrome_invert", &XmpValue::new(properties.monochrome_invert.to_string()))?;
-        metadata.set_property(xmp_ns::XMP, "monochrome_threshold", &XmpValue::new(properties.monochrome_threshold_val.to_string()))?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "monochrome_default",
+            &XmpValue::new(properties.monochrome_default.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "monochrome_invert",
+            &XmpValue::new(properties.monochrome_invert.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "monochrome_threshold",
+            &XmpValue::new(properties.monochrome_threshold_val.to_string()),
+        )?;
         if let Some(hash) = properties.top_image_hash {
-            metadata.set_property(xmp_ns::XMP, "top_image_hash", &XmpValue::new(hash.to_string()))?;
+            metadata.set_property(
+                xmp_ns::XMP,
+                "top_image_hash",
+                &XmpValue::new(hash.to_string()),
+            )?;
         }
-        metadata.set_property(xmp_ns::XMP, "bottom_image_type", &XmpValue::new(serde_json::to_string(&properties.bottom_image_type)?))?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "bottom_image_type",
+            &XmpValue::new(serde_json::to_string(&properties.bottom_image_type)?),
+        )?;
         file.put_xmp(&metadata)?;
         file.close();
         Ok(())

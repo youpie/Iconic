@@ -27,6 +27,7 @@ use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::Cancellable;
+use gio::prelude::SettingsExt;
 use gtk::gdk::RGBA;
 use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
@@ -39,7 +40,6 @@ use std::fs;
 use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use gio::prelude::SettingsExt;
 
 mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc};
@@ -124,7 +124,7 @@ mod imp {
         pub app_busy: Arc<()>,
         pub drag_active: Rc<Cell<bool>>,
         pub file_properties: RefCell<FileProperties>,
-        pub drag_cancelled: Cell<bool>
+        pub drag_cancelled: Cell<bool>,
     }
 
     impl Default for GtkTestWindow {
@@ -306,21 +306,21 @@ mod imp {
                     let imp = obj.imp();
                     let drag_active = imp.drag_active.get();
                     if imp.settings.boolean("allow-meta-drop") || !drag_active {
-                        if let Ok(texture) = value.get::<gdk::Texture>() {
-                            glib::spawn_future_local(glib::clone!(
-                                #[weak(rename_to = win)]
-                                obj,
-                                async move {
-                                    win.open_dragged_texture(texture).await;
-                                }
-                            ));
-                            true
-                        } else if let Ok(file) = value.get::<gio::File>() {
+                        if let Ok(file) = value.get::<gio::File>() {
                             glib::spawn_future_local(glib::clone!(
                                 #[weak(rename_to = win)]
                                 obj,
                                 async move {
                                     win.open_dragged_file(file).await;
+                                }
+                            ));
+                            true
+                        } else if let Ok(texture) = value.get::<gdk::Texture>() {
+                            glib::spawn_future_local(glib::clone!(
+                                #[weak(rename_to = win)]
+                                obj,
+                                async move {
+                                    win.open_dragged_texture(texture).await;
                                 }
                             ));
                             true
@@ -389,14 +389,14 @@ mod imp {
 glib::wrapper! {
     pub struct GtkTestWindow(ObjectSubclass<imp::GtkTestWindow>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,
-        @implements 
-            gio::ActionGroup, 
-            gio::ActionMap, 
-            gtk::Accessible, 
-            gtk::Buildable, 
-            gtk::ConstraintTarget, 
-            gtk::Native, 
-            gtk::Root, 
+        @implements
+            gio::ActionGroup,
+            gio::ActionMap,
+            gtk::Accessible,
+            gtk::Buildable,
+            gtk::ConstraintTarget,
+            gtk::Native,
+            gtk::Root,
             gtk::ShortcutManager;
 }
 
@@ -496,17 +496,17 @@ impl GtkTestWindow {
             #[weak (rename_to = win)]
             self,
             async move {
-                win.save_file(
-                    gio_file_clone,
-                    win.imp().monochrome_switch.is_active(),
-                    None,
-                    Some(file_hash)
-                )
-                .await
-                .unwrap();
+                _ = win
+                    .save_file(
+                        gio_file_clone,
+                        win.imp().monochrome_switch.is_active(),
+                        None,
+                        Some(file_hash),
+                    )
+                    .await;
             }
         ));
-        
+
         Some(gdk::ContentProvider::for_value(&glib::Value::from(
             &gio_file,
         )))
@@ -553,9 +553,10 @@ impl GtkTestWindow {
         let imp = self.imp();
         imp.drag_active.set(false);
         debug!("drag end");
-        if !imp.drag_cancelled.get() {      // Drag event was not cancelled. I couldn't find a signal that fires only on a succseful drag
+        if !imp.drag_cancelled.get() {
+            // Drag event was not cancelled. I couldn't find a signal that fires only on a succseful drag
             debug!("succesful drag");
-            let top_image = imp.top_image_file.lock().unwrap().clone().unwrap();        // Currently blocks
+            let top_image = imp.top_image_file.lock().unwrap().clone().unwrap(); // Currently blocks
             match self.store_top_image_in_cache(&top_image) {
                 Err(x) => {
                     show_error_popup(&self, "", true, Some(x));

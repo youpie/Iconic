@@ -1,6 +1,7 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
 use crate::objects::properties::{BottomImageType, FileProperties};
+use crate::settings::settings::PreferencesDialog;
 use crate::{GtkTestWindow, objects::errors::show_error_popup};
 
 use adw::TimedAnimation;
@@ -199,20 +200,41 @@ impl GtkTestWindow {
         // Get path and filename of icon saved in datadir
         let file_path = file.path();
 
-        // let scrict_mode_enabled = imp.settings.boolean("key")
+        let strict_mode_enabled = imp.settings.boolean("strict-regeneration");
 
         // Icons that are compatible for regeneration are only allowed to use default folder images.
         // So when regenerating icons, you need the folder which is the same color as the current accent color
-        let (bottom_image_file, custom_accent_color) = match properties.bottom_image_type.clone() {
+        let (bottom_image_file, custom_accent_color, custom_accent_color_hex) = match properties
+            .bottom_image_type
+            .clone()
+        {
             BottomImageType::FolderSystem => (
-                self.get_bottom_icon_from_accent_color(None, false).await?,
+                self.get_bottom_icon_from_accent_color(None, strict_mode_enabled)
+                    .await?,
+                None,
                 None,
             ),
             BottomImageType::Folder(color) => (
-                self.get_bottom_icon_from_accent_color(Some(color.clone()), true)
+                self.get_bottom_icon_from_accent_color(Some(color.clone()), strict_mode_enabled)
                     .await?,
                 Some(color),
+                None,
             ),
+            BottomImageType::FolderCustom(foreground, background) => {
+                let folder_path = self
+                    .create_custom_folder_color(&foreground, &background, true)
+                    .await;
+                (
+                    gio::spawn_blocking(move || {
+                        File::from_path(folder_path, 1024, 0).map_err(|err| err.to_string())
+                    })
+                    .await
+                    .unwrap()?
+                    .dynamic_image,
+                    None,
+                    Some(background),
+                )
+            }
             _ => return Err("Incompatible bottom type".into()),
         };
         info!("Generating image");
@@ -237,7 +259,8 @@ impl GtkTestWindow {
             &properties,
             top_image_file,
             custom_accent_color,
-            None,
+            custom_accent_color_hex,
+            strict_mode_enabled,
         )?;
 
         // Using the generic generate_image function. The icon can faithfully be recreated
@@ -252,13 +275,17 @@ impl GtkTestWindow {
             )
             .await;
         info!("Saving image");
+        let file_path_clone = file_path.clone();
         match gio::spawn_blocking(move || {
             generated_image.save_with_format(file_path, ImageFormat::Png)
         })
         .await
         .unwrap()
         {
-            Ok(_) => info!("Saving Succesful"),
+            Ok(_) => {
+                info!("Saving Succesful");
+                self.add_image_metadata(file_path_clone, None, Some(properties))?
+            }
             Err(x) => error!("Saving failed: {:?}", x),
         };
         Ok(())
@@ -346,6 +373,7 @@ impl GtkTestWindow {
         top_image: DynamicImage,
         accent_color: Option<String>,
         rgb_string_color: Option<String>,
+        strict: bool,
     ) -> GenResult<DynamicImage> {
         let color = match properties.monochrome_default {
             false => RGBA::new(
@@ -354,7 +382,10 @@ impl GtkTestWindow {
                 properties.monochrome_color.unwrap_or_default().2 as f32,
                 1.0,
             ),
-            true => self.current_accent_rgba(accent_color)?,
+            true if rgb_string_color.is_some() && strict => {
+                PreferencesDialog::hex_to_rgba(rgb_string_color.unwrap_or_default())
+            }
+            true => self.current_accent_rgba(if strict { accent_color } else { None })?,
         };
         match properties.monochrome_toggle {
             true => Ok(self.to_monochrome(

@@ -1,14 +1,14 @@
 use std::fs::DirEntry;
 
 use adw::subclass::prelude::ObjectSubclassIsExt;
+use gtk::gdk;
 use gtk::prelude::RangeExt;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use xmp_toolkit::{xmp_ns, XmpMeta};
-use gtk::gdk;
+use xmp_toolkit::{XmpMeta, xmp_ns};
 
-use crate::{objects::errors::IntoResult, window::GtkTestWindow, GenResult};
+use crate::{GenResult, objects::errors::IntoResult, window::GtkTestWindow};
 
 #[derive(Debug, Clone, Default)]
 pub struct FileProperties {
@@ -25,7 +25,11 @@ pub struct FileProperties {
 }
 
 impl FileProperties {
-    pub fn new(imp: &GtkTestWindow, top_image_hash: Option<u64>, default_monochrome_color: gdk::RGBA) -> Self {
+    pub fn new(
+        imp: &GtkTestWindow,
+        top_image_hash: Option<u64>,
+        default_monochrome_color: gdk::RGBA,
+    ) -> Self {
         let imp = imp.imp();
         let x_val = imp.x_scale.value();
         let y_val = imp.y_scale.value();
@@ -36,7 +40,6 @@ impl FileProperties {
             let green = (imp.monochrome_color.rgba().green() * 255.0) as u8;
             let blue = (imp.monochrome_color.rgba().blue() * 255.0) as u8;
             Some((red, green, blue))
-            
         } else {
             None
         };
@@ -44,7 +47,7 @@ impl FileProperties {
         let monochrome_threshold_val = (imp.threshold_scale.value() * 255.0) as u8;
         let monochrome_invert = imp.monochrome_invert.is_active();
         let bottom_image_type = imp.file_properties.borrow().bottom_image_type.clone();
-        Self{
+        Self {
             bottom_image_type,
             top_image_hash,
             x_val,
@@ -62,8 +65,7 @@ impl FileProperties {
         if let Ok(xmp_data) = XmpMeta::from_file(file.path()) {
             info!("loading image from XMP");
             Self::from_xmp_data(xmp_data)
-        }
-        else {
+        } else {
             info!("loading image from Filename");
             let file_name = file.file_name();
             Self::from_filename(file_name.to_string_lossy().to_string())
@@ -100,14 +102,18 @@ impl FileProperties {
             properties_list[FilenameProperty::MonochromeThreshold as usize].parse()?;
         let monochrome_color = if !monochrome_default {
             let mut rgb: (u8, u8, u8) = (0, 0, 0);
-            rgb.0 = (properties_list[FilenameProperty::MonochromeRed as usize].parse::<f32>()? *255.0) as u8;
-            rgb.1 = (properties_list[FilenameProperty::MonochromeGreen as usize].parse::<f32>()? *255.0) as u8;
-            rgb.2 = (properties_list[FilenameProperty::MonochromeBlue as usize].parse::<f32>()? *255.0) as u8;
+            rgb.0 = (properties_list[FilenameProperty::MonochromeRed as usize].parse::<f32>()?
+                * 255.0) as u8;
+            rgb.1 = (properties_list[FilenameProperty::MonochromeGreen as usize].parse::<f32>()?
+                * 255.0) as u8;
+            rgb.2 = (properties_list[FilenameProperty::MonochromeBlue as usize].parse::<f32>()?
+                * 255.0) as u8;
             Some(rgb)
         } else {
             None
         };
-        let top_image_hash: Option<u64> = Some(properties_list[FilenameProperty::Hash as usize].parse()?);
+        let top_image_hash: Option<u64> =
+            Some(properties_list[FilenameProperty::Hash as usize].parse()?);
         let bottom_image_type = match properties_list[FilenameProperty::DefaultBottomImage as usize]
             .parse::<u8>()?
             .to_bool()
@@ -130,23 +136,70 @@ impl FileProperties {
         })
     }
     fn from_xmp_data(xmp_data: XmpMeta) -> GenResult<Self> {
-        let x_val:f64 = xmp_data.property(xmp_ns::XMP, "x_val").into_reason_result("XMP X-val")?.value.parse()?;
-        let y_val:f64 = xmp_data.property(xmp_ns::XMP, "y_val").into_reason_result("XMP Y-val")?.value.parse()?;
-        let zoom_val:f64 = xmp_data.property(xmp_ns::XMP, "zoom_val").into_reason_result("XMP Zoom-val")?.value.parse()?;
-        let monochrome_toggle: bool = xmp_data.property(xmp_ns::XMP, "monochrome_toggle").into_reason_result("XMP monochrome_toggle")?.value.parse()?;
-        let monochrome_color: Option<(u8,u8,u8)> = if monochrome_toggle {
-            let red: u8 = xmp_data.property(xmp_ns::XMP, "monochrome_red").into_reason_result("XMP monochrome_red")?.value.parse()?;
-            let green: u8 = xmp_data.property(xmp_ns::XMP, "monochrome_green").into_reason_result("XMP monochrome_green")?.value.parse()?;
-            let blue: u8 = xmp_data.property(xmp_ns::XMP, "monochrome_blue").into_reason_result("XMP monochrome_blue")?.value.parse()?;
-            Some((red,green,blue))
+        let x_val: f64 = xmp_data
+            .property(xmp_ns::XMP, "x_val")
+            .into_reason_result("XMP X-val")?
+            .value
+            .parse()?;
+        let y_val: f64 = xmp_data
+            .property(xmp_ns::XMP, "y_val")
+            .into_reason_result("XMP Y-val")?
+            .value
+            .parse()?;
+        let zoom_val: f64 = xmp_data
+            .property(xmp_ns::XMP, "zoom_val")
+            .into_reason_result("XMP Zoom-val")?
+            .value
+            .parse()?;
+        let monochrome_toggle: bool = xmp_data
+            .property(xmp_ns::XMP, "monochrome_toggle")
+            .into_reason_result("XMP monochrome_toggle")?
+            .value
+            .parse()?;
+        let monochrome_color: Option<(u8, u8, u8)> = if monochrome_toggle {
+            let red: u8 = xmp_data
+                .property(xmp_ns::XMP, "monochrome_red")
+                .into_reason_result("XMP monochrome_red")?
+                .value
+                .parse()?;
+            let green: u8 = xmp_data
+                .property(xmp_ns::XMP, "monochrome_green")
+                .into_reason_result("XMP monochrome_green")?
+                .value
+                .parse()?;
+            let blue: u8 = xmp_data
+                .property(xmp_ns::XMP, "monochrome_blue")
+                .into_reason_result("XMP monochrome_blue")?
+                .value
+                .parse()?;
+            Some((red, green, blue))
         } else {
             None
         };
-        let monochrome_default: bool = xmp_data.property(xmp_ns::XMP, "monochrome_default").into_reason_result("XMP monochrome_default")?.value.parse()?;
-        let monochrome_invert: bool = xmp_data.property(xmp_ns::XMP, "monochrome_invert").into_reason_result("XMP monochrome_invert")?.value.parse()?;
-        let monochrome_threshold_val: u8 = xmp_data.property(xmp_ns::XMP, "monochrome_threshold").into_reason_result("XMP monochrome_threshold")?.value.parse()?;
-        let top_image_hash: Option<u64> = xmp_data.property(xmp_ns::XMP, "top_image_hash").and_then(|value| Some(value.value.parse().unwrap_or_default()));
-        let bottom_image_type: BottomImageType = serde_json::from_str(&xmp_data.property(xmp_ns::XMP, "bottom_image_type").into_reason_result("XMP bottom_image_type")?.value)?;
+        let monochrome_default: bool = xmp_data
+            .property(xmp_ns::XMP, "monochrome_default")
+            .into_reason_result("XMP monochrome_default")?
+            .value
+            .parse()?;
+        let monochrome_invert: bool = xmp_data
+            .property(xmp_ns::XMP, "monochrome_invert")
+            .into_reason_result("XMP monochrome_invert")?
+            .value
+            .parse()?;
+        let monochrome_threshold_val: u8 = xmp_data
+            .property(xmp_ns::XMP, "monochrome_threshold")
+            .into_reason_result("XMP monochrome_threshold")?
+            .value
+            .parse()?;
+        let top_image_hash: Option<u64> = xmp_data
+            .property(xmp_ns::XMP, "top_image_hash")
+            .and_then(|value| Some(value.value.parse().unwrap_or_default()));
+        let bottom_image_type: BottomImageType = serde_json::from_str(
+            &xmp_data
+                .property(xmp_ns::XMP, "bottom_image_type")
+                .into_reason_result("XMP bottom_image_type")?
+                .value,
+        )?;
         Ok(Self {
             x_val,
             y_val,
@@ -157,11 +210,9 @@ impl FileProperties {
             monochrome_threshold_val,
             monochrome_toggle,
             top_image_hash,
-            bottom_image_type
+            bottom_image_type,
         })
     }
-
-
 }
 
 #[derive(Debug, Error)]
@@ -170,13 +221,16 @@ pub enum PropertiesError {
     Incompatible,
 }
 
+type Background = String;
+type Foreground = String;
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub enum BottomImageType {
     #[default]
     Unknown,
     FolderSystem,
     Folder(String),
-    FolderCustom(String, String),
+    FolderCustom(Foreground, Background),
     Custom,
     Temporary,
 }
@@ -199,7 +253,7 @@ impl BottomImageType {
             Self::Folder(_) => 2,
             Self::FolderCustom(_, _) => 3,
             Self::Custom => 4,
-            Self::Temporary => 5
+            Self::Temporary => 5,
         }
     }
 }

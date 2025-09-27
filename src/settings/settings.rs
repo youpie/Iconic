@@ -58,6 +58,8 @@ mod imp {
         #[template_child]
         pub store_top_images: TemplateChild<adw::SwitchRow>,
         #[template_child]
+        pub strict_regeneration: TemplateChild<adw::SwitchRow>,
+        #[template_child]
         pub automatic_regeneration: TemplateChild<adw::SwitchRow>,
         #[template_child]
         pub cache_size: TemplateChild<adw::ActionRow>,
@@ -108,6 +110,7 @@ mod imp {
                 secondary_color_row: TemplateChild::default(),
                 secondary_folder_color: TemplateChild::default(),
                 meta_drop_switch: TemplateChild::default(),
+                strict_regeneration: TemplateChild::default(),
                 // reveal_custom_colors: TemplateChild::default(),
             }
         }
@@ -246,6 +249,9 @@ impl PreferencesDialog {
             .build();
         imp.settings
             .bind("default-dnd-activated", &*imp.dnd_switch, "active")
+            .build();
+        imp.settings
+            .bind("strict-regeneration", &*imp.strict_regeneration, "active")
             .build();
         imp.settings
             .bind(
