@@ -297,38 +297,54 @@ mod imp {
                 obj.add_css_class("devel");
             }
 
-            let drop_target = gtk::DropTarget::new(glib::Type::INVALID, gdk::DragAction::COPY);
-            drop_target.set_types(&[gdk::Texture::static_type(), gio::File::static_type()]);
+            let drop_target = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+            // drop_target.set_types(&[gdk::Texture::static_type(), gio::File::static_type()]);
+
+            drop_target.connect_accept(clone!(
+                #[strong]
+                obj,
+                move |target, drop| {
+                    let imp = obj.imp();
+                    if drop.formats().contain_mime_type("image/svg+xml") {
+                        info!("File contains SVG");
+                        target.set_types(&[gio::File::static_type()]);
+                    } else {
+                        info!("File does not contain SVG");
+                        target.set_types(&[gdk::Texture::static_type()]);
+                    }
+                    if imp.drag_active.get() && !imp.settings.boolean("allow-meta-drop") {
+                        info!("Drag active, disabling target");
+                        target.set_actions(gdk::DragAction::empty());
+                    } else {
+                        target.set_actions(gdk::DragAction::COPY);
+                    }
+                    true
+                }
+            ));
             drop_target.connect_drop(clone!(
                 #[strong]
                 obj,
                 move |_, value, _, _| {
-                    let imp = obj.imp();
-                    let drag_active = imp.drag_active.get();
-                    if imp.settings.boolean("allow-meta-drop") || !drag_active {
-                        if let Ok(file) = value.get::<gio::File>() {
-                            glib::spawn_future_local(glib::clone!(
-                                #[weak(rename_to = win)]
-                                obj,
-                                async move {
-                                    win.open_dragged_file(file).await;
-                                }
-                            ));
-                            true
-                        } else if let Ok(texture) = value.get::<gdk::Texture>() {
-                            glib::spawn_future_local(glib::clone!(
-                                #[weak(rename_to = win)]
-                                obj,
-                                async move {
-                                    win.open_dragged_texture(texture).await;
-                                }
-                            ));
-                            true
-                        } else {
-                            false
-                        }
+                    debug!("Value type: {}", value.type_().name());
+                    if let Ok(file) = value.get::<gio::File>() {
+                        glib::spawn_future_local(glib::clone!(
+                            #[weak(rename_to = win)]
+                            obj,
+                            async move {
+                                win.open_dragged_file(file).await;
+                            }
+                        ));
+                        true
+                    } else if let Ok(texture) = value.get::<gdk::Texture>() {
+                        glib::spawn_future_local(glib::clone!(
+                            #[weak(rename_to = win)]
+                            obj,
+                            async move {
+                                win.open_dragged_texture(texture).await;
+                            }
+                        ));
+                        true
                     } else {
-                        info!("Meta drag disabled");
                         false
                     }
                 }
