@@ -221,19 +221,28 @@ impl GtkTestWindow {
                 None,
             ),
             BottomImageType::FolderCustom(foreground, background) => {
-                let folder_path = self
-                    .create_custom_folder_color(&foreground, &background, true)
-                    .await;
-                (
-                    gio::spawn_blocking(move || {
-                        File::from_path(folder_path, 1024, 0).map_err(|err| err.to_string())
-                    })
-                    .await
-                    .unwrap()?
-                    .dynamic_image,
-                    None,
-                    Some(background),
-                )
+                if strict_mode_enabled {
+                    let folder_path = self
+                        .create_custom_folder_color(&foreground, &background, true)
+                        .await;
+                    (
+                        gio::spawn_blocking(move || {
+                            File::from_path(folder_path, 1024, 0).map_err(|err| err.to_string())
+                        })
+                        .await
+                        .unwrap()?
+                        .dynamic_image,
+                        None,
+                        Some(background),
+                    )
+                } else {
+                    (
+                        self.get_bottom_icon_from_accent_color(None, strict_mode_enabled)
+                            .await?,
+                        None,
+                        Some(background),
+                    )
+                }
             }
             _ => return Err("Incompatible bottom type".into()),
         };
@@ -377,9 +386,9 @@ impl GtkTestWindow {
     ) -> GenResult<DynamicImage> {
         let color = match properties.monochrome_default {
             false => RGBA::new(
-                properties.monochrome_color.unwrap_or_default().0 as f32,
-                properties.monochrome_color.unwrap_or_default().1 as f32,
-                properties.monochrome_color.unwrap_or_default().2 as f32,
+                properties.monochrome_color.unwrap_or_default().0 as f32 / 255.0,
+                properties.monochrome_color.unwrap_or_default().1 as f32 / 255.0,
+                properties.monochrome_color.unwrap_or_default().2 as f32 / 255.0,
                 1.0,
             ),
             true if rgb_string_color.is_some() && strict => {
