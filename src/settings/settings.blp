@@ -182,9 +182,23 @@ After regeneration, it is likely required to log out and in again to see the cha
           subtitle: _("If enabled, folders will be automatically regenerated on system accent color change");
         }
 
-        Adw.SwitchRow strict_regeneration {
+        Adw.ExpanderRow strict_expander {
           title: _("Strict regeneration");
-          subtitle: _("Turn this on to only allow regeneration for folder icons that were made with the \"Use system folder color\" option enabled");
+          subtitle: _("If enabled, only allow regeneration for folder icons that were made with the \"Use system folder color\" option enabled");
+          expanded: false;
+          enable-expansion: bind strict_regeneration.active inverted;
+
+          [suffix]
+          Switch strict_regeneration {
+            valign: center;
+            active: false;
+            action-name: "app.strict_regeneration";
+          }
+
+          Adw.SwitchRow ignore_custom {
+            title: _("Ignore custom colored folders");
+            subtitle: _("If enabled, folders with custom colors will not be regenerated");
+          }
         }
 
         Adw.SwitchRow store_top_images {

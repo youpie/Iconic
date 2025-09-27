@@ -81,5 +81,9 @@
       <default>true</default>
       <summary>Only allow regeneration of folder with "follow accent color" enabled</summary>
     </key>
+    <key name="ignore-custom" type="b">
+      <default>false</default>
+      <summary>With strict mode disabled, also regenerate folders with custom colors</summary>
+    </key>
 	</schema>
 </schemalist>

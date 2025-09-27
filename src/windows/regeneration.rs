@@ -47,7 +47,13 @@ impl GtkTestWindow {
 
     pub fn store_top_image_in_cache(&self, file: &File) -> GenResult<()> {
         let imp = self.imp();
-        if imp.file_properties.borrow().bottom_image_type.is_strict_compatible() == None {
+        if imp
+            .file_properties
+            .borrow()
+            .bottom_image_type
+            .is_strict_compatible()
+            == None
+        {
             info!("Current file does not use a compatible bottom image. no use caching the file");
             return Ok(());
         }
@@ -134,7 +140,10 @@ impl GtkTestWindow {
                 break;
             }
             let name = &file.1.file_name();
-            match self.regenerate_and_save_single_icon(file.0, file.1, file.2).await {
+            match self
+                .regenerate_and_save_single_icon(file.0, file.1, file.2)
+                .await
+            {
                 Ok(_) => (),
                 Err(error) => {
                     error!("Error while generating {:?}: {}", &name, &error.to_string());
@@ -188,7 +197,7 @@ impl GtkTestWindow {
         &self,
         mut properties: FileProperties,
         file: DirEntry,
-        property_source: PropertiesSource
+        property_source: PropertiesSource,
     ) -> GenResult<()> {
         let imp = self.imp();
 
@@ -196,6 +205,7 @@ impl GtkTestWindow {
         let file_path = file.path();
 
         let strict_mode_enabled = imp.settings.boolean("strict-regeneration");
+        let ignore_custom_colored = imp.settings.boolean("ignore-custom");
 
         // Icons that are compatible for regeneration are only allowed to use default folder images.
         // So when regenerating icons, you need the folder which is the same color as the current accent color
@@ -215,8 +225,10 @@ impl GtkTestWindow {
                 Some(color),
                 None,
             ),
-            BottomImageType::FolderCustom(foreground, background) if !properties.default || !strict_mode_enabled => {
-                if strict_mode_enabled {
+            BottomImageType::FolderCustom(foreground, background)
+                if !properties.default || (!strict_mode_enabled || !ignore_custom_colored) =>
+            {
+                if strict_mode_enabled || ignore_custom_colored {
                     let folder_path = self
                         .create_custom_folder_color(&foreground, &background, true)
                         .await;
@@ -244,7 +256,9 @@ impl GtkTestWindow {
         info!("Generating image");
 
         // If strict mode is disabled and the image is not regenerated during strict mode. And the image is regenerated, is has te be regenerated to mark it as no longer default
-        properties.default = if !strict_mode_enabled && properties.bottom_image_type.is_strict_compatible() == Some(false)  {
+        properties.default = if !strict_mode_enabled
+            && properties.bottom_image_type.is_strict_compatible() == Some(false)
+        {
             false
         } else {
             true
@@ -295,7 +309,9 @@ impl GtkTestWindow {
         {
             Ok(_) => {
                 info!("Saving Succesful");
-                if property_source == PropertiesSource::XMP {self.add_image_metadata(file_path_clone, None, Some(properties))?}
+                if property_source == PropertiesSource::XMP {
+                    self.add_image_metadata(file_path_clone, None, Some(properties))?
+                }
             }
             Err(x) => error!("Saving failed: {:?}", x),
         };
@@ -354,7 +370,12 @@ impl GtkTestWindow {
                     continue;
                 }
             };
-            if properties.0.bottom_image_type.is_strict_compatible().is_none() {
+            if properties
+                .0
+                .bottom_image_type
+                .is_strict_compatible()
+                .is_none()
+            {
                 *incompatible_files += 1;
                 warn!(
                     "file {:?} is never compatible for be regeneration.",

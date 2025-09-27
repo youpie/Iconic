@@ -6,14 +6,14 @@ use gtk::prelude::RangeExt;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use xmp_toolkit::{xmp_ns, XmpMeta, XmpValue};
+use xmp_toolkit::{XmpMeta, XmpValue, xmp_ns};
 
 use crate::{GenResult, objects::errors::IntoResult, window::GtkTestWindow};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum PropertiesSource {
     XMP,
-    Filename
+    Filename,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -28,7 +28,7 @@ pub struct FileProperties {
     pub monochrome_default: bool,
     pub monochrome_color: Option<(u8, u8, u8)>,
     pub monochrome_threshold_val: u8,
-    pub default: bool // If the values above are still equal with the generated image. False if for example, the image was regenerated
+    pub default: bool, // If the values above are still equal with the generated image. False if for example, the image was regenerated
 }
 
 impl FileProperties {
@@ -51,7 +51,7 @@ impl FileProperties {
             None
         };
         let monochrome_default = default_monochrome_color == imp.monochrome_color.rgba();
-        let monochrome_threshold_val = (imp.threshold_scale.value() * 255.0) as u8;
+        let monochrome_threshold_val = imp.threshold_scale.value() as u8;
         let monochrome_invert = imp.monochrome_invert.is_active();
         let bottom_image_type = imp.file_properties.borrow().bottom_image_type.clone();
         Self {
@@ -65,7 +65,7 @@ impl FileProperties {
             monochrome_invert,
             monochrome_threshold_val,
             monochrome_toggle,
-            default: true
+            default: true,
         }
     }
 
@@ -76,7 +76,10 @@ impl FileProperties {
         } else {
             info!("loading image from Filename");
             let file_name = file.file_name();
-            Ok((Self::from_filename(file_name.to_string_lossy().to_string())?, PropertiesSource::Filename))
+            Ok((
+                Self::from_filename(file_name.to_string_lossy().to_string())?,
+                PropertiesSource::Filename,
+            ))
         }
     }
     // Load all properties from the filename
@@ -141,7 +144,7 @@ impl FileProperties {
             monochrome_toggle,
             top_image_hash,
             bottom_image_type,
-            default: true
+            default: true,
         })
     }
     fn from_xmp_data(xmp_data: XmpMeta) -> GenResult<Self> {
@@ -225,7 +228,7 @@ impl FileProperties {
             monochrome_toggle,
             top_image_hash,
             bottom_image_type,
-            default
+            default,
         })
     }
 }

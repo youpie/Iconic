@@ -138,7 +138,12 @@ impl GtkTestWindow {
     pub fn drag_and_drop_regeneration_popup(&self) {
         let imp = self.imp();
         if !imp.settings.boolean("regeneration-hint-shown")
-            && imp.file_properties.borrow().bottom_image_type.is_strict_compatible() == Some(true)
+            && imp
+                .file_properties
+                .borrow()
+                .bottom_image_type
+                .is_strict_compatible()
+                == Some(true)
         {
             const RESPONSE_OK: &str = "OK";
             let dialog = adw::AlertDialog::builder()
