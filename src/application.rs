@@ -68,7 +68,7 @@ mod imp {
                 let window = GtkTestWindow::new(&*application);
                 window.upcast()
             };
-
+            window.set_title(Some(&gettext("Iconic")));
             // Ask the window manager/compositor to present the window
             window.present();
         }

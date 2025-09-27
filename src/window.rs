@@ -307,14 +307,18 @@ mod imp {
                     let imp = obj.imp();
                     if drop.formats().contain_mime_type("image/svg+xml") {
                         info!("File contains SVG");
-                        target.set_types(&[gio::File::static_type()]);
+                        target.set_types(&[gio::File::static_type(), gdk::Texture::static_type()]);
                     } else {
                         info!("File does not contain SVG");
-                        target.set_types(&[gdk::Texture::static_type()]);
+                        target.set_types(&[gdk::Texture::static_type(), gio::File::static_type()]);
                     }
                     if imp.drag_active.get() && !imp.settings.boolean("allow-meta-drop") {
                         info!("Drag active, disabling target");
                         target.set_actions(gdk::DragAction::empty());
+                    } else if imp.drag_active.get() && imp.settings.boolean("allow-meta-drop") {
+                        info!("Switching to File type");
+                        target.set_types(&[gio::File::static_type(), gdk::Texture::static_type()]);
+                        target.set_actions(gdk::DragAction::COPY);
                     } else {
                         target.set_actions(gdk::DragAction::COPY);
                     }
