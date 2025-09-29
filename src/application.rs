@@ -41,7 +41,7 @@ mod imp {
     #[glib::object_subclass]
     impl ObjectSubclass for GtkTestApplication {
         const NAME: &'static str = "GtkTestApplication";
-        type Type = super::GtkTestApplication;
+        type Type = super::IconicApplication;
         type ParentType = adw::Application;
     }
 
@@ -79,12 +79,12 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct GtkTestApplication(ObjectSubclass<imp::GtkTestApplication>)
+    pub struct IconicApplication(ObjectSubclass<imp::GtkTestApplication>)
         @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionGroup, gio::ActionMap;
 }
 
-impl GtkTestApplication {
+impl IconicApplication {
     pub fn new(application_id: &str, flags: &gio::ApplicationFlags) -> Self {
         glib::Object::builder()
             .property("application-id", application_id)
