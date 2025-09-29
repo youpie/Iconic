@@ -183,10 +183,10 @@ After regeneration, it is likely required to log out and in again to see the cha
         }
 
         Adw.ExpanderRow strict_expander {
-          title: _("Strict regeneration");
-          subtitle: _("If enabled, only allow regeneration for folder icons that were made with the \"Use system folder color\" option enabled");
+          title: _("Loose regeneration");
+          subtitle: _("If enabled, Allow regeneration of folder icons that were made without the \"Use system folder color\" option enabled");
           expanded: false;
-          enable-expansion: bind strict_regeneration.active inverted;
+          enable-expansion: bind strict_regeneration.active;
 
           [suffix]
           Switch strict_regeneration {

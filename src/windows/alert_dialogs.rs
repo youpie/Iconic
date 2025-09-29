@@ -111,30 +111,6 @@ impl GtkTestWindow {
         false
     }
 
-    // Get the current accent color
-    // And show a pop-up if the accent color has changed for the first time
-    pub fn get_accent_color_and_show_dialog(&self) -> String {
-        let imp = self.imp();
-        let accent_color = format!("{:?}", adw::StyleManager::default().accent_color());
-        let previous_accent_color: String =
-            imp.settings.string("previous-system-accent-color").into();
-        if !imp.settings.boolean("accent-color-popup-shown")
-            && accent_color != previous_accent_color
-            && &previous_accent_color != "None"
-        {
-            const RESPONSE_OK: &str = "OK";
-            let dialog = adw::AlertDialog::builder()
-                .heading(&gettext("Accent color changed"))
-                .body(&gettext("The system accent color has been changed, Iconic has automatically changed the color of the folder.\nIf you do not want this, you can turn this off in the settings"))
-                .default_response(RESPONSE_OK)
-                .build();
-            dialog.add_response(RESPONSE_OK, &gettext("OK"));
-            dialog.present(Some(self));
-            let _ = imp.settings.set("accent-color-popup-shown", true);
-        }
-        accent_color
-    }
-
     pub fn drag_and_drop_regeneration_popup(&self) {
         let imp = self.imp();
         if !imp.settings.boolean("regeneration-hint-shown")

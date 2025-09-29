@@ -23,7 +23,7 @@ impl GtkTestWindow {
     pub fn check_if_regeneration_needed(&self) -> bool {
         let imp = self.imp();
         let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
-        let current_accent = self.get_accent_color_and_show_dialog();
+        let current_accent = self.get_accent_color();
         // error!("previous {previous_accent} current {current_accent}");
         let id = imp.regeneration_lock.get();
         imp.regeneration_lock.replace(id + 1);
@@ -180,7 +180,7 @@ impl GtkTestWindow {
                     )
                 ),
                 true,
-                None,
+                None::<String>,
             );
         }
         imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
@@ -325,7 +325,7 @@ impl GtkTestWindow {
     ) -> GenResult<DynamicImage> {
         let accent_color = match color {
             Some(color) if strict => color,
-            _ => self.get_accent_color_and_show_dialog(),
+            _ => self.get_accent_color(),
         };
 
         // Icons that are compatible for regeneration are only allowed to use default folder images.
@@ -434,7 +434,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         let accent_color = match accent_color {
             Some(color) => color,
-            None => self.get_accent_color_and_show_dialog(),
+            None => self.get_accent_color(),
         };
         Ok(imp
             .default_color

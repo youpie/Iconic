@@ -258,6 +258,7 @@ impl PreferencesDialog {
             .build();
         imp.settings
             .bind("strict-regeneration", &*imp.strict_regeneration, "active")
+            .invert_boolean()
             .build();
         imp.settings
             .bind("ignore-custom", &*imp.ignore_custom, "active")

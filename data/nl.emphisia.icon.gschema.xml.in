@@ -41,10 +41,6 @@
       <default>false</default>
       <summary>If true, the user has set a custom image for the bottom</summary>
     </key>
-    <key name="accent-color-popup-shown" type="b">
-      <default>false</default>
-      <summary>If true, the pop-up informing the user that the folder color has been adjusted automatically has already been shown</summary>
-    </key>
     <key name="drag-and-drop-popup-shown" type="b">
       <default>false</default>
       <summary>If true, the pop-up informing the user that it is possible to drag images straight out of iconic has already been shown</summary>

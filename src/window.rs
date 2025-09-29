@@ -22,7 +22,7 @@ use crate::config::{APP_ICON, APP_ID, PROFILE};
 use crate::glib::clone;
 use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
-use crate::objects::properties::CustomRGB;
+use crate::objects::properties::{BottomImageType, CustomRGB};
 use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -50,7 +50,7 @@ mod imp {
 
     #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/nl/emphisia/icon/window.ui")]
-    pub struct GtkTestWindow {
+    pub struct IconicWindow {
         // Template widgets
         // Every item in this list, is something defined in
         // a blueprint file, if you want to control it from the code
@@ -127,7 +127,7 @@ mod imp {
         pub drag_cancelled: Cell<bool>,
     }
 
-    impl Default for GtkTestWindow {
+    impl Default for IconicWindow {
         fn default() -> Self {
             Self {
                 toolbar: TemplateChild::default(),
@@ -178,7 +178,7 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GtkTestWindow {
+    impl ObjectSubclass for IconicWindow {
         const NAME: &'static str = "GtkTestWindow";
         type Type = super::GtkTestWindow;
         type ParentType = adw::ApplicationWindow;
@@ -277,7 +277,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GtkTestWindow {
+    impl ObjectImpl for IconicWindow {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
@@ -385,9 +385,9 @@ mod imp {
             self.dispose_template();
         }
     }
-    impl WidgetImpl for GtkTestWindow {}
+    impl WidgetImpl for IconicWindow {}
 
-    impl WindowImpl for GtkTestWindow {
+    impl WindowImpl for IconicWindow {
         fn close_request(&self) -> glib::Propagation {
             warn!("close request");
             let window = self.obj();
@@ -402,12 +402,12 @@ mod imp {
             glib::Propagation::Stop
         }
     }
-    impl ApplicationWindowImpl for GtkTestWindow {}
-    impl AdwApplicationWindowImpl for GtkTestWindow {}
+    impl ApplicationWindowImpl for IconicWindow {}
+    impl AdwApplicationWindowImpl for IconicWindow {}
 }
 
 glib::wrapper! {
-    pub struct GtkTestWindow(ObjectSubclass<imp::GtkTestWindow>)
+    pub struct GtkTestWindow(ObjectSubclass<imp::IconicWindow>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,
         @implements
             gio::ActionGroup,
@@ -478,10 +478,9 @@ impl GtkTestWindow {
 
         imp.reset_color.set_visible(false);
         self.check_if_regeneration_needed();
-        let _ = imp.settings.set_string(
-            "previous-system-accent-color",
-            &self.get_accent_color_and_show_dialog(),
-        );
+        let _ = imp
+            .settings
+            .set_string("previous-system-accent-color", &self.get_accent_color());
         imp.stack.set_visible_child_name("stack_welcome_page");
         self.setup_settings();
         self.setup_update();
@@ -626,15 +625,15 @@ impl GtkTestWindow {
             #[weak(rename_to = win)]
             self,
             move |_| {
-                if win.imp().stack.visible_child_name() != Some("regenerating_page".into()) {
+                let imp = win.imp();
+                if imp.file_properties.borrow().bottom_image_type == BottomImageType::FolderSystem {
                     // error!("Reloading folder image");
                     win.check_if_regeneration_needed();
                     win.load_folder_path_from_settings();
                 }
-                let _ = win.imp().settings.set_string(
-                    "previous-system-accent-color",
-                    &win.get_accent_color_and_show_dialog(),
-                );
+                _ = imp
+                    .settings
+                    .set_string("previous-system-accent-color", &win.get_accent_color());
             }
         ));
 
@@ -711,7 +710,7 @@ impl GtkTestWindow {
         let selected_accent_color = imp.settings.string("selected-accent-color");
         let mut custom_rgb = RGBA::new(0.0, 0.0, 0.0, 0.0);
         if selected_accent_color == "None" {
-            accent_color = self.get_accent_color_and_show_dialog();
+            accent_color = self.get_accent_color();
         } else if imp.settings.boolean("manual-bottom-image-selection") {
             accent_color = "Blue".to_string();
         } else if selected_accent_color == "Custom" {
@@ -728,6 +727,12 @@ impl GtkTestWindow {
             .clone();
         debug!("Found color: {:?}", &color);
         color
+    }
+
+    // Get the current accent color
+    pub fn get_accent_color(&self) -> String {
+        let accent_color = format!("{:?}", adw::StyleManager::default().accent_color());
+        accent_color
     }
 
     pub async fn check_chache_icon(&self, file_name: &str) -> PathBuf {
@@ -754,7 +759,7 @@ impl GtkTestWindow {
             &self,
             &gettext("The set bottom icon could not be found, press ok to select a new one"),
             false,
-            None,
+            None::<String>,
         )
         .unwrap();
         match &*dialog.clone().choose_future(self).await {

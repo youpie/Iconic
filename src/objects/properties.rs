@@ -243,7 +243,7 @@ pub enum PropertiesError {
 type Background = String;
 type Foreground = String;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub enum BottomImageType {
     #[default]
     Unknown,

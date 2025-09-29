@@ -103,7 +103,7 @@ impl GtkTestWindow {
     pub async fn load_built_in_bottom_icon(&self, accent_color_setting: &str) -> PathBuf {
         // let imp = self.imp();
         let folder_color_name = match accent_color_setting {
-            "None" => self.get_accent_color_and_show_dialog(),
+            "None" => self.get_accent_color(),
             x => x.to_string(),
         };
         let folder_path = PathBuf::from(format!(
@@ -277,7 +277,12 @@ impl GtkTestWindow {
                 imp.image_loading_spinner.set_visible(false);
             }
             _ => {
-                show_error_popup(&self, &gettext("Unsupported file type"), true, None);
+                show_error_popup(
+                    &self,
+                    &gettext("Unsupported file type"),
+                    true,
+                    None::<String>,
+                );
             }
         }
     }
@@ -306,7 +311,7 @@ impl GtkTestWindow {
                 None => (),
             }
         } else {
-            show_error_popup(&self, "Failed to load image", true, None);
+            show_error_popup(&self, "Failed to load image", true, None::<String>);
         }
     }
 
@@ -528,7 +533,7 @@ impl GtkTestWindow {
                 &self,
                 &gettext("No file or path found, this is probably not your fault."),
                 true,
-                None,
+                None::<String>,
             );
             return None;
         }
@@ -547,7 +552,7 @@ impl GtkTestWindow {
         {
             Ok(x) => x,
             Err(e) => {
-                show_error_popup(&self, &e.to_string(), true, None);
+                show_error_popup(&self, &e.to_string(), true, None::<String>);
                 return None;
             }
         };
