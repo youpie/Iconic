@@ -1,12 +1,14 @@
 use crate::GenResult;
 use crate::config::{APP_ID, PROFILE};
 use crate::glib::clone;
+use crate::objects::properties::CustomRGB;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
 use adw::prelude::ComboRowExt;
 use adw::prelude::{ActionRowExt, AdwDialogExt};
 use adw::subclass::prelude::AdwDialogImpl;
 use fs_extra;
+use gdk4::RGBA;
 use gettextrs::*;
 use gio::AppInfo;
 use gtk::glib;
@@ -20,9 +22,12 @@ use std::{env, fs, path};
 use crate::GtkTestWindow;
 
 mod imp {
+    use crate::objects::properties::CustomRGB;
+
     use super::*;
 
     use adw::subclass::prelude::PreferencesDialogImpl;
+    use gdk4::RGBA;
 
     #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/nl/emphisia/icon/settings/settings.ui")]
@@ -137,7 +142,7 @@ mod imp {
                     async move {
                         win.imp()
                             .primary_folder_color
-                            .set_rgba(&GtkTestWindow::to_rgba(164, 202, 238));
+                            .set_rgba(&RGBA::from_rgb(164, 202, 238));
                     }
                 ));
             });
@@ -148,7 +153,7 @@ mod imp {
                     async move {
                         win.imp()
                             .secondary_folder_color
-                            .set_rgba(&GtkTestWindow::to_rgba(67, 141, 230));
+                            .set_rgba(&RGBA::from_rgb(67, 141, 230));
                     }
                 ));
             });
@@ -227,11 +232,9 @@ impl PreferencesDialog {
         let current_primary = imp.settings.string("primary-folder-color");
         let current_secondary = imp.settings.string("secondary-folder-color");
         imp.primary_folder_color
-            .set_rgba(&PreferencesDialog::hex_to_rgba(current_primary.to_string()));
+            .set_rgba(&RGBA::from_hex(current_primary.to_string()));
         imp.secondary_folder_color
-            .set_rgba(&PreferencesDialog::hex_to_rgba(
-                current_secondary.to_string(),
-            ));
+            .set_rgba(&RGBA::from_hex(current_secondary.to_string()));
     }
 
     fn setup_settings(&self) {
@@ -328,22 +331,22 @@ impl PreferencesDialog {
             #[weak (rename_to = this)]
             self,
             move |_| {
-                let color = this.imp().primary_folder_color.rgba();
-                let _ = this
-                    .imp()
+                let imp = this.imp();
+                let color = imp.primary_folder_color.rgba();
+                let _ = imp
                     .settings
-                    .set_string("primary-folder-color", &this.rgba_to_hex(color));
+                    .set_string("primary-folder-color", &color.to_hex());
             }
         ));
         imp.secondary_folder_color.connect_rgba_notify(clone!(
             #[weak (rename_to = this)]
             self,
             move |_| {
-                let color = this.imp().secondary_folder_color.rgba();
-                let _ = this
-                    .imp()
+                let imp = this.imp();
+                let color = imp.secondary_folder_color.rgba();
+                let _ = imp
                     .settings
-                    .set_string("secondary-folder-color", &this.rgba_to_hex(color));
+                    .set_string("secondary-folder-color", &color.to_hex());
             }
         ));
     }

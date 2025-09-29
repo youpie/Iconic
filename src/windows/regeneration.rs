@@ -1,9 +1,9 @@
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
 use crate::objects::properties::{BottomImageType, FileProperties, PropertiesSource};
-use crate::settings::settings::PreferencesDialog;
 use crate::{GtkTestWindow, objects::errors::show_error_popup};
 
+use crate::objects::properties::CustomRGB;
 use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::{gettext, ngettext};
@@ -415,7 +415,7 @@ impl GtkTestWindow {
                 1.0,
             ),
             true if rgb_string_color.is_some() && strict => {
-                PreferencesDialog::hex_to_rgba(rgb_string_color.unwrap_or_default())
+                RGBA::from_hex(rgb_string_color.unwrap_or_default())
             }
             true => self.current_accent_rgba(if strict { accent_color } else { None })?,
         };

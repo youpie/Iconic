@@ -22,7 +22,7 @@ use crate::config::{APP_ICON, APP_ID, PROFILE};
 use crate::glib::clone;
 use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
-use crate::settings::settings::PreferencesDialog;
+use crate::objects::properties::CustomRGB;
 use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -430,15 +430,15 @@ impl GtkTestWindow {
             imp.main_status_page.set_icon_name(Some(APP_ICON));
         }
         imp.default_color.replace(HashMap::from([
-            ("Blue".to_string(), GtkTestWindow::to_rgba(67, 141, 230)),
-            ("Teal".to_string(), GtkTestWindow::to_rgba(18, 158, 176)),
-            ("Green".to_string(), GtkTestWindow::to_rgba(61, 158, 79)),
-            ("Yellow".to_string(), GtkTestWindow::to_rgba(203, 147, 26)),
-            ("Orange".to_string(), GtkTestWindow::to_rgba(241, 119, 56)),
-            ("Red".to_string(), GtkTestWindow::to_rgba(232, 64, 83)),
-            ("Pink".to_string(), GtkTestWindow::to_rgba(230, 67, 146)),
-            ("Purple".to_string(), GtkTestWindow::to_rgba(149, 74, 181)),
-            ("Slate".to_string(), GtkTestWindow::to_rgba(99, 118, 146)),
+            ("Blue".to_string(), RGBA::from_rgb(67, 141, 230)),
+            ("Teal".to_string(), RGBA::from_rgb(18, 158, 176)),
+            ("Green".to_string(), RGBA::from_rgb(61, 158, 79)),
+            ("Yellow".to_string(), RGBA::from_rgb(203, 147, 26)),
+            ("Orange".to_string(), RGBA::from_rgb(241, 119, 56)),
+            ("Red".to_string(), RGBA::from_rgb(232, 64, 83)),
+            ("Pink".to_string(), RGBA::from_rgb(230, 67, 146)),
+            ("Purple".to_string(), RGBA::from_rgb(149, 74, 181)),
+            ("Slate".to_string(), RGBA::from_rgb(99, 118, 146)),
         ]));
         win.setup_defaults();
         win.create_popover_image();
@@ -487,13 +487,6 @@ impl GtkTestWindow {
         self.setup_update();
         self.load_folder_path_from_settings();
         self.slider_control_sensitivity(false);
-    }
-
-    pub fn to_rgba(r: u8, g: u8, b: u8) -> gdk::RGBA {
-        let r_float = (1.0 / 255.0 * r as f64) as f32;
-        let g_float = (1.0 / 255.0 * g as f64) as f32;
-        let b_float = (1.0 / 255.0 * b as f64) as f32;
-        gdk::RGBA::new(r_float, g_float, b_float, 1.0)
     }
 
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
@@ -723,9 +716,7 @@ impl GtkTestWindow {
             accent_color = "Blue".to_string();
         } else if selected_accent_color == "Custom" {
             accent_color = "Custom".to_string();
-            custom_rgb = PreferencesDialog::hex_to_rgba(
-                imp.settings.string("secondary-folder-color").into(),
-            );
+            custom_rgb = RGBA::from_hex(imp.settings.string("secondary-folder-color").into());
         } else {
             accent_color = selected_accent_color.into();
         }

@@ -3,6 +3,7 @@ use std::fs::DirEntry;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::gdk;
 use gtk::prelude::RangeExt;
+use hex::FromHex;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -293,5 +294,35 @@ trait ToBool {
 impl ToBool for u8 {
     fn to_bool(&self) -> bool {
         *self != 0
+    }
+}
+
+pub trait CustomRGB {
+    fn from_rgb(r: u8, g: u8, b: u8) -> Self;
+    fn to_hex(&self) -> String;
+    fn from_hex(hex: String) -> Self;
+}
+
+impl CustomRGB for gdk::RGBA {
+    fn from_rgb(r: u8, g: u8, b: u8) -> Self {
+        let r_float = (1.0 / 255.0 * r as f64) as f32;
+        let g_float = (1.0 / 255.0 * g as f64) as f32;
+        let b_float = (1.0 / 255.0 * b as f64) as f32;
+        gdk::RGBA::new(r_float, g_float, b_float, 1.0)
+    }
+
+    fn from_hex(hex: String) -> Self {
+        let decoded = <[u8; 3]>::from_hex(hex).unwrap_or([255, 255, 255]);
+        Self::from_rgb(decoded[0], decoded[1], decoded[2])
+    }
+
+    fn to_hex(&self) -> String {
+        let red = format!("{:02X?}", (self.red() * 255.0) as u8);
+        let green = format!("{:02X?}", (self.green() * 255.0) as u8);
+        let blue = format!("{:02X?}", (self.blue() * 255.0) as u8);
+
+        let hex = format!("{}{}{}", red, green, blue);
+        debug!("{}", &hex);
+        hex
     }
 }
