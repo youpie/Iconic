@@ -26,7 +26,7 @@ impl GtkTestWindow {
                 let imp = win.imp();
                 let path;
                 imp.temp_bottom_image_loaded.replace(false);
-                let mut file_properties = imp.file_properties.borrow_mut();
+                let mut file_properties = imp.file_properties.try_borrow_mut().unwrap();
                 if imp.settings.boolean("manual-bottom-image-selection") {
                     file_properties.bottom_image_type = BottomImageType::Custom;
                     let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");

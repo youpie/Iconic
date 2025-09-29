@@ -475,7 +475,7 @@ impl GtkTestWindow {
         let imp = self.imp();
         imp.save_button.set_sensitive(false);
         self.default_sliders();
-
+        self.adwaita_colors_popup();
         imp.reset_color.set_visible(false);
         self.check_if_regeneration_needed();
         let _ = imp

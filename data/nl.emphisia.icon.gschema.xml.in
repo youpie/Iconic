@@ -22,7 +22,7 @@
       <summary>Default drag-and-drop action</summary>
     </key>
     <key name="default-dnd-activated" type="b">
-      <default>false</default>
+      <default>true</default>
       <summary>Whether or not the default drag-and-drop action is activated</summary>
     </key>
     <key name="selected-accent-color" type="s">
@@ -80,6 +80,10 @@
     <key name="ignore-custom" type="b">
       <default>false</default>
       <summary>With strict mode disabled, also regenerate folders with custom colors</summary>
+    </key>
+    <key name="adwaita-colors-dialog-shown" type="b">
+      <default>false</default>
+      <summary>If true, the pop-up informing the user that adwaita colors has been detected has been shown</summary>
     </key>
 	</schema>
 </schemalist>
