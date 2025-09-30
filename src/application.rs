@@ -68,7 +68,6 @@ mod imp {
                 let window = GtkTestWindow::new(&*application);
                 window.upcast()
             };
-            window.set_title(Some(&gettext("Iconic")));
             // Ask the window manager/compositor to present the window
             window.present();
         }
@@ -178,7 +177,7 @@ If you like this app, feel free to donate, I would really appreciate it!",
             .issue_url("https://github.com/youpie/Iconic/issues")
             .website("https://github.com/youpie/Iconic")
             .license_type(License::Gpl30)
-            .copyright("© 2024 YoupDeGamerNL")
+            .copyright("© 2025 YoupDeGamerNL")
             .build();
         about.add_credit_section(Some("Supporters of iconic"), &["Nido", "Jala015"]);
         about.add_acknowledgement_section(
