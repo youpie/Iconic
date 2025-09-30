@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/nl/emphisia/icon">
-    <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">gtk/shortcuts-dialog.ui</file>
+    <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">settings/settings.ui</file>
     <file compressed="true">style.css</file>
   </gresource>

@@ -31,6 +31,7 @@ use gtk::{gio, glib};
 use std::cell::OnceCell;
 
 mod imp {
+
     use super::*;
 
     #[derive(Debug, Default)]
@@ -110,6 +111,9 @@ impl IconicApplication {
         let paste_action = gio::ActionEntry::builder("paste")
             .activate(move |app: &Self, _, _| app.paste_image())
             .build();
+        let shortcuts_action = gio::ActionEntry::builder("shortcuts")
+            .activate(move |app: &Self, _, _| app.shortcuts())
+            .build();
         self.add_action_entries([
             quit_action,
             about_action,
@@ -117,6 +121,7 @@ impl IconicApplication {
             open_action,
             open_folder_action,
             paste_action,
+            shortcuts_action,
         ]);
     }
 
@@ -128,6 +133,7 @@ impl IconicApplication {
         self.set_accels_for_action("app.select_folder", &["<primary><shift>o"]);
         self.set_accels_for_action("app.paste", &["<primary>v"]);
         self.set_accels_for_action("app.regenerate", &["<primary>r"]);
+        self.set_accels_for_action("app.shortcuts", &["<primary>question"]);
     }
 
     fn show_preferences_dialog(&self) {
@@ -152,6 +158,14 @@ impl IconicApplication {
 
     fn paste_image(&self) {
         self.activate_action("app.paste", None);
+    }
+
+    fn shortcuts(&self) {
+        let window = self.active_window().unwrap();
+        let dialog = gtk::Builder::from_resource("/nl/emphisia/icon/gtk/shortcuts-dialog.ui")
+            .object::<adw::ShortcutsDialog>("shortcuts_dialog")
+            .unwrap();
+        dialog.present(Some(&window));
     }
 
     fn show_about(&self) {

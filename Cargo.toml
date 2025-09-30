@@ -6,6 +6,8 @@ edition = "2024"
 # override package level optimization, to always be maximum
 [profile.release.package."*"]
 opt-level = "z"
+codegen-units = 1
+strip = "symbols"
 
 [profile.release]
 opt-level = "z"   # Optimize for size.

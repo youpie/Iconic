@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - When cached icons are saved to reduce bloated cache
 - Automatic folder color change is no longer the default
 - Slightly tweaked settings window
+- Set a default action when pasting or dropping
 
 ### Removed
 

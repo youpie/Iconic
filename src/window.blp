@@ -1,7 +1,7 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $GtkTestWindow: Adw.ApplicationWindow {
+template $IconicWindow: Adw.ApplicationWindow {
   default-width: 400;
   default-height: 650;
   width-request: 400;
@@ -451,7 +451,7 @@ menu primary_menu {
 
     item {
       label: _("_Keyboard Shortcuts");
-      action: "win.show-help-overlay";
+      action: "app.shortcuts";
     }
 
     item {

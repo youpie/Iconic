@@ -1,7 +1,7 @@
 using Gtk 4.0;
 using Adw 1;
 
-Adw.ShortcutsDialog help_overlay {
+Adw.ShortcutsDialog shortcuts_dialog {
   title: _("Keyboard Shortcuts");
 
   Adw.ShortcutsSection {
@@ -9,7 +9,7 @@ Adw.ShortcutsDialog help_overlay {
 
     Adw.ShortcutsItem {
       title: C_("shortcut window", "Show Shortcuts");
-      action-name: "win.show-help-overlay";
+      action-name: "app.shortcuts";
     }
 
     Adw.ShortcutsItem {

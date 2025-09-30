@@ -179,7 +179,7 @@ mod imp {
 
     #[glib::object_subclass]
     impl ObjectSubclass for IconicWindow {
-        const NAME: &'static str = "GtkTestWindow";
+        const NAME: &'static str = "IconicWindow";
         type Type = super::IconicWindow;
         type ParentType = adw::ApplicationWindow;
 
