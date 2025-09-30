@@ -11,23 +11,23 @@ template $PreferencesDialog: Adw.PreferencesDialog {
       title: _("Bottom Image");
 
       Adw.ExpanderRow use_builtin_icons_expander {
-        title: _("Use a built-in bottom icon");
+        title: _("Use Built-in Bottom Image");
         expanded: bind use_builtin_icons_button.active;
         enable-expansion: bind use_builtin_icons_button.active;
 
         [suffix]
         CheckButton use_builtin_icons_button {
-          tooltip-text: _("use the built-in bottom image");
+          tooltip-text: _("use built-in bottom image");
           valign: center;
           active: true;
         }
 
         Adw.SwitchRow use_system_color {
-          title: _("Use system folder color");
+          title: _("Use System Folder Color");
         }
 
         Adw.ComboRow select_bottom_color {
-          title: _("Manually select folder color");
+          title: _("Manually Select Folder Color");
 
           model: StringList {
             strings [
@@ -48,7 +48,7 @@ template $PreferencesDialog: Adw.PreferencesDialog {
         }
 
         Adw.ActionRow primary_color_row {
-          title: _("Primary Folder Color");
+          title: _("Primary Color");
           activatable-widget: primary_folder_color;
 
           [suffix]
@@ -65,7 +65,7 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
         Adw.ActionRow secondary_color_row {
           visible: true;
-          title: _("Secondary Folder Color");
+          title: _("Secondary Color");
           activatable-widget: secondary_folder_color;
 
           [suffix]
@@ -82,24 +82,28 @@ template $PreferencesDialog: Adw.PreferencesDialog {
       }
 
       Adw.ExpanderRow use_external_icon_expander {
-        title: _("Use custom bottom icon");
+        title: _("Use Custom Bottom Image");
         expanded: bind use_builtin_icons_button.active inverted;
         enable-expansion: bind use_builtin_icons_button.active inverted;
 
         [suffix]
         CheckButton use_external_icon_button {
-          tooltip-text: _("use a custom bottom image");
+          tooltip-text: _("use custom bottom image");
           valign: center;
           group: use_builtin_icons_button;
         }
 
         Adw.ActionRow current_botton {
-          subtitle: _("Currently set bottom icon");
+          title: _("Current Image");
+
+          styles [
+            "property",
+          ]
         }
 
         Adw.ButtonRow select_default_bottom {
-          title: _("Select bottom icon");
-          action-name: "app.select_folder_settings";
+          title: _("Select Image");
+          action-name: "win.select_folder_settings";
           start-icon-name: "folder-open-symbolic";
         }
       }
@@ -110,13 +114,13 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
       Adw.PreferencesGroup {
         Adw.SwitchRow meta_drop_switch {
-          title: _("Enable drop during drag");
-          subtitle: _("Enabling this option will allow you to import the current image as a layer by dragging and dropping the image back into iconic");
+          title: _("Allow Drop During Drag");
+          subtitle: _("Allow dropping the image back as a layer when dragging");
         }
 
         Adw.ExpanderRow default_dnd {
-          title: _("Default drag-and-drop action");
-          subtitle: _("By default, after dragging and dropping a file, you have to select a layer to paste it to. Here you can disable that pop-up");
+          title: _("Default Drag-and-Drop Action");
+          subtitle: _("Set a default layer when dropping an image");
           expanded: bind dnd_switch.active;
           enable-expansion: bind dnd_switch.active;
 
@@ -170,21 +174,21 @@ template $PreferencesDialog: Adw.PreferencesDialog {
               use-markup: true;
               margin-start: 10;
               margin-end: 10;
-              label: _("Iconic is able to <i>Regenerate</i> compatible icons. It is the ability to change to color of the folder image after it has already been created when changing the system color theme.\
-This is most useful in combination with for example <a href=\"https://github.com/dpejoh/Adwaita-colors\"><b>Adwaita Colors</b></a> which automatically changes the color of all folders based on the system accent color.\
-After regeneration, it is likely required to log out and in again to see the changes");
+              label: _("Iconic is able to <i>Regenerate</i> compatible icons. Regeneration is the ability to change the color of a folder image after it has already been created when the system accent color has been changed.\
+This is useful in combination with <a href=\"https://github.com/dpejoh/Adwaita-colors\"><b>Adwaita Colors</b></a> which automatically changes the color of all folders based on the current accent color.\
+After regeneration, it is likely required to log out and in to see the changes");
             }
           }
         }
 
         Adw.SwitchRow automatic_regeneration {
-          title: _("Regenerate automatically");
-          subtitle: _("If enabled, folders will be automatically regenerated on system accent color change");
+          title: _("Regenerate Automatically");
+          subtitle: _("Regenerate images on accent color change");
         }
 
         Adw.ExpanderRow strict_expander {
-          title: _("Loose regeneration");
-          subtitle: _("If enabled, Allow regeneration of folder icons that were made without the \"Use system folder color\" option enabled");
+          title: _("Loose Regeneration");
+          subtitle: _("Allow regeneration of folder images with \"Use system folder color\" disabled");
           expanded: false;
           enable-expansion: bind strict_regeneration.active;
 
@@ -196,18 +200,18 @@ After regeneration, it is likely required to log out and in again to see the cha
           }
 
           Adw.SwitchRow ignore_custom {
-            title: _("Ignore custom colored folders");
-            subtitle: _("If enabled, folders with custom colors will not be regenerated");
+            title: _("Ignore Custom Folders");
+            subtitle: _("Don't regenerate folder images with custom folder colors");
           }
         }
 
         Adw.SwitchRow store_top_images {
-          title: _("Store top images in cache");
-          subtitle: _("If disabled, folder icons can't be regenerated for different system accent colors");
+          title: _("Store Top Images in Cache");
+          subtitle: _("Folder icons made while this option is disabled cannot be regenerated");
         }
 
         Adw.ActionRow cache_size {
-          title: _("Currently used cache size");
+          title: _("Current Cache Usage");
           subtitle: "Unknown";
 
           styles [
@@ -217,13 +221,13 @@ After regeneration, it is likely required to log out and in again to see the cha
         }
 
         Adw.ButtonRow browse_cache {
-          title: _("Browse cached images");
+          title: _("Browse Cached Images");
           start-icon-name: "folder-open-symbolic";
           activated => $open_image_cache() swapped;
         }
 
         Adw.ButtonRow reset_top_cache {
-          title: _("Remove all cached images");
+          title: _("Remove Cached Images");
           start-icon-name: "user-trash-symbolic";
 
           styles [

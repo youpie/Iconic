@@ -44,7 +44,10 @@ use std::sync::{Arc, Mutex};
 mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc};
 
-    use crate::{objects::properties::FileProperties, windows::drag_overlay::DragOverlay};
+    use crate::{
+        objects::properties::FileProperties, settings::settings::PreferencesDialog,
+        windows::drag_overlay::DragOverlay,
+    };
 
     use super::*;
 
@@ -217,6 +220,17 @@ mod imp {
             });
             klass.install_action("app.open_bottom_icon", None, move |win, _, _| {
                 win.check_icon_update();
+            });
+            klass.install_action("app.change_bottom", None, move |win, _, _| {
+                let imp = win.imp();
+                _ = imp
+                    .settings
+                    .set_boolean("manual-bottom-image-selection", true);
+                let preferences = PreferencesDialog::new();
+                adw::prelude::AdwDialogExt::present(&preferences, Some(win));
+                preferences
+                    .activate_action("win.select_folder_settings", None)
+                    .unwrap();
             });
             klass.install_action("app.reset", None, move |win, _, _| {
                 let imp = win.imp();

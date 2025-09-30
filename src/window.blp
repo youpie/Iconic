@@ -285,7 +285,7 @@ template $IconicWindow: Adw.ApplicationWindow {
                         value-changed => $render_callback() swapped;
 
                         adjustment: Adjustment percentage3 {
-                          lower: 0;
+                          lower: -5;
                           upper: 50;
                           step-increment: 1;
                         };
@@ -470,7 +470,7 @@ menu image_menu {
 
     item {
       label: _("Change Bottom Image");
-      action: "app.preferences";
+      action: "app.change_bottom";
     }
   }
 

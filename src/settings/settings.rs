@@ -129,7 +129,7 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
             klass.bind_template_instance_callbacks();
-            klass.install_action("app.select_folder_settings", None, move |win, _, _| {
+            klass.install_action("win.select_folder_settings", None, move |win, _, _| {
                 win.select_path_filechooser();
             });
             klass.install_action("app.reset_color_primary", None, move |win, _, _| {
@@ -381,7 +381,7 @@ impl PreferencesDialog {
         let current_path = &self.imp().settings.string("folder-svg-path");
         self.imp()
             .current_botton
-            .set_property("title", current_path);
+            .set_property("subtitle", current_path);
     }
 
     fn select_path_filechooser(&self) {

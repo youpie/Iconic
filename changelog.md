@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - New view when images are dragged into iconic
 - Ability to disable meta drag
 - Iconic file properties are now stored as XMP data
+- Ability to reset image
 
 ### Changed
 
