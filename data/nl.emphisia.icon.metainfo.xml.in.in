@@ -34,6 +34,23 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2025.9.1" date="2025-09-30" type="stable">
+      <description>
+        <p>Free Palestine🇵🇸. After a long wait, a new Iconic release is finally here! Featuring fun new features and fixes!</p>
+        <ol>
+          <li>Updated to Gnome 49</li>
+          <li>Updated Regeneration Logic</li>
+          <li>Added Kazakh, Russian and Persian language support</li>
+          <li>Added ability to reset image</li>
+          <li>Added ability to drag images from the browser</li>
+          <li>Increased maximum size of top image</li>
+          <li>Updated default settings</li>
+          <li>Fixed Pop-up informing about accent color change on first run</li>
+        </ol>
+        <p>And many more changes, the full changelog can be found on GitHub!</p>
+        <p>I hope life has been treating you well :)</p>
+      </description>
+    </release>
     <release version="2025.3.2" date="2025-03-27" type="stable">
       <description>
         <p>Here I am, once again. A new update to Iconic is here with the following changes!</p>
