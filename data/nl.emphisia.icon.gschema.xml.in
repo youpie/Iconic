@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="gtk_test">
+<schemalist gettext-domain="Iconic">
 	<schema id="@app-id@" path="/nl/emphisia/icon/">
 	  <key name="folder-svg-path" type="s">
       <default>"/run/host/share/icons/Adwaita/scalable/places/folder.svg"</default>
@@ -9,11 +9,11 @@
       <default>'folder.svg'</default>
       <summary>name of folder icon in cache</summary>
     </key>
-	  <key name="svg-render-size" type="i">
+	  <key name="svg-render-size" type="u">
       <default>1024</default>
       <summary>SVG render resolution</summary>
     </key>
-	  <key name="thumbnail-size" type="i">
+	  <key name="thumbnail-size" type="u">
       <default>256</default>
       <summary>Thumbnail render resolution</summary>
     </key>
@@ -22,35 +22,31 @@
       <summary>Default drag-and-drop action</summary>
     </key>
     <key name="default-dnd-activated" type="b">
-      <default>false</default>
+      <default>true</default>
       <summary>Whether or not the default drag-and-drop action is activated</summary>
     </key>
     <key name="selected-accent-color" type="s">
-      <default>'None'</default>
+      <default>'Blue'</default>
       <summary>The accent color the user has selected in words, string is "None" if automatic change is selected</summary>
     </key>
-    <key name="selected-accent-color-index" type="i">
+    <key name="selected-accent-color-index" type="u">
       <default>0</default>
       <summary>The accent color the user has selected as index for row</summary>
     </key>
     <key name="previous-system-accent-color" type="s">
-      <default>'Blue'</default>
-      <summary>This is the accent color of the system, the last time it was checked</summary>
+      <default>'None'</default>
+      <summary>This is the accent color of the system, the last time it was checked, None means the pop-up wont be shown</summary>
     </key>
     <key name="manual-bottom-image-selection" type="b">
       <default>false</default>
       <summary>If true, the user has set a custom image for the bottom</summary>
-    </key>
-    <key name="accent-color-popup-shown" type="b">
-      <default>false</default>
-      <summary>If true, the pop-up informing the user that the folder color has been adjusted automatically has already been shown</summary>
     </key>
     <key name="drag-and-drop-popup-shown" type="b">
       <default>false</default>
       <summary>If true, the pop-up informing the user that it is possible to drag images straight out of iconic has already been shown</summary>
     </key>
     <key name="store-top-in-cache" type="b">
-      <default>false</default>
+      <default>true</default>
       <summary>If true, iconic will store top images in chache</summary>
     </key>
     <key name="automatic-regeneration" type="b">
@@ -61,6 +57,10 @@
       <default>false</default>
       <summary>If true, the pop-up informing the user that it is possible to regenerate images has already been shown</summary>
     </key>
+    <key name="monochrome-mode-active" type="b">
+      <default>true</default>
+      <summary>If monochrome mode was active, the last time iconic was on</summary>
+    </key>
     <key name="primary-folder-color" type="s">
       <default>'A4CAEE'</default>
       <summary>Color of primary part of custom folder</summary>
@@ -68,6 +68,22 @@
     <key name="secondary-folder-color" type="s">
       <default>'438DE6'</default>
       <summary>Color of secondary part of custom folder</summary>
+    </key>
+    <key name="allow-meta-drop" type="b">
+      <default>false</default>
+      <summary>Allow dropping dragged iconic images back into iconic</summary>
+    </key>
+    <key name="strict-regeneration" type="b">
+      <default>true</default>
+      <summary>Only allow regeneration of folder with "follow accent color" enabled</summary>
+    </key>
+    <key name="ignore-custom" type="b">
+      <default>false</default>
+      <summary>With strict mode disabled, also regenerate folders with custom colors</summary>
+    </key>
+    <key name="adwaita-colors-dialog-shown" type="b">
+      <default>false</default>
+      <summary>If true, the pop-up informing the user that adwaita colors has been detected has been shown</summary>
     </key>
 	</schema>
 </schemalist>

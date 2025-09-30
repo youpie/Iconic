@@ -1,12 +1,12 @@
 {
     "id": "nl.emphisia.icon",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "48",
+    "runtime-version": "49",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
-    "command": "folder_icon",
+    "command": "Iconic",
     "finish-args": [
         "--share=ipc",
         "--socket=fallback-x11",
@@ -16,7 +16,7 @@
     "build-options": {
         "append-path": "/usr/lib/sdk/rust-stable/bin",
         "env": {
-            "RUST_LOG": "folder_icon=info"
+            "RUST_LOG": "Iconic=info"
         }
     },
     "cleanup": [
@@ -41,12 +41,12 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
-                    "tag": "v0.16.0"
+                    "tag": "v0.18.0"
                 }
             ]
         },
         {
-            "name": "folder_icon",
+            "name": "Iconic",
             "buildsystem": "meson",
             "config-opts": [
                 "-Dprofile=default"

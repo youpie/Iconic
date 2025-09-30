@@ -8,24 +8,26 @@ template $PreferencesDialog: Adw.PreferencesDialog {
     title: _("General");
 
     Adw.PreferencesGroup {
-      title: _("Customise");
+      title: _("Bottom Image");
 
       Adw.ExpanderRow use_builtin_icons_expander {
-        title: _("Use a built-in bottom icon");
+        title: _("Use Built-in Bottom Image");
+        expanded: bind use_builtin_icons_button.active;
+        enable-expansion: bind use_builtin_icons_button.active;
 
         [suffix]
         CheckButton use_builtin_icons_button {
-          tooltip-text: _("use the built-in bottom image");
+          tooltip-text: _("use built-in bottom image");
           valign: center;
           active: true;
         }
 
         Adw.SwitchRow use_system_color {
-          title: _("Use system accent color");
+          title: _("Use System Folder Color");
         }
 
         Adw.ComboRow select_bottom_color {
-          title: _("Manually select folder color");
+          title: _("Manually Select Folder Color");
 
           model: StringList {
             strings [
@@ -41,10 +43,12 @@ template $PreferencesDialog: Adw.PreferencesDialog {
               _("Custom"),
             ]
           };
+
+          sensitive: bind use_system_color.active inverted;
         }
 
         Adw.ActionRow primary_color_row {
-          title: _("Primary Folder Color");
+          title: _("Primary Color");
           activatable-widget: primary_folder_color;
 
           [suffix]
@@ -61,7 +65,7 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
         Adw.ActionRow secondary_color_row {
           visible: true;
-          title: _("Secondary Folder Color");
+          title: _("Secondary Color");
           activatable-widget: secondary_folder_color;
 
           [suffix]
@@ -78,84 +82,157 @@ template $PreferencesDialog: Adw.PreferencesDialog {
       }
 
       Adw.ExpanderRow use_external_icon_expander {
-        title: _("Use custom bottom icon");
+        title: _("Use Custom Bottom Image");
+        expanded: bind use_builtin_icons_button.active inverted;
+        enable-expansion: bind use_builtin_icons_button.active inverted;
 
         [suffix]
         CheckButton use_external_icon_button {
-          tooltip-text: _("use a custom bottom image");
+          tooltip-text: _("use custom bottom image");
           valign: center;
           group: use_builtin_icons_button;
         }
 
         Adw.ActionRow current_botton {
-          subtitle: _("Currently set bottom icon");
+          title: _("Current Image");
+
+          styles [
+            "property",
+          ]
         }
 
         Adw.ButtonRow select_default_bottom {
-          title: _("Select bottom icon");
-          action-name: "app.select_folder";
+          title: _("Select Image");
+          action-name: "win.select_folder_settings";
           start-icon-name: "folder-open-symbolic";
         }
       }
     }
 
     Adw.PreferencesGroup {
-      Adw.SwitchRow store_top_images {
-        title: _("Store top images in cache");
-        subtitle: _("If you change your system accent color, and want to regenerate the icons, turn this on");
-      }
+      title: _("Drag and Drop");
 
-      Adw.SwitchRow automatic_regeneration {
-        title: _("Regenerate automatically");
-        subtitle: _("If you want to automatically regenerate images after changing accent color, turn this on");
-      }
+      Adw.PreferencesGroup {
+        Adw.SwitchRow meta_drop_switch {
+          title: _("Allow Drop During Drag");
+          subtitle: _("Allow dropping the image back as a layer when dragging");
+        }
 
-      Adw.ActionRow cache_size {
-        title: _("Current cache used");
-        subtitle: "100 MB";
-      }
+        Adw.ExpanderRow default_dnd {
+          title: _("Default Drag-and-Drop Action");
+          subtitle: _("Set a default layer when dropping an image");
+          expanded: bind dnd_switch.active;
+          enable-expansion: bind dnd_switch.active;
 
-      Adw.ButtonRow reset_top_cache {
-        title: _("Remove all cached images");
-        start-icon-name: "user-trash-symbolic";
+          [suffix]
+          Switch dnd_switch {
+            tooltip-text: _("Use a default drag and drop action");
+            valign: center;
+            active: false;
+            action-name: "app.dnd_switch";
+          }
 
-        styles [
-          "destructive-action",
-        ]
+          Adw.ActionRow {
+            title: _("Always select top layer");
+            activatable-widget: radio_button_top;
+
+            Gtk.CheckButton radio_button_top {
+              active: true;
+              valign: center;
+            }
+          }
+
+          Adw.ActionRow {
+            title: _("Always select bottom layer");
+            activatable-widget: radio_button_bottom;
+
+            Gtk.CheckButton radio_button_bottom {
+              group: radio_button_top;
+              valign: center;
+            }
+          }
+        }
       }
     }
 
     Adw.PreferencesGroup {
-      Adw.ExpanderRow default_dnd {
-        title: _("Default drag-and-drop action");
-        subtitle: _("By default, after dragging and dropping a file, you have to select a layer to paste it to. Here you can disable that pop-up");
+      title: _("Regeneration");
 
-        [suffix]
-        Switch dnd_switch {
-          tooltip-text: _("Use a default drag and drop action");
-          valign: center;
-          active: false;
-          action-name: "app.dnd_switch";
-        }
+      Adw.PreferencesGroup {
+        Adw.ExpanderRow {
+          title: _("What is Regeneration?");
+          activatable: false;
 
-        Adw.ActionRow {
-          title: _("Always select top layer");
-          activatable-widget: radio_button_top;
+          ListBoxRow {
+            activatable: false;
 
-          Gtk.CheckButton radio_button_top {
-            active: true;
-            valign: center;
+            [child]
+            Label {
+              wrap: true;
+              selectable: true;
+              valign: start;
+              use-markup: true;
+              margin-start: 10;
+              margin-end: 10;
+              label: _("Iconic is able to <i>Regenerate</i> compatible icons. Regeneration is the ability to change the color of a folder image after it has already been created when the system accent color has been changed.\
+This is useful in combination with <a href=\"https://github.com/dpejoh/Adwaita-colors\"><b>Adwaita Colors</b></a> which automatically changes the color of all folders based on the current accent color.\
+After regeneration, it is likely required to log out and in to see the changes");
+            }
           }
         }
 
-        Adw.ActionRow {
-          title: _("Always select bottom layer");
-          activatable-widget: radio_button_bottom;
+        Adw.SwitchRow automatic_regeneration {
+          title: _("Regenerate Automatically");
+          subtitle: _("Regenerate images on accent color change");
+        }
 
-          Gtk.CheckButton radio_button_bottom {
-            group: radio_button_top;
+        Adw.ExpanderRow strict_expander {
+          title: _("Loose Regeneration");
+          subtitle: _("Allow regeneration of folder images with \"Use system folder color\" disabled");
+          expanded: false;
+          enable-expansion: bind strict_regeneration.active;
+
+          [suffix]
+          Switch strict_regeneration {
             valign: center;
+            active: false;
+            action-name: "app.strict_regeneration";
           }
+
+          Adw.SwitchRow ignore_custom {
+            title: _("Ignore Custom Folders");
+            subtitle: _("Don't regenerate folder images with custom folder colors");
+          }
+        }
+
+        Adw.SwitchRow store_top_images {
+          title: _("Store Top Images in Cache");
+          subtitle: _("Folder icons made while this option is disabled cannot be regenerated");
+        }
+
+        Adw.ActionRow cache_size {
+          title: _("Current Cache Usage");
+          subtitle: "Unknown";
+
+          styles [
+            "property",
+            "numeric",
+          ]
+        }
+
+        Adw.ButtonRow browse_cache {
+          title: _("Browse Cached Images");
+          start-icon-name: "folder-open-symbolic";
+          activated => $open_image_cache() swapped;
+        }
+
+        Adw.ButtonRow reset_top_cache {
+          title: _("Remove Cached Images");
+          start-icon-name: "user-trash-symbolic";
+
+          styles [
+            "destructive-action",
+          ]
         }
       }
     }

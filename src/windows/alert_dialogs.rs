@@ -1,9 +1,12 @@
+use std::path::PathBuf;
+
 use crate::objects::errors::show_error_popup;
 
 use adw::AlertDialog;
 use adw::prelude::Cast;
 use adw::prelude::{AdwApplicationWindowExt, AdwDialogExt, AlertDialogExt, AlertDialogExtManual};
 use gettextrs::gettext;
+use gio::glib::clone;
 use gio::{
     glib,
     prelude::{ActionGroupExt, SettingsExt, SettingsExtManual},
@@ -12,9 +15,9 @@ use gio::{
 use gtk::prelude::GtkWindowExt;
 use log::*;
 
-use crate::GtkTestWindow;
+use crate::IconicWindow;
 
-impl GtkTestWindow {
+impl IconicWindow {
     pub fn drag_and_drop_information_dialog(&self) {
         let imp = self.imp();
         if imp.settings.boolean("drag-and-drop-popup-shown") {
@@ -111,28 +114,46 @@ impl GtkTestWindow {
         false
     }
 
-    pub fn get_accent_color_and_show_dialog(&self) -> String {
-        let imp = self.imp();
-        let accent_color = format!("{:?}", adw::StyleManager::default().accent_color());
-        if !imp.settings.boolean("accent-color-popup-shown")
-            && accent_color != imp.settings.string("previous-system-accent-color")
-        {
-            const RESPONSE_OK: &str = "OK";
-            let dialog = adw::AlertDialog::builder()
-                .heading(&gettext("Accent color changed"))
-                .body(&gettext("The system accent color has been changed, Iconic has automatically changed the color of the folder.\nIf you do not want this, you can turn this off in the settings"))
-                .default_response(RESPONSE_OK)
-                .build();
-            dialog.add_response(RESPONSE_OK, &gettext("OK"));
-            dialog.present(Some(self));
-            let _ = imp.settings.set("accent-color-popup-shown", true);
-        }
-        accent_color
+    pub fn adwaita_colors_popup(&self) {
+        glib::spawn_future_local(clone!(
+            #[weak (rename_to = win)]
+            self,
+            async move {
+                let imp = win.imp();
+                let adwaita_colors_path =
+                    PathBuf::from("/run/host/usr/share/icons/Adwaita-blue/index.theme");
+                let pop_up_already_shown = imp.settings.boolean("adwaita-colors-dialog-shown");
+                let automatic_folder_color_selected =
+                    imp.settings.string("selected-accent-color") == "None";
+                if adwaita_colors_path.exists()
+                    && !pop_up_already_shown
+                    && !automatic_folder_color_selected
+                {
+                    match win.show_alert_dialog(&gettext("Adwaita Colors detected"), 
+                    &gettext("Adwaita colors has been detected on your system, do you want to enable the folder color to adapt to your active system accent color?"), 
+                    vec![&gettext("Enable"), &gettext("Don't enable")]).await {
+                        Some(0) => {_ = imp.settings.set_string("selected-accent-color", "None")},
+                        Some(1) => (),
+                        _ => ()
+                    };
+                    _ = imp
+                        .settings
+                        .set_boolean("adwaita-colors-dialog-shown", true);
+                }
+            }
+        ));
     }
 
     pub fn drag_and_drop_regeneration_popup(&self) {
         let imp = self.imp();
-        if !imp.settings.boolean("regeneration-hint-shown") {
+        if !imp.settings.boolean("regeneration-hint-shown")
+            && imp
+                .file_properties
+                .borrow()
+                .bottom_image_type
+                .is_strict_compatible()
+                == Some(true)
+        {
             const RESPONSE_OK: &str = "OK";
             let dialog = adw::AlertDialog::builder()
                 .heading(&gettext("Regenerating Icons"))
@@ -168,11 +189,51 @@ impl GtkTestWindow {
         dialog.add_response(RESPONSE_WAIT, &gettext("Wait"));
         dialog.set_response_appearance(RESPONSE_WAIT, adw::ResponseAppearance::Suggested);
         dialog.present(Some(self));
+
         match &*dialog.clone().choose_future(self).await {
             RESPONSE_WAIT => (),
             RESPONSE_FORCE_QUIT => self.application().unwrap().activate_action("quit", None),
             _ => unreachable!(),
         }
+    }
+
+    // The options must me unique!
+    pub async fn show_alert_dialog(
+        &self,
+        title: &str,
+        text: &str,
+        options: Vec<&str>,
+    ) -> Option<usize> {
+        let first_option = if let Some(option) = options.first() {
+            *option
+        } else {
+            return None;
+        };
+        let last_option = if let Some(option) = options.last() {
+            *option
+        } else {
+            return None;
+        };
+
+        let dialog = adw::AlertDialog::builder()
+            .heading(title)
+            .body(text)
+            .default_response(first_option)
+            .close_response(last_option)
+            .build();
+        let mut options_clone = options.clone();
+        options_clone.reverse();
+
+        for option in options_clone {
+            dialog.add_response(option, option);
+        }
+        if options.len() > 1 {
+            dialog.set_response_appearance(first_option, adw::ResponseAppearance::Suggested);
+        }
+        let option_chosen = &*dialog.clone().choose_future(self).await;
+        let option = options.iter().position(|n| n == &option_chosen);
+        debug!("Options: {options:?}, Chosen: {option_chosen} - Result: {option:?}");
+        option
     }
 
     fn get_current_alert_dialog(&self) -> Option<AlertDialog> {
@@ -186,6 +247,8 @@ impl GtkTestWindow {
         dialog.downcast::<AlertDialog>().ok()
     }
 
+    // If a user tries to close iconic while it is busy a pop-up is shown
+    // But after it is done being busy it is nice to just close that pop up automatically
     pub fn close_iconic_busy_popup(&self) {
         if let Some(alert_dialog) = self.get_current_alert_dialog() {
             if alert_dialog.default_response() == Some("WAIT_QUIT".into()) {
@@ -200,7 +263,7 @@ impl GtkTestWindow {
 
     pub fn quit_iconic(&self) {
         let imp = self.imp();
-        if imp.image_saved.borrow().clone() {
+        if imp.image_saved.get() {
             error!("closing iconic");
             self.application().unwrap().activate_action("quit", None);
         }

@@ -18,35 +18,37 @@ This application is my first attempt at creating an application using Rust and L
 ## Todo 📝
 
 These are ideas I want to implement.
-- [ ] Add features
-    - [X] Update to gnome 48 runtime
-    - [X] Add threading
-        - [ ] Loading dragged images
-        - [ ] Making images monochrome
-            - Monochrome images get recreated every time the preview is updated. Slows down quite a lot on slower systems, i could also
-            - [ ] Just not recreate monochrome images every preview update
-    - [ ] Export to SVG
-        - This would probably require a full rewrite of the image generation system. Using cairo or something, but I originally didn't use cairo as I did not understand it, and good examples were really scarse 
-    - [ ] Rounded corner option for top image
-    - [ ] Add guide grid or something
-    - [X] Create guide when first starting iconic, to show users dragging and dropping images is possible
-    - [ ] Refer users to icon library, so they know where to find many good icons   
-    - [X] Improve about window (example [eyedropper](https://github.com/FineFindus/eyedropper/blob/main/src/widgets/about_window.rs))
-- [ ] Use [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/)
-- [X] Move donation link to About iconic (issue #8)
+### New features
+- [ ] Add more visual guide to show how changing a folder icon in nautilus works
+- [ ] Add an option to force regenerate icons with non-accent following colors
+    - If the user wants to add adwaita colors later while using iconic, that is not really supported
+- [ ] Make it more clear when icons can be regenerated and when not
+- [ ] not recreate monochrome images every preview update
+    - Monochrome images get recreated every time the preview is updated. Slows down quite a lot on slower systems, i could also
+- [ ] Export to SVG
+    - This would probably require a full rewrite of the image generation system. Using cairo or something, but I originally didn't use cairo as I did not understand it, and good examples were really scarse 
+- [ ] Rounded corner option for top image
+- [ ] Add guide grid or something
+- [ ] Refer users to icon library, so they know where to find many good icons
+    - I already do this in the description, but maybe somewhere in the app itself also?
+- [ ] Show how many files are regenerated and how many are left during regeneration
+
+### Environment improvements
 - [ ] Make donation link just point to a random charity
-- [X] Improve accessibility
-    - Find accessibility issues in the app, and adress them
 - [ ] Set up CI/CD Pipeline
-- [ ] Apply for [gnome circle](https://gitlab.gnome.org/Teams/Circle#how-to-apply)
+    - A pipeline for dev, i do not think i need. But for main would be really handy. Especially with translation files
+- [ ] Use better sollution for managing translations
+- [X] Apply for [gnome circle](https://gitlab.gnome.org/Teams/Circle#how-to-apply)
 - [ ] Create tests
     - It has now happened several times, that I release an update and it turns out a feature of the app is completely broken. That is not acceptable
-- [ ] Clean up code
-    - [ ] Reduce unwraps
-    - I feel like a lot of code is not up to "standards" like rust conventions and stuff, So I need to do some research into that. 
-- [ ] Add comments
+
+### General goals
+- Clean up code
+    - Reduce unwraps
+        - I feel like a lot of code is not up to "standards" like rust conventions and stuff, So I need to do some research into that. 
+- Add comments
     - I struggled a lot learning it all, So adding comments, especially at points I got stuck, might help other devs also wanting to learn 
-- [ ] Reduce file size
+- Reduce file size
     - I the app is about 17 mb's, way to much for such a simple app imo. I might use a lot of large libs (Like cairo) only for a single purpose, so possibly that could be improved.
 
 ## Contributing 🤝
@@ -76,5 +78,5 @@ The icon is just a few already existing icons added together, the following are 
 The folders/colors used in Iconic are taken from 
 - Adwaita-Colors - https://github.com/dpejoh/Adwaita-colors/tree/main
 
-### Code of Conduct
+## Code of Conduct 🚨
 This app follows the [Gnome Code of Conduct](https://conduct.gnome.org/)

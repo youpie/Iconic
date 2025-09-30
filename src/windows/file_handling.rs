@@ -1,35 +1,59 @@
-use crate::objects::errors::{IntoResult, show_error_popup};
+use crate::objects::errors::{ErrorPopup, IntoResult, show_error_popup};
 use crate::objects::file::File;
+use crate::objects::properties::{BottomImageType, FileProperties};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::*;
-use gtk::glib;
+use gtk::{gdk, glib};
 use image::*;
 use log::*;
 use std::env;
-use std::error::Error;
 use std::path::PathBuf;
 use std::sync::Arc;
+use xmp_toolkit::{OpenFileOptions, XmpFile, XmpMeta, XmpValue, xmp_ns};
 
-use crate::{GenResult, GtkTestWindow};
+use crate::{GenResult, IconicWindow};
 
-impl GtkTestWindow {
+impl IconicWindow {
+    // Load the correct folder based on settings
+    // TODO This function is quite confusingly written
     pub fn load_folder_path_from_settings(&self) {
         glib::spawn_future_local(glib::clone!(
             #[weak(rename_to = win)]
             self,
             async move {
-                let imp = win.imp();
                 let path;
-                imp.temp_image_loaded.replace(false);
+                let imp = win.imp();
+                imp.temp_bottom_image_loaded.replace(false);
+                let mut file_properties = imp.file_properties.try_borrow().unwrap().clone();
                 if imp.settings.boolean("manual-bottom-image-selection") {
+                    file_properties.bottom_image_type = BottomImageType::Custom;
                     let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
                     path = win.check_chache_icon(cache_file_name).await;
                 } else if imp.settings.string("selected-accent-color") == "Custom" {
-                    path = win.create_custom_folder_color().await;
+                    let custom_primary_color: String =
+                        imp.settings.string("primary-folder-color").into();
+                    let custom_secondary_color: String =
+                        imp.settings.string("secondary-folder-color").into();
+                    path = win
+                        .create_custom_folder_color(
+                            &custom_primary_color,
+                            &custom_secondary_color,
+                            false,
+                        )
+                        .await;
+                    file_properties.bottom_image_type =
+                        BottomImageType::FolderCustom(custom_primary_color, custom_secondary_color);
                 } else {
-                    path = win.load_built_in_bottom_icon().await;
+                    let set_folder_color: String =
+                        imp.settings.string("selected-accent-color").into();
+                    path = win.load_built_in_bottom_icon(&set_folder_color).await;
+                    file_properties.bottom_image_type = match set_folder_color.as_str() {
+                        "None" => BottomImageType::FolderSystem,
+                        _ => BottomImageType::Folder(set_folder_color),
+                    }
                 }
+                imp.file_properties.replace(file_properties);
                 if !imp.reset_color.is_visible() {
                     win.reset_colors();
                 }
@@ -40,26 +64,32 @@ impl GtkTestWindow {
         ));
     }
 
-    async fn create_custom_folder_color(&self) -> PathBuf {
-        let imp = self.imp();
+    // Replace the
+    pub async fn create_custom_folder_color(
+        &self,
+        primary_color: &str,
+        secondary_color: &str,
+        regeneration: bool,
+    ) -> PathBuf {
         info!("Creating custom folder colors");
-        let custom_primary_color = imp.settings.string("primary-folder-color");
-        let custom_secondary_color = imp.settings.string("secondary-folder-color");
         let folder_svg_file =
-            std::fs::read_to_string("/app/share/folder_icon/folders/folder_Custom.svg").unwrap();
+            std::fs::read_to_string("/app/share/Iconic/folders/folder_Custom.svg").unwrap();
         let folder_svg_lines = folder_svg_file.lines();
         let new_custom_folder: String = folder_svg_lines
             .map(|row| {
                 let row_clone = row.to_string();
-                let row_clone = row_clone.replace("a4caee", &custom_primary_color);
-                let mut row_clone = row_clone.replace("438de6", &custom_secondary_color);
+                let row_clone = row_clone.replace("a4caee", &primary_color);
+                let mut row_clone = row_clone.replace("438de6", &secondary_color);
                 row_clone.push_str("\n");
                 row_clone
             })
             .collect();
         let new_custom_folder_bytes = new_custom_folder.as_bytes().to_owned();
-        let mut cache_location = self.get_cache_path();
-        cache_location.push("custom_folder.svg");
+        let mut cache_location = Self::get_cache_path();
+        cache_location.push(format!(
+            "custom_folder{}.svg",
+            if regeneration { "_regeneration" } else { "" }
+        ));
         let cache_location_clone = cache_location.clone();
 
         gio::spawn_blocking(move || {
@@ -70,15 +100,14 @@ impl GtkTestWindow {
         cache_location
     }
 
-    pub async fn load_built_in_bottom_icon(&self) -> PathBuf {
-        let imp = self.imp();
-        let current_set_accent_color = imp.settings.string("selected-accent-color");
-        let folder_color_name = match current_set_accent_color.as_str() {
-            "None" => self.get_accent_color_and_show_dialog(),
+    pub async fn load_built_in_bottom_icon(&self, accent_color_setting: &str) -> PathBuf {
+        // let imp = self.imp();
+        let folder_color_name = match accent_color_setting {
+            "None" => self.get_accent_color(),
             x => x.to_string(),
         };
         let folder_path = PathBuf::from(format!(
-            "/app/share/folder_icon/folders/folder_{}.svg",
+            "/app/share/Iconic/folders/folder_{}.svg",
             folder_color_name
         ));
         folder_path
@@ -87,7 +116,8 @@ impl GtkTestWindow {
     pub async fn paste_from_clipboard(&self) {
         let clipboard = self.clipboard();
         let imp = self.imp();
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let svg_size: u32 = imp.settings.get("svg-render-size");
 
         match clipboard
             .read_future(&["image/svg+xml"], glib::Priority::DEFAULT)
@@ -105,24 +135,24 @@ impl GtkTestWindow {
                             .unwrap();
                     match top_file_selected {
                         Some(true) => {
+                            // Pasting from a clipboard does not get a file path, which the new_iconic_file creation function needs
                             let iconic_file = gio::spawn_blocking(move || {
-                                File::from_image(image, thumbnail_size, "pasted")
+                                File::from_image(image, thumbnail_size, Some(svg_size), "pasted")
                             })
                             .await
                             .unwrap();
-                            match self.store_top_image_in_cache(&iconic_file, None) {
-                                Err(x) => {
-                                    show_error_popup(&self, &x.to_string(), true, None);
-                                }
-                                _ => (),
-                            };
                             imp.top_image_file.lock().unwrap().replace(iconic_file);
                         }
                         _ => {
-                            imp.temp_image_loaded.replace(true);
+                            imp.temp_bottom_image_loaded.replace(true);
                             imp.bottom_image_file.lock().unwrap().replace(
                                 gio::spawn_blocking(move || {
-                                    File::from_image(image.clone(), thumbnail_size, "pasted")
+                                    File::from_image(
+                                        image.clone(),
+                                        thumbnail_size,
+                                        Some(svg_size),
+                                        "pasted",
+                                    )
                                 })
                                 .await
                                 .unwrap(),
@@ -151,16 +181,19 @@ impl GtkTestWindow {
             Some(true) => true,
             _ => false,
         };
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let svg_render_size: i32 = imp.settings.get("svg-render-size");
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let svg_render_size: u32 = imp.settings.get("svg-render-size");
         let none_file: Option<&gio::File> = None;
         let none_cancelable: Option<&Cancellable> = None;
         let loader = rsvg::Loader::new()
             .read_stream(&stream.unwrap(), none_file, none_cancelable)
             .unwrap();
-        let surface =
-            cairo::ImageSurface::create(cairo::Format::ARgb32, svg_render_size, svg_render_size)
-                .unwrap();
+        let surface = cairo::ImageSurface::create(
+            cairo::Format::ARgb32,
+            svg_render_size as i32,
+            svg_render_size as i32,
+        )
+        .unwrap();
         let cr = cairo::Context::new(&surface).expect("Failed to create a cairo context");
         let renderer = rsvg::CairoRenderer::new(&loader);
         renderer
@@ -190,16 +223,16 @@ impl GtkTestWindow {
 
     pub async fn open_dragged_file(&self, file: gio::File) {
         let imp = self.imp();
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let svg_render_size: i32 = imp.settings.get("svg-render-size");
-        debug!("{:#?}", file.path().value_type());
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let svg_render_size: u32 = imp.settings.get("svg-render-size");
 
+        debug!("{:#?}", file.path().value_type());
         let file_info =
             match file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE) {
                 Ok(x) => x,
                 Err(e) => {
                     show_error_popup(&self, &e.to_string(), true, Some(Box::new(e)));
-                    return;
+                    FileInfo::default()
                 }
             };
 
@@ -228,7 +261,7 @@ impl GtkTestWindow {
                         .await;
                     }
                     Some(false) => {
-                        imp.temp_image_loaded.replace(true);
+                        imp.temp_bottom_image_loaded.replace(true);
                         imp.stack.set_visible_child_name("stack_main_page");
                         self.new_iconic_file_creation(
                             Some(file),
@@ -241,14 +274,48 @@ impl GtkTestWindow {
                     }
                     _ => (),
                 };
+                imp.image_loading_spinner.set_visible(false);
             }
             _ => {
-                show_error_popup(&self, &gettext("Unsupported file type"), true, None);
+                show_error_popup(
+                    &self,
+                    &gettext("Unsupported file type"),
+                    true,
+                    None::<String>,
+                );
             }
         }
     }
 
-    pub async fn open_save_file_dialog(&self) -> Result<bool, Box<dyn Error + '_>> {
+    pub async fn open_dragged_texture(&self, file: gdk::Texture) {
+        let imp = self.imp();
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let svg_size: u32 = imp.settings.get("svg-render-size");
+        if let Ok(image) =
+            image::load_from_memory_with_format(&file.save_to_png_bytes(), image::ImageFormat::Png)
+        {
+            let file = File::from_image(image, thumbnail_size, Some(svg_size), "dragged.png");
+            let top_file_selected = self.top_or_bottom_popup().await;
+            match top_file_selected {
+                Some(true) => {
+                    imp.top_image_file.lock().unwrap().replace(file);
+                    self.check_icon_update();
+                }
+                Some(false) => {
+                    // This value must be true if a temporary bottom image is loaded
+                    // That is dumb
+                    imp.temp_bottom_image_loaded.replace(true);
+                    imp.bottom_image_file.lock().unwrap().replace(file);
+                    self.check_icon_update();
+                }
+                None => (),
+            }
+        } else {
+            show_error_popup(&self, "Failed to load image", true, None::<String>);
+        }
+    }
+
+    pub async fn open_save_file_dialog(&self) -> GenResult<bool> {
         let imp = self.imp();
         if !imp.save_button.is_sensitive() {
             imp.toast_overlay
@@ -258,7 +325,8 @@ impl GtkTestWindow {
         let file_name = format!(
             "folder-{}.png",
             imp.top_image_file
-                .lock()?
+                .lock()
+                .map_err_to_str()?
                 .as_ref()
                 .into_reason_result("No top image found")?
                 .filename
@@ -271,7 +339,7 @@ impl GtkTestWindow {
         match file_chooser.save_future(Some(self)).await {
             Ok(file) => {
                 let saved_file = self
-                    .save_file(file, imp.monochrome_switch.is_active(), None)
+                    .save_file(file, imp.monochrome_switch.is_active(), None, None)
                     .await?;
                 self.imp().stack.set_visible_child_name("stack_main_page");
                 imp.toast_overlay.add_toast(
@@ -331,25 +399,32 @@ impl GtkTestWindow {
         file: gio::File,
         use_monochrome: bool,
         manual_monochrome_values: Option<(u8, gtk::gdk::RGBA)>,
-    ) -> Result<bool, Box<dyn Error + '_>> {
+        top_image_hash: Option<u64>,
+    ) -> GenResult<bool> {
         let imp = self.imp();
         let _busy_lock = Arc::clone(&imp.app_busy);
         self.image_save_sensitive(false);
-        imp.saved_file.lock()?.replace(file.clone());
+        imp.saved_file
+            .lock()
+            .map_err_to_str()?
+            .replace(file.clone());
         let base_image = imp
             .bottom_image_file
-            .lock()?
+            .lock()
+            .map_err_to_str()?
             .as_ref()
-            .into_reason_result("No bottom image found")?
+            .into_reason_result("No bottom image found")
+            .map_err_to_str()?
             .dynamic_image
             .clone();
-        let mut top_image = imp
-            .top_image_file
-            .lock()?
-            .as_ref()
-            .into_reason_result("No top image found")?
-            .thumbnail
-            .clone();
+
+        let mut top_image_dynamicimage = {
+            let _top_image_lock = imp.top_image_file.lock().map_err_to_str()?;
+            let top_image = _top_image_lock
+                .as_ref()
+                .into_reason_result("No top image found")?;
+            top_image.dynamic_image.clone()
+        };
         if use_monochrome {
             let (monochrome_threshold, monochrome_color) = match manual_monochrome_values {
                 Some((threshold, color)) => (threshold, color),
@@ -358,23 +433,30 @@ impl GtkTestWindow {
                     imp.monochrome_color.rgba(),
                 ),
             };
-            top_image = self.to_monochrome(top_image, monochrome_threshold, monochrome_color, None);
+            top_image_dynamicimage = self.to_monochrome(
+                top_image_dynamicimage,
+                monochrome_threshold,
+                monochrome_color,
+                None,
+            );
         }
         let generated_image = self
             .generate_image(
                 base_image,
-                top_image,
+                top_image_dynamicimage,
                 imageops::FilterType::Gaussian,
                 imp.x_scale.value(),
                 imp.y_scale.value(),
                 imp.size.value(),
             )
             .await;
-        let _ = gio::spawn_blocking(move || {
-            generated_image.save_with_format(file.path().unwrap(), ImageFormat::Png)
-        })
-        .await
-        .unwrap()?;
+        let path = file.path().unwrap();
+        let path_clone = path.clone();
+        let _ =
+            gio::spawn_blocking(move || generated_image.save_with_format(path, ImageFormat::Png))
+                .await
+                .unwrap()?;
+        self.add_image_metadata(path_clone, top_image_hash, None)?;
         Ok(true)
     }
 
@@ -402,11 +484,11 @@ impl GtkTestWindow {
 
     pub async fn load_temp_folder_icon(&self) {
         let imp = self.imp();
-        let thumbnail_size: i32 = imp.settings.get("thumbnail-size");
-        let size: i32 = imp.settings.get("svg-render-size");
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        let size: u32 = imp.settings.get("svg-render-size");
         match self.open_file_chooser().await {
             Some(x) => {
-                imp.temp_image_loaded.replace(true);
+                imp.temp_bottom_image_loaded.replace(true);
                 imp.stack.set_visible_child_name("stack_main_page");
                 self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
                     .await;
@@ -419,8 +501,7 @@ impl GtkTestWindow {
     }
 
     pub async fn load_folder_icon(&self, path: &str) {
-        //let path1 = "/usr/share/icons/Adwaita/scalable/places/folder.svg";
-        let size: i32 = self.imp().settings.get("thumbnail-size");
+        let size: u32 = self.imp().settings.get("thumbnail-size");
         self.new_iconic_file_creation(
             None,
             Some(PathBuf::from(path)),
@@ -437,94 +518,149 @@ impl GtkTestWindow {
             imp.stack.set_visible_child_name("stack_main_page");
             imp.image_loading_spinner.set_visible(true);
         }
-        let svg_render_size: i32 = imp.settings.get("svg-render-size");
-        let size: i32 = imp.settings.get("thumbnail-size");
-        self.new_iconic_file_creation(Some(filename), None, svg_render_size, size, true)
+        let svg_render_size: u32 = imp.settings.get("svg-render-size");
+        let thumbnail_size: u32 = imp.settings.get("thumbnail-size");
+        self.new_iconic_file_creation(Some(filename), None, svg_render_size, thumbnail_size, true)
             .await;
     }
 
-    // Creates a new folder_icon::File from a gio::file, path or dynamicimage.
+    // Creates a new folder_icon::File from a gio::file or path.
     // Will show an error if none are provided
-    // TODO rewrite this, it is REALLY confusing
     pub async fn new_iconic_file_creation(
         &self,
         file: Option<gio::File>,
         path: Option<PathBuf>,
-        svg_render_size: i32,
-        thumbnail_render_size: i32,
+        svg_render_size: u32,
+        thumbnail_render_size: u32,
         change_top_icon: bool,
     ) -> Option<File> {
-        let imp = self.imp();
-        let new_file = if let Some(file_temp) = file {
-            let file_temp_clone = file_temp.clone();
-            let iconic_file = match gio::spawn_blocking(move || {
-                File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
-                    .map_err(|err| err.to_string())
-            })
-            .await
-            .unwrap()
-            {
-                Ok(x) => x,
-                Err(e) => {
-                    show_error_popup(&self, &e.to_string(), true, None);
-                    return None;
-                }
-            };
-            if change_top_icon {
-                match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
-                    Err(x) => {
-                        show_error_popup(&self, "", true, Some(x));
-                    }
-                    _ => (),
-                };
-            }
-            Some(iconic_file)
-        } else if let Some(path_temp) = path {
-            let file_temp = gio::File::for_path(path_temp);
-            let file_temp_clone = file_temp.clone();
-            let iconic_file = match gio::spawn_blocking(move || {
-                File::new(file_temp_clone, svg_render_size, thumbnail_render_size)
-                    .map_err(|err| err.to_string())
-            })
-            .await
-            .unwrap()
-            {
-                Ok(x) => x,
-                Err(e) => {
-                    show_error_popup(&self, &e.to_string(), true, None);
-                    return None;
-                }
-            };
-            if change_top_icon {
-                match self.store_top_image_in_cache(&iconic_file, Some(&file_temp)) {
-                    Err(x) => {
-                        show_error_popup(&self, "", true, Some(x));
-                    }
-                    _ => (),
-                };
-            }
-            Some(iconic_file)
-        } else {
+        if path.is_none() && file.is_none() {
             show_error_popup(
                 &self,
                 &gettext("No file or path found, this is probably not your fault."),
                 true,
-                None,
+                None::<String>,
             );
-            None
-        };
-        match new_file.clone() {
-            Some(file) => {
-                match change_top_icon {
-                    true => imp.top_image_file.lock().unwrap().replace(file),
-                    false => imp.bottom_image_file.lock().unwrap().replace(file),
-                };
-                self.check_icon_update();
-            }
-            None => {
-                self.check_icon_update();
-            }
+            return None;
         }
-        new_file
+        let imp = self.imp();
+        let file_temp = if let Some(path_temp) = path {
+            gio::File::for_path(path_temp)
+        } else {
+            file.unwrap()
+        };
+        let new_file = match gio::spawn_blocking(move || {
+            File::new(file_temp, svg_render_size, thumbnail_render_size)
+                .map_err(|err| err.to_string())
+        })
+        .await
+        .unwrap()
+        {
+            Ok(x) => x,
+            Err(e) => {
+                show_error_popup(&self, &e.to_string(), true, None::<String>);
+                return None;
+            }
+        };
+
+        match change_top_icon {
+            true => imp.top_image_file.lock().unwrap().replace(new_file.clone()),
+            false => imp
+                .bottom_image_file
+                .lock()
+                .unwrap()
+                .replace(new_file.clone()),
+        };
+
+        self.check_icon_update();
+        Some(new_file)
+    }
+
+    pub fn add_image_metadata(
+        &self,
+        path: PathBuf,
+        top_image_hash: Option<u64>,
+        custom_properties: Option<FileProperties>,
+    ) -> GenResult<()> {
+        let properties = custom_properties.unwrap_or(FileProperties::new(
+            &self,
+            top_image_hash,
+            self.get_default_color(),
+        ));
+        let mut file = XmpFile::new()?;
+        file.open_file(path, OpenFileOptions::default().for_update())?;
+        let mut metadata = XmpMeta::new()?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "x_val",
+            &XmpValue::new(properties.x_val.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "y_val",
+            &XmpValue::new(properties.y_val.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "zoom_val",
+            &XmpValue::new(properties.zoom_val.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "monochrome_toggle",
+            &XmpValue::new(properties.monochrome_toggle.to_string()),
+        )?;
+        if let Some(colors) = properties.monochrome_color {
+            metadata.set_property(
+                xmp_ns::XMP,
+                "monochrome_red",
+                &XmpValue::new(colors.0.to_string()),
+            )?;
+            metadata.set_property(
+                xmp_ns::XMP,
+                "monochrome_green",
+                &XmpValue::new(colors.1.to_string()),
+            )?;
+            metadata.set_property(
+                xmp_ns::XMP,
+                "monochrome_blue",
+                &XmpValue::new(colors.2.to_string()),
+            )?;
+        }
+        metadata.set_property(
+            xmp_ns::XMP,
+            "monochrome_default",
+            &XmpValue::new(properties.monochrome_default.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "monochrome_invert",
+            &XmpValue::new(properties.monochrome_invert.to_string()),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "monochrome_threshold",
+            &XmpValue::new(properties.monochrome_threshold_val.to_string()),
+        )?;
+        if let Some(hash) = properties.top_image_hash {
+            metadata.set_property(
+                xmp_ns::XMP,
+                "top_image_hash",
+                &XmpValue::new(hash.to_string()),
+            )?;
+        }
+        metadata.set_property(
+            xmp_ns::XMP,
+            "bottom_image_type",
+            &XmpValue::new(serde_json::to_string(&properties.bottom_image_type)?),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "default",
+            &XmpValue::new(properties.default.to_string()),
+        )?;
+        file.put_xmp(&metadata)?;
+        file.close();
+        Ok(())
     }
 }

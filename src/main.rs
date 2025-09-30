@@ -17,7 +17,10 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-pub type GenResult<T> = std::result::Result<T, Box<dyn error::Error>>;
+
+type GenResult<T> = Result<T, GenError>;
+type GenError = Box<dyn std::error::Error + Send + Sync + 'static>;
+
 mod application;
 mod config;
 mod objects;
@@ -26,10 +29,9 @@ mod window;
 mod windows;
 
 use std::boxed::Box;
-use std::error;
 
-use self::application::GtkTestApplication;
-use self::window::GtkTestWindow;
+use self::application::IconicApplication;
+use self::window::IconicWindow;
 
 use config::{APP_ID, GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
 use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
@@ -45,15 +47,14 @@ fn main() -> glib::ExitCode {
     textdomain(GETTEXT_PACKAGE).expect("Unable to switch to the text domain");
 
     // Load resources
-    let resources = gio::Resource::load(PKGDATADIR.to_owned() + "/folder_icon.gresource")
+    let resources = gio::Resource::load(PKGDATADIR.to_owned() + "/Iconic.gresource")
         .expect("Could not load resources");
     gio::resources_register(&resources);
 
     // Create a new GtkApplication. The application manages our main loop,
     // application windows, integration with the window manager/compositor, and
     // desktop features such as file opening and single-instance applications.
-    let app = GtkTestApplication::new(APP_ID, &gio::ApplicationFlags::empty());
-
+    let app = IconicApplication::new(APP_ID, &gio::ApplicationFlags::empty());
     // Run the application. This function will block until the application
     // exits. Upon return, we have our exit code to return to the shell. (This
     // is the code you see when you do `echo $?` after running a command in a

@@ -1,405 +1,414 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $GtkTestWindow: Adw.ApplicationWindow {
+template $IconicWindow: Adw.ApplicationWindow {
   default-width: 400;
   default-height: 650;
   width-request: 400;
   height-request: 650;
 
-  content: Adw.ToastOverlay toast_overlay {
-    Stack stack {
-      transition-type: slide_left_right;
-      transition-duration: 300;
+  content: $DragOverlay drag_overlay {
+    title: _("Drop Here to Open");
 
-      StackPage {
-        name: "stack_welcome_page";
+    child: Adw.ToastOverlay toast_overlay {
+      Stack stack {
+        transition-type: slide_left_right;
+        transition-duration: 300;
 
-        child: Adw.ToolbarView {
-          [top]
-          Adw.HeaderBar {
-            title-widget: Adw.WindowTitle {
-              title: "Iconic";
-            };
+        StackPage {
+          name: "stack_welcome_page";
 
-            [end]
-            Box {
-              spacing: 10;
-
-              Revealer {
-                reveal-child: bind regeneration_revealer.reveal-child;
-                transition-duration: 250;
-                transition-type: crossfade;
-                valign: center;
-                halign: center;
-
-                Adw.Spinner {
-                  // visible: bind regeneration_revealer.reveal-child;
-                  tooltip-text: _("Regenerating icons…");
-                }
-              }
-
-              MenuButton {
-                primary: true;
-                icon-name: "open-menu-symbolic";
-                tooltip-text: _("Menu");
-                menu-model: primary_menu;
-              }
-            }
-          }
-
-          content: Overlay {
-            [overlay]
-            Revealer {
-              transition-duration: 500;
-              transition-type: crossfade;
-              reveal-child: bind regeneration_revealer.reveal-child;
-              valign: start;
-              halign: fill;
-
-              ProgressBar regeneration_osd_second {
-                fraction: 0.5;
-                visible: true;
-                halign: fill;
-
-                styles [
-                  "osd",
-                ]
-              }
-            }
-
-            child: Adw.StatusPage main_status_page {
-              icon-name: "nl.emphisia.icon";
-              title: _("Folder Icon Creator");
-              description: _("Click or Drag to Open Image");
-              hexpand: true;
-              vexpand: true;
-
-              child: Box {
-                orientation: vertical;
-                spacing: 20;
-
-                Button open_top_icon {
-                  valign: center;
-                  halign: center;
-                  label: _("_Open Image");
-                  use-underline: true;
-                  action-name: "app.open_top_icon";
-
-                  styles [
-                    "suggested-action",
-                    "pill",
-                  ]
-                }
-
-                Button open_bottom_icon {
-                  valign: center;
-                  halign: center;
-                  label: _("_Show Bottom Layer");
-                  use-underline: true;
-                  action-name: "app.open_bottom_icon";
-
-                  styles [
-                    "pill",
-                  ]
-                }
+          child: Adw.ToolbarView {
+            [top]
+            Adw.HeaderBar {
+              title-widget: Adw.WindowTitle {
+                title: "Iconic";
               };
 
-              styles [
-                "icon-dropshadow",
-              ]
+              [end]
+              Box {
+                spacing: 10;
+
+                Revealer {
+                  reveal-child: bind regeneration_revealer.reveal-child;
+                  transition-duration: 250;
+                  transition-type: crossfade;
+                  valign: center;
+                  halign: center;
+
+                  Adw.Spinner {
+                    // visible: bind regeneration_revealer.reveal-child;
+                    tooltip-text: _("Regenerating icons…");
+                  }
+                }
+
+                MenuButton {
+                  primary: true;
+                  icon-name: "open-menu-symbolic";
+                  tooltip-text: _("Menu");
+                  menu-model: primary_menu;
+                }
+              }
+            }
+
+            content: Overlay {
+              [overlay]
+              Revealer {
+                transition-duration: 500;
+                transition-type: crossfade;
+                reveal-child: bind regeneration_revealer.reveal-child;
+                valign: start;
+                halign: fill;
+
+                ProgressBar regeneration_osd_second {
+                  fraction: 0.5;
+                  visible: true;
+                  halign: fill;
+
+                  styles [
+                    "osd",
+                  ]
+                }
+              }
+
+              child: Adw.StatusPage main_status_page {
+                icon-name: "nl.emphisia.icon";
+                title: _("Folder Icon Creator");
+                description: _("Click or Drag to Open Image");
+                hexpand: true;
+                vexpand: true;
+
+                child: Box {
+                  orientation: vertical;
+                  spacing: 20;
+
+                  Button open_top_icon {
+                    valign: center;
+                    halign: center;
+                    label: _("_Open Image");
+                    use-underline: true;
+                    action-name: "app.open_top_icon";
+
+                    styles [
+                      "suggested-action",
+                      "pill",
+                    ]
+                  }
+
+                  Button open_bottom_icon {
+                    valign: center;
+                    halign: center;
+                    label: _("_Show Bottom Layer");
+                    use-underline: true;
+                    action-name: "app.open_bottom_icon";
+
+                    styles [
+                      "pill",
+                    ]
+                  }
+                };
+
+                styles [
+                  "icon-dropshadow",
+                ]
+              };
             };
           };
-        };
-      }
+        }
 
-      StackPage {
-        name: "stack_main_page";
+        StackPage {
+          name: "stack_main_page";
 
-        child: Adw.ToolbarView toolbar {
-          [top]
-          Adw.HeaderBar header_bar {
-            Button save_button {
-              Adw.ButtonContent save_button_content {
-                label: _("Save");
-                icon-name: "document-save-symbolic";
-              }
-
-              margin-start: 5;
-              sensitive: false;
-              action-name: "app.save_button";
-
-              styles [
-                "suggested-action",
-              ]
-            }
-
-            title-widget: Adw.WindowTitle {
-              title: "Iconic";
-            };
-
-            [end]
-            Box {
-              spacing: 10;
-
-              Revealer {
-                reveal-child: bind regeneration_revealer.reveal-child;
-                transition-duration: 250;
-                transition-type: crossfade;
-                valign: center;
-                halign: center;
-
-                Adw.Spinner {
-                  tooltip-text: _("Regenerating icons…");
+          child: Adw.ToolbarView toolbar {
+            [top]
+            Adw.HeaderBar header_bar {
+              Button save_button {
+                Adw.ButtonContent save_button_content {
+                  label: _("Save");
+                  icon-name: "document-save-symbolic";
                 }
-              }
 
-              MenuButton {
-                primary: true;
-                icon-name: "open-menu-symbolic";
-                tooltip-text: _("Menu");
-                menu-model: primary_menu;
-              }
-            }
-          }
-
-          content: Overlay {
-            [overlay]
-            Revealer regeneration_revealer {
-              transition-duration: 500;
-              transition-type: crossfade;
-              valign: start;
-
-              child: ProgressBar regeneration_osd {
-                fraction: 0.5;
-                visible: true;
-                halign: fill;
+                margin-start: 5;
+                sensitive: false;
+                action-name: "app.save_button";
 
                 styles [
-                  "osd",
+                  "suggested-action",
                 ]
+              }
+
+              title-widget: Adw.WindowTitle {
+                title: "Iconic";
               };
+
+              [end]
+              Box {
+                spacing: 10;
+
+                Revealer {
+                  reveal-child: bind regeneration_revealer.reveal-child;
+                  transition-duration: 250;
+                  transition-type: crossfade;
+                  valign: center;
+                  halign: center;
+
+                  Adw.Spinner {
+                    tooltip-text: _("Regenerating icons…");
+                  }
+                }
+
+                MenuButton {
+                  primary: true;
+                  icon-name: "open-menu-symbolic";
+                  tooltip-text: _("Menu");
+                  menu-model: primary_menu;
+                }
+              }
             }
 
-            child: Adw.Clamp image_preferences {
-              width-request: 300;
+            content: Overlay {
+              [overlay]
+              Revealer regeneration_revealer {
+                transition-duration: 500;
+                transition-type: crossfade;
+                valign: start;
 
-              Adw.PreferencesPage {
-                Adw.PreferencesGroup {
-                  Box {
-                    orientation: horizontal;
+                child: ProgressBar regeneration_osd {
+                  fraction: 0.5;
+                  visible: true;
+                  halign: fill;
 
-                    Scale y_scale {
-                      has-origin: false;
-                      orientation: vertical;
-                      tooltip-text: _("y-position of top image");
+                  styles [
+                    "osd",
+                  ]
+                };
+              }
 
-                      adjustment: Adjustment percentage2 {
-                        lower: -50;
-                        upper: 50;
-                        step-increment: 1;
-                      };
+              child: Adw.Clamp image_preferences {
+                width-request: 300;
 
-                      vexpand: true;
-                      digits: 0;
-                      // draw-value: true;
-                      // value-pos: left;
-                    }
-
+                Adw.PreferencesPage {
+                  Adw.PreferencesGroup {
                     Box {
-                      orientation: vertical;
+                      orientation: horizontal;
 
-                      Overlay {
-                        Box {
-                          Picture image_view {
-                            tooltip-text: _("Preview window of icon, drag from here to start drag operation");
-                            valign: center;
-                            halign: center;
-                            width-request: 150;
-                            height-request: 150;
-                            content-fit: scale_down;
-                            hexpand: true;
-                            vexpand: true;
-                          }
-
-                          PopoverMenu popover_menu {
-                            menu-model: image_menu;
-                            has-arrow: false;
-                            halign: start;
-                          }
-
-                          GestureClick gesture_click {
-                            button: 3;
-                          }
-                        }
-
-                        [overlay]
-                        Adw.Spinner image_loading_spinner {
-                          tooltip-text: _("New top image is loading");
-                          valign: center;
-                          halign: center;
-                          width-request: 50;
-                          height-request: 50;
-                          visible: false;
-                        }
-                      }
-
-                      Scale x_scale {
+                      Scale y_scale {
                         has-origin: false;
-                        orientation: horizontal;
-                        tooltip-text: _("x-position of top image");
+                        orientation: vertical;
+                        tooltip-text: _("y-position of top image");
+                        value-changed => $render_callback() swapped;
 
-                        adjustment: Adjustment percentage {
+                        adjustment: Adjustment percentage2 {
                           lower: -50;
                           upper: 50;
                           step-increment: 1;
                         };
 
-                        hexpand: true;
-                        // vexpand: true;
+                        vexpand: true;
                         digits: 0;
                         // draw-value: true;
-                        // value-pos: top;
+                        // value-pos: left;
                       }
-                    }
-
-                    styles [
-                      "card",
-                    ]
-                  }
-                }
-
-                Adw.PreferencesGroup {
-                  Adw.ActionRow scale_row {
-                    title: "Scale";
-
-                    Scale size {
-                      has-origin: true;
-                      orientation: horizontal;
-                      tooltip-text: _("size of top image");
-
-                      adjustment: Adjustment percentage3 {
-                        lower: 0;
-                        upper: 50;
-                        step-increment: 1;
-                      };
-
-                      hexpand: true;
-                      vexpand: true;
-                      digits: 1;
-                    }
-                  }
-                }
-
-                Adw.PreferencesGroup {
-                  Adw.ExpanderRow monochrome_action_row {
-                    title: _("Toggle Monochrome");
-
-                    [suffix]
-                    Switch monochrome_switch {
-                      valign: center;
-                      action-name: "app.monochrome_switch";
-                      tooltip-text: _("Turn on monochrome for top image");
-                      active: true;
-                    }
-
-                    Adw.SwitchRow monochrome_invert {
-                      title: _("Invert");
-                      tooltip-text: _("Invert bright and dark in the monochrome image");
-                    }
-
-                    Adw.ActionRow {
-                      title: _("Color");
-                      activatable-widget: monochrome_color;
-                      tooltip-text: _("Choose the color of the monochrome image");
 
                       Box {
-                        valign: center;
+                        orientation: vertical;
 
-                        Button reset_color {
-                          halign: start;
-                          visible: false;
-                          tooltip-text: _("Reset the color of the monochrome image to default");
+                        Overlay {
+                          Box {
+                            Picture image_view {
+                              tooltip-text: _("Preview window of icon, drag from here to start drag operation");
+                              valign: center;
+                              halign: center;
+                              width-request: 150;
+                              height-request: 150;
+                              content-fit: scale_down;
+                              hexpand: true;
+                              vexpand: true;
+                            }
 
-                          Adw.ButtonContent top_icon_content {
-                            icon-name: "edit-undo-symbolic";
+                            PopoverMenu popover_menu {
+                              menu-model: image_menu;
+                              has-arrow: false;
+                              halign: start;
+                            }
+
+                            GestureClick gesture_click {
+                              button: 3;
+                            }
                           }
 
-                          action-name: "app.reset_color";
-
-                          styles [
-                            "flat",
-                          ]
+                          [overlay]
+                          Adw.Spinner image_loading_spinner {
+                            tooltip-text: _("New top image is loading");
+                            valign: center;
+                            halign: center;
+                            width-request: 50;
+                            height-request: 50;
+                            visible: false;
+                          }
                         }
 
-                        ColorDialogButton monochrome_color {
-                          halign: end;
-                          margin-start: 5;
-                          rgba: "#438DE6FF";
+                        Scale x_scale {
+                          has-origin: false;
+                          orientation: horizontal;
+                          tooltip-text: _("x-position of top image");
+                          value-changed => $render_callback() swapped;
 
-                          dialog: ColorDialog {
-                            with-alpha: false;
+                          adjustment: Adjustment percentage {
+                            lower: -50;
+                            upper: 50;
+                            step-increment: 1;
                           };
+
+                          hexpand: true;
+                          // vexpand: true;
+                          digits: 0;
+                          // draw-value: true;
+                          // value-pos: top;
                         }
                       }
+
+                      styles [
+                        "card",
+                      ]
                     }
+                  }
 
-                    Adw.ActionRow {
-                      title: _("Threshold");
+                  Adw.PreferencesGroup {
+                    Adw.ActionRow scale_row {
+                      title: "Scale";
 
-                      Scale threshold_scale {
+                      Scale size {
                         has-origin: true;
                         orientation: horizontal;
-                        tooltip-text: _("Set the threshold of bright and dark for the monochrome image");
+                        tooltip-text: _("size of top image");
+                        value-changed => $render_callback() swapped;
 
-                        adjustment: Adjustment threshold_value {
-                          lower: 0;
-                          upper: 255;
+                        adjustment: Adjustment percentage3 {
+                          lower: -5;
+                          upper: 50;
                           step-increment: 1;
                         };
 
                         hexpand: true;
                         vexpand: true;
-                        digits: 0;
-                        draw-value: true;
-                        value-pos: left;
+                        digits: 1;
+                      }
+                    }
+                  }
+
+                  Adw.PreferencesGroup {
+                    Adw.ExpanderRow monochrome_action_row {
+                      title: _("Toggle Monochrome");
+                      enable-expansion: bind monochrome_switch.active;
+
+                      [suffix]
+                      Switch monochrome_switch {
+                        valign: center;
+                        action-name: "app.monochrome_switch";
+                        tooltip-text: _("Turn on monochrome for top image");
+                        active: true;
+                      }
+
+                      Adw.SwitchRow monochrome_invert {
+                        title: _("Invert");
+                        tooltip-text: _("Invert bright and dark in the monochrome image");
+                      }
+
+                      Adw.ActionRow {
+                        title: _("Color");
+                        activatable-widget: monochrome_color;
+                        tooltip-text: _("Choose the color of the monochrome image");
+
+                        Box {
+                          valign: center;
+
+                          Button reset_color {
+                            halign: start;
+                            visible: false;
+                            tooltip-text: _("Reset the color of the monochrome image to default");
+
+                            Adw.ButtonContent top_icon_content {
+                              icon-name: "edit-undo-symbolic";
+                            }
+
+                            action-name: "app.reset_color";
+
+                            styles [
+                              "flat",
+                            ]
+                          }
+
+                          ColorDialogButton monochrome_color {
+                            halign: end;
+                            margin-start: 5;
+                            rgba: "#438DE6FF";
+
+                            dialog: ColorDialog {
+                              with-alpha: false;
+                            };
+                          }
+                        }
+                      }
+
+                      Adw.ActionRow {
+                        title: _("Threshold");
+
+                        Scale threshold_scale {
+                          has-origin: true;
+                          orientation: horizontal;
+                          tooltip-text: _("Set the threshold of bright and dark for the monochrome image");
+                          value-changed => $render_callback() swapped;
+
+                          adjustment: Adjustment threshold_value {
+                            lower: 0;
+                            upper: 255;
+                            step-increment: 1;
+                          };
+
+                          hexpand: true;
+                          vexpand: true;
+                          digits: 0;
+                          draw-value: true;
+                          value-pos: left;
+                        }
                       }
                     }
                   }
                 }
-              }
+              };
             };
           };
-        };
-      }
+        }
 
-      StackPage {
-        name: "stack_saving_page";
+        StackPage {
+          name: "stack_saving_page";
 
-        child: Adw.StatusPage {
-          Box {
-            orientation: vertical;
-            spacing: 12;
+          child: Adw.StatusPage {
+            Box {
+              orientation: vertical;
+              spacing: 12;
 
-            Adw.Spinner {
-              valign: center;
-              halign: center;
-              height-request: 32;
-              width-request: 32;
+              Adw.Spinner {
+                valign: center;
+                halign: center;
+                height-request: 32;
+                width-request: 32;
+              }
+
+              Label {
+                label: _("Saving…");
+                margin-bottom: 40;
+
+                styles [
+                  "subtitle",
+                ]
+              }
             }
-
-            Label {
-              label: _("Saving…");
-              margin-bottom: 40;
-
-              styles [
-                "subtitle",
-              ]
-            }
-          }
-        };
+          };
+        }
       }
-    }
+    };
   };
 }
 
@@ -442,7 +451,7 @@ menu primary_menu {
 
     item {
       label: _("_Keyboard Shortcuts");
-      action: "win.show-help-overlay";
+      action: "app.shortcuts";
     }
 
     item {
@@ -461,7 +470,7 @@ menu image_menu {
 
     item {
       label: _("Change Bottom Image");
-      action: "app.preferences";
+      action: "app.change_bottom";
     }
   }
 
@@ -474,6 +483,11 @@ menu image_menu {
     item {
       label: _("Reset Temporary Bottom Image");
       action: "app.reset_bottom";
+    }
+
+    item {
+      label: _("Reset Image");
+      action: "app.reset";
     }
   }
 }

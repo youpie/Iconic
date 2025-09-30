@@ -1,17 +1,18 @@
 {
     "id": "nl.emphisia.icon.Devel",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "48",
+    "runtime-version": "49",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
-    "command": "folder_icon",
+    "command": "Iconic",
     "finish-args": [
         "--share=ipc",
         "--socket=fallback-x11",
         "--device=dri",
-        "--env=RUST_LOG=folder_icon=debug",
+        "--env=RUST_LOG=Iconic=debug",
+        "--env=RUST_BACKTRACE=1",
         "--socket=wayland"
     ],
     "build-options": {
@@ -21,12 +22,10 @@
         ],
         "env": {
             "RUST_BACKTRACE": "1",
-            "RUST_LOG": "folder_icon=debug"
+            "RUST_LOG": "Iconic=debug"
         }
     },
     "cleanup": [
-        "/include",
-        "/lib/pkgconfig",
         "/man",
         "/share/doc",
         "/share/gtk-doc",
@@ -51,7 +50,7 @@
             ]
         },
         {
-            "name": "folder_icon",
+            "name": "Iconic",
             "builddir": true,
             "buildsystem": "meson",
             "config-opts": [

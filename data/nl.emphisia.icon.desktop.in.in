@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Iconic
-Exec=folder_icon
+Exec=Iconic
 Icon=@icon@
 Terminal=false
 Type=Application

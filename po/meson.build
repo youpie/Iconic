@@ -1,1 +1,1 @@
-i18n.gettext('folder_icon', preset: 'glib')
+i18n.gettext('Iconic', preset: 'glib')

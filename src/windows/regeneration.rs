@@ -1,10 +1,15 @@
+use crate::GenResult;
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
-use crate::{GtkTestWindow, objects::errors::show_error_popup};
+use crate::objects::properties::{BottomImageType, FileProperties, PropertiesSource};
+use crate::{IconicWindow, objects::errors::show_error_popup};
 
+use crate::objects::properties::CustomRGB;
 use adw::TimedAnimation;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::{gettext, ngettext};
+use gio::glib;
+use gio::prelude::SettingsExt;
 use gtk::gdk::RGBA;
 use gtk::gio;
 use image::*;
@@ -13,27 +18,48 @@ use std::fs::{self, DirEntry};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
-
-impl GtkTestWindow {
-    pub fn store_top_image_in_cache(
-        &self,
-        file: &File,
-        original_file: Option<&gio::File>,
-    ) -> GenResult<()> {
+impl IconicWindow {
+    pub fn check_if_regeneration_needed(&self) -> bool {
         let imp = self.imp();
-        if !imp.settings.boolean("store-top-in-cache") {
-            debug!("Top cache is disabled");
+        let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
+        let current_accent = self.get_accent_color();
+        // error!("previous {previous_accent} current {current_accent}");
+        let id = imp.regeneration_lock.get();
+        imp.regeneration_lock.replace(id + 1);
+        if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
+            glib::spawn_future_local(glib::clone!(
+                #[weak(rename_to = win)]
+                self,
+                async move {
+                    match win.regenerate_icons().await {
+                        Ok(_) => info!("Regeneration succesfull!"),
+                        Err(x) => {
+                            error!("{}", x.to_string());
+                        }
+                    };
+                }
+            ));
+            return true;
+        }
+        false
+    }
+
+    pub fn store_top_image_in_cache(&self, file: &File) -> GenResult<()> {
+        let imp = self.imp();
+        if imp
+            .file_properties
+            .borrow()
+            .bottom_image_type
+            .is_strict_compatible()
+            == None
+        {
+            info!("Current file does not use a compatible bottom image. no use caching the file");
             return Ok(());
         }
-        if imp.settings.boolean("manual-bottom-image-selection") {
-            debug!("Non-default bottom image");
-            return Ok(());
-        }
-        //create folder inside cache
-        let cache_path = self.get_cache_path().join("top_images");
+        //create folder inside cache, if it does not yet exist
+        let cache_path = Self::get_cache_path().join("top_images");
         if !cache_path.exists() {
-            debug!("Top icon cache file does not yet exist, creating");
+            debug!("Top icon cache dir does not yet exist, creating");
             fs::create_dir(&cache_path)?;
         }
         let file_name = file.hash;
@@ -51,64 +77,82 @@ impl GtkTestWindow {
                 fs::File::create(&file_path)?;
             }
         };
-        // The dynamic image is quite a lot bigger than the original file (often), so only if there is no original file (pasted images) use the dynam icimage
-        // TODO check if the dynamic image or original file bigger is
+        // Only if the orignal image path is present, and it has not been shrunk
+        // Save the original, else save the generated dynamic image
         let new_file = gio::File::for_path(&file_path);
         let filestream = new_file.open_readwrite(gio::Cancellable::NONE)?;
         let test = filestream.output_stream();
-        match original_file {
-            Some(file) => {
-                let buffer = file.load_bytes(gio::Cancellable::NONE)?;
+        if let Some(original_file) = &file.files {
+            if !file.dynamic_image_resized {
+                info!("Saving original image to cache");
+                let buffer = original_file.load_bytes(gio::Cancellable::NONE)?;
                 test.write_bytes(&buffer.0, gio::Cancellable::NONE)?;
-            }
-            None => {
-                file.dynamic_image
-                    .save_with_format(file_path, ImageFormat::Png)?;
+                return Ok(());
             }
         }
+        info!("Saving dynamic image to cache");
+        file.dynamic_image
+            .save_with_format(file_path, ImageFormat::WebP)?;
         Ok(())
     }
 
-    //This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
+    // This function regenerates icon, it replaces all images that were dragged and dropped with ones of the correct system accent color.
     pub async fn regenerate_icons(&self) -> GenResult<()> {
         let imp = self.imp();
-        let id = *imp.regeneration_lock.borrow();
+        let id = imp.regeneration_lock.get();
+        // First set iconic as busy. By getting a Arc reference
+        // I doubt this is the best approach, but Hey it works!
         let _iconic_busy = Arc::clone(&imp.app_busy);
-        imp.toast_overlay
-            .add_toast(adw::Toast::new(&gettext("Regenerating icons")));
         let data_path = self.get_data_path();
         let mut incompatible_files_n: u32 = 0;
         let compatible_files =
             self.find_regeneratable_icons(data_path, &mut incompatible_files_n)?;
+
+        // Stop if there are no files to regenerate
+        match compatible_files.len() {
+            0 => {
+                imp.toast_overlay
+                    .add_toast(adw::Toast::new(&gettext("Nothing to regenerate")));
+                return Ok(());
+            }
+            _ => {
+                imp.toast_overlay
+                    .add_toast(adw::Toast::new(&gettext("Regenerating icons")));
+            }
+        }
         imp.regeneration_revealer.set_reveal_child(true);
         imp.regeneration_osd.set_fraction(0.0);
         imp.regeneration_osd_second.set_fraction(0.0);
         let files_n = compatible_files.len();
         let mut last_animation = None;
-        let mut last_animation_second = None;
-        if files_n == 0 {
-            show_error_popup(
-                &self,
-                &gettext("All files are not compatible for regeneration"),
-                true,
-                None,
-            );
-        }
+        let mut last_animation_second = None; // Second here means 2nd not sec
         let step_size = 1.0 / files_n as f64;
         let mut regeneration_errors = vec![];
+
         for file in compatible_files {
-            if *imp.regeneration_lock.borrow() != id {
+            // In the regeneration lock, a value is saved, if it has changed.
+            // It means a new regeneration instance has started. So stop this one
+            // This is done to prevent two instances from fighting if for example
+            // The accent color is changed during regeneration
+            if imp.regeneration_lock.get() != id {
                 error!("Stopping regeneration");
                 break;
             }
-            let path = &file.path();
-            match self.regenerate_and_save_single_icon(file).await {
+            let name = &file.1.file_name();
+            match self
+                .regenerate_and_save_single_icon(file.0, file.1, file.2)
+                .await
+            {
                 Ok(_) => (),
                 Err(error) => {
-                    error!("Error while generating {:?}: {}", path, &error.to_string());
+                    error!("Error while generating {:?}: {}", &name, &error.to_string());
+                    // Everytime an error occurs. Push this to the errors list
                     regeneration_errors.push(error)
                 }
             }
+            // Update the progress bars
+            // I need two as the animation needs to play on both welcome and main screen which is not possible
+            // with only one animation. Unless i'm missing something
             last_animation = Some(self.progress_animation(
                 step_size,
                 last_animation,
@@ -120,6 +164,8 @@ impl GtkTestWindow {
                 imp.regeneration_osd_second.clone(),
             ));
         }
+        // If the errors list is not empty
+        // Show a pop up with the ammount of errors
         if !regeneration_errors.is_empty() {
             show_error_popup(
                 &self,
@@ -133,143 +179,262 @@ impl GtkTestWindow {
                     )
                 ),
                 true,
-                None,
+                None::<String>,
             );
         }
         imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
             "Regeneration sucessful, restart nautilus",
         )));
         imp.regeneration_revealer.set_reveal_child(false);
+
         self.close_iconic_busy_popup();
         Ok(())
     }
 
-    async fn regenerate_and_save_single_icon(&self, file: DirEntry) -> GenResult<()> {
-        let file_name = file.file_name();
+    // This function regenerates a single compatible icon
+    async fn regenerate_and_save_single_icon(
+        &self,
+        mut properties: FileProperties,
+        file: DirEntry,
+        property_source: PropertiesSource,
+    ) -> GenResult<()> {
+        let imp = self.imp();
+
+        // Get path and filename of icon saved in datadir
         let file_path = file.path();
-        let file_name = file_name.to_str().into_result()?.to_string();
-        let file_properties = file_name.split("-");
-        let properties_list: Vec<&str> = file_properties.into_iter().collect();
-        let current_accent_color = self.get_accent_color_and_show_dialog();
-        let bottom_image_path = PathBuf::from(format!(
-            "/app/share/folder_icon/folders/folder_{}.svg",
-            &current_accent_color
-        ));
-        let hash = properties_list[12].split(".").nth(0).into_result()?;
-        let mut top_image_path = self.get_cache_path().join("top_images");
-        top_image_path.push(hash);
+
+        let strict_mode_enabled = imp.settings.boolean("strict-regeneration");
+        let ignore_custom_colored = imp.settings.boolean("ignore-custom");
+
+        // Icons that are compatible for regeneration are only allowed to use default folder images.
+        // So when regenerating icons, you need the folder which is the same color as the current accent color
+        let (bottom_image_file, custom_accent_color, custom_accent_color_hex) = match properties
+            .bottom_image_type
+            .clone()
+        {
+            BottomImageType::FolderSystem => (
+                self.get_bottom_icon_from_accent_color(None, strict_mode_enabled)
+                    .await?,
+                None,
+                None,
+            ),
+            BottomImageType::Folder(color) if !properties.default || !strict_mode_enabled => (
+                self.get_bottom_icon_from_accent_color(Some(color.clone()), strict_mode_enabled)
+                    .await?,
+                Some(color),
+                None,
+            ),
+            BottomImageType::FolderCustom(foreground, background)
+                if !properties.default || (!strict_mode_enabled || !ignore_custom_colored) =>
+            {
+                if strict_mode_enabled || ignore_custom_colored {
+                    let folder_path = self
+                        .create_custom_folder_color(&foreground, &background, true)
+                        .await;
+                    (
+                        gio::spawn_blocking(move || {
+                            File::from_path(folder_path, 1024, 0).map_err(|err| err.to_string())
+                        })
+                        .await
+                        .unwrap()?
+                        .dynamic_image,
+                        None,
+                        Some(background),
+                    )
+                } else {
+                    (
+                        self.get_bottom_icon_from_accent_color(None, strict_mode_enabled)
+                            .await?,
+                        None,
+                        Some(background),
+                    )
+                }
+            }
+            _ => return Ok(()),
+        };
+        info!("Generating image");
+
+        // If strict mode is disabled and the image is not regenerated during strict mode. And the image is regenerated, is has te be regenerated to mark it as no longer default
+        properties.default = if !strict_mode_enabled
+            && properties.bottom_image_type.is_strict_compatible() == Some(false)
+        {
+            false
+        } else {
+            true
+        };
+
+        // Create the path where the top image of this file is located
+        // The top image has the same name as the hash of that image
+        let mut top_image_path = Self::get_cache_path().join("top_images");
+        top_image_path.push(
+            properties
+                .top_image_hash
+                .into_reason_result("Getting top image hash")?
+                .to_string(),
+        );
         let top_image_file = gio::spawn_blocking(move || {
             File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
         })
         .await
         .unwrap()?
         .dynamic_image;
-        let slider_values = self.get_properties(properties_list.clone())?;
-        let top_image = self.create_top_image_for_generation(properties_list, top_image_file)?;
-        let bottom_image_file = gio::spawn_blocking(move || {
-            File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
-        })
-        .await
-        .unwrap()?
-        .dynamic_image;
-        info!("Generating image");
+        // Create the top image
+        let top_image = self.set_correct_monochrome_values_based_on_image_properties(
+            &properties,
+            top_image_file,
+            custom_accent_color,
+            custom_accent_color_hex,
+            strict_mode_enabled,
+        )?;
+
+        // Using the generic generate_image function. The icon can faithfully be recreated
         let generated_image = self
             .generate_image(
                 bottom_image_file,
                 top_image,
                 imageops::FilterType::Gaussian,
-                slider_values.0,
-                slider_values.1,
-                slider_values.2,
+                properties.x_val,
+                properties.y_val,
+                properties.zoom_val,
             )
             .await;
         info!("Saving image");
+        let file_path_clone = file_path.clone();
         match gio::spawn_blocking(move || {
             generated_image.save_with_format(file_path, ImageFormat::Png)
         })
         .await
         .unwrap()
         {
-            Ok(_) => info!("Saving Succesful"),
+            Ok(_) => {
+                info!("Saving Succesful");
+                if property_source == PropertiesSource::XMP {
+                    self.add_image_metadata(file_path_clone, None, Some(properties))?
+                }
+            }
             Err(x) => error!("Saving failed: {:?}", x),
         };
         Ok(())
     }
 
+    async fn get_bottom_icon_from_accent_color(
+        &self,
+        color: Option<String>,
+        strict: bool,
+    ) -> GenResult<DynamicImage> {
+        let accent_color = match color {
+            Some(color) if strict => color,
+            _ => self.get_accent_color(),
+        };
+
+        // Icons that are compatible for regeneration are only allowed to use default folder images.
+        // So when regenerating icons, you need the folder which is the same color as the current accent color
+        let bottom_image_path = PathBuf::from(format!(
+            "/app/share/Iconic/folders/folder_{}.svg",
+            &accent_color
+        ));
+        Ok(gio::spawn_blocking(move || {
+            File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
+        })
+        .await
+        .unwrap()?
+        .dynamic_image)
+    }
+
+    // Search in the list of stored icons to see which ones are valid for regeneration
     fn find_regeneratable_icons(
         &self,
         dir: PathBuf,
         incompatible_files: &mut u32,
-    ) -> GenResult<Vec<fs::DirEntry>> {
-        let mut regeneratable: Vec<fs::DirEntry> = vec![];
+    ) -> GenResult<Vec<(FileProperties, fs::DirEntry, PropertiesSource)>> {
+        let top_image_path = Self::get_cache_path().join("top_images");
+        let mut regeneratable: Vec<(FileProperties, fs::DirEntry, PropertiesSource)> = vec![];
+        // Walk the directory and loop over every file
         let files: fs::ReadDir = fs::read_dir(&dir)?;
         for file in files {
-            *incompatible_files += 1;
             let current_file = file?;
             let file_name = current_file.file_name();
             debug!("File found: {:?}", file_name);
-            let file_name_str = file_name.to_str().into_result()?.to_string();
-            let mut file_properties = file_name_str.split("-");
-            // imp.regeneration_progress
-            //     .set_fraction(imp.regeneration_progress.fraction() + step_size);
-            if file_properties.nth(0).unwrap_or("folder") != "folder_new" {
-                info!("File not supported for regeneration");
+            // Get the file properties of the file
+            // Currently does not care what
+            let properties = match FileProperties::get_file_properties(&current_file) {
+                Ok(file_properties) => file_properties,
+                Err(err) => {
+                    *incompatible_files += 1;
+                    warn!(
+                        "file {:?} failed to be parsed. Err: {}",
+                        file_name,
+                        err.to_string()
+                    );
+                    continue;
+                }
+            };
+            if properties
+                .0
+                .bottom_image_type
+                .is_strict_compatible()
+                .is_none()
+            {
+                *incompatible_files += 1;
+                warn!(
+                    "file {:?} is never compatible for be regeneration.",
+                    file_name
+                );
                 continue;
             }
-            let properties_list: Vec<&str> = file_properties.into_iter().collect();
-            if !(properties_list[0].parse::<usize>()? != 0) {
-                info!("Non-default image, not converting");
-                continue;
-            }
-            let hash = properties_list[11].split(".").nth(0).into_result()?;
-            let mut top_image_path = self.get_cache_path().join("top_images");
-            top_image_path.push(hash);
+            let mut top_image_path_clone = top_image_path.clone();
+            top_image_path_clone.push(properties.0.top_image_hash.unwrap_or_default().to_string());
 
+            // If that top image does not exist, just mark it as not valid for regeneration
             if !top_image_path.exists() {
                 warn!("Top image file not found");
+                *incompatible_files += 1;
                 continue;
             }
-            *incompatible_files -= 1;
-            regeneratable.push(current_file);
+            regeneratable.push((properties.0, current_file, properties.1));
         }
         Ok(regeneratable)
     }
 
-    fn get_properties(&self, properties: Vec<&str>) -> GenResult<(f64, f64, f64)> {
-        let x_scale: f64 = properties[2].parse()?;
-        let y_scale: f64 = properties[3].parse()?;
-        let size: f64 = properties[4].parse()?;
-        Ok((x_scale, y_scale, size))
-    }
-
-    fn create_top_image_for_generation(
+    // Create the top image based on the properties of the to-be regenerated icon
+    // I am really bad at function names
+    fn set_correct_monochrome_values_based_on_image_properties(
         &self,
-        properties: Vec<&str>,
+        properties: &FileProperties,
         top_image: DynamicImage,
+        accent_color: Option<String>,
+        rgb_string_color: Option<String>,
+        strict: bool,
     ) -> GenResult<DynamicImage> {
-        let color = match properties[10] {
-            "false" => RGBA::new(
-                properties[7].parse()?,
-                properties[8].parse()?,
-                properties[9].parse()?,
+        let color = match properties.monochrome_default {
+            false => RGBA::new(
+                properties.monochrome_color.unwrap_or_default().0 as f32 / 255.0,
+                properties.monochrome_color.unwrap_or_default().1 as f32 / 255.0,
+                properties.monochrome_color.unwrap_or_default().2 as f32 / 255.0,
                 1.0,
             ),
-            _ => self.current_accent_rgba()?,
+            true if rgb_string_color.is_some() && strict => {
+                RGBA::from_hex(rgb_string_color.unwrap_or_default())
+            }
+            true => self.current_accent_rgba(if strict { accent_color } else { None })?,
         };
-        match properties[5] {
-            "1" => Ok(self.to_monochrome(
+        match properties.monochrome_toggle {
+            true => Ok(self.to_monochrome(
                 top_image,
-                properties[6].parse()?,
+                properties.monochrome_threshold_val,
                 color,
-                Some(properties[10].parse::<usize>()? != 0),
+                Some(properties.monochrome_invert),
             )),
             _ => Ok(top_image),
         }
     }
 
-    fn current_accent_rgba(&self) -> GenResult<RGBA> {
+    fn current_accent_rgba(&self, accent_color: Option<String>) -> GenResult<RGBA> {
         let imp = self.imp();
-        let accent_color = self.get_accent_color_and_show_dialog();
+        let accent_color = match accent_color {
+            Some(color) => color,
+            None => self.get_accent_color(),
+        };
         Ok(imp
             .default_color
             .borrow()

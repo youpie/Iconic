@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-use crate::GtkTestWindow;
+use crate::IconicWindow;
 use crate::config::{APP_ICON, VERSION};
 use crate::glib::WeakRef;
 use crate::settings::settings::PreferencesDialog;
@@ -31,21 +31,22 @@ use gtk::{gio, glib};
 use std::cell::OnceCell;
 
 mod imp {
+
     use super::*;
 
     #[derive(Debug, Default)]
-    pub struct GtkTestApplication {
-        pub window: OnceCell<WeakRef<GtkTestWindow>>,
+    pub struct IconicApplication {
+        pub window: OnceCell<WeakRef<IconicWindow>>,
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GtkTestApplication {
-        const NAME: &'static str = "GtkTestApplication";
-        type Type = super::GtkTestApplication;
+    impl ObjectSubclass for IconicApplication {
+        const NAME: &'static str = "IconicApplication";
+        type Type = super::IconicApplication;
         type ParentType = adw::Application;
     }
 
-    impl ObjectImpl for GtkTestApplication {
+    impl ObjectImpl for IconicApplication {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
@@ -54,7 +55,7 @@ mod imp {
         }
     }
 
-    impl ApplicationImpl for GtkTestApplication {
+    impl ApplicationImpl for IconicApplication {
         // We connect to the activate callback to create a window when the application
         // has been launched. Additionally, this callback notifies us when the user
         // tries to launch a "second instance" of the application. When they try
@@ -65,26 +66,25 @@ mod imp {
             let window = if let Some(window) = application.active_window() {
                 window
             } else {
-                let window = GtkTestWindow::new(&*application);
+                let window = IconicWindow::new(&*application);
                 window.upcast()
             };
-
             // Ask the window manager/compositor to present the window
             window.present();
         }
     }
 
-    impl GtkApplicationImpl for GtkTestApplication {}
-    impl AdwApplicationImpl for GtkTestApplication {}
+    impl GtkApplicationImpl for IconicApplication {}
+    impl AdwApplicationImpl for IconicApplication {}
 }
 
 glib::wrapper! {
-    pub struct GtkTestApplication(ObjectSubclass<imp::GtkTestApplication>)
+    pub struct IconicApplication(ObjectSubclass<imp::IconicApplication>)
         @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionGroup, gio::ActionMap;
 }
 
-impl GtkTestApplication {
+impl IconicApplication {
     pub fn new(application_id: &str, flags: &gio::ApplicationFlags) -> Self {
         glib::Object::builder()
             .property("application-id", application_id)
@@ -111,6 +111,9 @@ impl GtkTestApplication {
         let paste_action = gio::ActionEntry::builder("paste")
             .activate(move |app: &Self, _, _| app.paste_image())
             .build();
+        let shortcuts_action = gio::ActionEntry::builder("shortcuts")
+            .activate(move |app: &Self, _, _| app.shortcuts())
+            .build();
         self.add_action_entries([
             quit_action,
             about_action,
@@ -118,6 +121,7 @@ impl GtkTestApplication {
             open_action,
             open_folder_action,
             paste_action,
+            shortcuts_action,
         ]);
     }
 
@@ -129,12 +133,14 @@ impl GtkTestApplication {
         self.set_accels_for_action("app.select_folder", &["<primary><shift>o"]);
         self.set_accels_for_action("app.paste", &["<primary>v"]);
         self.set_accels_for_action("app.regenerate", &["<primary>r"]);
+        self.set_accels_for_action("app.shortcuts", &["<primary>question"]);
+        self.set_accels_for_action("app.reset", &["r"]);
     }
 
     fn show_preferences_dialog(&self) {
         let preferences = PreferencesDialog::new();
         let window = self.active_window().unwrap();
-        let adw_window = window.downcast_ref::<GtkTestWindow>().unwrap();
+        let adw_window = window.downcast_ref::<IconicWindow>().unwrap();
         match adw_window.visible_dialog() {
             Some(dialog) => {
                 dialog.close();
@@ -153,6 +159,14 @@ impl GtkTestApplication {
 
     fn paste_image(&self) {
         self.activate_action("app.paste", None);
+    }
+
+    fn shortcuts(&self) {
+        let window = self.active_window().unwrap();
+        let dialog = gtk::Builder::from_resource("/nl/emphisia/icon/gtk/shortcuts-dialog.ui")
+            .object::<adw::ShortcutsDialog>("shortcuts_dialog")
+            .unwrap();
+        dialog.present(Some(&window));
     }
 
     fn show_about(&self) {
@@ -178,9 +192,9 @@ If you like this app, feel free to donate, I would really appreciate it!",
             .issue_url("https://github.com/youpie/Iconic/issues")
             .website("https://github.com/youpie/Iconic")
             .license_type(License::Gpl30)
-            .copyright("© 2024 YoupDeGamerNL")
+            .copyright("© 2025 YoupDeGamerNL")
             .build();
-        about.add_credit_section(Some("Supporters of iconic"), &["Nido"]);
+        about.add_credit_section(Some("Supporters of iconic"), &["Nido", "Jala015"]);
         about.add_acknowledgement_section(
             Some("Code inspiration from"),
             &[

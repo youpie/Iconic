@@ -22,11 +22,12 @@ use crate::config::{APP_ICON, APP_ID, PROFILE};
 use crate::glib::clone;
 use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
-use crate::settings::settings::PreferencesDialog;
+use crate::objects::properties::{BottomImageType, CustomRGB};
 use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::Cancellable;
+use gio::prelude::SettingsExt;
 use gtk::gdk::RGBA;
 use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
@@ -41,13 +42,18 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 mod imp {
-    use std::collections::HashMap;
+    use std::{cell::Cell, collections::HashMap, rc::Rc};
+
+    use crate::{
+        objects::properties::FileProperties, settings::settings::PreferencesDialog,
+        windows::drag_overlay::DragOverlay,
+    };
 
     use super::*;
 
     #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/nl/emphisia/icon/window.ui")]
-    pub struct GtkTestWindow {
+    pub struct IconicWindow {
         // Template widgets
         // Every item in this list, is something defined in
         // a blueprint file, if you want to control it from the code
@@ -102,24 +108,29 @@ mod imp {
         pub regeneration_osd_second: TemplateChild<gtk::ProgressBar>,
         #[template_child]
         pub regeneration_revealer: TemplateChild<gtk::Revealer>,
+        #[template_child]
+        pub drag_overlay: TemplateChild<DragOverlay>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
         pub top_image_file: Arc<Mutex<Option<File>>>,
         pub saved_file: Arc<Mutex<Option<gio::File>>>,
-        pub file_created: RefCell<bool>,
-        pub image_saved: RefCell<bool>,
-        pub last_dnd_generated_name: RefCell<Option<gio::File>>,
+        pub file_created: Cell<bool>,
+        pub image_saved: Cell<bool>,
+        pub last_drag_n_drop_generated_name: RefCell<Option<gio::File>>,
         pub generated_image: RefCell<Option<DynamicImage>>,
-        pub temp_image_loaded: RefCell<bool>,
+        pub temp_bottom_image_loaded: Cell<bool>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
-        pub count: RefCell<i32>,
-        pub regeneration_lock: Arc<RefCell<usize>>,
+        pub count: Cell<i32>,
+        pub regeneration_lock: Arc<Cell<usize>>,
         pub app_busy: Arc<()>,
+        pub drag_active: Rc<Cell<bool>>,
+        pub file_properties: RefCell<FileProperties>,
+        pub drag_cancelled: Cell<bool>,
     }
 
-    impl Default for GtkTestWindow {
+    impl Default for IconicWindow {
         fn default() -> Self {
             Self {
                 toolbar: TemplateChild::default(),
@@ -147,28 +158,32 @@ mod imp {
                 popover_menu: TemplateChild::default(),
                 gesture_click: TemplateChild::default(),
                 regeneration_revealer: TemplateChild::default(),
+                drag_overlay: TemplateChild::default(),
                 bottom_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),
-                image_saved: RefCell::new(true),
+                image_saved: Cell::new(true),
                 generated_image: RefCell::new(None),
-                file_created: RefCell::new(false),
+                file_created: Cell::new(false),
                 signals: RefCell::new(vec![]),
                 settings: gio::Settings::new(APP_ID),
-                count: RefCell::new(0),
-                temp_image_loaded: RefCell::new(false),
+                count: Cell::new(0),
+                temp_bottom_image_loaded: Cell::new(false),
                 default_color: RefCell::new(HashMap::new()),
-                last_dnd_generated_name: RefCell::new(None),
-                regeneration_lock: Arc::new(RefCell::new(0)),
+                last_drag_n_drop_generated_name: RefCell::new(None),
+                regeneration_lock: Arc::new(Cell::new(0)),
                 app_busy: Arc::new(()),
+                drag_active: Rc::new(Cell::new(false)),
+                file_properties: RefCell::new(FileProperties::default()),
+                drag_cancelled: Cell::new(false),
             }
         }
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GtkTestWindow {
-        const NAME: &'static str = "GtkTestWindow";
-        type Type = super::GtkTestWindow;
+    impl ObjectSubclass for IconicWindow {
+        const NAME: &'static str = "IconicWindow";
+        type Type = super::IconicWindow;
         type ParentType = adw::ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
@@ -189,7 +204,8 @@ mod imp {
                     #[weak]
                     win,
                     async move {
-                        win.open_directory().await;
+                        let file = win.imp().saved_file.lock().unwrap().clone().unwrap();
+                        win.open_directory(&file).await;
                     }
                 ));
             });
@@ -204,6 +220,27 @@ mod imp {
             });
             klass.install_action("app.open_bottom_icon", None, move |win, _, _| {
                 win.check_icon_update();
+            });
+            klass.install_action("app.change_bottom", None, move |win, _, _| {
+                let imp = win.imp();
+                _ = imp
+                    .settings
+                    .set_boolean("manual-bottom-image-selection", true);
+                let preferences = PreferencesDialog::new();
+                adw::prelude::AdwDialogExt::present(&preferences, Some(win));
+                preferences
+                    .activate_action("win.select_folder_settings", None)
+                    .unwrap();
+            });
+            klass.install_action("app.reset", None, move |win, _, _| {
+                let imp = win.imp();
+                win.default_sliders(false);
+                win.load_folder_path_from_settings();
+                win.reset_colors();
+                let mut top_image = imp.top_image_file.lock().unwrap();
+                win.load_empty_top_image(&mut top_image);
+                imp.toast_overlay
+                    .add_toast(adw::Toast::new(&gettext("Image reset")));
             });
             klass.install_action("app.reset_bottom", None, move |win, _, _| {
                 win.reset_bottom_icon();
@@ -223,7 +260,7 @@ mod imp {
                     win,
                     async move {
                         let imp = win.imp();
-                        let id = *imp.regeneration_lock.borrow();
+                        let id = imp.regeneration_lock.get();
                         imp.regeneration_lock.replace(id + 1);
                         match win.regenerate_icons().await {
                             Ok(_) => (),
@@ -252,7 +289,7 @@ mod imp {
                 ));
             });
             klass.install_action("app.monochrome_switch", None, move |win, _, _| {
-                win.enable_monochrome_expand();
+                win.monochrome_swtich_change();
             });
             klass.install_action("app.reset_color", None, move |win, _, _| {
                 win.reset_colors();
@@ -264,20 +301,59 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GtkTestWindow {
+    impl ObjectImpl for IconicWindow {
         fn constructed(&self) {
             self.parent_constructed();
-
             let obj = self.obj();
+
+            // If you read this and think of a more elegant way to achieve this, please let me know
+            // This shares the value of if a drag operation is currently active
+            // I now create a RefCell<Rc<Cell<bool>>>
+            // Where i replace the Rc<> with the same as in this file
+            obj.imp()
+                .drag_overlay
+                .imp()
+                .current_drop_is_meta
+                .replace(obj.imp().drag_active.clone());
+
             // Devel Profile
             if PROFILE == "Devel" {
                 obj.add_css_class("devel");
             }
+
             let drop_target = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
+            // drop_target.set_types(&[gdk::Texture::static_type(), gio::File::static_type()]);
+
+            drop_target.connect_accept(clone!(
+                #[strong]
+                obj,
+                move |target, drop| {
+                    let imp = obj.imp();
+                    if drop.formats().contain_mime_type("image/svg+xml") {
+                        info!("File contains SVG");
+                        target.set_types(&[gio::File::static_type(), gdk::Texture::static_type()]);
+                    } else {
+                        info!("File does not contain SVG");
+                        target.set_types(&[gdk::Texture::static_type(), gio::File::static_type()]);
+                    }
+                    if imp.drag_active.get() && !imp.settings.boolean("allow-meta-drop") {
+                        info!("Drag active, disabling target");
+                        target.set_actions(gdk::DragAction::empty());
+                    } else if imp.drag_active.get() && imp.settings.boolean("allow-meta-drop") {
+                        info!("Switching to File type");
+                        target.set_types(&[gio::File::static_type(), gdk::Texture::static_type()]);
+                        target.set_actions(gdk::DragAction::COPY);
+                    } else {
+                        target.set_actions(gdk::DragAction::COPY);
+                    }
+                    true
+                }
+            ));
             drop_target.connect_drop(clone!(
                 #[strong]
                 obj,
                 move |_, value, _, _| {
+                    debug!("Value type: {}", value.type_().name());
                     if let Ok(file) = value.get::<gio::File>() {
                         glib::spawn_future_local(glib::clone!(
                             #[weak(rename_to = win)]
@@ -287,24 +363,12 @@ mod imp {
                             }
                         ));
                         true
-                    } else {
-                        false
-                    }
-                }
-            ));
-
-            let drop_target_2 =
-                gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
-            drop_target_2.connect_drop(clone!(
-                #[strong]
-                obj,
-                move |_, value, _, _| {
-                    if let Ok(file) = value.get::<gio::File>() {
+                    } else if let Ok(texture) = value.get::<gdk::Texture>() {
                         glib::spawn_future_local(glib::clone!(
                             #[weak(rename_to = win)]
                             obj,
                             async move {
-                                win.open_dragged_file(file).await;
+                                win.open_dragged_texture(texture).await;
                             }
                         ));
                         true
@@ -313,8 +377,6 @@ mod imp {
                     }
                 }
             ));
-
-            //self.drop_target_item.replace(Some(drop_target));
             let drag_source = gtk::DragSource::builder()
                 .actions(gdk::DragAction::COPY)
                 .build();
@@ -332,7 +394,6 @@ mod imp {
                 obj,
                 move |_, _, _| win.drag_connect_end()
             ));
-
             drag_source.connect_drag_cancel(clone!(
                 #[weak (rename_to = win)]
                 obj,
@@ -340,9 +401,7 @@ mod imp {
                 false,
                 move |_, _, drag_cancel_reason| win.drag_connect_cancel(drag_cancel_reason)
             ));
-            self.main_status_page.add_controller(drop_target);
-            self.image_preferences.add_controller(drop_target_2);
-
+            self.drag_overlay.set_drop_target(&drop_target);
             self.image_view.add_controller(drag_source);
         }
 
@@ -350,8 +409,9 @@ mod imp {
             self.dispose_template();
         }
     }
-    impl WidgetImpl for GtkTestWindow {}
-    impl WindowImpl for GtkTestWindow {
+    impl WidgetImpl for IconicWindow {}
+
+    impl WindowImpl for IconicWindow {
         fn close_request(&self) -> glib::Propagation {
             warn!("close request");
             let window = self.obj();
@@ -366,20 +426,27 @@ mod imp {
             glib::Propagation::Stop
         }
     }
-    impl ApplicationWindowImpl for GtkTestWindow {}
-    impl AdwApplicationWindowImpl for GtkTestWindow {}
+    impl ApplicationWindowImpl for IconicWindow {}
+    impl AdwApplicationWindowImpl for IconicWindow {}
 }
 
 glib::wrapper! {
-    pub struct GtkTestWindow(ObjectSubclass<imp::GtkTestWindow>)
+    pub struct IconicWindow(ObjectSubclass<imp::IconicWindow>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,
-        @implements gio::ActionGroup, gio::ActionMap;
+        @implements
+            gio::ActionGroup,
+            gio::ActionMap,
+            gtk::Accessible,
+            gtk::Buildable,
+            gtk::ConstraintTarget,
+            gtk::Native,
+            gtk::Root,
+            gtk::ShortcutManager;
 }
 
-#[gtk::template_callbacks]
-impl GtkTestWindow {
+impl IconicWindow {
     pub fn new<P: IsA<adw::Application>>(application: &P) -> Self {
-        let win = glib::Object::builder::<GtkTestWindow>()
+        let win = glib::Object::builder::<IconicWindow>()
             .property("application", application)
             .build();
         let imp = win.imp();
@@ -387,15 +454,15 @@ impl GtkTestWindow {
             imp.main_status_page.set_icon_name(Some(APP_ICON));
         }
         imp.default_color.replace(HashMap::from([
-            ("Blue".to_string(), GtkTestWindow::to_rgba(67, 141, 230)),
-            ("Teal".to_string(), GtkTestWindow::to_rgba(18, 158, 176)),
-            ("Green".to_string(), GtkTestWindow::to_rgba(61, 158, 79)),
-            ("Yellow".to_string(), GtkTestWindow::to_rgba(203, 147, 26)),
-            ("Orange".to_string(), GtkTestWindow::to_rgba(241, 119, 56)),
-            ("Red".to_string(), GtkTestWindow::to_rgba(232, 64, 83)),
-            ("Pink".to_string(), GtkTestWindow::to_rgba(230, 67, 146)),
-            ("Purple".to_string(), GtkTestWindow::to_rgba(149, 74, 181)),
-            ("Slate".to_string(), GtkTestWindow::to_rgba(99, 118, 146)),
+            ("Blue".to_string(), RGBA::from_rgb(67, 141, 230)),
+            ("Teal".to_string(), RGBA::from_rgb(18, 158, 176)),
+            ("Green".to_string(), RGBA::from_rgb(61, 158, 79)),
+            ("Yellow".to_string(), RGBA::from_rgb(203, 147, 26)),
+            ("Orange".to_string(), RGBA::from_rgb(241, 119, 56)),
+            ("Red".to_string(), RGBA::from_rgb(232, 64, 83)),
+            ("Pink".to_string(), RGBA::from_rgb(230, 67, 146)),
+            ("Purple".to_string(), RGBA::from_rgb(149, 74, 181)),
+            ("Slate".to_string(), RGBA::from_rgb(99, 118, 146)),
         ]));
         win.setup_defaults();
         win.create_popover_image();
@@ -416,27 +483,31 @@ impl GtkTestWindow {
         ));
     }
 
-    pub fn default_sliders(&self) {
+    pub fn default_sliders(&self, add_marks: bool) {
         let imp = self.imp();
-        imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
-        imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
-        imp.y_scale.set_value(9.447);
-        imp.size.set_value(24.0);
+        if add_marks {
+            imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
+            imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
+        }
         imp.size.add_mark(24.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
+        imp.y_scale.set_value(9.447);
+        imp.size.set_value(24.0);
+        imp.x_scale.set_value(0.0);
+        let monochrome_switch_state = imp.settings.boolean("monochrome-mode-active");
+        imp.monochrome_switch.set_active(monochrome_switch_state);
     }
 
     pub fn setup_defaults(&self) {
         let imp = self.imp();
         imp.save_button.set_sensitive(false);
-        self.default_sliders();
-
+        self.default_sliders(true);
+        self.adwaita_colors_popup();
         imp.reset_color.set_visible(false);
-        self.check_regeneration_needed();
-        let _ = imp.settings.set_string(
-            "previous-system-accent-color",
-            &self.get_accent_color_and_show_dialog(),
-        );
+        self.check_if_regeneration_needed();
+        let _ = imp
+            .settings
+            .set_string("previous-system-accent-color", &self.get_accent_color());
         imp.stack.set_visible_child_name("stack_welcome_page");
         self.setup_settings();
         self.setup_update();
@@ -444,15 +515,9 @@ impl GtkTestWindow {
         self.slider_control_sensitivity(false);
     }
 
-    pub fn to_rgba(r: u8, g: u8, b: u8) -> gdk::RGBA {
-        let r_float = (1.0 / 255.0 * r as f64) as f32;
-        let g_float = (1.0 / 255.0 * g as f64) as f32;
-        let b_float = (1.0 / 255.0 * b as f64) as f32;
-        gdk::RGBA::new(r_float, g_float, b_float, 1.0)
-    }
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
         let imp = self.imp();
-        //imp.main_status_page.remove_controller(&imp.drop_target_item.borrow().clone().unwrap());
+        imp.drag_active.set(true);
         let generated_image = imp.generated_image.borrow().clone().unwrap();
         let file_hash = imp.top_image_file.lock().unwrap().clone().unwrap().hash;
         let icon = self.dynamic_image_to_texture(&generated_image.resize(
@@ -460,36 +525,37 @@ impl GtkTestWindow {
             64,
             imageops::FilterType::Nearest,
         ));
-        debug!("temp image loaded {}", *imp.temp_image_loaded.borrow());
+        debug!("temp image loaded {}", imp.temp_bottom_image_loaded.get());
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
-        let gio_file = self.create_drag_file(file_hash);
-        imp.last_dnd_generated_name.replace(Some(gio_file.clone()));
+        let gio_file = self.create_drag_file();
+        imp.last_drag_n_drop_generated_name
+            .replace(Some(gio_file.clone()));
         let gio_file_clone = gio_file.clone();
         glib::spawn_future_local(clone!(
             #[weak (rename_to = win)]
             self,
             async move {
-                win.save_file(
-                    gio_file_clone,
-                    win.imp().monochrome_switch.is_active(),
-                    None,
-                )
-                .await
-                .unwrap();
+                _ = win
+                    .save_file(
+                        gio_file_clone,
+                        win.imp().monochrome_switch.is_active(),
+                        None,
+                        Some(file_hash),
+                    )
+                    .await;
             }
         ));
+
         Some(gdk::ContentProvider::for_value(&glib::Value::from(
             &gio_file,
         )))
     }
 
-    pub fn create_drag_file(&self, file_hash: u64) -> gio::File {
-        // let imp = self.imp();
+    pub fn create_drag_file(&self) -> gio::File {
         let data_path = self.get_data_path();
         debug!("data path: {:?}", data_path);
-        // let random_number = random::<u64>();
-        let properties_string = self.create_image_properties_string();
-        let generated_file_name = format!("folder_new-{}-{}.png", properties_string, file_hash);
+        let random_string = random_str::get_string(10, true, true, true, false);
+        let generated_file_name = format!("folder-{}.png", random_string);
         debug!("generated_file_name: {}", generated_file_name);
         let mut file_path = data_path.clone();
         file_path.push(generated_file_name.clone());
@@ -498,46 +564,14 @@ impl GtkTestWindow {
         gio_file
     }
 
-    /* This function is used to create a string with all properties applied to the current image.
-    This makes it possible to completely recreate the image if the top image is still available
-    */
-    fn create_image_properties_string(&self) -> String {
-        let imp = self.imp();
-        let is_default = (!imp.settings.boolean("manual-bottom-image-selection")
-            && imp.settings.string("selected-accent-color").as_str() == "None"
-            && !*imp.temp_image_loaded.borrow()) as usize;
-        let x_scale_val = imp.x_scale.value();
-        let y_scale_val = imp.y_scale.value();
-        let zoom_val = imp.size.value();
-        let is_monochrome = imp.monochrome_switch.is_active() as u8;
-        let monochrome_slider = imp.threshold_scale.value();
-        let monochrome_red_val = imp.monochrome_color.rgba().red().to_string();
-        let monochrome_green_val = imp.monochrome_color.rgba().green().to_string();
-        let monochrome_blue_val = imp.monochrome_color.rgba().blue().to_string();
-        let monochrome_inverted = imp.monochrome_invert.is_active() as u8;
-        let is_default_monochrome = imp.monochrome_color.rgba() == self.get_default_color();
-        debug!("is default? {}", is_default_monochrome);
-        let combined_string = format!(
-            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
-            is_default,
-            x_scale_val,
-            y_scale_val,
-            zoom_val,
-            is_monochrome,
-            monochrome_slider,
-            monochrome_red_val,
-            monochrome_green_val,
-            monochrome_blue_val,
-            monochrome_inverted,
-            is_default_monochrome
-        );
-        debug!("{}", &combined_string);
-        combined_string
-    }
-
     fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool {
         let imp = self.imp();
-        let gio_file = imp.last_dnd_generated_name.borrow().clone().unwrap();
+        let gio_file = imp
+            .last_drag_n_drop_generated_name
+            .borrow()
+            .clone()
+            .unwrap();
+        self.image_save_sensitive(true);
         info!(
             "Drag operation cancelled, removing file. Reason: {:?}",
             reason
@@ -550,12 +584,27 @@ impl GtkTestWindow {
                 warn!("Could not delete drag file, error: {:?}", e);
             }
         };
+        imp.drag_cancelled.set(true);
         false
     }
 
     fn drag_connect_end(&self) {
+        let imp = self.imp();
+        imp.drag_active.set(false);
         debug!("drag end");
-        self.drag_and_drop_regeneration_popup();
+        if !imp.drag_cancelled.get() {
+            // Drag event was not cancelled. I couldn't find a signal that fires only on a succseful drag
+            debug!("succesful drag");
+            let top_image = imp.top_image_file.lock().unwrap().clone().unwrap(); // Currently blocks
+            match self.store_top_image_in_cache(&top_image) {
+                Err(x) => {
+                    show_error_popup(&self, "", true, Some(x));
+                }
+                _ => (),
+            };
+            self.drag_and_drop_regeneration_popup();
+        }
+        imp.drag_cancelled.set(false);
     }
 
     pub fn setup_settings(&self) {
@@ -603,15 +652,15 @@ impl GtkTestWindow {
             #[weak(rename_to = win)]
             self,
             move |_| {
-                if win.imp().stack.visible_child_name() != Some("regenerating_page".into()) {
+                let imp = win.imp();
+                if imp.file_properties.borrow().bottom_image_type == BottomImageType::FolderSystem {
                     // error!("Reloading folder image");
-                    win.check_regeneration_needed();
+                    win.check_if_regeneration_needed();
                     win.load_folder_path_from_settings();
                 }
-                let _ = win.imp().settings.set_string(
-                    "previous-system-accent-color",
-                    &win.get_accent_color_and_show_dialog(),
-                );
+                _ = imp
+                    .settings
+                    .set_string("previous-system-accent-color", &win.get_accent_color());
             }
         ));
 
@@ -632,46 +681,7 @@ impl GtkTestWindow {
     }
 
     pub fn setup_update(&self) {
-        self.imp().x_scale.connect_value_changed(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
-                    }
-                ));
-            }
-        ));
-        self.imp().y_scale.connect_value_changed(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
-                    }
-                ));
-            }
-        ));
-        self.imp().size.connect_value_changed(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
-                    }
-                ));
-            }
-        ));
-        self.imp().threshold_scale.connect_value_changed(clone!(
+        self.imp().monochrome_invert.connect_active_notify(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
@@ -705,19 +715,6 @@ impl GtkTestWindow {
                 ));
             }
         ));
-        self.imp().monochrome_invert.connect_active_notify(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.render_to_screen().await;
-                    }
-                ));
-            }
-        ));
     }
 
     pub fn image_save_sensitive(&self, sensitive: bool) {
@@ -726,36 +723,9 @@ impl GtkTestWindow {
         imp.save_button.set_sensitive(sensitive);
     }
 
-    fn check_regeneration_needed(&self) -> bool {
-        let imp = self.imp();
-        let previous_accent: String = imp.settings.string("previous-system-accent-color").into();
-        let current_accent = self.get_accent_color_and_show_dialog();
-        // error!("previous {previous_accent} current {current_accent}");
-        let id = *imp.regeneration_lock.borrow();
-        imp.regeneration_lock.replace(id + 1);
-        if previous_accent != current_accent && imp.settings.boolean("automatic-regeneration") {
-            glib::spawn_future_local(glib::clone!(
-                #[weak(rename_to = win)]
-                self,
-                async move {
-                    match win.regenerate_icons().await {
-                        Ok(_) => info!("Regeneration succesfull!"),
-                        Err(x) => {
-                            error!("{}", x.to_string());
-                        }
-                    };
-                }
-            ));
-            return true;
-        }
-        false
-    }
-
     pub fn reset_colors(&self) {
         let imp = self.imp();
-        imp.reset_color.set_visible(false);
         imp.monochrome_color.set_rgba(&self.get_default_color());
-        //self.check_icon_update();
         imp.reset_color.set_visible(false);
     }
 
@@ -767,14 +737,12 @@ impl GtkTestWindow {
         let selected_accent_color = imp.settings.string("selected-accent-color");
         let mut custom_rgb = RGBA::new(0.0, 0.0, 0.0, 0.0);
         if selected_accent_color == "None" {
-            accent_color = self.get_accent_color_and_show_dialog();
+            accent_color = self.get_accent_color();
         } else if imp.settings.boolean("manual-bottom-image-selection") {
             accent_color = "Blue".to_string();
         } else if selected_accent_color == "Custom" {
             accent_color = "Custom".to_string();
-            custom_rgb = PreferencesDialog::hex_to_rgba(
-                imp.settings.string("secondary-folder-color").into(),
-            );
+            custom_rgb = RGBA::from_hex(imp.settings.string("secondary-folder-color").into());
         } else {
             accent_color = selected_accent_color.into();
         }
@@ -788,10 +756,16 @@ impl GtkTestWindow {
         color
     }
 
+    // Get the current accent color
+    pub fn get_accent_color(&self) -> String {
+        let accent_color = format!("{:?}", adw::StyleManager::default().accent_color());
+        accent_color
+    }
+
     pub async fn check_chache_icon(&self, file_name: &str) -> PathBuf {
         let imp = self.imp();
         let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
-        let cache_path = self.get_cache_path();
+        let cache_path = Self::get_cache_path();
         let folder_icon_cache_path = cache_path.join(file_name);
         if folder_icon_cache_path.exists() {
             info!("File found in cache at: {:?}", folder_icon_cache_path);
@@ -812,7 +786,7 @@ impl GtkTestWindow {
             &self,
             &gettext("The set bottom icon could not be found, press ok to select a new one"),
             false,
-            None,
+            None::<String>,
         )
         .unwrap();
         match &*dialog.clone().choose_future(self).await {
@@ -843,7 +817,7 @@ impl GtkTestWindow {
         };
     }
 
-    pub fn get_cache_path(&self) -> PathBuf {
+    pub fn get_cache_path() -> PathBuf {
         let cache_path = match env::var("XDG_CACHE_HOME") {
             Ok(value) => PathBuf::from(value),
             Err(_) => {
@@ -899,17 +873,20 @@ impl GtkTestWindow {
             imp.image_loading_spinner.set_visible(false);
             imp.stack.set_visible_child_name("stack_main_page");
         } else if (*bottom_image).is_some() {
-            let folder_bottom_name = bottom_image.as_ref().unwrap().filename.clone();
             debug!("Loaded temporary image for render");
             // Create image of nothing
-            let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
-            (*top_image).replace(File::from_image(empty_image, 1, &folder_bottom_name));
-            self.slider_control_sensitivity(false);
+            self.load_empty_top_image(&mut top_image);
 
             if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
                 imp.stack.set_visible_child_name("stack_welcome_page");
             }
         }
+    }
+
+    pub fn load_empty_top_image(&self, top_image: &mut std::sync::MutexGuard<'_, Option<File>>) {
+        let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
+        (*top_image).replace(File::from_image(empty_image, 1, None, ""));
+        self.slider_control_sensitivity(false);
     }
 
     pub fn slider_control_sensitivity(&self, sensitive: bool) {
@@ -948,10 +925,8 @@ impl GtkTestWindow {
     }
 
     // opens file explorer to location of saved icon
-    pub async fn open_directory(&self) {
-        let imp = self.imp();
-        let launcher =
-            gtk::FileLauncher::new(Some(&imp.saved_file.lock().unwrap().clone().unwrap()));
+    pub async fn open_directory(&self, file: &gio::File) {
+        let launcher = gtk::FileLauncher::new(Some(file));
         let win = self.native().and_downcast::<gtk::Window>();
         if let Err(e) = launcher.open_containing_folder_future(win.as_ref()).await {
             show_error_popup(&self, "", true, Some(Box::new(e)));
@@ -976,20 +951,13 @@ impl GtkTestWindow {
     }
 
     // TODO decouple UI components from these functions
-    fn enable_monochrome_expand(&self) {
-        let switch_state = self.imp().monochrome_switch.state();
-        match switch_state {
-            false => {
-                self.imp()
-                    .monochrome_action_row
-                    .set_property("enable_expansion", true);
-            }
-            true => {
-                self.imp()
-                    .monochrome_action_row
-                    .set_property("enable_expansion", false);
-            }
-        };
+    fn monochrome_swtich_change(&self) {
+        let imp = self.imp();
+        let switch_state = imp.monochrome_switch.is_active();
+        debug!("Updating monochrome state to {:?}", switch_state);
+        _ = imp
+            .settings
+            .set_boolean("monochrome-mode-active", switch_state);
         if self.imp().stack.visible_child_name() == Some("stack_main_page".into()) {
             self.check_icon_update();
         }

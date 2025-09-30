@@ -1,14 +1,16 @@
+use crate::GenResult;
 use crate::config::{APP_ID, PROFILE};
 use crate::glib::clone;
-use crate::GenResult;
+use crate::objects::properties::CustomRGB;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
 use adw::prelude::ComboRowExt;
-use adw::prelude::ExpanderRowExt;
 use adw::prelude::{ActionRowExt, AdwDialogExt};
 use adw::subclass::prelude::AdwDialogImpl;
 use fs_extra;
+use gdk4::RGBA;
 use gettextrs::*;
+use gio::AppInfo;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
@@ -17,12 +19,15 @@ use log::*;
 use std::path::PathBuf;
 use std::{env, fs, path};
 
-use crate::GtkTestWindow;
+use crate::IconicWindow;
 
 mod imp {
+    use crate::objects::properties::CustomRGB;
+
     use super::*;
 
     use adw::subclass::prelude::PreferencesDialogImpl;
+    use gdk4::RGBA;
 
     #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/nl/emphisia/icon/settings/settings.ui")]
@@ -58,6 +63,10 @@ mod imp {
         #[template_child]
         pub store_top_images: TemplateChild<adw::SwitchRow>,
         #[template_child]
+        pub ignore_custom: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub strict_regeneration: TemplateChild<gtk::Switch>,
+        #[template_child]
         pub automatic_regeneration: TemplateChild<adw::SwitchRow>,
         #[template_child]
         pub cache_size: TemplateChild<adw::ActionRow>,
@@ -71,6 +80,10 @@ mod imp {
         pub secondary_color_row: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub secondary_folder_color: TemplateChild<gtk::ColorDialogButton>,
+        #[template_child]
+        pub select_default_bottom: TemplateChild<adw::ButtonRow>,
+        #[template_child]
+        pub meta_drop_switch: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
     }
 
@@ -105,6 +118,10 @@ mod imp {
                 primary_folder_color: TemplateChild::default(),
                 secondary_color_row: TemplateChild::default(),
                 secondary_folder_color: TemplateChild::default(),
+                meta_drop_switch: TemplateChild::default(),
+                strict_regeneration: TemplateChild::default(),
+                ignore_custom: TemplateChild::default(),
+                select_default_bottom: TemplateChild::default(),
                 // reveal_custom_colors: TemplateChild::default(),
             }
         }
@@ -112,39 +129,18 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
             klass.bind_template_instance_callbacks();
-            klass.install_action("app.select_folder", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.select_path_filechooser();
-                    }
-                ));
+            klass.install_action("win.select_folder_settings", None, move |win, _, _| {
+                win.select_path_filechooser();
             });
             klass.install_action("app.reset_color_primary", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.imp()
-                            .primary_folder_color
-                            .set_rgba(&GtkTestWindow::to_rgba(164, 202, 238));
-                    }
-                ));
+                win.imp()
+                    .primary_folder_color
+                    .set_rgba(&RGBA::from_rgb(164, 202, 238));
             });
             klass.install_action("app.reset_color_secondary", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.imp()
-                            .secondary_folder_color
-                            .set_rgba(&GtkTestWindow::to_rgba(67, 141, 230));
-                    }
-                ));
-            });
-            klass.install_action("app.dnd_switch", None, move |win, _, _| {
-                win.dnd_row_expand(false);
+                win.imp()
+                    .secondary_folder_color
+                    .set_rgba(&RGBA::from_rgb(67, 141, 230));
             });
         }
 
@@ -169,14 +165,18 @@ mod imp {
     }
 
     impl WidgetImpl for PreferencesDialog {}
-    impl WindowImpl for PreferencesDialog {}
     impl AdwDialogImpl for PreferencesDialog {}
     impl PreferencesDialogImpl for PreferencesDialog {}
 }
 
 glib::wrapper! {
     pub struct PreferencesDialog(ObjectSubclass<imp::PreferencesDialog>)
-    @extends gtk::Widget, gtk::Window, adw::Dialog, adw::PreferencesDialog;
+    @extends gtk::Widget, adw::Dialog, adw::PreferencesDialog,
+    @implements
+        gtk::Accessible,
+        gtk::Buildable,
+        gtk::ConstraintTarget,
+        gtk::ShortcutManager;
 }
 
 #[gtk::template_callbacks]
@@ -201,11 +201,9 @@ impl PreferencesDialog {
             imp.radio_button_bottom.set_active(true);
         }
         imp.select_bottom_color
-            .set_selected(imp.settings.int("selected-accent-color-index") as u32);
+            .set_selected(imp.settings.uint("selected-accent-color-index"));
         win.load_set_colors();
-        win.dnd_row_expand(true);
         win.set_path_title();
-        win.bottom_image_expander(true);
         win.disable_color_dropdown(true);
         win.setup_settings();
         win.get_file_size();
@@ -218,16 +216,14 @@ impl PreferencesDialog {
         let current_primary = imp.settings.string("primary-folder-color");
         let current_secondary = imp.settings.string("secondary-folder-color");
         imp.primary_folder_color
-            .set_rgba(&PreferencesDialog::hex_to_rgba(current_primary.to_string()));
+            .set_rgba(&RGBA::from_hex(current_primary.to_string()));
         imp.secondary_folder_color
-            .set_rgba(&PreferencesDialog::hex_to_rgba(
-                current_secondary.to_string(),
-            ));
+            .set_rgba(&RGBA::from_hex(current_secondary.to_string()));
     }
 
     fn setup_settings(&self) {
         let imp = self.imp();
-        let current_value: i32 = imp.settings.get("svg-render-size");
+        let current_value: u32 = imp.settings.get("svg-render-size");
         imp.settings
             .bind("store-top-in-cache", &*imp.store_top_images, "active")
             .build();
@@ -238,32 +234,45 @@ impl PreferencesDialog {
                 "active",
             )
             .build();
+        imp.settings
+            .bind("allow-meta-drop", &*imp.meta_drop_switch, "active")
+            .build();
+        imp.settings
+            .bind("default-dnd-activated", &*imp.dnd_switch, "active")
+            .build();
+        imp.settings
+            .bind("strict-regeneration", &*imp.strict_regeneration, "active")
+            .invert_boolean()
+            .build();
+        imp.settings
+            .bind("ignore-custom", &*imp.ignore_custom, "active")
+            .build();
+        imp.settings
+            .bind(
+                "manual-bottom-image-selection",
+                &*imp.use_external_icon_button,
+                "active",
+            )
+            .build();
         imp.svg_image_size.set_value(current_value as f64);
         imp.svg_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
-                let value = win.imp().svg_image_size.value() as i32;
+                let value = win.imp().svg_image_size.value() as u32;
                 debug!("{}", value);
                 let _ = win.imp().settings.set("svg-render-size", value);
             }
         ));
-        let current_value: i32 = imp.settings.get("thumbnail-size");
+        let current_value: u32 = imp.settings.get("thumbnail-size");
         imp.thumbnail_image_size.set_value(current_value as f64);
         imp.thumbnail_image_size.connect_changed(clone!(
             #[weak(rename_to = win)]
             self,
             move |_| {
-                let value = win.imp().thumbnail_image_size.value() as i32;
+                let value = win.imp().thumbnail_image_size.value() as u32;
                 debug!("{}", value);
                 let _ = win.imp().settings.set("thumbnail-size", value);
-            }
-        ));
-        imp.use_builtin_icons_button.connect_toggled(clone!(
-            #[weak (rename_to = this)]
-            self,
-            move |_| {
-                this.bottom_image_expander(false);
             }
         ));
         imp.select_bottom_color.connect_selected_item_notify(clone!(
@@ -307,22 +316,22 @@ impl PreferencesDialog {
             #[weak (rename_to = this)]
             self,
             move |_| {
-                let color = this.imp().primary_folder_color.rgba();
-                let _ = this
-                    .imp()
+                let imp = this.imp();
+                let color = imp.primary_folder_color.rgba();
+                let _ = imp
                     .settings
-                    .set_string("primary-folder-color", &this.rgba_to_hex(color));
+                    .set_string("primary-folder-color", &color.to_hex());
             }
         ));
         imp.secondary_folder_color.connect_rgba_notify(clone!(
             #[weak (rename_to = this)]
             self,
             move |_| {
-                let color = this.imp().secondary_folder_color.rgba();
-                let _ = this
-                    .imp()
+                let imp = this.imp();
+                let color = imp.secondary_folder_color.rgba();
+                let _ = imp
                     .settings
-                    .set_string("secondary-folder-color", &this.rgba_to_hex(color));
+                    .set_string("secondary-folder-color", &color.to_hex());
             }
         ));
     }
@@ -332,13 +341,11 @@ impl PreferencesDialog {
         let switch_state = imp.use_system_color.is_active();
         match switch_state {
             true => {
-                imp.select_bottom_color.set_sensitive(false);
                 if !init {
                     let _ = imp.settings.set("selected-accent-color", "None");
                 }
             }
             false => {
-                imp.select_bottom_color.set_sensitive(true);
                 self.get_selected_accent_color(init);
             }
         };
@@ -348,7 +355,7 @@ impl PreferencesDialog {
         let imp = self.imp();
         let mut path = self.get_cache_path();
         path.push("top_images");
-        let file_size = fs_extra::dir::get_size(path).unwrap_or(9999);
+        let file_size = fs_extra::dir::get_size(path).unwrap_or(0);
         let file_size_float: f64 = file_size as f64 / 1000000.0;
         imp.cache_size
             .set_subtitle(&format!("{:.2} MB", file_size_float));
@@ -366,7 +373,7 @@ impl PreferencesDialog {
             let _ = imp.settings.set("selected-accent-color", selected_color);
             let _ = imp
                 .settings
-                .set("selected-accent-color-index", selected_index as i32);
+                .set("selected-accent-color-index", selected_index as u32);
         }
     }
 
@@ -374,12 +381,12 @@ impl PreferencesDialog {
         let current_path = &self.imp().settings.string("folder-svg-path");
         self.imp()
             .current_botton
-            .set_property("title", current_path);
+            .set_property("subtitle", current_path);
     }
 
     fn select_path_filechooser(&self) {
         glib::spawn_future_local(glib::clone!(
-            #[weak(rename_to = win)]
+            #[strong(rename_to=win)]
             self,
             async move {
                 let filters = gio::ListStore::new::<gtk::FileFilter>();
@@ -391,7 +398,11 @@ impl PreferencesDialog {
                     .modal(true)
                     .filters(&filters)
                     .build();
-                let file = dialog.open_future(Some(&win)).await;
+                let parent = win.parent().unwrap();
+                debug!("Parent type: {}", parent.value_type());
+                let file = dialog
+                    .open_future(parent.downcast_ref::<IconicWindow>())
+                    .await;
 
                 match file {
                     Ok(x) => {
@@ -478,62 +489,6 @@ impl PreferencesDialog {
         Ok(())
     }
 
-    pub fn dnd_row_expand(&self, init: bool) {
-        let switch_state = self.imp().dnd_switch.is_active();
-        if !init {
-            let _ = self
-                .imp()
-                .settings
-                .set("default-dnd-activated", switch_state);
-        }
-        debug!("Current switch state: {}", switch_state);
-        match switch_state {
-            true => {
-                self.imp()
-                    .default_dnd
-                    .set_property("enable_expansion", false);
-                self.imp()
-                    .default_dnd
-                    .set_property("enable_expansion", true);
-            }
-            false => {
-                self.imp()
-                    .default_dnd
-                    .set_property("enable_expansion", false);
-            }
-        };
-    }
-
-    fn bottom_image_expander(&self, init: bool) {
-        let imp = self.imp();
-        let button_1_active = imp.use_builtin_icons_button.is_active();
-        if !init {
-            let _ = imp
-                .settings
-                .set("manual-bottom-image-selection", !button_1_active);
-        }
-        match button_1_active {
-            true => {
-                self.imp()
-                    .use_builtin_icons_expander
-                    .set_property("enable_expansion", true);
-                self.imp()
-                    .use_external_icon_expander
-                    .set_property("enable_expansion", false);
-                imp.use_builtin_icons_expander.set_expanded(true);
-            }
-            false => {
-                self.imp()
-                    .use_builtin_icons_expander
-                    .set_property("enable_expansion", false);
-                self.imp()
-                    .use_external_icon_expander
-                    .set_property("enable_expansion", true);
-                imp.use_external_icon_expander.set_expanded(true);
-            }
-        };
-    }
-
     pub fn dnd_radio_state(&self) {
         let imp = self.imp();
         let radio_button = imp.radio_button_top.is_active();
@@ -563,5 +518,17 @@ impl PreferencesDialog {
         };
         debug!("cache path {:?}", cache_path);
         cache_path
+    }
+
+    #[template_callback]
+    pub async fn open_image_cache(&self, _button: adw::ButtonRow) {
+        let file = gio::File::for_path(format!(
+            "{}/top_images/",
+            IconicWindow::get_cache_path().to_str().unwrap()
+        ))
+        .uri();
+        if let Err(e) = AppInfo::launch_default_for_uri(&file, None::<&gio::AppLaunchContext>) {
+            self.can_error::<()>(Err(std::boxed::Box::new(e)));
+        };
     }
 }

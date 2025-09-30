@@ -4,7 +4,7 @@
 data/nl.emphisia.icon.desktop.in.in
 data/nl.emphisia.icon.metainfo.xml.in.in
 # UI files
-src/gtk/help-overlay.blp
+src/gtk/shortcuts-dialog.blp
 src/settings/settings.blp
 src/window.blp
 # RUST files

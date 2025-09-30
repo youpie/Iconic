@@ -1,15 +1,18 @@
-use crate::window::GtkTestWindow;
+use crate::{GenError, GenResult, window::IconicWindow};
 use adw::prelude::*;
 use gettextrs::gettext;
 use log::*;
-use std::error::Error;
+use std::fmt::{Debug, Display};
 
-pub fn show_error_popup(
-    window: &GtkTestWindow,
+pub fn show_error_popup<E>(
+    window: &IconicWindow,
     message: &str,
     show: bool,
-    error: Option<Box<dyn Error + '_>>,
-) -> Option<adw::AlertDialog> {
+    error: Option<E>,
+) -> Option<adw::AlertDialog>
+where
+    E: Display,
+{
     const RESPONSE_OK: &str = "OK";
     let error_text: &str = &gettext("Error");
     let error_message = match message {
@@ -33,7 +36,7 @@ pub fn show_error_popup(
         .build();
     dialog.add_response(RESPONSE_OK, &gettext("OK"));
     match error {
-        Some(ref x) => error!("An error has occured: \"{:?}\"", x),
+        Some(ref x) => error!("An error has occured: \"{}\"", x.to_string()),
         None => error!("An error has occured: \"{}\"", message),
     };
     match show {
@@ -45,6 +48,33 @@ pub fn show_error_popup(
     }
 }
 
+pub trait ErrorPopup<T, E> {
+    fn popup(&self, window: &IconicWindow) -> &Self;
+    fn popup_owned(self, window: &IconicWindow) -> Self;
+    fn map_err_to_str(self) -> GenResult<T>;
+}
+
+impl<T, E> ErrorPopup<T, E> for Result<T, E>
+where
+    E: Display,
+{
+    fn popup(&self, window: &IconicWindow) -> &Self {
+        if let Err(error) = self {
+            show_error_popup(window, "", true, Some(error));
+        }
+        self
+    }
+    fn popup_owned(self, window: &IconicWindow) -> Self {
+        if let Err(error) = &self {
+            show_error_popup(window, "", true, Some(error));
+        }
+        self
+    }
+    fn map_err_to_str(self) -> GenResult<T> {
+        self.map_err(|err| (*Box::new(format!("{}", err.to_string()))).into())
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
 enum OptionError {
     #[error("Unwrapped on a None value. (optional)reason: {0:?}")]
@@ -52,18 +82,18 @@ enum OptionError {
 }
 
 pub trait IntoResult<T> {
-    fn into_result(self) -> Result<T, Box<dyn Error>>;
-    fn into_reason_result(self, reason: &'static str) -> Result<T, Box<dyn Error>>;
+    fn into_result(self) -> Result<T, GenError>;
+    fn into_reason_result(self, reason: &'static str) -> Result<T, GenError>;
 }
 
 impl<T> IntoResult<T> for Option<T> {
-    fn into_result(self) -> Result<T, Box<dyn Error>> {
+    fn into_result(self) -> Result<T, GenError> {
         match self {
             Some(value) => Ok(value),
             None => Err(Box::new(OptionError::NoneUnwrap(None))),
         }
     }
-    fn into_reason_result(self, reason: &'static str) -> Result<T, Box<dyn Error>> {
+    fn into_reason_result(self, reason: &'static str) -> Result<T, GenError> {
         match self {
             Some(value) => Ok(value),
             None => Err(Box::new(OptionError::NoneUnwrap(Some(reason)))),
