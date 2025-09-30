@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-use crate::GtkTestWindow;
+use crate::IconicWindow;
 use crate::config::{APP_ICON, VERSION};
 use crate::glib::WeakRef;
 use crate::settings::settings::PreferencesDialog;
@@ -34,18 +34,18 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default)]
-    pub struct GtkTestApplication {
-        pub window: OnceCell<WeakRef<GtkTestWindow>>,
+    pub struct IconicApplication {
+        pub window: OnceCell<WeakRef<IconicWindow>>,
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GtkTestApplication {
-        const NAME: &'static str = "GtkTestApplication";
+    impl ObjectSubclass for IconicApplication {
+        const NAME: &'static str = "IconicApplication";
         type Type = super::IconicApplication;
         type ParentType = adw::Application;
     }
 
-    impl ObjectImpl for GtkTestApplication {
+    impl ObjectImpl for IconicApplication {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
@@ -54,7 +54,7 @@ mod imp {
         }
     }
 
-    impl ApplicationImpl for GtkTestApplication {
+    impl ApplicationImpl for IconicApplication {
         // We connect to the activate callback to create a window when the application
         // has been launched. Additionally, this callback notifies us when the user
         // tries to launch a "second instance" of the application. When they try
@@ -65,7 +65,7 @@ mod imp {
             let window = if let Some(window) = application.active_window() {
                 window
             } else {
-                let window = GtkTestWindow::new(&*application);
+                let window = IconicWindow::new(&*application);
                 window.upcast()
             };
             // Ask the window manager/compositor to present the window
@@ -73,12 +73,12 @@ mod imp {
         }
     }
 
-    impl GtkApplicationImpl for GtkTestApplication {}
-    impl AdwApplicationImpl for GtkTestApplication {}
+    impl GtkApplicationImpl for IconicApplication {}
+    impl AdwApplicationImpl for IconicApplication {}
 }
 
 glib::wrapper! {
-    pub struct IconicApplication(ObjectSubclass<imp::GtkTestApplication>)
+    pub struct IconicApplication(ObjectSubclass<imp::IconicApplication>)
         @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionGroup, gio::ActionMap;
 }
@@ -133,7 +133,7 @@ impl IconicApplication {
     fn show_preferences_dialog(&self) {
         let preferences = PreferencesDialog::new();
         let window = self.active_window().unwrap();
-        let adw_window = window.downcast_ref::<GtkTestWindow>().unwrap();
+        let adw_window = window.downcast_ref::<IconicWindow>().unwrap();
         match adw_window.visible_dialog() {
             Some(dialog) => {
                 dialog.close();

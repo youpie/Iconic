@@ -1,4 +1,4 @@
-use crate::objects::errors::{IntoResult, show_error_popup};
+use crate::objects::errors::{ErrorPopup, IntoResult, show_error_popup};
 use crate::objects::file::File;
 use crate::objects::properties::{BottomImageType, FileProperties};
 use adw::{prelude::*, subclass::prelude::*};
@@ -8,14 +8,13 @@ use gtk::{gdk, glib};
 use image::*;
 use log::*;
 use std::env;
-use std::error::Error;
 use std::path::PathBuf;
 use std::sync::Arc;
 use xmp_toolkit::{OpenFileOptions, XmpFile, XmpMeta, XmpValue, xmp_ns};
 
-use crate::{GenResult, GtkTestWindow};
+use crate::{GenResult, IconicWindow};
 
-impl GtkTestWindow {
+impl IconicWindow {
     // Load the correct folder based on settings
     // TODO This function is quite confusingly written
     pub fn load_folder_path_from_settings(&self) {
@@ -23,10 +22,10 @@ impl GtkTestWindow {
             #[weak(rename_to = win)]
             self,
             async move {
-                let imp = win.imp();
                 let path;
+                let imp = win.imp();
                 imp.temp_bottom_image_loaded.replace(false);
-                let mut file_properties = imp.file_properties.try_borrow_mut().unwrap();
+                let mut file_properties = imp.file_properties.try_borrow().unwrap().clone();
                 if imp.settings.boolean("manual-bottom-image-selection") {
                     file_properties.bottom_image_type = BottomImageType::Custom;
                     let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
@@ -54,6 +53,7 @@ impl GtkTestWindow {
                         _ => BottomImageType::Folder(set_folder_color),
                     }
                 }
+                imp.file_properties.replace(file_properties);
                 if !imp.reset_color.is_visible() {
                     win.reset_colors();
                 }
@@ -315,7 +315,7 @@ impl GtkTestWindow {
         }
     }
 
-    pub async fn open_save_file_dialog(&self) -> Result<bool, Box<dyn Error + '_>> {
+    pub async fn open_save_file_dialog(&self) -> GenResult<bool> {
         let imp = self.imp();
         if !imp.save_button.is_sensitive() {
             imp.toast_overlay
@@ -325,7 +325,8 @@ impl GtkTestWindow {
         let file_name = format!(
             "folder-{}.png",
             imp.top_image_file
-                .lock()?
+                .lock()
+                .map_err_to_str()?
                 .as_ref()
                 .into_reason_result("No top image found")?
                 .filename
@@ -399,21 +400,26 @@ impl GtkTestWindow {
         use_monochrome: bool,
         manual_monochrome_values: Option<(u8, gtk::gdk::RGBA)>,
         top_image_hash: Option<u64>,
-    ) -> Result<bool, Box<dyn Error + '_>> {
+    ) -> GenResult<bool> {
         let imp = self.imp();
         let _busy_lock = Arc::clone(&imp.app_busy);
         self.image_save_sensitive(false);
-        imp.saved_file.lock()?.replace(file.clone());
+        imp.saved_file
+            .lock()
+            .map_err_to_str()?
+            .replace(file.clone());
         let base_image = imp
             .bottom_image_file
-            .lock()?
+            .lock()
+            .map_err_to_str()?
             .as_ref()
-            .into_reason_result("No bottom image found")?
+            .into_reason_result("No bottom image found")
+            .map_err_to_str()?
             .dynamic_image
             .clone();
 
         let mut top_image_dynamicimage = {
-            let _top_image_lock = imp.top_image_file.lock()?;
+            let _top_image_lock = imp.top_image_file.lock().map_err_to_str()?;
             let top_image = _top_image_lock
                 .as_ref()
                 .into_reason_result("No top image found")?;

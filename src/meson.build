@@ -4,7 +4,7 @@ gnome = import('gnome')
 blueprints = custom_target(
   'blueprints',
   input: files(
-    'gtk/help-overlay.blp',
+    'gtk/shortcuts-dialog.blp',
     'settings/settings.blp',
     'window.blp',
   ),
@@ -19,8 +19,8 @@ blueprints = custom_target(
 )
 
 gnome.compile_resources(
-  'folder_icon',
-  'folder_icon.gresource.xml',
+  'Iconic',
+  'iconic.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,

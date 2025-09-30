@@ -15,9 +15,9 @@ use gio::{
 use gtk::prelude::GtkWindowExt;
 use log::*;
 
-use crate::GtkTestWindow;
+use crate::IconicWindow;
 
-impl GtkTestWindow {
+impl IconicWindow {
     pub fn drag_and_drop_information_dialog(&self) {
         let imp = self.imp();
         if imp.settings.boolean("drag-and-drop-popup-shown") {

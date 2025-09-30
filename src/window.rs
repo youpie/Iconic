@@ -180,7 +180,7 @@ mod imp {
     #[glib::object_subclass]
     impl ObjectSubclass for IconicWindow {
         const NAME: &'static str = "GtkTestWindow";
-        type Type = super::GtkTestWindow;
+        type Type = super::IconicWindow;
         type ParentType = adw::ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
@@ -407,7 +407,7 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct GtkTestWindow(ObjectSubclass<imp::IconicWindow>)
+    pub struct IconicWindow(ObjectSubclass<imp::IconicWindow>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,
         @implements
             gio::ActionGroup,
@@ -420,9 +420,9 @@ glib::wrapper! {
             gtk::ShortcutManager;
 }
 
-impl GtkTestWindow {
+impl IconicWindow {
     pub fn new<P: IsA<adw::Application>>(application: &P) -> Self {
-        let win = glib::Object::builder::<GtkTestWindow>()
+        let win = glib::Object::builder::<IconicWindow>()
             .property("application", application)
             .build();
         let imp = win.imp();

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use xmp_toolkit::{XmpMeta, XmpValue, xmp_ns};
 
-use crate::{GenResult, objects::errors::IntoResult, window::GtkTestWindow};
+use crate::{GenResult, objects::errors::IntoResult, window::IconicWindow};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum PropertiesSource {
@@ -34,7 +34,7 @@ pub struct FileProperties {
 
 impl FileProperties {
     pub fn new(
-        imp: &GtkTestWindow,
+        imp: &IconicWindow,
         top_image_hash: Option<u64>,
         default_monochrome_color: gdk::RGBA,
     ) -> Self {

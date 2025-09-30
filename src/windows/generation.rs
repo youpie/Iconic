@@ -2,9 +2,9 @@ use adw::{prelude::*, subclass::prelude::*};
 use gtk::gdk;
 use image::*;
 
-use crate::GtkTestWindow;
+use crate::IconicWindow;
 
-impl GtkTestWindow {
+impl IconicWindow {
     pub async fn render_to_screen(&self) {
         let imp = self.imp();
         let base = imp
@@ -110,7 +110,7 @@ impl GtkTestWindow {
             let top = top_image;
             let base_dimension: (i64, i64) =
                 ((base.dimensions().0).into(), (base.dimensions().1).into());
-            let top = GtkTestWindow::resize_top_image(top, base.dimensions(), scale, filter);
+            let top = IconicWindow::resize_top_image(top, base.dimensions(), scale, filter);
             let top_dimension: (i64, i64) = (
                 (top.dimensions().0 / 2).into(),
                 (top.dimensions().1 / 2).into(),

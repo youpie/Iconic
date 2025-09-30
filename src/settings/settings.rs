@@ -19,7 +19,7 @@ use log::*;
 use std::path::PathBuf;
 use std::{env, fs, path};
 
-use crate::GtkTestWindow;
+use crate::IconicWindow;
 
 mod imp {
     use crate::objects::properties::CustomRGB;
@@ -536,7 +536,7 @@ impl PreferencesDialog {
     pub async fn open_image_cache(&self, _button: adw::ButtonRow) {
         let file = gio::File::for_path(format!(
             "{}/top_images/",
-            GtkTestWindow::get_cache_path().to_str().unwrap()
+            IconicWindow::get_cache_path().to_str().unwrap()
         ))
         .uri();
         if let Err(e) = AppInfo::launch_default_for_uri(&file, None::<&gio::AppLaunchContext>) {

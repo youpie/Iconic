@@ -5,12 +5,12 @@ use image::*;
 use log::*;
 use resvg::tiny_skia::Pixmap;
 use resvg::usvg::{Options, Transform, Tree};
-use std::error::Error;
 use std::ffi::OsStr;
 use std::fs;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::PathBuf;
 
+use crate::GenResult;
 use crate::objects::errors::IntoResult;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -29,7 +29,8 @@ impl File {
     pub fn path_str(&self) -> String {
         self.path.clone().into_os_string().into_string().unwrap()
     }
-    pub fn new(file: gio::File, size: u32, thumbnail_size: u32) -> Result<Self, Box<dyn Error>> {
+
+    pub fn new(file: gio::File, size: u32, thumbnail_size: u32) -> GenResult<Self> {
         let temp_path = file.path().into_reason_result("Can't get file path")?;
         let file_info =
             file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE)?;
@@ -97,20 +98,12 @@ impl File {
         })
     }
 
-    pub fn from_path_string(
-        path: &str,
-        size: u32,
-        thumbnail_size: u32,
-    ) -> Result<Self, Box<dyn Error>> {
+    pub fn from_path_string(path: &str, size: u32, thumbnail_size: u32) -> GenResult<Self> {
         let file = gio::File::for_path(PathBuf::from(path).as_path());
         Self::new(file, size, thumbnail_size)
     }
 
-    pub fn from_path(
-        path: PathBuf,
-        size: u32,
-        thumbnail_size: u32,
-    ) -> Result<Self, Box<dyn Error>> {
+    pub fn from_path(path: PathBuf, size: u32, thumbnail_size: u32) -> GenResult<Self> {
         let file = gio::File::for_path(path);
         Self::new(file, size, thumbnail_size)
     }
@@ -149,7 +142,7 @@ impl File {
         }
     }
 
-    pub fn load_svg(path: &str, size: u32) -> Result<DynamicImage, Box<dyn Error>> {
+    pub fn load_svg(path: &str, size: u32) -> GenResult<DynamicImage> {
         // Load the SVG file content
         let svg_data = match fs::read(path) {
             Ok(x) => x,

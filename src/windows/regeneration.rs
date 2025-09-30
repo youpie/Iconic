@@ -1,7 +1,8 @@
+use crate::GenResult;
 use crate::objects::errors::IntoResult;
 use crate::objects::file::File;
 use crate::objects::properties::{BottomImageType, FileProperties, PropertiesSource};
-use crate::{GtkTestWindow, objects::errors::show_error_popup};
+use crate::{IconicWindow, objects::errors::show_error_popup};
 
 use crate::objects::properties::CustomRGB;
 use adw::TimedAnimation;
@@ -17,9 +18,7 @@ use std::fs::{self, DirEntry};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
-
-impl GtkTestWindow {
+impl IconicWindow {
     pub fn check_if_regeneration_needed(&self) -> bool {
         let imp = self.imp();
         let previous_accent: String = imp.settings.string("previous-system-accent-color").into();

@@ -17,7 +17,10 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-pub type GenResult<T> = std::result::Result<T, Box<dyn error::Error>>;
+
+type GenResult<T> = Result<T, GenError>;
+type GenError = Box<dyn std::error::Error + Send + Sync + 'static>;
+
 mod application;
 mod config;
 mod objects;
@@ -29,7 +32,7 @@ use std::boxed::Box;
 use std::error;
 
 use self::application::IconicApplication;
-use self::window::GtkTestWindow;
+use self::window::IconicWindow;
 
 use config::{APP_ID, GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
 use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
@@ -45,7 +48,7 @@ fn main() -> glib::ExitCode {
     textdomain(GETTEXT_PACKAGE).expect("Unable to switch to the text domain");
 
     // Load resources
-    let resources = gio::Resource::load(PKGDATADIR.to_owned() + "/folder_icon.gresource")
+    let resources = gio::Resource::load(PKGDATADIR.to_owned() + "/Iconic.gresource")
         .expect("Could not load resources");
     gio::resources_register(&resources);
 
