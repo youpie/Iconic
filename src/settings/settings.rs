@@ -81,6 +81,8 @@ mod imp {
         #[template_child]
         pub secondary_folder_color: TemplateChild<gtk::ColorDialogButton>,
         #[template_child]
+        pub select_default_bottom: TemplateChild<adw::ButtonRow>,
+        #[template_child]
         pub meta_drop_switch: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
     }
@@ -119,6 +121,7 @@ mod imp {
                 meta_drop_switch: TemplateChild::default(),
                 strict_regeneration: TemplateChild::default(),
                 ignore_custom: TemplateChild::default(),
+                select_default_bottom: TemplateChild::default(),
                 // reveal_custom_colors: TemplateChild::default(),
             }
         }
@@ -126,36 +129,18 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
             klass.bind_template_instance_callbacks();
-            klass.install_action("app.select_folder", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.select_path_filechooser();
-                    }
-                ));
+            klass.install_action("app.select_folder_settings", None, move |win, _, _| {
+                win.select_path_filechooser();
             });
             klass.install_action("app.reset_color_primary", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.imp()
-                            .primary_folder_color
-                            .set_rgba(&RGBA::from_rgb(164, 202, 238));
-                    }
-                ));
+                win.imp()
+                    .primary_folder_color
+                    .set_rgba(&RGBA::from_rgb(164, 202, 238));
             });
             klass.install_action("app.reset_color_secondary", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.imp()
-                            .secondary_folder_color
-                            .set_rgba(&RGBA::from_rgb(67, 141, 230));
-                    }
-                ));
+                win.imp()
+                    .secondary_folder_color
+                    .set_rgba(&RGBA::from_rgb(67, 141, 230));
             });
         }
 
@@ -180,14 +165,13 @@ mod imp {
     }
 
     impl WidgetImpl for PreferencesDialog {}
-    // impl WindowImpl for PreferencesDialog {}
     impl AdwDialogImpl for PreferencesDialog {}
     impl PreferencesDialogImpl for PreferencesDialog {}
 }
 
 glib::wrapper! {
     pub struct PreferencesDialog(ObjectSubclass<imp::PreferencesDialog>)
-    @extends gtk::Widget, gtk::Window, adw::Dialog, adw::PreferencesDialog,
+    @extends gtk::Widget, adw::Dialog, adw::PreferencesDialog,
     @implements
         gtk::Accessible,
         gtk::Buildable,
@@ -402,7 +386,7 @@ impl PreferencesDialog {
 
     fn select_path_filechooser(&self) {
         glib::spawn_future_local(glib::clone!(
-            #[weak(rename_to = win)]
+            #[strong(rename_to=win)]
             self,
             async move {
                 let filters = gio::ListStore::new::<gtk::FileFilter>();
@@ -414,7 +398,11 @@ impl PreferencesDialog {
                     .modal(true)
                     .filters(&filters)
                     .build();
-                let file = dialog.open_future(Some(&win)).await;
+                let parent = win.parent().unwrap();
+                debug!("Parent type: {}", parent.value_type());
+                let file = dialog
+                    .open_future(parent.downcast_ref::<IconicWindow>())
+                    .await;
 
                 match file {
                     Ok(x) => {
