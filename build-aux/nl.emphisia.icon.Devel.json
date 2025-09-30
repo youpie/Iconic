@@ -6,12 +6,12 @@
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
-    "command": "folder_icon",
+    "command": "Iconic",
     "finish-args": [
         "--share=ipc",
         "--socket=fallback-x11",
         "--device=dri",
-        "--env=RUST_LOG=folder_icon=debug",
+        "--env=RUST_LOG=Iconic=debug",
         "--socket=wayland"
     ],
     "build-options": {
@@ -21,7 +21,7 @@
         ],
         "env": {
             "RUST_BACKTRACE": "1",
-            "RUST_LOG": "folder_icon=debug"
+            "RUST_LOG": "Iconic=debug"
         }
     },
     "cleanup": [
@@ -49,7 +49,7 @@
             ]
         },
         {
-            "name": "folder_icon",
+            "name": "Iconic",
             "builddir": true,
             "buildsystem": "meson",
             "config-opts": [

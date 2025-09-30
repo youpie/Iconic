@@ -73,7 +73,7 @@ impl GtkTestWindow {
     ) -> PathBuf {
         info!("Creating custom folder colors");
         let folder_svg_file =
-            std::fs::read_to_string("/app/share/folder_icon/folders/folder_Custom.svg").unwrap();
+            std::fs::read_to_string("/app/share/Iconic/folders/folder_Custom.svg").unwrap();
         let folder_svg_lines = folder_svg_file.lines();
         let new_custom_folder: String = folder_svg_lines
             .map(|row| {
@@ -107,7 +107,7 @@ impl GtkTestWindow {
             x => x.to_string(),
         };
         let folder_path = PathBuf::from(format!(
-            "/app/share/folder_icon/folders/folder_{}.svg",
+            "/app/share/Iconic/folders/folder_{}.svg",
             folder_color_name
         ));
         folder_path

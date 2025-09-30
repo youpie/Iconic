@@ -331,7 +331,7 @@ impl GtkTestWindow {
         // Icons that are compatible for regeneration are only allowed to use default folder images.
         // So when regenerating icons, you need the folder which is the same color as the current accent color
         let bottom_image_path = PathBuf::from(format!(
-            "/app/share/folder_icon/folders/folder_{}.svg",
+            "/app/share/Iconic/folders/folder_{}.svg",
             &accent_color
         ));
         Ok(gio::spawn_blocking(move || {

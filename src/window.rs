@@ -491,6 +491,7 @@ impl GtkTestWindow {
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
         let imp = self.imp();
         imp.drag_active.set(true);
+        None::<String>.unwrap();
         let generated_image = imp.generated_image.borrow().clone().unwrap();
         let file_hash = imp.top_image_file.lock().unwrap().clone().unwrap().hash;
         let icon = self.dynamic_image_to_texture(&generated_image.resize(
