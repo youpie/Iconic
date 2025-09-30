@@ -31,7 +31,7 @@ XGETTEXT="${XGETTEXT:-xgettext}"
 top_srcdir="${top_srcdir:-.}"
 
 srcdir="${srcdir:-$top_srcdir/po}"
-GETTEXT_PACKAGE="folder_icon"
+GETTEXT_PACKAGE="Iconic"
 XGETTEXT_KEYWORDS="${XGETTEXT_KEYWORDS:- --keyword=_ --keyword=N_ --keyword=C_:1c,2 --keyword=NC_:1c,2 --keyword=g_dngettext:2,3 }"
 
 $XGETTEXT --default-domain="$GETTEXT_PACKAGE" \
