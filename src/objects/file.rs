@@ -36,7 +36,7 @@ impl File {
             file.query_info("standard::", FileQueryInfoFlags::NONE, Cancellable::NONE)?;
         let file_name_pathbuf = PathBuf::from(file_info.name().into_os_string());
         let file_name = file_name_pathbuf
-            .file_name()
+            .file_stem()
             .unwrap_or(OsStr::new("unkwnown"))
             .to_str()
             .into_result()?

@@ -8,21 +8,6 @@ Adw.ShortcutsDialog shortcuts_dialog {
     title: _("Global");
 
     Adw.ShortcutsItem {
-      title: C_("shortcut window", "Show Shortcuts");
-      action-name: "app.shortcuts";
-    }
-
-    Adw.ShortcutsItem {
-      title: C_("shortcut window", "Open Preferences");
-      action-name: "app.preferences";
-    }
-
-    Adw.ShortcutsItem {
-      title: C_("shortcut window", "Quit Iconic");
-      action-name: "app.quit";
-    }
-
-    Adw.ShortcutsItem {
       title: C_("shortcut window", "Save Image");
       action-name: "app.save_button";
     }
@@ -40,6 +25,26 @@ Adw.ShortcutsDialog shortcuts_dialog {
     Adw.ShortcutsItem {
       title: C_("shortcut window", "Regenerate Images");
       action-name: "app.regenerate";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Reset Image");
+      action-name: "app.reset";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Show Shortcuts");
+      action-name: "app.shortcuts";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Open Preferences");
+      action-name: "app.preferences";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Quit Iconic");
+      action-name: "app.quit";
     }
   }
 }
