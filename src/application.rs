@@ -134,6 +134,7 @@ impl IconicApplication {
         self.set_accels_for_action("app.paste", &["<primary>v"]);
         self.set_accels_for_action("app.regenerate", &["<primary>r"]);
         self.set_accels_for_action("app.shortcuts", &["<primary>question"]);
+        self.set_accels_for_action("app.reset", &["r"]);
     }
 
     fn show_preferences_dialog(&self) {

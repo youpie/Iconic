@@ -218,6 +218,16 @@ mod imp {
             klass.install_action("app.open_bottom_icon", None, move |win, _, _| {
                 win.check_icon_update();
             });
+            klass.install_action("app.reset", None, move |win, _, _| {
+                let imp = win.imp();
+                win.default_sliders(false);
+                win.load_folder_path_from_settings();
+                win.reset_colors();
+                let mut top_image = imp.top_image_file.lock().unwrap();
+                win.load_empty_top_image(&mut top_image);
+                imp.toast_overlay
+                    .add_toast(adw::Toast::new(&gettext("Image reset")));
+            });
             klass.install_action("app.reset_bottom", None, move |win, _, _| {
                 win.reset_bottom_icon();
             });
@@ -459,14 +469,17 @@ impl IconicWindow {
         ));
     }
 
-    pub fn default_sliders(&self) {
+    pub fn default_sliders(&self, add_marks: bool) {
         let imp = self.imp();
-        imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
-        imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
-        imp.y_scale.set_value(9.447);
-        imp.size.set_value(24.0);
+        if add_marks {
+            imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
+            imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
+        }
         imp.size.add_mark(24.0, gtk::PositionType::Top, None);
         imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
+        imp.y_scale.set_value(9.447);
+        imp.size.set_value(24.0);
+        imp.x_scale.set_value(0.0);
         let monochrome_switch_state = imp.settings.boolean("monochrome-mode-active");
         imp.monochrome_switch.set_active(monochrome_switch_state);
     }
@@ -474,7 +487,7 @@ impl IconicWindow {
     pub fn setup_defaults(&self) {
         let imp = self.imp();
         imp.save_button.set_sensitive(false);
-        self.default_sliders();
+        self.default_sliders(true);
         self.adwaita_colors_popup();
         imp.reset_color.set_visible(false);
         self.check_if_regeneration_needed();
@@ -491,7 +504,6 @@ impl IconicWindow {
     pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
         let imp = self.imp();
         imp.drag_active.set(true);
-        None::<String>.unwrap();
         let generated_image = imp.generated_image.borrow().clone().unwrap();
         let file_hash = imp.top_image_file.lock().unwrap().clone().unwrap().hash;
         let icon = self.dynamic_image_to_texture(&generated_image.resize(
@@ -847,17 +859,20 @@ impl IconicWindow {
             imp.image_loading_spinner.set_visible(false);
             imp.stack.set_visible_child_name("stack_main_page");
         } else if (*bottom_image).is_some() {
-            let folder_bottom_name = bottom_image.as_ref().unwrap().filename.clone();
             debug!("Loaded temporary image for render");
             // Create image of nothing
-            let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
-            (*top_image).replace(File::from_image(empty_image, 1, None, &folder_bottom_name));
-            self.slider_control_sensitivity(false);
+            self.load_empty_top_image(&mut top_image);
 
             if imp.stack.visible_child_name() != Some("stack_main_page".into()) {
                 imp.stack.set_visible_child_name("stack_welcome_page");
             }
         }
+    }
+
+    pub fn load_empty_top_image(&self, top_image: &mut std::sync::MutexGuard<'_, Option<File>>) {
+        let empty_image = DynamicImage::new(1, 1, ColorType::Rgba8);
+        (*top_image).replace(File::from_image(empty_image, 1, None, ""));
+        self.slider_control_sensitivity(false);
     }
 
     pub fn slider_control_sensitivity(&self, sensitive: bool) {
