@@ -1,6 +1,7 @@
 use crate::GenResult;
 use crate::config::{APP_ID, PROFILE};
 use crate::glib::clone;
+use crate::objects::errors::IntoResult;
 use crate::objects::properties::CustomRGB;
 use adw::prelude::AlertDialogExt;
 use adw::prelude::AlertDialogExtManual;
@@ -16,6 +17,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::*;
 use log::*;
+use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::{env, fs, path};
 
@@ -378,10 +380,17 @@ impl PreferencesDialog {
     }
 
     fn set_path_title(&self) {
-        let current_path = &self.imp().settings.string("folder-svg-path");
-        self.imp()
-            .current_botton
-            .set_property("subtitle", current_path);
+        let imp = self.imp();
+        let current_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
+        let path = || -> GenResult<String> {
+            Ok(if let Some(stem) = current_path.file_stem() {
+                stem.to_string_lossy().into_owned().to_string()
+            } else {
+                current_path.to_str().into_result()?.to_owned()
+            })
+        }()
+        .unwrap_or("Unknown".to_string());
+        imp.current_botton.set_property("subtitle", path);
     }
 
     fn select_path_filechooser(&self) {

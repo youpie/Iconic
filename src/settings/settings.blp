@@ -111,18 +111,23 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
     Adw.PreferencesGroup {
       title: _("Drag and Drop");
+      visible: bind enable_advanced.active;
 
       Adw.PreferencesGroup {
         Adw.SwitchRow meta_drop_switch {
-          title: _("Allow Drop During Drag");
+          title: _("<b>Allow Drop During Drag</b>");
+          use-markup: true;
           subtitle: _("Allow dropping the image back as a layer when dragging");
+          visible: bind enable_advanced.active;
         }
 
         Adw.ExpanderRow default_dnd {
-          title: _("Default Drag-and-Drop Action");
+          title: _("<b>Default Drag-and-Drop Action</b>");
+          use-markup: true;
           subtitle: _("Set a default layer when dropping an image");
           expanded: bind dnd_switch.active;
           enable-expansion: bind dnd_switch.active;
+          visible: bind enable_advanced.active;
 
           [suffix]
           Switch dnd_switch {
@@ -181,13 +186,35 @@ After regeneration, it is likely required to log out and in to see the changes")
           }
         }
 
-        Adw.SwitchRow automatic_regeneration {
-          title: _("Regenerate Automatically");
-          subtitle: _("Regenerate images on accent color change");
+        Adw.ExpanderRow regeneration_expander {
+          title: _("Enable Regeneration");
+          subtitle: _("Enable the automatic regenerating of folders when a new system accent color is selected");
+          expanded: false;
+          enable-expansion: bind enable_regeneration.active;
+
+          [suffix]
+          Switch enable_regeneration {
+            valign: center;
+            active: bind store_top_images.active;
+          }
+
+          Adw.SwitchRow automatic_regeneration {
+            title: _("Automatic Genereration");
+            subtitle: _("Automatically regenerate the Icons when the system accent color changes");
+          }
+        }
+
+        Adw.SwitchRow strict_button {
+          visible: bind enable_advanced.active inverted;
+          title: _("Loose Regeneration");
+          subtitle: _("Allow regeneration of folder images with \"Use system folder color\" disabled");
+          active: bind strict_regeneration.active bidirectional;
         }
 
         Adw.ExpanderRow strict_expander {
-          title: _("Loose Regeneration");
+          visible: bind enable_advanced.active;
+          title: _("<b>Loose Regeneration</b>");
+          use-markup: true;
           subtitle: _("Allow regeneration of folder images with \"Use system folder color\" disabled");
           expanded: false;
           enable-expansion: bind strict_regeneration.active;
@@ -206,13 +233,17 @@ After regeneration, it is likely required to log out and in to see the changes")
         }
 
         Adw.SwitchRow store_top_images {
-          title: _("Store Top Images in Cache");
+          title: _("<b>Store Top Images in Cache</b>");
+          use-markup: true;
           subtitle: _("Folder icons made while this option is disabled cannot be regenerated");
+          visible: bind enable_advanced.active;
         }
 
         Adw.ActionRow cache_size {
-          title: _("Current Cache Usage");
+          title: _("<b>Current Cache Usage</b>");
+          use-markup: true;
           subtitle: "Unknown";
+          visible: bind enable_advanced.active;
 
           styles [
             "property",
@@ -224,11 +255,13 @@ After regeneration, it is likely required to log out and in to see the changes")
           title: _("Browse Cached Images");
           start-icon-name: "folder-open-symbolic";
           activated => $open_image_cache() swapped;
+          visible: bind enable_advanced.active;
         }
 
         Adw.ButtonRow reset_top_cache {
           title: _("Remove Cached Images");
           start-icon-name: "user-trash-symbolic";
+          visible: bind enable_advanced.active;
 
           styles [
             "destructive-action",
@@ -250,6 +283,10 @@ After regeneration, it is likely required to log out and in to see the changes")
           "subtitle",
           "warning",
         ]
+      }
+
+      Adw.SwitchRow enable_advanced {
+        title: _("Enable advanced settings");
       }
 
       Adw.SpinRow svg_image_size {
