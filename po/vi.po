@@ -1,0 +1,993 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Iconic package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Iconic\n"
+"Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
+"POT-Creation-Date: 2025-10-01 00:01+0200\n"
+"PO-Revision-Date: 2025-11-30 15:14+0700\n"
+"Last-Translator: Loc Huynh <huynhloc.contact@gmail.com>\n"
+"Language-Team: \n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: data/nl.emphisia.icon.desktop.in.in:2 data/nl.emphisia.icon.metainfo.xml.in.in:5 data/nl.emphisia.icon.metainfo.xml.in.in:208
+msgid "Iconic"
+msgstr "Iconic"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:6
+msgid "Add icons on top of folders"
+msgstr "Thêm biểu tượng lên trên thư mục"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:8
+msgid "Youpie"
+msgstr "Youpie"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:14
+msgid "This program allows an easy and intuitive way to add an icon on top of a folder to help you differentiate it better."
+msgstr "Chương trình này cho phép một cách dễ dàng và trực quan để thêm biểu tượng lên trên thư mục giúp bạn phân biệt chúng tốt hơn."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:15
+msgid "This program works best in combination with the app \"Icon library\" found on flathub and \"Adwaita Colors\" found on github"
+msgstr "Chương trình này hoạt động tốt nhất khi kết hợp với ứng dụng \"Icon library\" trên flathub và \"Adwaita Colors\" trên github"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:16
+msgid "This program is written in Rust and Libadwaita and is my first attempt at creating an application"
+msgstr "Chương trình này được viết bằng Rust và Libadwaita và là nỗ lực đầu tiên của tôi trong việc tạo ra một ứng dụng"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:20
+msgid "Main menu in light mode"
+msgstr "Menu chính ở chế độ sáng"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:24
+msgid "Accent collored folders supported"
+msgstr "Hỗ trợ thư mục có màu nhấn"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:28
+msgid "Main menu in dark mode"
+msgstr "Menu chính ở chế độ tối"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:32
+msgid "Custom colored folder icons supported"
+msgstr "Hỗ trợ biểu tượng thư mục tùy chỉnh màu sắc"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:39
+msgid "Free Palestine🇵🇸. After a long wait, a new Iconic release is finally here! Featuring fun new features and fixes!"
+msgstr "Giải Phóng Palestine🇵🇸. Sau một thời gian chờ đợi, bản phát hành Iconic mới cuối cùng đã có! Với các tính năng mới thú vị và các bản sửa lỗi!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:41
+msgid "Updated to Gnome 49"
+msgstr "Đã cập nhật lên Gnome 49"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:42
+msgid "Updated Regeneration Logic"
+msgstr "Đã cập nhật Logic Tái Tạo"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:43
+msgid "Added Kazakh, Russian and Persian language support"
+msgstr "Đã thêm hỗ trợ ngôn ngữ Kazakh, Nga và Ba Tư"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:44
+msgid "Added ability to reset image"
+msgstr "Đã thêm khả năng đặt lại hình ảnh"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:45
+msgid "Added ability to drag images from the browser"
+msgstr "Đã thêm khả năng kéo hình ảnh từ trình duyệt"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:46
+msgid "Increased maximum size of top image"
+msgstr "Đã tăng kích thước tối đa của hình ảnh trên cùng"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:47
+msgid "Updated default settings"
+msgstr "Đã cập nhật cài đặt mặc định"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:48
+msgid "Fixed Pop-up informing about accent color change on first run"
+msgstr "Đã sửa Pop-up thông báo về thay đổi màu nhấn ở lần chạy đầu tiên"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:50
+msgid "And many more changes, the full changelog can be found on GitHub!"
+msgstr "Và nhiều thay đổi khác, nhật ký thay đổi đầy đủ có thể tìm thấy trên GitHub!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:51
+msgid "I hope life has been treating you well :)"
+msgstr "Tôi hy vọng cuộc sống đã đối xử tốt với bạn :)"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:56
+msgid "Here I am, once again. A new update to Iconic is here with the following changes!"
+msgstr "Tôi lại ở đây, một lần nữa. Một bản cập nhật mới cho Iconic đã có với những thay đổi sau!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:58
+msgid "Improved code"
+msgstr "Đã cải thiện mã"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:59
+msgid "Decrease storage and memory size"
+msgstr "Đã giảm kích thước bộ nhớ và lưu trữ"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:60
+msgid "Improved app closing"
+msgstr "Đã cải thiện việc đóng ứng dụng"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:61
+msgid "Updated to gnome 48"
+msgstr "Đã cập nhật lên gnome 48"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:62
+msgid "Improved \"About Iconic\" dialog"
+msgstr "Đã cải thiện hộp thoại \"Giới Thiệu Iconic\""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:63
+msgid "Removed donation button from hamburger menu"
+msgstr "Đã xóa nút quyên góp từ menu hamburger"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:64
+msgid "Added keyboard shortcuts"
+msgstr "Đã thêm phím tắt"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:65
+msgid "Improved accessibility"
+msgstr "Đã cải thiện khả năng tiếp cận"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:66
+msgid "Increased translatable elements"
+msgstr "Đã tăng các phần tử có thể dịch"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:68
+msgid "I am doing a lot of this because I am planning to apply to gnome circle :)"
+msgstr "Tôi đang làm nhiều điều này vì tôi dự định ứng tuyển vào gnome circle :)"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:69
+msgid "Remember to let me know if you encounter any bugs!"
+msgstr "Hãy nhớ cho tôi biết nếu bạn gặp bất kỳ lỗi nào!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:70
+msgid "Have a beautiful day <3"
+msgstr "Chúc bạn một ngày tươi đẹp <3"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:75
+msgid "A new version of Iconic! It is mostly a quality of life update, I have some fun additions planned so stay tuned!"
+msgstr "Một phiên bản mới của Iconic! Đây chủ yếu là bản cập nhật chất lượng cuộc sống, tôi có một số bổ sung thú vị đã lên kế hoạch nên hãy đón chờ!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:76
+msgid "Here is what has changed:"
+msgstr "Đây là những gì đã thay đổi:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:78
+msgid "Updated to rust 2024 edition"
+msgstr "Đã cập nhật lên phiên bản rust 2024"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:79
+msgid "Removed regeneration screen"
+msgstr "Đã xóa màn hình tái tạo"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:80
+msgid "Added regeneration bar on main screen"
+msgstr "Đã thêm thanh tái tạo trên màn hình chính"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:81
+msgid "Added better error handling for regeneration"
+msgstr "Đã thêm xử lý lỗi tốt hơn cho việc tái tạo"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:82
+msgid "Updated pink folder, to be in line with Adwaita-colors"
+msgstr "Đã cập nhật thư mục màu hồng, để phù hợp với Adwaita-colors"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:83
+msgid "Added acknowledgements in the About Iconic"
+msgstr "Đã thêm lời cảm ơn trong Giới Thiệu Iconic"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:84
+msgid "Fixed donation link"
+msgstr "Đã sửa liên kết quyên góp"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:86
+msgid "As always, if you encounter any bugs. Please let me know on GitHub!"
+msgstr "Như mọi khi, nếu bạn gặp bất kỳ lỗi nào. Vui lòng cho tôi biết trên GitHub!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:87
+msgid "Enjoy the update, and Free Palestine 🇵🇸"
+msgstr "Hãy tận hưởng bản cập nhật, và Giải Phóng Palestine 🇵🇸"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:92
+msgid "I was really motivated so I made another update. Now allowing you to set custom collors for the folders. Other features include"
+msgstr "Tôi đã rất có động lực nên đã tạo một bản cập nhật khác. Giờ đây cho phép bạn đặt màu tùy chỉnh cho các thư mục. Các tính năng khác bao gồm"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:94
+msgid "Made the app more responsive"
+msgstr "Đã làm cho ứng dụng phản hồi nhanh hơn"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:95
+msgid "Removed crashing bug"
+msgstr "Đã xóa lỗi gây treo"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:96
+msgid "Removed small bugs"
+msgstr "Đã xóa các lỗi nhỏ"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:97
+msgid "Added Right-click menu to folder view"
+msgstr "Đã thêm menu nhấp chuột phải vào chế độ xem thư mục"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:103
+msgid "A really big update for Iconic! You are now able to regenerate images with the correct accent color after you change it. This makes the app really nice to combine with \"Adwaita-Colors\""
+msgstr "Một bản cập nhật thực sự lớn cho Iconic! Giờ đây bạn có thể tái tạo hình ảnh với màu nhấn chính xác sau khi bạn thay đổi nó. Điều này làm cho ứng dụng thực sự tuyệt vời khi kết hợp với \"Adwaita-Colors\""
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:104
+msgid "In Gnome 48, using static images in natilus might change. If that is the case I will retire the app. But for now I will keep working on the app!"
+msgstr "Trong Gnome 48, việc sử dụng hình ảnh tĩnh trong natilus có thể thay đổi. Nếu đó là trường hợp, tôi sẽ ngừng phát triển ứng dụng. Nhưng hiện tại tôi sẽ tiếp tục làm việc trên ứng dụng!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:109
+msgid "This is a nice big update to Iconic making it way more colorfull and better for gnome 47. Features include"
+msgstr "Đây là một bản cập nhật lớn tuyệt vời cho Iconic làm cho nó nhiều màu sắc hơn và tốt hơn cho gnome 47. Các tính năng bao gồm"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:111
+msgid "Custom accent color folders"
+msgstr "Thư mục màu nhấn tùy chỉnh"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:112
+msgid "Accent color detection"
+msgstr "Phát hiện màu nhấn"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:113
+msgid "Updated settings"
+msgstr "Đã cập nhật cài đặt"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:114
+msgid "Bug fixes!"
+msgstr "Sửa lỗi!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:116
+msgid "As always, please let me know if you encounter any bugs!"
+msgstr "Như mọi khi, vui lòng cho tôi biết nếu bạn gặp bất kỳ lỗi nào!"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:121
+msgid "This update to iconic is mostly just a version bump. However I do have some fun features I want to try and implement. If it is possible, idk yet. But I have already started working on it."
+msgstr "Bản cập nhật này cho iconic chủ yếu chỉ là nâng cấp phiên bản. Tuy nhiên tôi có một số tính năng thú vị muốn thử và triển khai. Nếu có thể, tôi chưa biết. Nhưng tôi đã bắt đầu làm việc trên nó."
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:122
+msgid "Biggest changes"
+msgstr "Những thay đổi lớn nhất"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:124
+msgid "Updated to gnome 47"
+msgstr "Đã cập nhật lên gnome 47"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:125
+msgid "Using new loading animation"
+msgstr "Đang sử dụng hoạt ảnh tải mới"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:126
+msgid "Using new buttons in settings"
+msgstr "Đang sử dụng nút mới trong cài đặt"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:132
+msgid "A new update to Iconic is here! It does not add many features but features a lot of improvements under the hood, this means the app will now crash way less often without any warning. Some changes include:"
+msgstr "Một bản cập nhật mới cho Iconic đã có! Nó không thêm nhiều tính năng nhưng có nhiều cải tiến bên trong, điều này có nghĩa là ứng dụng giờ đây sẽ ít bị treo hơn mà không có bất kỳ cảnh báo nào. Một số thay đổi bao gồm:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:134
+msgid "Added ability to drag icon out of iconic directly"
+msgstr "Đã thêm khả năng kéo biểu tượng ra khỏi iconic trực tiếp"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:135
+msgid "Added error handling on opening files"
+msgstr "Đã thêm xử lý lỗi khi mở tệp"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:136
+msgid "Added error handling on saving files"
+msgstr "Đã thêm xử lý lỗi khi lưu tệp"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:137
+msgid "Added donation link"
+msgstr "Đã thêm liên kết quyên góp"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:138
+msgid "Added pop-up when dragging in files"
+msgstr "Đã thêm pop-up khi kéo tệp vào"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:139
+msgid "Updated Dutch translations"
+msgstr "Đã cập nhật bản dịch tiếng Hà Lan"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:141
+msgid "Please report any bugs you see! Many thanks"
+msgstr "Vui lòng báo cáo bất kỳ lỗi nào bạn thấy! Cảm ơn rất nhiều"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:146
+msgid "This is a new major release of Iconic. Featuring many bug fixes and added features. Some notable ones are:"
+msgstr "Đây là một bản phát hành chính mới của Iconic. Với nhiều bản sửa lỗi và tính năng được thêm vào. Một số điểm đáng chú ý là:"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:148
+msgid "Drag and drop support"
+msgstr "Hỗ trợ kéo và thả"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:149
+msgid "Copy-paste support"
+msgstr "Hỗ trợ sao chép-dán"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:150
+msgid "Better file type detection"
+msgstr "Phát hiện loại tệp tốt hơn"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:151
+msgid "Updated dutch translations"
+msgstr "Đã cập nhật bản dịch tiếng Hà Lan"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:152
+msgid "Added Hindi translations"
+msgstr "Đã thêm bản dịch tiếng Hindi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:153
+msgid "Fixed spelling mistakes"
+msgstr "Đã sửa lỗi chính tả"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:154
+msgid "Fixed issues with black pixels not converting to monochrome"
+msgstr "Đã sửa sự cố với pixel đen không chuyển đổi sang đơn sắc"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:160
+msgid "Another small update with a few additions and changes"
+msgstr "Một bản cập nhật nhỏ khác với một vài bổ sung và thay đổi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:162
+msgid "You can now open containing folder after saving image"
+msgstr "Giờ đây bạn có thể mở thư mục chứa sau khi lưu hình ảnh"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:163
+msgid "Added italian translation"
+msgstr "Đã thêm bản dịch tiếng Ý"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:164
+msgid "Updated Dutch translation"
+msgstr "Đã cập nhật bản dịch tiếng Hà Lan"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:170
+msgid "This version adds a few small features and fixes some bugs"
+msgstr "Phiên bản này thêm một vài tính năng nhỏ và sửa một số lỗi"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:172
+msgid "The app now shows some errors as pop-ups"
+msgstr "Ứng dụng giờ đây hiển thị một số lỗi dưới dạng pop-up"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:173
+msgid "You can now temporarily open a new folder image"
+msgstr "Giờ đây bạn có thể tạm thời mở một hình ảnh thư mục mới"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:174
+msgid "It now first shows a pop-up when the folder image is not found"
+msgstr "Giờ đây nó đầu tiên hiển thị pop-up khi không tìm thấy hình ảnh thư mục"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:180
+msgid "Initial release"
+msgstr "Phát hành ban đầu"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:199
+msgid "icon"
+msgstr "biểu tượng"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:200
+msgid "create"
+msgstr "tạo"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:201
+msgid "folder icon"
+msgstr "biểu tượng thư mục"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:202
+msgid "svg"
+msgstr "svg"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:203
+msgid "png"
+msgstr "png"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:204
+msgid "gnome"
+msgstr "gnome"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:205
+msgid "icon create"
+msgstr "tạo biểu tượng"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:206
+msgid "icon creator"
+msgstr "trình tạo biểu tượng"
+
+#: data/nl.emphisia.icon.metainfo.xml.in.in:207
+msgid "folder icon creator"
+msgstr "trình tạo biểu tượng thư mục"
+
+#: src/gtk/shortcuts-dialog.blp:5
+msgid "Keyboard Shortcuts"
+msgstr "Phím Tắt"
+
+#: src/gtk/shortcuts-dialog.blp:8
+msgid "Global"
+msgstr "Toàn Cục"
+
+#: src/gtk/shortcuts-dialog.blp:11
+msgctxt "shortcut window"
+msgid "Save Image"
+msgstr "Lưu Hình Ảnh"
+
+#: src/gtk/shortcuts-dialog.blp:16
+msgctxt "shortcut window"
+msgid "Open top image"
+msgstr "Mở hình ảnh trên cùng"
+
+#: src/gtk/shortcuts-dialog.blp:21
+msgctxt "shortcut window"
+msgid "Open temporary bottom image"
+msgstr "Mở hình ảnh dưới cùng tạm thời"
+
+#: src/gtk/shortcuts-dialog.blp:26
+msgctxt "shortcut window"
+msgid "Regenerate Images"
+msgstr "Tái Tạo Hình Ảnh"
+
+#: src/gtk/shortcuts-dialog.blp:31
+msgctxt "shortcut window"
+msgid "Reset Image"
+msgstr "Đặt Lại Hình Ảnh"
+
+#: src/gtk/shortcuts-dialog.blp:36
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Hiển Thị Phím Tắt"
+
+#: src/gtk/shortcuts-dialog.blp:41
+msgctxt "shortcut window"
+msgid "Open Preferences"
+msgstr "Mở Tùy Chọn"
+
+#: src/gtk/shortcuts-dialog.blp:46
+msgctxt "shortcut window"
+msgid "Quit Iconic"
+msgstr "Thoát Iconic"
+
+#: src/settings/settings.blp:8
+msgid "General"
+msgstr "Chung"
+
+#: src/settings/settings.blp:11
+msgid "Bottom Image"
+msgstr "Hình Ảnh Dưới Cùng"
+
+#: src/settings/settings.blp:14
+msgid "Use Built-in Bottom Image"
+msgstr "Sử Dụng Hình Ảnh Dưới Cùng Tích Hợp"
+
+#: src/settings/settings.blp:20
+msgid "use built-in bottom image"
+msgstr "sử dụng hình ảnh dưới cùng tích hợp"
+
+#: src/settings/settings.blp:26
+msgid "Use System Folder Color"
+msgstr "Sử Dụng Màu Thư Mục Hệ Thống"
+
+#: src/settings/settings.blp:30
+msgid "Manually Select Folder Color"
+msgstr "Chọn Màu Thư Mục Thủ Công"
+
+#: src/settings/settings.blp:34
+msgid "Blue"
+msgstr "Xanh Dương"
+
+#: src/settings/settings.blp:35
+msgid "Teal"
+msgstr "Xanh Ngọc"
+
+#: src/settings/settings.blp:36
+msgid "Green"
+msgstr "Xanh Lá"
+
+#: src/settings/settings.blp:37
+msgid "Yellow"
+msgstr "Vàng"
+
+#: src/settings/settings.blp:38
+msgid "Orange"
+msgstr "Cam"
+
+#: src/settings/settings.blp:39
+msgid "Red"
+msgstr "Đỏ"
+
+#: src/settings/settings.blp:40
+msgid "Pink"
+msgstr "Hồng"
+
+#: src/settings/settings.blp:41
+msgid "Purple"
+msgstr "Tím"
+
+#: src/settings/settings.blp:42
+msgid "Slate"
+msgstr "Xám Slate"
+
+#: src/settings/settings.blp:43
+msgid "Custom"
+msgstr "Tùy Chỉnh"
+
+#: src/settings/settings.blp:51
+msgid "Primary Color"
+msgstr "Màu Chính"
+
+#: src/settings/settings.blp:68
+msgid "Secondary Color"
+msgstr "Màu Phụ"
+
+#: src/settings/settings.blp:85
+msgid "Use Custom Bottom Image"
+msgstr "Sử Dụng Hình Ảnh Dưới Cùng Tùy Chỉnh"
+
+#: src/settings/settings.blp:91
+msgid "use custom bottom image"
+msgstr "sử dụng hình ảnh dưới cùng tùy chỉnh"
+
+#: src/settings/settings.blp:97
+msgid "Current Image"
+msgstr "Hình Ảnh Hiện Tại"
+
+#: src/settings/settings.blp:105
+msgid "Select Image"
+msgstr "Chọn Hình Ảnh"
+
+#: src/settings/settings.blp:113
+msgid "Drag and Drop"
+msgstr "Kéo Và Thả"
+
+#: src/settings/settings.blp:117
+msgid "Allow Drop During Drag"
+msgstr "Cho Phép Thả Trong Khi Kéo"
+
+#: src/settings/settings.blp:118
+msgid "Allow dropping the image back as a layer when dragging"
+msgstr "Cho phép thả hình ảnh trở lại như một lớp khi kéo"
+
+#: src/settings/settings.blp:122
+msgid "Default Drag-and-Drop Action"
+msgstr "Hành Động Kéo-Và-Thả Mặc Định"
+
+#: src/settings/settings.blp:123
+msgid "Set a default layer when dropping an image"
+msgstr "Đặt một lớp mặc định khi thả hình ảnh"
+
+#: src/settings/settings.blp:129
+msgid "Use a default drag and drop action"
+msgstr "Sử dụng một hành động kéo và thả mặc định"
+
+#: src/settings/settings.blp:136
+msgid "Always select top layer"
+msgstr "Luôn chọn lớp trên cùng"
+
+#: src/settings/settings.blp:146
+msgid "Always select bottom layer"
+msgstr "Luôn chọn lớp dưới cùng"
+
+#: src/settings/settings.blp:159
+msgid "Regeneration"
+msgstr "Tái Tạo"
+
+#: src/settings/settings.blp:163
+msgid "What is Regeneration?"
+msgstr "Tái Tạo Là Gì?"
+
+#: src/settings/settings.blp:177
+msgid ""
+"Iconic is able to <i>Regenerate</i> compatible icons. Regeneration is the ability to change the color of a folder image after it has already been created when the system accent color has been changed.This is useful in combination with <a href=\"https://github.com/dpejoh/Adwaita-colors\"><b>Adwaita Colors</b></a> which automatically changes the color of all folders based on the current accent color.After regeneration, it is "
+"likely required to log out and in to see the changes"
+msgstr ""
+"Iconic có thể <i>Tái Tạo</i> các biểu tượng tương thích. Tái tạo là khả năng thay đổi màu sắc của hình ảnh thư mục sau khi nó đã được tạo khi màu nhấn hệ thống đã thay đổi. Điều này hữu ích khi kết hợp với <a href=\"https://github.com/dpejoh/Adwaita-colors\"><b>Adwaita Colors</b></a> tự động thay đổi màu sắc của tất cả thư mục dựa trên màu nhấn hiện tại. Sau khi tái tạo, có thể cần phải đăng xuất và đăng nhập để thấy các thay đổi"
+
+#: src/settings/settings.blp:185
+msgid "Regenerate Automatically"
+msgstr "Tái Tạo Tự Động"
+
+#: src/settings/settings.blp:186
+msgid "Regenerate images on accent color change"
+msgstr "Tái tạo hình ảnh khi thay đổi màu nhấn"
+
+#: src/settings/settings.blp:190
+msgid "Loose Regeneration"
+msgstr "Tái Tạo Linh Hoạt"
+
+#: src/settings/settings.blp:191
+msgid "Allow regeneration of folder images with \"Use system folder color\" disabled"
+msgstr "Cho phép tái tạo hình ảnh thư mục khi \"Sử dụng màu thư mục hệ thống\" bị tắt"
+
+#: src/settings/settings.blp:203
+msgid "Ignore Custom Folders"
+msgstr "Bỏ Qua Thư Mục Tùy Chỉnh"
+
+#: src/settings/settings.blp:204
+msgid "Don't regenerate folder images with custom folder colors"
+msgstr "Không tái tạo hình ảnh thư mục với màu thư mục tùy chỉnh"
+
+#: src/settings/settings.blp:209
+msgid "Store Top Images in Cache"
+msgstr "Lưu Hình Ảnh Trên Cùng Vào Bộ Nhớ Đệm"
+
+#: src/settings/settings.blp:210
+msgid "Folder icons made while this option is disabled cannot be regenerated"
+msgstr "Biểu tượng thư mục được tạo khi tùy chọn này bị tắt không thể được tái tạo"
+
+#: src/settings/settings.blp:214
+msgid "Current Cache Usage"
+msgstr "Mức Sử Dụng Bộ Nhớ Đệm Hiện Tại"
+
+#: src/settings/settings.blp:224
+msgid "Browse Cached Images"
+msgstr "Duyệt Hình Ảnh Đã Lưu Trong Bộ Nhớ Đệm"
+
+#: src/settings/settings.blp:230
+msgid "Remove Cached Images"
+msgstr "Xóa Hình Ảnh Đã Lưu Trong Bộ Nhớ Đệm"
+
+#: src/settings/settings.blp:241
+msgid "Advanced"
+msgstr "Nâng Cao"
+
+#: src/settings/settings.blp:245
+msgid "You can see these options because you have enabled the Devel profile"
+msgstr "Bạn có thể thấy các tùy chọn này vì bạn đã kích hoạt hồ sơ Devel"
+
+#: src/settings/settings.blp:256
+msgid "Select size of SVG images"
+msgstr "Chọn kích thước của hình ảnh SVG"
+
+#: src/settings/settings.blp:257
+msgid "SVG images will by default be converted to a 1024x1024 image. You can adjust that here"
+msgstr "Hình ảnh SVG theo mặc định sẽ được chuyển đổi thành hình ảnh 1024x1024. Bạn có thể điều chỉnh điều đó ở đây"
+
+#: src/settings/settings.blp:269
+msgid "Select size of Thumbnail images"
+msgstr "Chọn kích thước của hình ảnh Thu Nhỏ"
+
+#: src/settings/settings.blp:270
+msgid "Thumbnail images will by default be converted to a 255x255 image. You can adjust that here"
+msgstr "Hình ảnh thu nhỏ theo mặc định sẽ được chuyển đổi thành hình ảnh 255x255. Bạn có thể điều chỉnh điều đó ở đây"
+
+#: src/window.blp:11
+msgid "Drop Here to Open"
+msgstr "Thả Vào Đây Để Mở"
+
+#. visible: bind regeneration_revealer.reveal-child;
+#: src/window.blp:41 src/window.blp:156
+msgid "Regenerating icons…"
+msgstr "Đang tái tạo biểu tượng…"
+
+#: src/window.blp:48 src/window.blp:163
+msgid "Menu"
+msgstr "Menu"
+
+#: src/window.blp:76
+msgid "Folder Icon Creator"
+msgstr "Trình Tạo Biểu Tượng Thư Mục"
+
+#: src/window.blp:77
+msgid "Click or Drag to Open Image"
+msgstr "Nhấp Hoặc Kéo Để Mở Hình Ảnh"
+
+#: src/window.blp:88
+msgid "_Open Image"
+msgstr "_Mở Hình Ảnh"
+
+#: src/window.blp:101
+msgid "_Show Bottom Layer"
+msgstr "_Hiển Thị Lớp Dưới Cùng"
+
+#: src/window.blp:127 src/windows/alert_dialogs.rs:85
+msgid "Save"
+msgstr "Lưu"
+
+#: src/window.blp:198
+msgid "y-position of top image"
+msgstr "vị trí y của hình ảnh trên cùng"
+
+#: src/window.blp:219
+msgid "Preview window of icon, drag from here to start drag operation"
+msgstr "Cửa sổ xem trước của biểu tượng, kéo từ đây để bắt đầu thao tác kéo"
+
+#: src/window.blp:242
+msgid "New top image is loading"
+msgstr "Hình ảnh trên cùng mới đang tải"
+
+#: src/window.blp:254
+msgid "x-position of top image"
+msgstr "vị trí x của hình ảnh trên cùng"
+
+#: src/window.blp:284
+msgid "size of top image"
+msgstr "kích thước của hình ảnh trên cùng"
+
+#: src/window.blp:302
+msgid "Toggle Monochrome"
+msgstr "Chuyển Đổi Đơn Sắc"
+
+#: src/window.blp:309
+msgid "Turn on monochrome for top image"
+msgstr "Bật đơn sắc cho hình ảnh trên cùng"
+
+#: src/window.blp:314
+msgid "Invert"
+msgstr "Đảo Ngược"
+
+#: src/window.blp:315
+msgid "Invert bright and dark in the monochrome image"
+msgstr "Đảo ngược sáng và tối trong hình ảnh đơn sắc"
+
+#: src/window.blp:319
+msgid "Color"
+msgstr "Màu Sắc"
+
+#: src/window.blp:321
+msgid "Choose the color of the monochrome image"
+msgstr "Chọn màu của hình ảnh đơn sắc"
+
+#: src/window.blp:329
+msgid "Reset the color of the monochrome image to default"
+msgstr "Đặt lại màu của hình ảnh đơn sắc về mặc định"
+
+#: src/window.blp:355
+msgid "Threshold"
+msgstr "Ngưỡng"
+
+#: src/window.blp:360
+msgid "Set the threshold of bright and dark for the monochrome image"
+msgstr "Đặt ngưỡng sáng và tối cho hình ảnh đơn sắc"
+
+#: src/window.blp:400
+msgid "Saving…"
+msgstr "Đang lưu…"
+
+#: src/window.blp:419
+msgid "_Paste Top Icon from Clipboard"
+msgstr "_Dán Biểu Tượng Trên Cùng Từ Bảng Nhớ Tạm"
+
+#: src/window.blp:424
+msgid "_Open Top Icon"
+msgstr "_Mở Biểu Tượng Trên Cùng"
+
+#: src/window.blp:429
+msgid "_Open Bottom Icon"
+msgstr "_Mở Biểu Tượng Dưới Cùng"
+
+#: src/window.blp:436
+msgid "_Reset Bottom Icon"
+msgstr "_Đặt Lại Biểu Tượng Dưới Cùng"
+
+#: src/window.blp:441
+msgid "_Regenerate Icons"
+msgstr "_Tái Tạo Biểu Tượng"
+
+#: src/window.blp:448
+msgid "_Preferences"
+msgstr "_Tùy Chọn"
+
+#: src/window.blp:453
+msgid "_Keyboard Shortcuts"
+msgstr "_Phím Tắt"
+
+#: src/window.blp:458
+msgid "_About Iconic"
+msgstr "_Giới Thiệu Iconic"
+
+#: src/window.blp:467
+msgid "Change Top Image"
+msgstr "Thay Đổi Hình Ảnh Trên Cùng"
+
+#: src/window.blp:472
+msgid "Change Bottom Image"
+msgstr "Thay Đổi Hình Ảnh Dưới Cùng"
+
+#: src/window.blp:479
+msgid "Temporarily Change Bottom Image"
+msgstr "Thay Đổi Hình Ảnh Dưới Cùng Tạm Thời"
+
+#: src/window.blp:484
+msgid "Reset Temporary Bottom Image"
+msgstr "Đặt Lại Hình Ảnh Dưới Cùng Tạm Thời"
+
+#: src/window.blp:489
+msgid "Reset Image"
+msgstr "Đặt Lại Hình Ảnh"
+
+#: src/application.rs:184
+msgid "Iconic allows you to add images onto a folder."
+msgstr "Iconic cho phép bạn thêm hình ảnh lên trên một thư mục."
+
+#. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
+#: src/application.rs:190
+msgid "translator-credits"
+msgstr ""
+
+#: src/objects/errors.rs:17 src/settings/settings.rs:446
+msgid "Error"
+msgstr "Lỗi"
+
+#: src/objects/errors.rs:37 src/windows/alert_dialogs.rs:32 src/windows/alert_dialogs.rs:163
+msgid "OK"
+msgstr "OK"
+
+#: src/settings/settings.rs:397 src/window.rs:910
+msgid "Open Document"
+msgstr "Mở Tài Liệu"
+
+#: src/settings/settings.rs:463
+msgid ""
+"Are you sure you want to clear the cache? \n"
+" Clearing the cache means you probably won't be able to regenerate a lot of images."
+msgstr ""
+"Bạn có chắc muốn xóa bộ nhớ đệm không? \n"
+" Xóa bộ nhớ đệm có nghĩa là bạn có thể sẽ không thể tái tạo nhiều hình ảnh."
+
+#: src/settings/settings.rs:466 src/windows/alert_dialogs.rs:82
+msgid "Cancel"
+msgstr "Hủy"
+
+#: src/settings/settings.rs:468
+msgid "Remove"
+msgstr "Xóa"
+
+#: src/window.rs:243
+msgid "Image reset"
+msgstr "Đã đặt lại hình ảnh"
+
+#: src/window.rs:787
+msgid "The set bottom icon could not be found, press ok to select a new one"
+msgstr "Không thể tìm thấy biểu tượng dưới cùng đã đặt, nhấn ok để chọn một biểu tượng mới"
+
+#: src/windows/alert_dialogs.rs:28
+msgid "Drag and drop"
+msgstr "Kéo và thả"
+
+#: src/windows/alert_dialogs.rs:29
+msgid ""
+"Did you know that it is possible to drag the folder image straight out of Iconic and drop it into nautilus' property window.\n"
+"No need to save!"
+msgstr ""
+"Bạn có biết rằng có thể kéo hình ảnh thư mục trực tiếp từ Iconic và thả vào cửa sổ thuộc tính của nautilus.\n"
+"Không cần phải lưu!"
+
+#: src/windows/alert_dialogs.rs:51
+msgid "Do you want to load this image to the top or bottom layer?"
+msgstr "Bạn muốn tải hình ảnh này lên lớp trên cùng hay lớp dưới cùng?"
+
+#: src/windows/alert_dialogs.rs:52
+msgid "Hint: You can disable this pop-up in the settings"
+msgstr "Gợi ý: Bạn có thể tắt pop-up này trong cài đặt"
+
+#: src/windows/alert_dialogs.rs:54
+msgid "Select layer"
+msgstr "Chọn lớp"
+
+#: src/windows/alert_dialogs.rs:59
+msgid "Top"
+msgstr "Trên cùng"
+
+#: src/windows/alert_dialogs.rs:60
+msgid "Bottom"
+msgstr "Dưới cùng"
+
+#: src/windows/alert_dialogs.rs:77
+msgid "Save Changes?"
+msgstr "Lưu Thay Đổi?"
+
+#: src/windows/alert_dialogs.rs:78
+msgid "Open image contain unsaved changes. Changes which are not saved will be permanently lost"
+msgstr "Hình ảnh đang mở chứa các thay đổi chưa được lưu. Các thay đổi không được lưu sẽ bị mất vĩnh viễn"
+
+#: src/windows/alert_dialogs.rs:83
+msgid "Discard"
+msgstr "Hủy bỏ"
+
+#: src/windows/alert_dialogs.rs:132
+msgid "Adwaita Colors detected"
+msgstr "Đã phát hiện Adwaita Colors"
+
+#: src/windows/alert_dialogs.rs:133
+msgid "Adwaita colors has been detected on your system, do you want to enable the folder color to adapt to your active system accent color?"
+msgstr "Adwaita colors đã được phát hiện trên hệ thống của bạn, bạn có muốn kích hoạt màu thư mục để thích ứng với màu nhấn hệ thống đang hoạt động không?"
+
+#: src/windows/alert_dialogs.rs:134
+msgid "Enable"
+msgstr "Kích hoạt"
+
+#: src/windows/alert_dialogs.rs:134
+msgid "Don't enable"
+msgstr "Không kích hoạt"
+
+#: src/windows/alert_dialogs.rs:159
+msgid "Regenerating Icons"
+msgstr "Đang Tái Tạo Biểu Tượng"
+
+#: src/windows/alert_dialogs.rs:160
+msgid "If you drag and drop icons and change your accent color. It is then possible to regenerate the images by pressing \"regenerate\" in the menu or by pressing ctrl+R"
+msgstr "Nếu bạn kéo và thả biểu tượng và thay đổi màu nhấn của mình. Sau đó có thể tái tạo hình ảnh bằng cách nhấn \"tái tạo\" trong menu hoặc bằng cách nhấn ctrl+R"
+
+#: src/windows/alert_dialogs.rs:181
+msgid "Iconic is busy"
+msgstr "Iconic đang bận"
+
+#: src/windows/alert_dialogs.rs:182
+msgid "Iconic is currently busy, it is recommended to wait before closing to prevent data loss"
+msgstr "Iconic hiện đang bận, nên chờ trước khi đóng để ngăn ngừa mất dữ liệu"
+
+#. Aparently items appear reversed from how they are defined here
+#: src/windows/alert_dialogs.rs:187
+msgid "Quit anyway"
+msgstr "Vẫn thoát"
+
+#: src/windows/alert_dialogs.rs:189
+msgid "Wait"
+msgstr "Chờ"
+
+#: src/windows/file_handling.rs:167 src/windows/file_handling.rs:172
+msgid "No texture found"
+msgstr "Không tìm thấy texture"
+
+#: src/windows/file_handling.rs:282
+msgid "Unsupported file type"
+msgstr "Loại tệp không được hỗ trợ"
+
+#: src/windows/file_handling.rs:322
+msgid "Nothing to save"
+msgstr "Không có gì để lưu"
+
+#: src/windows/file_handling.rs:347
+msgid "Open Folder"
+msgstr "Mở Thư Mục"
+
+#: src/windows/file_handling.rs:349
+msgid "File Saved"
+msgstr "Đã Lưu Tệp"
+
+#: src/windows/file_handling.rs:363
+msgid "File not saved"
+msgstr "Tệp không được lưu"
+
+#: src/windows/file_handling.rs:466
+msgid "Icon reset"
+msgstr "Đã đặt lại biểu tượng"
+
+#: src/windows/file_handling.rs:479 src/windows/file_handling.rs:498
+msgid "Nothing selected"
+msgstr "Không có gì được chọn"
+
+#: src/windows/file_handling.rs:540
+msgid "No file or path found, this is probably not your fault."
+msgstr "Không tìm thấy tệp hoặc đường dẫn, đây có lẽ không phải lỗi của bạn."
+
+#: src/windows/regeneration.rs:115
+msgid "Nothing to regenerate"
+msgstr "Không có gì để tái tạo"
+
+#: src/windows/regeneration.rs:120
+msgid "Regenerating icons"
+msgstr "Đang tái tạo biểu tượng"
+
+#: src/windows/regeneration.rs:176
+msgid ""
+"file failed to regenerate\n"
+"view logs for more information"
+msgid_plural ""
+"files failed to regenerate\n"
+"view logs for more information"
+msgstr[0] ""
+"tệp không thể tái tạo\n"
+"xem nhật ký để biết thêm thông tin"
+
+#: src/windows/regeneration.rs:186
+msgid "Regeneration sucessful, restart nautilus"
+msgstr "Tái tạo thành công, khởi động lại nautilus"
