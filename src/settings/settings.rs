@@ -17,7 +17,6 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::*;
 use log::*;
-use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::{env, fs, path};
 

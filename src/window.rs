@@ -45,8 +45,9 @@ mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc};
 
     use crate::{
-        objects::properties::FileProperties, settings::settings::PreferencesDialog,
-        windows::drag_overlay::DragOverlay,
+        objects::properties::FileProperties,
+        settings::settings::PreferencesDialog,
+        windows::{drag_overlay::DragOverlay, preview_window::PreviewWindow},
     };
 
     use super::*;
@@ -67,7 +68,7 @@ mod imp {
         #[template_child]
         pub open_top_icon: TemplateChild<gtk::Button>,
         #[template_child]
-        pub image_view: TemplateChild<gtk::Picture>,
+        pub image_view: TemplateChild<PreviewWindow>,
         #[template_child]
         pub save_button: TemplateChild<gtk::Button>,
         #[template_child]
@@ -305,7 +306,6 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
-
             // If you read this and think of a more elegant way to achieve this, please let me know
             // This shares the value of if a drag operation is currently active
             // I now create a RefCell<Rc<Cell<bool>>>
