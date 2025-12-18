@@ -119,15 +119,13 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
       Adw.PreferencesGroup {
         Adw.SwitchRow meta_drop_switch {
-          title: _("<b>Allow Drop During Drag</b>");
-          use-markup: true;
+          title: _("Allow Drop During Drag*");
           subtitle: _("Allow dropping the image back as a layer when dragging");
           visible: bind enable_advanced.active;
         }
 
         Adw.ExpanderRow default_dnd {
-          title: _("<b>Default Drag-and-Drop Action</b>");
-          use-markup: true;
+          title: _("Default Drag-and-Drop Action*");
           subtitle: _("Set a default layer when dropping an image");
           expanded: bind dnd_switch.active;
           enable-expansion: bind dnd_switch.active;
@@ -224,15 +222,13 @@ After regeneration, it is likely required to log out and in to see the changes")
           }
 
           Adw.SwitchRow ignore_custom {
-            use-markup: true;
-            title: _("<b>Ignore Custom Folders</b>");
+            title: _("Ignore Custom Folders*");
             subtitle: _("Don't regenerate folder images with custom folder colors");
           }
         }
 
         Adw.ActionRow cache_size {
-          title: _("<b>Current Cache Usage</b>");
-          use-markup: true;
+          title: _("Current Cache Usage*");
           subtitle: "Unknown";
           visible: bind enable_advanced.active;
 
@@ -278,6 +274,7 @@ After regeneration, it is likely required to log out and in to see the changes")
 
       Adw.SwitchRow enable_advanced {
         title: _("Enable advanced settings");
+        subtitle: _("Items marked with an '*' after enabling this switch are advanced");
       }
 
       Adw.SpinRow svg_image_size {

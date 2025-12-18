@@ -85,6 +85,10 @@ mod imp {
         pub select_default_bottom: TemplateChild<adw::ButtonRow>,
         #[template_child]
         pub meta_drop_switch: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub preferences_page: TemplateChild<adw::PreferencesPage>,
+        #[template_child]
+        pub enable_advanced: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
     }
 
@@ -123,6 +127,8 @@ mod imp {
                 strict_regeneration: TemplateChild::default(),
                 ignore_custom: TemplateChild::default(),
                 select_default_bottom: TemplateChild::default(),
+                preferences_page: TemplateChild::default(),
+                enable_advanced: TemplateChild::default(),
                 // reveal_custom_colors: TemplateChild::default(),
             }
         }
@@ -158,6 +164,14 @@ mod imp {
             if PROFILE == "Devel" {
                 obj.add_css_class("devel");
             }
+            let win = self;
+            self.enable_advanced.connect_active_notify(glib::clone!(
+                #[weak]
+                win,
+                move |_| {
+                    scroll_to_bottom(&win.preferences_page);
+                }
+            ));
         }
 
         fn dispose(&self) {
@@ -168,6 +182,23 @@ mod imp {
     impl WidgetImpl for PreferencesDialog {}
     impl AdwDialogImpl for PreferencesDialog {}
     impl PreferencesDialogImpl for PreferencesDialog {}
+}
+
+fn scroll_to_bottom(preferences_page: &adw::PreferencesPage) {
+    // Get the first child which should be the ScrolledWindow
+    if let Some(scrolled_window) = preferences_page
+        .first_child()
+        .and_then(|child| child.downcast::<gtk::ScrolledWindow>().ok())
+    {
+        // Get the vertical adjustment
+        let vadjustment = scrolled_window.vadjustment();
+
+        // Scroll to the bottom
+        // You might want to do this in an idle callback to ensure the layout is complete
+        glib::idle_add_local_once(move || {
+            vadjustment.set_value(vadjustment.upper() - vadjustment.page_size());
+        });
+    }
 }
 
 glib::wrapper! {
