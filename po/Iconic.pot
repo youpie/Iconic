@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2025-10-01 00:01+0200\n"
+"POT-Creation-Date: 2025-09-30 19:22-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -844,7 +844,12 @@ msgid "Reset Image"
 msgstr ""
 
 #: src/application.rs:184
-msgid "Iconic allows you to add images onto a folder."
+msgid ""
+"Iconic allows you to add images onto a folder.\n"
+"You can drag these created images straight into the properties window of the "
+"file manager!\n"
+"\n"
+"If you like this app, feel free to donate, I would really appreciate it!"
 msgstr ""
 
 #. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
@@ -859,10 +864,6 @@ msgstr ""
 #: src/objects/errors.rs:37 src/windows/alert_dialogs.rs:32
 #: src/windows/alert_dialogs.rs:163
 msgid "OK"
-msgstr ""
-
-#: src/settings/settings.rs:397 src/window.rs:910
-msgid "Open Document"
 msgstr ""
 
 #: src/settings/settings.rs:463
@@ -886,6 +887,10 @@ msgstr ""
 
 #: src/window.rs:787
 msgid "The set bottom icon could not be found, press ok to select a new one"
+msgstr ""
+
+#: src/window.rs:910
+msgid "Open Document"
 msgstr ""
 
 #: src/windows/alert_dialogs.rs:28
