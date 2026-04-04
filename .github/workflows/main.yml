@@ -5,7 +5,7 @@ on:
       - main
       - cd-test
 env:
-  ARTIFACT_DIR: /release
+  ARTIFACT_DIR: ~/release
 jobs:
   create_tar:
     name: Create tar of project
