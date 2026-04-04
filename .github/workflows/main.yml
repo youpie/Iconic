@@ -29,7 +29,7 @@ jobs:
         run: |
           sha256 $FILE_NAME > $ARTIFACT_DIR/$FILE_NAME.sha256
       - name: upload artifacts
-        uses: actions/upload_artifact@v3.2.2
+        uses: actions/upload-artifact@v3.2.2
         with:
           path: ${{env.ARTIFACT_DIR}}
         
