@@ -1,0 +1,35 @@
+name: cd
+on:
+  push:
+    branches:
+      - main
+env:
+  ARTIFACT_DIR: /release
+jobs:
+  create_tar:
+    name: Create tar of project
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: vendor dependencies
+        run: |
+          pwd
+          mkdir $ARTIFACT_DIR
+          apt install rust -y
+          VERSION_NAME=${cargo metadata --format-version=1 --no-deps | jq .packages.[].version}
+          cargo vendor vendor
+
+      - name: create tarbal
+        run: |
+          FILE_NAME=Iconic-$VERSION_NAME.tar.gz
+          tar -czf $FILE_NAME $ARTIFACT_DIR/
+
+      - name: create checksum
+        run: |
+          sha256 $FILE_NAME > $ARTIFACT_DIR/$FILE_NAME.sha256
+      - name: upload artifacts
+        uses: actions/upload_artifact@v3.2.2
+        with:
+          path: ${{env.ARTIFACT_DIR}}
+        
