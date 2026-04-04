@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - cd-test
 env:
   ARTIFACT_DIR: /release
 jobs:
@@ -29,7 +30,7 @@ jobs:
         run: |
           sha256 $FILE_NAME > $ARTIFACT_DIR/$FILE_NAME.sha256
       - name: upload artifacts
-        uses: actions/upload-artifact@v3.2.2
+        uses: actions/upload-artifact@v7
         with:
           path: ${{env.ARTIFACT_DIR}}
         
