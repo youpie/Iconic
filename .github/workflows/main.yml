@@ -168,3 +168,4 @@ jobs:
           git config user.name "Bot"
           git add .
           git commit -m "new_version"
+          git push
