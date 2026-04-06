@@ -50,9 +50,11 @@ jobs:
       - name: vendor dependencies
         run: |
           cargo vendor > ./config.toml
+          mkdir -p .cargo
+          cp ./config.toml ./.cargo/config
       - name: create tarbal
         run: |
-          VERSION_NAME="$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[] | select(.name=="Iconic") | .version')"
+          VERSION_NAME="$(cargo metadata --quiet --format-version=1 --no-deps | jq -r '.packages[] | select(.name=="Iconic") | .version')"
           FILE_NAME=Iconic-$VERSION_NAME.tar.xz
           echo "FILE_NAME=$FILE_NAME" >> $GITHUB_ENV
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
@@ -81,7 +83,7 @@ jobs:
         id: tarbal
         with:
           name: Iconic
-          path: ${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}}
+          path: ${{env.ARTIFACT_DIR}}/*
 
   flatpak:
     name: "create Flatpak"
