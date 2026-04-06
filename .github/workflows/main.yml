@@ -14,6 +14,7 @@ jobs:
       artifact_dir: ${{ steps.vars.outputs.ARTIFACT_DIR }}
       file_name: ${{ steps.vars.outputs.FILE_NAME }}
       version_name: ${{ steps.vars.outputs.VERSION_NAME }}
+      tarbal_id: ${{steps.tarbal.outputs.artifact-id}}
     steps:
       - uses: actions/checkout@v4
       - uses: wy414012/toolchain@master
@@ -56,7 +57,7 @@ jobs:
           echo "FILE_NAME=$FILE_NAME" >> $GITHUB_ENV
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
 
-          tar czf "${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}}" .
+          tar cf "${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}}" .
 
       - name: create checksum
         run: |
@@ -77,8 +78,9 @@ jobs:
           ls -lah ${{env.ARTIFACT_DIR}}
       - name: upload artifacts
         uses: actions/upload-artifact@v7
+        id: tarbal
         with:
-          path: ${{env.ARTIFACT_DIR}}/*
+          path: ${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}}
 
   flatpak:
     name: "create Flatpak"
@@ -95,23 +97,30 @@ jobs:
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.variant.runner }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v5
+      - uses: actions/download-artifact@v8.0.1
+        id: get_artifact
         with:
-          path: ${{needs.create_tar.outputs.artifact_dir}}
-          key: cache-${{ github.sha }}
-      - name: test
-        run: echo "$(ls -lah ${{needs.create_tar.outputs.artifact_dir}})"
+          artifact-ids: ${{needs.create_tar.outputs.tarbal_id}}
+      - name: extract and name
+        id: extract
+        run: |
+          echo ${{steps.get_artifact.outputs.download-path}}
+          tar xf ${{steps.get_artifact.outputs.download-path}}/${{needs.create_tar.outputs.file_name}}
+          echo "$(ls -lah ${{needs.create_tar.outputs.artifact_dir}})"
+          echo "FILE_NAME=Iconic-${{needs.create_tar.outputs.file_name}}-${{ matrix.variant.arch }}.flatpak" >> $GITHUB_ENV
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: Iconic-${{ matrix.variant.arch }}.flatpak
+          bundle: ${{env.FILE_NAME}}
           manifest-path: build-aux/nl.emphisia.icon.json
           cache-key: flatpak-builder-${{ github.sha }}
           arch: ${{ matrix.variant.arch }}
           verbose: true
       - name: copy bundle
-        run: cp Iconic-${{ matrix.variant.arch }}.flatpak ${{needs.create_tar.outputs.artifact_dir}}
+        run: cp ${{env.FILE_NAME}} ${{needs.create_tar.outputs.artifact_dir}}
+      - name: upload_artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{needs.create_tar.outputs.artifact_dir}}/${{env.FILE_NAME}}
   release:
     name: Create release
     runs-on: ubuntu-latest
@@ -125,6 +134,12 @@ jobs:
           path: ${{needs.create_tar.outputs.artifact_dir}}
           key: cache-${{ github.sha }}
       - name: List cache folder
+        run: |
+          ls -lah ${{needs.create_tar.outputs.artifact_dir}}
+      - uses: actions/download-artifact@v8.0.1
+        with:
+          path: ${{needs.create_tar.outputs.artifact_dir}}
+      - name: list artifacts
         run: ls -lah ${{needs.create_tar.outputs.artifact_dir}}
       - uses: ncipollo/release-action@v1.21.0
         name: Create release
