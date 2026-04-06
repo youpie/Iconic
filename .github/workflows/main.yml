@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-use/setup-rust@stable
+      - uses: wy414012/toolchain@master
         with:
           toolchain: stable
       - name: get path
