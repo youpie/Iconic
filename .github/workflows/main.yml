@@ -10,6 +10,8 @@ jobs:
   create_tar:
     name: Create tar of project
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       artifact_dir: ${{ steps.vars.outputs.ARTIFACT_DIR }}
       file_name: ${{ steps.vars.outputs.FILE_NAME }}
@@ -79,6 +81,14 @@ jobs:
         with:
           name: Iconic
           path: ${{env.ARTIFACT_DIR}}/*
+      - uses: ncipollo/release-action@v1.21.0
+        name: Create release
+        with:
+          allowUpdates: true
+          artifacts: ./*
+          tag: v${{env.VERSION_NAME}}
+          generateReleaseNotes: "body"
+          name: v${{env.VERSION_NAME}}
 
   flatpak:
     name: "create Flatpak"
@@ -130,25 +140,15 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Cache
-        uses: actions/cache@v5
-        with:
-          path: ./
-          key: cache-${{ github.sha }}
-      - name: List cache folder
-        run: |
-          echo "PWD=$(pwd)" > $GITHUB_ENV
-          ls -lah ${{needs.create_tar.outputs.artifact_dir}}
       - uses: actions/download-artifact@v8.0.1
-        with:
-          path: ${{needs.create_tar.outputs.artifact_dir}}
       - name: list artifacts
-        run: ls -lah ${{needs.create_tar.outputs.artifact_dir}}
+        run: ls -lah ./
       - uses: ncipollo/release-action@v1.21.0
         name: Create release
         with:
           allowUpdates: true
-          artifacts: ${{env.PWD}}/*
+          artifacts: ./*
           tag: v${{needs.create_tar.outputs.version_name}}
           generateReleaseNotes: "body"
+          omitBodyDuringUpdate: true
           name: v${{needs.create_tar.outputs.version_name}}
