@@ -3,16 +3,19 @@ on:
   push:
     branches:
       - main
+      - cd-test
 env:
   RELATIVE_ARTIFACT_DIR: ../_temp
 jobs:
   create_tar:
     name: Create tar of project
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-use/setup-rust@stable
+      - uses: wy414012/toolchain@master
         with:
           toolchain: stable
       - name: get path
@@ -61,7 +64,7 @@ jobs:
         name: Create release
         with:
           allowUpdates: true
-          artifacts: ${{env.ARTIFACT_DIR}}
+          artifacts: ${{env.ARTIFACT_DIR}}/*
           tag: v${{env.VERSION_NAME}}
-          makeLatest: true
+          generateReleaseNotes: "body"
           name: v${{env.VERSION_NAME}}
