@@ -10,9 +10,6 @@ jobs:
   create_tar:
     name: Create tar of project
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
       - uses: actions/checkout@v4
       - uses: wy414012/toolchain@master
@@ -27,6 +24,12 @@ jobs:
           cd $PREV_DIR
           echo $CURR_DIR
           echo "ARTIFACT_DIR=$CURR_DIR" >> $GITHUB_ENV
+      - name: Cache Primes
+        id: cache-primes
+        uses: actions/cache@v5
+        with:
+          path: ${{env.ARTIFACT_DIR}}
+          key: cache
       - name: vendor dependencies
         run: |
           cargo vendor > ./config.toml
@@ -59,7 +62,49 @@ jobs:
       - name: upload artifacts
         uses: actions/upload-artifact@v7
         with:
+          path: ${{env.ARTIFACT_DIR}}/*
+  flatpak:
+    name: "Flatpak"
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
+      options: --privileged
+    strategy:
+      matrix:
+        variant:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.variant.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache
+        uses: actions/cache@v5
+        with:
           path: ${{env.ARTIFACT_DIR}}
+          key: cache
+      - name: test
+        run: echo "$(ls -lah ${{env.ARTIFACT_DIR}})"
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: Iconic-${{ matrix.variant.arch }}.flatpak
+          manifest-path: build-aux/nl.emphisia.icon.json
+          cache-key: flatpak-builder-${{ github.sha }}
+          arch: ${{ matrix.variant.arch }}
+          verbose: true
+      - name: copy bundle
+        run: cp Iconic-${{ matrix.variant.arch }}.flatpak ${{env.ARTIFACT_DIR}}
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Cache
+        uses: actions/cache@v5
+        with:
+          path: ${{env.ARTIFACT_DIR}}
+          key: cache
       - uses: ncipollo/release-action@v1.21.0
         name: Create release
         with:
