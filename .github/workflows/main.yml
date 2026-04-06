@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - cd-test
 env:
   RELATIVE_ARTIFACT_DIR: ../_temp
 jobs:
@@ -63,5 +64,5 @@ jobs:
           allowUpdates: true
           artifacts: ${{env.ARTIFACT_DIR}}
           tag: v${{env.VERSION_NAME}}
-          makeLatest: true
+          generateReleaseNotes: "body"
           name: v${{env.VERSION_NAME}}
