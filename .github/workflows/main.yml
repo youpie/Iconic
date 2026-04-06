@@ -121,11 +121,6 @@ jobs:
           cp ./${{env.FILE_NAME}} ../release/
           cd ../release
           echo $(ls -lah ./)
-      - name: upload_artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: Iconic-${{needs.create_tar.outputs.version_name}}
-          path: ./*
   release:
     name: Create release
     runs-on: ubuntu-latest
@@ -165,6 +160,7 @@ jobs:
           git clone git@github.com:flathub/nl.emphisia.icon.git
           cd nl.emphisia.icon
           git checkout -b v${{needs.create_tar.outputs.version_name}}
+          git pull --rebase
           cp ../nl.emphisia.icon.json ./
           git config user.email "bot@example.com"
           git config user.name "Bot"
