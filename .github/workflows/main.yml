@@ -25,12 +25,6 @@ jobs:
       - name: get path
         id: vars
         run: |
-          mkdir -p ~/.ssh
-          echo "${{secrets.SSH_KEY}}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          ssh -vvv git@github.com
-
           PREV_DIR=$(pwd)
           mkdir -p ${{env.RELATIVE_ARTIFACT_DIR}}
           cd ${{env.RELATIVE_ARTIFACT_DIR}}
@@ -128,7 +122,6 @@ jobs:
       - name: upload_artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{env.FILE_NAME}}
           path: ${{env.FILE_NAME}}
   release:
     name: Create release
