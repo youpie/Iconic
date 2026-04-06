@@ -63,6 +63,5 @@ jobs:
           allowUpdates: true
           artifacts: ${{env.ARTIFACT_DIR}}
           tag: v${{env.VERSION_NAME}}
-          generateReleaseNotes: true
           makeLatest: true
           name: v${{env.VERSION_NAME}}
