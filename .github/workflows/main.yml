@@ -159,7 +159,6 @@ jobs:
 
           git clone git@github.com:flathub/nl.emphisia.icon.git
           cd nl.emphisia.icon
-          git branch -D v${{needs.create_tar.outputs.version_name}}
           git checkout -b v${{needs.create_tar.outputs.version_name}}
           cp ../nl.emphisia.icon.json ./
           git config user.email "bot@example.com"
