@@ -80,6 +80,7 @@ jobs:
         uses: actions/upload-artifact@v7
         id: tarbal
         with:
+          name: Iconic
           path: ${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}}
 
   flatpak:
@@ -105,8 +106,9 @@ jobs:
         id: extract
         run: |
           echo ${{steps.get_artifact.outputs.download-path}}
+          unzip Iconic.zip
           tar xf ${{steps.get_artifact.outputs.download-path}}/${{needs.create_tar.outputs.file_name}}
-          echo "$(ls -lah ${{needs.create_tar.outputs.artifact_dir}})"
+          echo "$(ls -lah ./)"
           echo "FILE_NAME=Iconic-${{needs.create_tar.outputs.file_name}}-${{ matrix.variant.arch }}.flatpak" >> $GITHUB_ENV
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
@@ -115,12 +117,11 @@ jobs:
           cache-key: flatpak-builder-${{ github.sha }}
           arch: ${{ matrix.variant.arch }}
           verbose: true
-      - name: copy bundle
-        run: cp ${{env.FILE_NAME}} ${{needs.create_tar.outputs.artifact_dir}}
       - name: upload_artifact
         uses: actions/upload-artifact@v7
         with:
-          path: ${{needs.create_tar.outputs.artifact_dir}}/${{env.FILE_NAME}}
+          name: ${{env.FILE_NAME}}
+          path: ${{env.FILE_NAME}}
   release:
     name: Create release
     runs-on: ubuntu-latest
