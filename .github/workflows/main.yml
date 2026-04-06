@@ -18,6 +18,7 @@ jobs:
       - name: get path
         run: |
           PREV_DIR=$(pwd)
+          mkdir -p ${{env.ARTIFACT_DIR}}
           cd ${{env.RELATIVE_ARTIFACT_DIR}}
           CURR_DIR=$(pwd)
           cd $PREV_DIR
@@ -32,7 +33,7 @@ jobs:
           FILE_NAME=Iconic-$VERSION_NAME.tar.xz
           echo "FILE_NAME=$FILE_NAME" >> $GITHUB_ENV
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          mkdir -p ${{env.ARTIFACT_DIR}}
+
           tar czf "${{env.ARTIFACT_DIR}}/$FILE_NAME" .
 
       - name: create checksum
