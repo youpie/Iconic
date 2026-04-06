@@ -18,7 +18,7 @@ jobs:
       - name: get path
         run: |
           PREV_DIR=$(pwd)
-          mkdir -p ${{env.ARTIFACT_DIR}}
+          mkdir -p ${{env.RELATIVE_ARTIFACT_DIR}}
           cd ${{env.RELATIVE_ARTIFACT_DIR}}
           CURR_DIR=$(pwd)
           cd $PREV_DIR
