@@ -106,9 +106,11 @@ jobs:
         id: extract
         run: |
           echo ${{steps.get_artifact.outputs.download-path}}
+          echo $(pwd)
+          echo "$(ls -lah ./)"
           unzip Iconic.zip
           tar xf ${{steps.get_artifact.outputs.download-path}}/${{needs.create_tar.outputs.file_name}}
-          echo "$(ls -lah ./)"
+
           echo "FILE_NAME=Iconic-${{needs.create_tar.outputs.file_name}}-${{ matrix.variant.arch }}.flatpak" >> $GITHUB_ENV
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
