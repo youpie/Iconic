@@ -10,12 +10,17 @@ jobs:
   create_tar:
     name: Create tar of project
     runs-on: ubuntu-latest
+    outputs:
+      artifact_dir: ${{ steps.vars.outputs.ARTIFACT_DIR }}
+      file_name: ${{ steps.vars.outputs.FILE_NAME }}
+      version_name: ${{ steps.vars.outputs.VERSION_NAME }}
     steps:
       - uses: actions/checkout@v4
       - uses: wy414012/toolchain@master
         with:
           toolchain: stable
       - name: get path
+        id: vars
         run: |
           PREV_DIR=$(pwd)
           mkdir -p ${{env.RELATIVE_ARTIFACT_DIR}}
@@ -23,13 +28,24 @@ jobs:
           CURR_DIR=$(pwd)
           cd $PREV_DIR
           echo $CURR_DIR
+          VERSION_NAME="$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[] | select(.name=="Iconic") | .version')"
+          FILE_NAME=Iconic-$VERSION_NAME.tar.xz
           echo "ARTIFACT_DIR=$CURR_DIR" >> $GITHUB_ENV
-      - name: Cache Primes
-        id: cache-primes
+          echo "FILE_NAME=$FILE_NAME" >> $GITHUB_ENV
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "ARTIFACT_DIR=$CURR_DIR" >> $GITHUB_OUT
+          echo "FILE_NAME=$FILE_NAME" >> $GITHUB_OUT
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_OUT
+      - name: Cache
         uses: actions/cache@v5
         with:
           path: ${{env.ARTIFACT_DIR}}
-          key: cache
+          key: cache-${{ github.sha }}
+      - name: Vendor
+        uses: actions/cache@v5
+        with:
+          path: ./vendor
+          key: vendor
       - name: vendor dependencies
         run: |
           cargo vendor > ./config.toml
@@ -40,7 +56,7 @@ jobs:
           echo "FILE_NAME=$FILE_NAME" >> $GITHUB_ENV
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
 
-          tar czf "${{env.ARTIFACT_DIR}}/$FILE_NAME" .
+          tar czf "${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}}" .
 
       - name: create checksum
         run: |
@@ -63,6 +79,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           path: ${{env.ARTIFACT_DIR}}/*
+
   flatpak:
     name: "create Flatpak"
     needs: [create_tar]
@@ -82,10 +99,10 @@ jobs:
       - name: Cache
         uses: actions/cache@v5
         with:
-          path: ${{env.ARTIFACT_DIR}}
-          key: cache
+          path: ${{needs.create_tar.outputs.artifact_dir}}
+          key: cache-${{ github.sha }}
       - name: test
-        run: echo "$(ls -lah ${{env.ARTIFACT_DIR}})"
+        run: echo "$(ls -lah ${{needs.create_tar.outputs.artifact_dir}})"
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
           bundle: Iconic-${{ matrix.variant.arch }}.flatpak
@@ -94,7 +111,7 @@ jobs:
           arch: ${{ matrix.variant.arch }}
           verbose: true
       - name: copy bundle
-        run: cp Iconic-${{ matrix.variant.arch }}.flatpak ${{env.ARTIFACT_DIR}}
+        run: cp Iconic-${{ matrix.variant.arch }}.flatpak ${{needs.create_tar.outputs.artifact_dir}}
   release:
     name: Create release
     runs-on: ubuntu-latest
@@ -105,13 +122,15 @@ jobs:
       - name: Cache
         uses: actions/cache@v5
         with:
-          path: ${{env.ARTIFACT_DIR}}
-          key: cache
+          path: ${{needs.create_tar.outputs.artifact_dir}}
+          key: cache-${{ github.sha }}
+      - name: List cache folder
+        run: ls -lah ${{needs.create_tar.outputs.artifact_dir}}
       - uses: ncipollo/release-action@v1.21.0
         name: Create release
         with:
           allowUpdates: true
-          artifacts: ${{env.ARTIFACT_DIR}}/*
-          tag: v${{env.VERSION_NAME}}
+          artifacts: ${{needs.create_tar.outputs.artifact_dir}}/*
+          tag: v${{needs.create_tar.outputs.version_name}}
           generateReleaseNotes: "body"
-          name: v${{env.VERSION_NAME}}
+          name: v${{needs.create_tar.outputs.version_name}}
