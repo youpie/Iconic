@@ -156,16 +156,15 @@ jobs:
       - name: Push file
         run: |
           mkdir -p ~/.ssh
-          echo "${{secrets.SSH_KEY}}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          echo "${{secrets.SSH_KEY}}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          github.com >> ~/.ssh/known_hosts
 
           git clone git@github.com:flathub/nl.emphisia.icon.git
           cd nl.emphisia.icon
-          git checkout -b ${{needs.create_tar.outputs.version_name}}
+          git checkout -b v${{needs.create_tar.outputs.version_name}}
           cp ../nl.emphisia.icon.json ./
           git config user.email "bot@example.com"
           git config user.name "Bot"
           git add .
           git commit -m "new_version"
-          git push origin ${{needs.create_tar.outputs.version_name}}
