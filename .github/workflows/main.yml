@@ -25,6 +25,12 @@ jobs:
       - name: get path
         id: vars
         run: |
+          mkdir -p ~/.ssh
+          echo "${{secrets.SSH_KEY}}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh -vvv git@github.com
+
           PREV_DIR=$(pwd)
           mkdir -p ${{env.RELATIVE_ARTIFACT_DIR}}
           cd ${{env.RELATIVE_ARTIFACT_DIR}}
@@ -158,7 +164,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{secrets.SSH_KEY}}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          echo "github.com" >> ~/.ssh/known_hosts
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
           git clone git@github.com:flathub/nl.emphisia.icon.git
           cd nl.emphisia.icon
