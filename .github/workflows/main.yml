@@ -108,9 +108,7 @@ jobs:
           echo ${{steps.get_artifact.outputs.download-path}}
           echo $(pwd)
           echo "$(ls -lah ./)"
-          unzip Iconic.zip
-          tar xf ${{steps.get_artifact.outputs.download-path}}/${{needs.create_tar.outputs.file_name}}
-
+          tar xf ${{needs.create_tar.outputs.file_name}}
           echo "FILE_NAME=Iconic-${{needs.create_tar.outputs.file_name}}-${{ matrix.variant.arch }}.flatpak" >> $GITHUB_ENV
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
@@ -119,6 +117,9 @@ jobs:
           cache-key: flatpak-builder-${{ github.sha }}
           arch: ${{ matrix.variant.arch }}
           verbose: true
+      - name: debug
+        run: |
+          echo $(ls -lah ./)
       - name: upload_artifact
         uses: actions/upload-artifact@v7
         with:
