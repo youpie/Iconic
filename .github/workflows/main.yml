@@ -4,7 +4,7 @@ on:
     branches:
       - main
 env:
-  ARTIFACT_DIR: /release
+  RELATIVE_ARTIFACT_DIR: ../_temp
 jobs:
   create_tar:
     name: Create tar of project
@@ -12,24 +12,56 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: actions-use/setup-rust@stable
+        with:
+          toolchain: stable
+      - name: get path
+        run: |
+          PREV_DIR=$(pwd)
+          cd ${{env.RELATIVE_ARTIFACT_DIR}}
+          CURR_DIR=$(pwd)
+          cd $PREV_DIR
+          echo $CURR_DIR
+          echo "ARTIFACT_DIR=$CURR_DIR" >> $GITHUB_ENV
       - name: vendor dependencies
         run: |
-          pwd
-          mkdir $ARTIFACT_DIR
-          apt install rust -y
-          VERSION_NAME=${cargo metadata --format-version=1 --no-deps | jq .packages.[].version}
-          cargo vendor vendor
-
+          cargo vendor > ./config.toml
       - name: create tarbal
         run: |
-          FILE_NAME=Iconic-$VERSION_NAME.tar.gz
-          tar -czf $FILE_NAME $ARTIFACT_DIR/
+          VERSION_NAME="$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[] | select(.name=="Iconic") | .version')"
+          FILE_NAME=Iconic-$VERSION_NAME.tar.xz
+          echo "FILE_NAME=$FILE_NAME" >> $GITHUB_ENV
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          mkdir -p ${{env.ARTIFACT_DIR}}
+          tar czf "${{env.ARTIFACT_DIR}}/$FILE_NAME" .
 
       - name: create checksum
         run: |
-          sha256 $FILE_NAME > $ARTIFACT_DIR/$FILE_NAME.sha256
+          HASH="$(sha256sum ${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}} | awk '{print $1}')"
+          echo $HASH > "${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}}.sha256"
+          echo "FILE_HASH=$HASH" >> $GITHUB_ENV
+          echo $HASH
+      - uses: vafinvr/template-env-action@master
+        name: Create release template
+        env:
+          VERSION: ${{env.VERSION_NAME}}
+          HASH: ${{env.FILE_HASH}}
+        with:
+          filename: ./.github/workflows/nl.emphisia.icon.json
+      - name: Move release template to artifact dir
+        run: |
+          cp ./.github/workflows/nl.emphisia.icon.json ${{env.ARTIFACT_DIR}}/
+          ls -lah ${{env.ARTIFACT_DIR}}
       - name: upload artifacts
-        uses: actions/upload-artifact@v3.2.2
+        uses: actions/upload-artifact@v7
         with:
           path: ${{env.ARTIFACT_DIR}}
-        
+      - uses: ncipollo/release-action@v1.21.0
+        name: Create release
+        with:
+          allowUpdates: true
+          artifacts: ${{env.ARTIFACT_DIR}}
+          tag: v${{env.VERSION_NAME}}
+          generateReleaseNotes: true
+          makeLatest: true
+          name: v${{env.VERSION_NAME}}
