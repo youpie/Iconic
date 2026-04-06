@@ -42,11 +42,11 @@ jobs:
         with:
           path: ${{env.ARTIFACT_DIR}}
           key: cache-${{ github.sha }}
-      - name: Vendor
-        uses: actions/cache@v5
-        with:
-          path: ./vendor
-          key: vendor
+      # - name: Vendor
+      #   uses: actions/cache@v5
+      #   with:
+      #     path: ./vendor
+      #     key: vendor
       - name: vendor dependencies
         run: |
           cargo vendor > ./config.toml
@@ -109,6 +109,7 @@ jobs:
           echo $(pwd)
           echo "$(ls -lah ./)"
           tar xf ${{needs.create_tar.outputs.file_name}}
+          echo "$(ls -lah ./)"
           echo "FILE_NAME=Iconic-${{needs.create_tar.outputs.file_name}}-${{ matrix.variant.arch }}.flatpak" >> $GITHUB_ENV
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
