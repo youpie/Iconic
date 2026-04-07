@@ -51,6 +51,17 @@ fn main() -> glib::ExitCode {
         .expect("Could not load resources");
     gio::resources_register(&resources);
 
+    if gio::resources_lookup_data(
+        "/nl/emphisia/icon/windows/preview_window/window.ui",
+        gio::ResourceLookupFlags::NONE,
+    )
+    .is_ok()
+    {
+        eprintln!("UI file is in GResource");
+    } else {
+        eprintln!("UI file NOT found in GResource");
+    }
+
     // Create a new GtkApplication. The application manages our main loop,
     // application windows, integration with the window manager/compositor, and
     // desktop features such as file opening and single-instance applications.

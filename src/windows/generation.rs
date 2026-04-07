@@ -44,7 +44,7 @@ impl IconicWindow {
                 )
                 .await,
         );
-        imp.image_view.set_paintable(Some(&texture));
+        imp.image_view.set_paintable(&texture);
         imp.image_view.queue_draw();
     }
 

@@ -6,6 +6,7 @@ blueprints = custom_target(
   input: files(
     'gtk/shortcuts-dialog.blp',
     'settings/settings.blp',
+    'windows/preview_window/window.blp',
     'window.blp',
   ),
   output: '.',
