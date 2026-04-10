@@ -44,6 +44,12 @@ use std::sync::{Arc, Mutex};
 mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc};
 
+    use gio::{
+        SimpleAction,
+        ffi::g_simple_action_set_state,
+        glib::{Variant, VariantTy},
+    };
+
     use crate::{
         objects::properties::FileProperties,
         settings::settings::PreferencesDialog,
@@ -403,6 +409,19 @@ mod imp {
             ));
             self.drag_overlay.set_drop_target(&drop_target);
             self.image_view.add_controller(drag_source);
+
+            let temp_bottom_folder = SimpleAction::new_stateful(
+                "temp_folder_color",
+                Some(&VariantTy::STRING),
+                &"".to_variant(),
+            );
+
+            temp_bottom_folder.connect_change_state(|action, para| {
+                let value = para.unwrap().str().unwrap();
+                debug!("{value}");
+                action.set_state(para.unwrap());
+            });
+            self.obj().add_action(&temp_bottom_folder);
         }
 
         fn dispose(&self) {
