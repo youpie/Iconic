@@ -208,6 +208,7 @@ template $IconicWindow: Adw.ApplicationWindow {
 
                             GestureLongPress {
                               touch-only: true;
+                              pressed => $open_popover() swapped;
                             }
 
                             GestureClick gesture_click {
