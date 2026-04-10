@@ -389,49 +389,20 @@ template $IconicWindow: Adw.ApplicationWindow {
 // styles ["devel"]
 menu primary_menu {
   section {
-    item {
-      label: _("_Paste Top Icon from Clipboard");
-      action: "app.paste";
-    }
-
-    item {
-      label: _("_Open Top Icon");
-      action: "app.open_top_icon";
-    }
-
-    item {
-      label: _("_Open Bottom Icon");
-      action: "app.select_folder";
-    }
+    item (_("_Paste Top Icon from Clipboard"), "app.paste")
+    item (_("_Open Top Icon"), "app.open_top_icon")
+    item (_("_Open Bottom Icon"), "app.select_folder")
   }
 
   section {
-    item {
-      label: _("_Reset Bottom Icon");
-      action: "app.reset_bottom";
-    }
-
-    item {
-      label: _("_Regenerate Icons");
-      action: "app.regenerate";
-    }
+    item (_("_Reset Bottom Icon"), "app.reset_bottom")
+    item (_("_Regenerate Icons"), "app.regenerate")
   }
 
   section {
-    item {
-      label: _("_Preferences");
-      action: "app.preferences";
-    }
-
-    item {
-      label: _("_Keyboard Shortcuts");
-      action: "app.shortcuts";
-    }
-
-    item {
-      label: _("_About Iconic");
-      action: "app.about";
-    }
+    item (_("_Preferences"), "app.preferences")
+    item (_("_Keyboard Shortcuts"), "app.shortcuts")
+    item (_("_About Iconic"), "app.about")
   }
 }
 
