@@ -437,31 +437,26 @@ menu primary_menu {
 
 menu image_menu {
   section {
-    item {
-      label: _("Change Top Image");
-      action: "app.open_top_icon";
-    }
-
-    item {
-      label: _("Change Bottom Image");
-      action: "app.change_bottom";
-    }
+    item (_("Change Top Image"), "app.open_top_icon")
+    item (_("Change Bottom Image"), "app.change_bottom")
   }
 
   section {
-    item {
-      label: _("Temporarily Change Bottom Image");
-      action: "app.select_folder";
-    }
+    item (_("Temporarily Change Bottom Image"), "app.select_folder")
 
-    item {
-      label: _("Reset Temporary Bottom Image");
-      action: "app.reset_bottom";
-    }
-
-    item {
-      label: _("Reset Image");
-      action: "app.reset";
+    submenu temp_folder_color {
+      label: _("Temporarily Change Folder Color");
+      item (_("Blue"))
+      item (_("Teal"))
+      item (_("Yellow"))
+      item (_("Orange"))
+      item (_("Red"))
+      item (_("Pink"))
+      item (_("Purple"))
+      item (_("Slate"))
     }
   }
+
+  item (_("Reset Temporary Bottom Image"), "app.reset_bottom")
+  item (_("Reset Image"), "app.reset")
 }
