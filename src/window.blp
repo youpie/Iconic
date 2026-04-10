@@ -206,8 +206,13 @@ template $IconicWindow: Adw.ApplicationWindow {
                               halign: start;
                             }
 
+                            GestureLongPress {
+                              touch-only: true;
+                            }
+
                             GestureClick gesture_click {
                               button: 3;
+                              pressed => $open_popover() swapped;
                             }
                           }
 

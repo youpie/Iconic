@@ -44,11 +44,7 @@ use std::sync::{Arc, Mutex};
 mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc};
 
-    use gio::{
-        SimpleAction,
-        ffi::g_simple_action_set_state,
-        glib::{Variant, VariantTy},
-    };
+    use gio::{SimpleAction, glib::VariantTy};
 
     use crate::{
         objects::properties::FileProperties,
@@ -484,22 +480,7 @@ impl IconicWindow {
             ("Slate".to_string(), RGBA::from_rgb(99, 118, 146)),
         ]));
         win.setup_defaults();
-        win.create_popover_image();
         win
-    }
-
-    fn create_popover_image(&self) {
-        self.imp().gesture_click.connect_pressed(glib::clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_gesture, _n_press, x, y| {
-                let imp = win.imp();
-                let position = gdk::Rectangle::new(x as i32, y as i32, 0, 0);
-                debug!("popover");
-                imp.popover_menu.set_pointing_to(Some(&position));
-                imp.popover_menu.popup();
-            }
-        ));
     }
 
     pub fn default_sliders(&self, add_marks: bool) {
