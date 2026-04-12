@@ -432,10 +432,10 @@ menu primary_menu {
 menu image_menu {
   section {
     item (_("Change Top Image"), "app.open_top_icon")
-    item (_("Change Bottom Image"), "app.change_bottom")
   }
 
   section {
+    item (_("Change Bottom Image"), "app.change_bottom")
     item (_("Temporarily Change Bottom Image"), "app.select_folder")
 
     submenu temp_folder_color {
@@ -494,9 +494,17 @@ menu image_menu {
         action: "win.temp_folder_color";
         target: "Slate";
       }
+
+      item {
+        label: _("Custom");
+        action: "win.temp_folder_color";
+        target: "Custom";
+      }
     }
   }
 
-  item (_("Reset Temporary Bottom Image"), "app.reset_bottom")
-  item (_("Reset Image"), "app.reset")
+  section {
+    item (_("Reset Temporary Bottom Image"), "app.reset_bottom")
+    item (_("Reset Image"), "app.reset")
+  }
 }

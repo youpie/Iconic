@@ -48,6 +48,7 @@ impl IconicWindow {
             let value = match imp.file_properties.borrow().bottom_image_type.clone() {
                 BottomImageType::FolderSystem => self.get_accent_color().to_variant(),
                 BottomImageType::Folder(color) => color.to_variant(),
+                BottomImageType::FolderCustom(_, _) => "Custom".to_variant(),
                 _ => "".to_variant(),
             };
             if let Some(action) = self.lookup_action("temp_folder_color")

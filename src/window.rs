@@ -334,7 +334,19 @@ pub mod imp {
                     debug!("{value}");
                     if value != "" {
                         let mut properties = imp.file_properties.try_borrow().unwrap().clone();
-                        properties.bottom_image_type = BottomImageType::Folder(value);
+                        properties.bottom_image_type = match value.as_str() {
+                            "Custom" => {
+                                let custom_primary_color: String =
+                                    imp.settings.string("primary-folder-color").into();
+                                let custom_secondary_color: String =
+                                    imp.settings.string("secondary-folder-color").into();
+                                BottomImageType::FolderCustom(
+                                    custom_primary_color,
+                                    custom_secondary_color,
+                                )
+                            }
+                            _ => BottomImageType::Folder(value),
+                        };
                         imp.file_properties.replace(properties);
                         win.load_bottom_image();
                     }
