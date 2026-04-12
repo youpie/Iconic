@@ -23,10 +23,8 @@ use crate::glib::clone;
 use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
 use crate::objects::properties::{BottomImageType, CustomRGB};
-use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
-use gio::Cancellable;
 use gio::prelude::SettingsExt;
 use gtk::gdk::RGBA;
 use gtk::gdk_pixbuf::Pixbuf;
@@ -41,12 +39,18 @@ use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-mod imp {
+pub mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc};
 
+    use gio::{SimpleAction, glib::VariantTy};
+
     use crate::{
-        objects::properties::FileProperties, settings::settings::PreferencesDialog,
-        windows::drag_overlay::DragOverlay,
+        objects::properties::FileProperties,
+        settings::settings::PreferencesDialog,
+        windows::{
+            drag_drop::setup_drag_drop_logic, drag_overlay::DragOverlay,
+            preview_window::PreviewWindow,
+        },
     };
 
     use super::*;
@@ -67,7 +71,7 @@ mod imp {
         #[template_child]
         pub open_top_icon: TemplateChild<gtk::Button>,
         #[template_child]
-        pub image_view: TemplateChild<gtk::Picture>,
+        pub image_view: TemplateChild<PreviewWindow>,
         #[template_child]
         pub save_button: TemplateChild<gtk::Button>,
         #[template_child]
@@ -119,7 +123,6 @@ mod imp {
         pub image_saved: Cell<bool>,
         pub last_drag_n_drop_generated_name: RefCell<Option<gio::File>>,
         pub generated_image: RefCell<Option<DynamicImage>>,
-        pub temp_bottom_image_loaded: Cell<bool>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
         pub count: Cell<i32>,
@@ -168,7 +171,6 @@ mod imp {
                 signals: RefCell::new(vec![]),
                 settings: gio::Settings::new(APP_ID),
                 count: Cell::new(0),
-                temp_bottom_image_loaded: Cell::new(false),
                 default_color: RefCell::new(HashMap::new()),
                 last_drag_n_drop_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(Cell::new(0)),
@@ -236,7 +238,6 @@ mod imp {
                 let imp = win.imp();
                 win.default_sliders(false);
                 win.load_folder_path_from_settings();
-                win.reset_colors();
                 let mut top_image = imp.top_image_file.lock().unwrap();
                 win.load_empty_top_image(&mut top_image);
                 imp.toast_overlay
@@ -305,104 +306,53 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
-
             // If you read this and think of a more elegant way to achieve this, please let me know
             // This shares the value of if a drag operation is currently active
             // I now create a RefCell<Rc<Cell<bool>>>
             // Where i replace the Rc<> with the same as in this file
-            obj.imp()
-                .drag_overlay
-                .imp()
-                .current_drop_is_meta
-                .replace(obj.imp().drag_active.clone());
 
             // Devel Profile
             if PROFILE == "Devel" {
                 obj.add_css_class("devel");
             }
 
-            let drop_target = gtk::DropTarget::new(gio::File::static_type(), gdk::DragAction::COPY);
-            // drop_target.set_types(&[gdk::Texture::static_type(), gio::File::static_type()]);
+            setup_drag_drop_logic(self);
 
-            drop_target.connect_accept(clone!(
-                #[strong]
+            let temp_bottom_folder = SimpleAction::new_stateful(
+                "temp_folder_color",
+                Some(&VariantTy::STRING),
+                &"".to_variant(),
+            );
+
+            temp_bottom_folder.connect_change_state(clone!(
+                #[weak (rename_to=win)]
                 obj,
-                move |target, drop| {
-                    let imp = obj.imp();
-                    if drop.formats().contain_mime_type("image/svg+xml") {
-                        info!("File contains SVG");
-                        target.set_types(&[gio::File::static_type(), gdk::Texture::static_type()]);
-                    } else {
-                        info!("File does not contain SVG");
-                        target.set_types(&[gdk::Texture::static_type(), gio::File::static_type()]);
+                move |action, para| {
+                    let imp = win.imp();
+                    let value = para.unwrap().str().unwrap().to_owned();
+                    debug!("{value}");
+                    if value != "" {
+                        let mut properties = imp.file_properties.try_borrow().unwrap().clone();
+                        properties.bottom_image_type = match value.as_str() {
+                            "Custom" => {
+                                let custom_primary_color: String =
+                                    imp.settings.string("primary-folder-color").into();
+                                let custom_secondary_color: String =
+                                    imp.settings.string("secondary-folder-color").into();
+                                BottomImageType::FolderCustom(
+                                    custom_primary_color,
+                                    custom_secondary_color,
+                                )
+                            }
+                            _ => BottomImageType::Folder(value),
+                        };
+                        imp.file_properties.replace(properties);
+                        win.load_bottom_image();
                     }
-                    if imp.drag_active.get() && !imp.settings.boolean("allow-meta-drop") {
-                        info!("Drag active, disabling target");
-                        target.set_actions(gdk::DragAction::empty());
-                    } else if imp.drag_active.get() && imp.settings.boolean("allow-meta-drop") {
-                        info!("Switching to File type");
-                        target.set_types(&[gio::File::static_type(), gdk::Texture::static_type()]);
-                        target.set_actions(gdk::DragAction::COPY);
-                    } else {
-                        target.set_actions(gdk::DragAction::COPY);
-                    }
-                    true
+                    action.set_state(para.unwrap());
                 }
             ));
-            drop_target.connect_drop(clone!(
-                #[strong]
-                obj,
-                move |_, value, _, _| {
-                    debug!("Value type: {}", value.type_().name());
-                    if let Ok(file) = value.get::<gio::File>() {
-                        glib::spawn_future_local(glib::clone!(
-                            #[weak(rename_to = win)]
-                            obj,
-                            async move {
-                                win.open_dragged_file(file).await;
-                            }
-                        ));
-                        true
-                    } else if let Ok(texture) = value.get::<gdk::Texture>() {
-                        glib::spawn_future_local(glib::clone!(
-                            #[weak(rename_to = win)]
-                            obj,
-                            async move {
-                                win.open_dragged_texture(texture).await;
-                            }
-                        ));
-                        true
-                    } else {
-                        false
-                    }
-                }
-            ));
-            let drag_source = gtk::DragSource::builder()
-                .actions(gdk::DragAction::COPY)
-                .build();
-
-            drag_source.connect_prepare(clone!(
-                #[weak (rename_to = win)]
-                obj,
-                #[upgrade_or]
-                None,
-                move |drag, _, _| win.drag_connect_prepare(drag)
-            ));
-
-            drag_source.connect_drag_end(clone!(
-                #[weak (rename_to = win)]
-                obj,
-                move |_, _, _| win.drag_connect_end()
-            ));
-            drag_source.connect_drag_cancel(clone!(
-                #[weak (rename_to = win)]
-                obj,
-                #[upgrade_or]
-                false,
-                move |_, _, drag_cancel_reason| win.drag_connect_cancel(drag_cancel_reason)
-            ));
-            self.drag_overlay.set_drop_target(&drop_target);
-            self.image_view.add_controller(drag_source);
+            self.obj().add_action(&temp_bottom_folder);
         }
 
         fn dispose(&self) {
@@ -465,22 +415,7 @@ impl IconicWindow {
             ("Slate".to_string(), RGBA::from_rgb(99, 118, 146)),
         ]));
         win.setup_defaults();
-        win.create_popover_image();
         win
-    }
-
-    fn create_popover_image(&self) {
-        self.imp().gesture_click.connect_pressed(glib::clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_gesture, _n_press, x, y| {
-                let imp = win.imp();
-                let position = gdk::Rectangle::new(x as i32, y as i32, 0, 0);
-                debug!("popover");
-                imp.popover_menu.set_pointing_to(Some(&position));
-                imp.popover_menu.popup();
-            }
-        ));
     }
 
     pub fn default_sliders(&self, add_marks: bool) {
@@ -515,98 +450,6 @@ impl IconicWindow {
         self.slider_control_sensitivity(false);
     }
 
-    pub fn drag_connect_prepare(&self, source: &gtk::DragSource) -> Option<gdk::ContentProvider> {
-        let imp = self.imp();
-        imp.drag_active.set(true);
-        let generated_image = imp.generated_image.borrow().clone().unwrap();
-        let file_hash = imp.top_image_file.lock().unwrap().clone().unwrap().hash;
-        let icon = self.dynamic_image_to_texture(&generated_image.resize(
-            64,
-            64,
-            imageops::FilterType::Nearest,
-        ));
-        debug!("temp image loaded {}", imp.temp_bottom_image_loaded.get());
-        source.set_icon(Some(&icon), 0 as i32, 0 as i32);
-        let gio_file = self.create_drag_file();
-        imp.last_drag_n_drop_generated_name
-            .replace(Some(gio_file.clone()));
-        let gio_file_clone = gio_file.clone();
-        glib::spawn_future_local(clone!(
-            #[weak (rename_to = win)]
-            self,
-            async move {
-                _ = win
-                    .save_file(
-                        gio_file_clone,
-                        win.imp().monochrome_switch.is_active(),
-                        None,
-                        Some(file_hash),
-                    )
-                    .await;
-            }
-        ));
-
-        Some(gdk::ContentProvider::for_value(&glib::Value::from(
-            &gio_file,
-        )))
-    }
-
-    pub fn create_drag_file(&self) -> gio::File {
-        let data_path = self.get_data_path();
-        debug!("data path: {:?}", data_path);
-        let random_string = random_str::get_string(10, true, true, true, false);
-        let generated_file_name = format!("folder-{}.png", random_string);
-        debug!("generated_file_name: {}", generated_file_name);
-        let mut file_path = data_path.clone();
-        file_path.push(generated_file_name.clone());
-        debug!("generated file path: {:?}", file_path);
-        let gio_file = gio::File::for_path(file_path);
-        gio_file
-    }
-
-    fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool {
-        let imp = self.imp();
-        let gio_file = imp
-            .last_drag_n_drop_generated_name
-            .borrow()
-            .clone()
-            .unwrap();
-        self.image_save_sensitive(true);
-        info!(
-            "Drag operation cancelled, removing file. Reason: {:?}",
-            reason
-        );
-        match gio_file.delete(None::<&Cancellable>) {
-            Ok(_) => {
-                debug!("Deletion succesfull!");
-            }
-            Err(e) => {
-                warn!("Could not delete drag file, error: {:?}", e);
-            }
-        };
-        imp.drag_cancelled.set(true);
-        false
-    }
-
-    fn drag_connect_end(&self) {
-        let imp = self.imp();
-        imp.drag_active.set(false);
-        debug!("drag end");
-        if !imp.drag_cancelled.get() {
-            // Drag event was not cancelled. I couldn't find a signal that fires only on a succseful drag
-            debug!("succesful drag");
-            let top_image = imp.top_image_file.lock().unwrap().clone().unwrap(); // Currently blocks
-            match self.store_top_image_in_cache(&top_image) {
-                Err(x) => {
-                    show_error_popup(&self, "", true, Some(x));
-                }
-                _ => (),
-            };
-            self.drag_and_drop_regeneration_popup();
-        }
-        imp.drag_cancelled.set(false);
-    }
-
     pub fn setup_settings(&self) {
         let imp = self.imp();
         let update_folder = glib::clone!(
@@ -614,37 +457,6 @@ impl IconicWindow {
             self,
             move |_: &gio::Settings, _: &str| {
                 win.load_folder_path_from_settings();
-            }
-        );
-
-        let resize_folder = glib::clone!(
-            #[weak(rename_to = this)]
-            self,
-            move |_: &gio::Settings, _: &str| {
-                glib::spawn_future_local(glib::clone!(
-                    #[weak(rename_to = win)]
-                    this,
-                    async move {
-                        let path: &str = &win.imp().settings.string("folder-svg-path");
-                        win.load_folder_icon(path).await;
-                    }
-                ));
-            }
-        );
-
-        let reload_thumbnails = glib::clone!(
-            #[weak(rename_to = this)]
-            self,
-            move |_: &gio::Settings, _: &str| {
-                glib::spawn_future_local(glib::clone!(
-                    #[weak(rename_to = win)]
-                    this,
-                    async move {
-                        let path: &str = &win.imp().settings.string("folder-svg-path");
-                        win.load_folder_icon(path).await;
-                        win.imp().reset_color.set_visible(true);
-                    }
-                ));
             }
         );
 
@@ -674,10 +486,6 @@ impl IconicWindow {
             .connect_changed(Some("selected-accent-color"), update_folder.clone());
         imp.settings
             .connect_changed(Some("manual-bottom-image-selection"), update_folder.clone());
-        imp.settings
-            .connect_changed(Some("svg-render-size"), resize_folder.clone());
-        imp.settings
-            .connect_changed(Some("thumbnail-size"), reload_thumbnails.clone());
     }
 
     pub fn setup_update(&self) {
@@ -732,25 +540,26 @@ impl IconicWindow {
     // TODO: This approach is dumb. I am purposely failing a dictionary lookup and using unwrap_or to get my way
     pub fn get_default_color(&self) -> gdk::RGBA {
         let imp = self.imp();
-        let accent_color;
         debug!("Resetting top color");
-        let selected_accent_color = imp.settings.string("selected-accent-color");
-        let mut custom_rgb = RGBA::new(0.0, 0.0, 0.0, 0.0);
-        if selected_accent_color == "None" {
-            accent_color = self.get_accent_color();
-        } else if imp.settings.boolean("manual-bottom-image-selection") {
-            accent_color = "Blue".to_string();
-        } else if selected_accent_color == "Custom" {
-            accent_color = "Custom".to_string();
-            custom_rgb = RGBA::from_hex(imp.settings.string("secondary-folder-color").into());
-        } else {
-            accent_color = selected_accent_color.into();
-        }
+        let bottom_image_type = imp
+            .file_properties
+            .try_borrow()
+            .unwrap()
+            .bottom_image_type
+            .clone();
+
+        let accent_color = match bottom_image_type {
+            BottomImageType::FolderSystem => self.get_accent_color(),
+            BottomImageType::Folder(color) => color,
+            BottomImageType::FolderCustom(_, bg) => bg,
+            _ => "Blue".to_owned(),
+        };
+
         let color = imp
             .default_color
             .borrow()
             .get(&accent_color)
-            .unwrap_or(&custom_rgb)
+            .unwrap_or(&RGBA::from_hex(accent_color))
             .clone();
         debug!("Found color: {:?}", &color);
         color
@@ -762,7 +571,8 @@ impl IconicWindow {
         accent_color
     }
 
-    pub async fn check_chache_icon(&self, file_name: &str) -> PathBuf {
+    // Find the custom bottom image in the cache
+    pub fn check_chache_icon(&self, file_name: &str) -> PathBuf {
         let imp = self.imp();
         let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
         let cache_path = Self::get_cache_path();
@@ -777,44 +587,20 @@ impl IconicWindow {
             );
             return self
                 .copy_folder_image_to_cache(&icon_path, &cache_path)
-                .await
                 .unwrap()
                 .0;
         }
         info!("File not found AT ALL");
-        let dialog = show_error_popup(
+        let _ = show_error_popup(
             &self,
-            &gettext("The set bottom icon could not be found, press ok to select a new one"),
+            &gettext("The set bottom icon could not be found, resetting"),
             false,
             None::<String>,
         )
         .unwrap();
-        match &*dialog.clone().choose_future(self).await {
-            "OK" => {
-                let new_path = match self.open_file_chooser().await {
-                    Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
-                    None => {
-                        self.application().unwrap().activate_action("quit", None);
-                        return PathBuf::new();
-                    }
-                };
-                imp.settings
-                    .set_string("folder-svg-path", &new_path)
-                    .unwrap();
-                let cached_file_name = self
-                    .copy_folder_image_to_cache(&PathBuf::from(new_path), &cache_path)
-                    .await
-                    .unwrap()
-                    .1;
-                imp.settings
-                    .set_string("folder-cache-name", &cached_file_name)
-                    .unwrap();
-                let cache_file_name = &imp.settings.string("folder-cache-name");
-                let folder_icon_cache_path = cache_path.join(cache_file_name);
-                return PathBuf::from(folder_icon_cache_path);
-            }
-            _ => unreachable!(),
-        };
+
+        imp.settings.default_value("manual-bottom-image-selection");
+        self.load_built_in_bottom_icon("None")
     }
 
     pub fn get_cache_path() -> PathBuf {

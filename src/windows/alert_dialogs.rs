@@ -60,7 +60,7 @@ impl IconicWindow {
         dialog.add_response(RESPONSE_BOTTOM, &gettext("Bottom"));
         dialog.set_response_appearance(RESPONSE_TOP, adw::ResponseAppearance::Suggested);
 
-        match &*dialog.clone().choose_future(self).await {
+        match &*dialog.clone().choose_future(Some(self)).await {
             RESPONSE_TOP => Some(true),
             RESPONSE_BOTTOM => Some(false),
             _ => None,
@@ -84,7 +84,7 @@ impl IconicWindow {
         dialog.set_response_appearance(RESPONSE_DISCARD, adw::ResponseAppearance::Destructive);
         dialog.add_response(RESPONSE_SAVE, &gettext("Save"));
         dialog.set_response_appearance(RESPONSE_SAVE, adw::ResponseAppearance::Suggested);
-        match &*dialog.clone().choose_future(self).await {
+        match &*dialog.clone().choose_future(Some(self)).await {
             RESPONSE_CANCEL => {
                 dialog.close();
             }
@@ -190,7 +190,7 @@ impl IconicWindow {
         dialog.set_response_appearance(RESPONSE_WAIT, adw::ResponseAppearance::Suggested);
         dialog.present(Some(self));
 
-        match &*dialog.clone().choose_future(self).await {
+        match &*dialog.clone().choose_future(Some(self)).await {
             RESPONSE_WAIT => (),
             RESPONSE_FORCE_QUIT => self.application().unwrap().activate_action("quit", None),
             _ => unreachable!(),
@@ -230,7 +230,7 @@ impl IconicWindow {
         if options.len() > 1 {
             dialog.set_response_appearance(first_option, adw::ResponseAppearance::Suggested);
         }
-        let option_chosen = &*dialog.clone().choose_future(self).await;
+        let option_chosen = &*dialog.clone().choose_future(Some(self)).await;
         let option = options.iter().position(|n| n == &option_chosen);
         debug!("Options: {options:?}, Chosen: {option_chosen} - Result: {option:?}");
         option

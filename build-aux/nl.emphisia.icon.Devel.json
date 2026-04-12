@@ -1,7 +1,7 @@
 {
     "id": "nl.emphisia.icon.Devel",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "49",
+    "runtime-version": "50",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
@@ -21,7 +21,7 @@
             "--share=network"
         ],
         "env": {
-            "RUST_BACKTRACE": "1",
+            "RUST_BACKTRACE": "0",
             "RUST_LOG": "Iconic=debug"
         }
     },
@@ -35,20 +35,6 @@
         "*.a"
     ],
     "modules": [
-        {
-            "name": "blueprint-compiler",
-            "buildsystem": "meson",
-            "cleanup": [
-                "*"
-            ],
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
-                    "tag": "v0.16.0"
-                }
-            ]
-        },
         {
             "name": "Iconic",
             "builddir": true,

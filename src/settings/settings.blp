@@ -3,7 +3,7 @@ using Adw 1;
 
 template $PreferencesDialog: Adw.PreferencesDialog {
   // width-request: 526;
-  Adw.PreferencesPage {
+  Adw.PreferencesPage preferences_page {
     icon-name: "applications-system-symbolic";
     title: _("General");
 
@@ -43,6 +43,10 @@ template $PreferencesDialog: Adw.PreferencesDialog {
               _("Custom"),
             ]
           };
+
+          styles [
+            "accent-color-row",
+          ]
 
           sensitive: bind use_system_color.active inverted;
         }
@@ -111,18 +115,21 @@ template $PreferencesDialog: Adw.PreferencesDialog {
 
     Adw.PreferencesGroup {
       title: _("Drag and Drop");
+      visible: bind enable_advanced.active;
 
       Adw.PreferencesGroup {
         Adw.SwitchRow meta_drop_switch {
-          title: _("Allow Drop During Drag");
+          title: _("Allow Drop During Drag*");
           subtitle: _("Allow dropping the image back as a layer when dragging");
+          visible: bind enable_advanced.active;
         }
 
         Adw.ExpanderRow default_dnd {
-          title: _("Default Drag-and-Drop Action");
+          title: _("Default Drag-and-Drop Action*");
           subtitle: _("Set a default layer when dropping an image");
           expanded: bind dnd_switch.active;
           enable-expansion: bind dnd_switch.active;
+          visible: bind enable_advanced.active;
 
           [suffix]
           Switch dnd_switch {
@@ -181,12 +188,27 @@ After regeneration, it is likely required to log out and in to see the changes")
           }
         }
 
+        Adw.SwitchRow store_top_images {
+          title: _("Enable Regeneration");
+          subtitle: _("Enable the automatic regenerating of folders when a new system accent color is selected");
+        }
+
         Adw.SwitchRow automatic_regeneration {
-          title: _("Regenerate Automatically");
-          subtitle: _("Regenerate images on accent color change");
+          title: _("Automatic Genereration");
+          subtitle: _("Automatically regenerate the Icons when the system accent color changes");
+          sensitive: bind store_top_images.active;
+        }
+
+        Adw.SwitchRow strict_button {
+          visible: bind enable_advanced.active inverted;
+          title: _("Loose Regeneration");
+          subtitle: _("Allow regeneration of folder images with \"Use system folder color\" disabled");
+          sensitive: bind store_top_images.active;
+          active: bind strict_regeneration.active bidirectional;
         }
 
         Adw.ExpanderRow strict_expander {
+          visible: bind enable_advanced.active;
           title: _("Loose Regeneration");
           subtitle: _("Allow regeneration of folder images with \"Use system folder color\" disabled");
           expanded: false;
@@ -200,45 +222,20 @@ After regeneration, it is likely required to log out and in to see the changes")
           }
 
           Adw.SwitchRow ignore_custom {
-            title: _("Ignore Custom Folders");
+            title: _("Ignore Custom Folders*");
             subtitle: _("Don't regenerate folder images with custom folder colors");
           }
-        }
-
-        Adw.SwitchRow store_top_images {
-          title: _("Store Top Images in Cache");
-          subtitle: _("Folder icons made while this option is disabled cannot be regenerated");
-        }
-
-        Adw.ActionRow cache_size {
-          title: _("Current Cache Usage");
-          subtitle: "Unknown";
-
-          styles [
-            "property",
-            "numeric",
-          ]
-        }
-
-        Adw.ButtonRow browse_cache {
-          title: _("Browse Cached Images");
-          start-icon-name: "folder-open-symbolic";
-          activated => $open_image_cache() swapped;
-        }
-
-        Adw.ButtonRow reset_top_cache {
-          title: _("Remove Cached Images");
-          start-icon-name: "user-trash-symbolic";
-
-          styles [
-            "destructive-action",
-          ]
         }
       }
     }
 
     Adw.PreferencesGroup advanced_settings {
       title: _("Advanced");
+
+      Adw.SwitchRow enable_advanced {
+        title: _("Enable advanced settings");
+        subtitle: _("Items marked with an '*' after enabling this switch are advanced");
+      }
 
       Label {
         margin-top: 10;

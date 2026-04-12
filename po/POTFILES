@@ -7,6 +7,7 @@ data/nl.emphisia.icon.metainfo.xml.in.in
 src/gtk/shortcuts-dialog.blp
 src/settings/settings.blp
 src/window.blp
+src/windows/preview_window/window.blp
 # RUST files
 src/application.rs
 src/main.rs

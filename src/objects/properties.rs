@@ -1,6 +1,7 @@
-use std::fs::DirEntry;
+use std::{fs::DirEntry, path::PathBuf};
 
 use adw::subclass::prelude::ObjectSubclassIsExt;
+use gio::prelude::SettingsExt;
 use gtk::gdk;
 use gtk::prelude::RangeExt;
 use hex::FromHex;
@@ -250,8 +251,7 @@ pub enum BottomImageType {
     FolderSystem,
     Folder(String),
     FolderCustom(Foreground, Background),
-    Custom,
-    Temporary,
+    Custom(PathBuf),
 }
 
 impl BottomImageType {
@@ -263,6 +263,27 @@ impl BottomImageType {
             Self::FolderCustom(_, _) => Some(false),
             Self::Folder(value) if value != "Unknown" => Some(false),
             _ => None,
+        }
+    }
+
+    // Get the base bottom image state
+    pub fn get_base(window: &IconicWindow) -> Self {
+        let imp = window.imp();
+        if imp.settings.boolean("manual-bottom-image-selection") {
+            let cache_file_name: String = imp.settings.string("folder-cache-name").into();
+            let path = window.check_chache_icon(&cache_file_name);
+            BottomImageType::Custom(path)
+        } else if imp.settings.string("selected-accent-color") == "Custom" {
+            let custom_primary_color: String = imp.settings.string("primary-folder-color").into();
+            let custom_secondary_color: String =
+                imp.settings.string("secondary-folder-color").into();
+            BottomImageType::FolderCustom(custom_primary_color, custom_secondary_color)
+        } else {
+            let set_folder_color: String = imp.settings.string("selected-accent-color").into();
+            match set_folder_color.as_str() {
+                "None" => BottomImageType::FolderSystem,
+                _ => BottomImageType::Folder(set_folder_color),
+            }
         }
     }
 }

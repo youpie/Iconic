@@ -1,0 +1,14 @@
+using Gtk 4.0;
+
+template $PreviewWindow: Box {
+    Picture image_preview {
+        tooltip-text: _("Preview window of icon, drag from here to start drag operation");
+        valign: center;
+        halign: center;
+        width-request: 150;
+        height-request: 150;
+        content-fit: scale_down;
+        hexpand: true;
+        vexpand: true;
+    }
+}
