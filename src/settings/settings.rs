@@ -3,12 +3,10 @@ use crate::config::{APP_ID, PROFILE};
 use crate::glib::clone;
 use crate::objects::errors::IntoResult;
 use crate::objects::properties::CustomRGB;
+use adw::prelude::AdwDialogExt;
 use adw::prelude::AlertDialogExt;
-use adw::prelude::AlertDialogExtManual;
 use adw::prelude::ComboRowExt;
-use adw::prelude::{ActionRowExt, AdwDialogExt};
 use adw::subclass::prelude::AdwDialogImpl;
-use fs_extra;
 use gdk4::RGBA;
 use gettextrs::*;
 use gio::AppInfo;
@@ -70,10 +68,6 @@ mod imp {
         #[template_child]
         pub automatic_regeneration: TemplateChild<adw::SwitchRow>,
         #[template_child]
-        pub cache_size: TemplateChild<adw::ActionRow>,
-        #[template_child]
-        pub reset_top_cache: TemplateChild<adw::ButtonRow>,
-        #[template_child]
         pub primary_color_row: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub primary_folder_color: TemplateChild<gtk::ColorDialogButton>,
@@ -117,8 +111,6 @@ mod imp {
                 use_system_color: TemplateChild::default(),
                 store_top_images: TemplateChild::default(),
                 automatic_regeneration: TemplateChild::default(),
-                cache_size: TemplateChild::default(),
-                reset_top_cache: TemplateChild::default(),
                 primary_color_row: TemplateChild::default(),
                 primary_folder_color: TemplateChild::default(),
                 secondary_color_row: TemplateChild::default(),
@@ -129,7 +121,6 @@ mod imp {
                 select_default_bottom: TemplateChild::default(),
                 preferences_page: TemplateChild::default(),
                 enable_advanced: TemplateChild::default(),
-                // reveal_custom_colors: TemplateChild::default(),
             }
         }
 
@@ -238,7 +229,6 @@ impl PreferencesDialog {
         win.set_path_title();
         win.disable_color_dropdown(true);
         win.setup_settings();
-        win.get_file_size();
         win.show_color_options();
         win
     }
@@ -331,19 +321,6 @@ impl PreferencesDialog {
                 this.show_color_options();
             }
         ));
-        imp.reset_top_cache.connect_activated(clone!(
-            #[weak (rename_to = this)]
-            self,
-            move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak (rename_to = win)]
-                    this,
-                    async move {
-                        win.on_buttonrow_activated().await;
-                    }
-                ));
-            }
-        ));
         imp.primary_folder_color.connect_rgba_notify(clone!(
             #[weak (rename_to = this)]
             self,
@@ -381,16 +358,6 @@ impl PreferencesDialog {
                 self.get_selected_accent_color(init);
             }
         };
-    }
-
-    fn get_file_size(&self) {
-        let imp = self.imp();
-        let mut path = self.get_cache_path();
-        path.push("top_images");
-        let file_size = fs_extra::dir::get_size(path).unwrap_or(0);
-        let file_size_float: f64 = file_size as f64 / 1000000.0;
-        imp.cache_size
-            .set_subtitle(&format!("{:.2} MB", file_size_float));
     }
 
     fn get_selected_accent_color(&self, init: bool) {
@@ -489,43 +456,6 @@ impl PreferencesDialog {
             dialog.add_response(RESPONSE_OK, "ok");
             dialog.present(Some(self))
         });
-    }
-
-    async fn on_buttonrow_activated(&self) {
-        const RESPONSE_REMOVE: &str = "remove";
-        const RESPONSE_CANCEL: &str = "cancel";
-        let dialog = adw::AlertDialog::builder()
-        .heading(format!(
-            "<span foreground=\"red\"><b>Confirm Cache Removal</b></span>"
-        ))
-        .heading_use_markup(true)
-            .body(&gettext("Are you sure you want to clear the cache? \n Clearing the cache means you probably won't be able to regenerate a lot of images."))
-            .default_response(RESPONSE_CANCEL)
-            .build();
-        dialog.add_response(RESPONSE_CANCEL, &gettext("Cancel"));
-        dialog.set_response_appearance(RESPONSE_CANCEL, adw::ResponseAppearance::Default);
-        dialog.add_response(RESPONSE_REMOVE, &gettext("Remove"));
-        dialog.set_response_appearance(RESPONSE_REMOVE, adw::ResponseAppearance::Destructive);
-
-        match &*dialog.clone().choose_future(self).await {
-            RESPONSE_CANCEL => {
-                dialog.close();
-            }
-            RESPONSE_REMOVE => {
-                self.can_error(self.remove_cache_folder());
-                self.get_file_size();
-            }
-            _ => unreachable!(),
-        }
-    }
-
-    // This might turn out bad, but iconic does not have file persmission so it is probably fine :D
-    fn remove_cache_folder(&self) -> GenResult<()> {
-        let mut path = self.get_cache_path();
-        path.push("top_images");
-        fs::remove_dir_all(&path)?;
-        fs::create_dir(&path)?;
-        Ok(())
     }
 
     pub fn dnd_radio_state(&self) {

@@ -32,6 +32,7 @@ use gtk::gdk_pixbuf::Pixbuf;
 use gtk::{gdk, glib};
 use image::*;
 use log::*;
+use random_str::random::{CharBuilder, RandomStringBuilder};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::env;
@@ -561,7 +562,13 @@ impl IconicWindow {
     pub fn create_drag_file(&self) -> gio::File {
         let data_path = self.get_data_path();
         debug!("data path: {:?}", data_path);
-        let random_string = random_str::get_string(10, true, true, true, false);
+        let random_string = RandomStringBuilder::new()
+            .with_length(10)
+            .with_lowercase()
+            .with_numbers()
+            .with_uppercase()
+            .build()
+            .unwrap();
         let generated_file_name = format!("folder-{}.png", random_string);
         debug!("generated_file_name: {}", generated_file_name);
         let mut file_path = data_path.clone();

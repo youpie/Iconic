@@ -226,39 +226,16 @@ After regeneration, it is likely required to log out and in to see the changes")
             subtitle: _("Don't regenerate folder images with custom folder colors");
           }
         }
-
-        Adw.ActionRow cache_size {
-          title: _("Current Cache Usage*");
-          subtitle: "Unknown";
-          visible: bind enable_advanced.active;
-
-          styles [
-            "property",
-            "numeric",
-          ]
-        }
-
-        Adw.ButtonRow browse_cache {
-          title: _("Browse Cached Images");
-          start-icon-name: "folder-open-symbolic";
-          activated => $open_image_cache() swapped;
-          visible: bind enable_advanced.active;
-        }
-
-        Adw.ButtonRow reset_top_cache {
-          title: _("Remove Cached Images");
-          start-icon-name: "user-trash-symbolic";
-          visible: bind enable_advanced.active;
-
-          styles [
-            "destructive-action",
-          ]
-        }
       }
     }
 
     Adw.PreferencesGroup advanced_settings {
       title: _("Advanced");
+
+      Adw.SwitchRow enable_advanced {
+        title: _("Enable advanced settings");
+        subtitle: _("Items marked with an '*' after enabling this switch are advanced");
+      }
 
       Label {
         margin-top: 10;
@@ -270,11 +247,6 @@ After regeneration, it is likely required to log out and in to see the changes")
           "subtitle",
           "warning",
         ]
-      }
-
-      Adw.SwitchRow enable_advanced {
-        title: _("Enable advanced settings");
-        subtitle: _("Items marked with an '*' after enabling this switch are advanced");
       }
 
       Adw.SpinRow svg_image_size {
