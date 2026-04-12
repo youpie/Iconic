@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2025-09-30 19:22-0300\n"
+"POT-Creation-Date: 2026-04-12 17:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -510,111 +510,111 @@ msgstr ""
 msgid "Manually Select Folder Color"
 msgstr ""
 
-#: src/settings/settings.blp:34
+#: src/settings/settings.blp:34 src/window.blp:445
 msgid "Blue"
 msgstr ""
 
-#: src/settings/settings.blp:35
+#: src/settings/settings.blp:35 src/window.blp:451
 msgid "Teal"
 msgstr ""
 
-#: src/settings/settings.blp:36
+#: src/settings/settings.blp:36 src/window.blp:457
 msgid "Green"
 msgstr ""
 
-#: src/settings/settings.blp:37
+#: src/settings/settings.blp:37 src/window.blp:463
 msgid "Yellow"
 msgstr ""
 
-#: src/settings/settings.blp:38
+#: src/settings/settings.blp:38 src/window.blp:469
 msgid "Orange"
 msgstr ""
 
-#: src/settings/settings.blp:39
+#: src/settings/settings.blp:39 src/window.blp:475
 msgid "Red"
 msgstr ""
 
-#: src/settings/settings.blp:40
+#: src/settings/settings.blp:40 src/window.blp:481
 msgid "Pink"
 msgstr ""
 
-#: src/settings/settings.blp:41
+#: src/settings/settings.blp:41 src/window.blp:487
 msgid "Purple"
 msgstr ""
 
-#: src/settings/settings.blp:42
+#: src/settings/settings.blp:42 src/window.blp:493
 msgid "Slate"
 msgstr ""
 
-#: src/settings/settings.blp:43
+#: src/settings/settings.blp:43 src/window.blp:499
 msgid "Custom"
 msgstr ""
 
-#: src/settings/settings.blp:51
+#: src/settings/settings.blp:55
 msgid "Primary Color"
 msgstr ""
 
-#: src/settings/settings.blp:68
+#: src/settings/settings.blp:72
 msgid "Secondary Color"
 msgstr ""
 
-#: src/settings/settings.blp:85
+#: src/settings/settings.blp:89
 msgid "Use Custom Bottom Image"
 msgstr ""
 
-#: src/settings/settings.blp:91
+#: src/settings/settings.blp:95
 msgid "use custom bottom image"
 msgstr ""
 
-#: src/settings/settings.blp:97
+#: src/settings/settings.blp:101
 msgid "Current Image"
 msgstr ""
 
-#: src/settings/settings.blp:105
+#: src/settings/settings.blp:109
 msgid "Select Image"
 msgstr ""
 
-#: src/settings/settings.blp:113
+#: src/settings/settings.blp:117
 msgid "Drag and Drop"
 msgstr ""
 
-#: src/settings/settings.blp:117
-msgid "Allow Drop During Drag"
-msgstr ""
-
-#: src/settings/settings.blp:118
-msgid "Allow dropping the image back as a layer when dragging"
-msgstr ""
-
 #: src/settings/settings.blp:122
-msgid "Default Drag-and-Drop Action"
+msgid "Allow Drop During Drag*"
 msgstr ""
 
 #: src/settings/settings.blp:123
-msgid "Set a default layer when dropping an image"
+msgid "Allow dropping the image back as a layer when dragging"
+msgstr ""
+
+#: src/settings/settings.blp:128
+msgid "Default Drag-and-Drop Action*"
 msgstr ""
 
 #: src/settings/settings.blp:129
-msgid "Use a default drag and drop action"
+msgid "Set a default layer when dropping an image"
 msgstr ""
 
 #: src/settings/settings.blp:136
+msgid "Use a default drag and drop action"
+msgstr ""
+
+#: src/settings/settings.blp:143
 msgid "Always select top layer"
 msgstr ""
 
-#: src/settings/settings.blp:146
+#: src/settings/settings.blp:153
 msgid "Always select bottom layer"
 msgstr ""
 
-#: src/settings/settings.blp:159
+#: src/settings/settings.blp:166
 msgid "Regeneration"
 msgstr ""
 
-#: src/settings/settings.blp:163
+#: src/settings/settings.blp:170
 msgid "What is Regeneration?"
 msgstr ""
 
-#: src/settings/settings.blp:177
+#: src/settings/settings.blp:184
 msgid ""
 "Iconic is able to <i>Regenerate</i> compatible icons. Regeneration is the "
 "ability to change the color of a folder image after it has already been "
@@ -625,74 +625,72 @@ msgid ""
 "likely required to log out and in to see the changes"
 msgstr ""
 
-#: src/settings/settings.blp:185
-msgid "Regenerate Automatically"
+#: src/settings/settings.blp:192
+msgid "Enable Regeneration"
 msgstr ""
 
-#: src/settings/settings.blp:186
-msgid "Regenerate images on accent color change"
+#: src/settings/settings.blp:193
+msgid ""
+"Enable the automatic regenerating of folders when a new system accent color "
+"is selected"
 msgstr ""
 
-#: src/settings/settings.blp:190
+#: src/settings/settings.blp:197
+msgid "Automatic Genereration"
+msgstr ""
+
+#: src/settings/settings.blp:198
+msgid "Automatically regenerate the Icons when the system accent color changes"
+msgstr ""
+
+#: src/settings/settings.blp:204 src/settings/settings.blp:212
 msgid "Loose Regeneration"
 msgstr ""
 
-#: src/settings/settings.blp:191
+#: src/settings/settings.blp:205 src/settings/settings.blp:213
 msgid ""
 "Allow regeneration of folder images with \"Use system folder color\" disabled"
 msgstr ""
 
-#: src/settings/settings.blp:203
-msgid "Ignore Custom Folders"
+#: src/settings/settings.blp:225
+msgid "Ignore Custom Folders*"
 msgstr ""
 
-#: src/settings/settings.blp:204
+#: src/settings/settings.blp:226
 msgid "Don't regenerate folder images with custom folder colors"
 msgstr ""
 
-#: src/settings/settings.blp:209
-msgid "Store Top Images in Cache"
-msgstr ""
-
-#: src/settings/settings.blp:210
-msgid "Folder icons made while this option is disabled cannot be regenerated"
-msgstr ""
-
-#: src/settings/settings.blp:214
-msgid "Current Cache Usage"
-msgstr ""
-
-#: src/settings/settings.blp:224
-msgid "Browse Cached Images"
-msgstr ""
-
-#: src/settings/settings.blp:230
-msgid "Remove Cached Images"
-msgstr ""
-
-#: src/settings/settings.blp:241
+#: src/settings/settings.blp:233
 msgid "Advanced"
 msgstr ""
 
-#: src/settings/settings.blp:245
+#: src/settings/settings.blp:236
+msgid "Enable advanced settings"
+msgstr ""
+
+#: src/settings/settings.blp:237
+msgid "Items marked with an '*' after enabling this switch are advanced"
+msgstr ""
+
+#: src/settings/settings.blp:242
 msgid "You can see these options because you have enabled the Devel profile"
 msgstr ""
 
-#: src/settings/settings.blp:256
+#: src/settings/settings.blp:253
 msgid "Select size of SVG images"
 msgstr ""
 
-#: src/settings/settings.blp:257
+#: src/settings/settings.blp:254
 msgid ""
 "SVG images will by default be converted to a 1024x1024 image. You can adjust "
 "that here"
 msgstr ""
 
-#: src/settings/settings.blp:269
+#: src/settings/settings.blp:266
 msgid "Select size of Thumbnail images"
 msgstr ""
 
-#: src/settings/settings.blp:270
+#: src/settings/settings.blp:267
 msgid ""
 "Thumbnail images will by default be converted to a 255x255 image. You can "
 "adjust that here"
@@ -735,112 +733,116 @@ msgstr ""
 msgid "y-position of top image"
 msgstr ""
 
-#: src/window.blp:219
-msgid "Preview window of icon, drag from here to start drag operation"
-msgstr ""
-
-#: src/window.blp:242
+#: src/window.blp:239
 msgid "New top image is loading"
 msgstr ""
 
-#: src/window.blp:254
+#: src/window.blp:251
 msgid "x-position of top image"
 msgstr ""
 
-#: src/window.blp:284
+#: src/window.blp:281
 msgid "size of top image"
 msgstr ""
 
-#: src/window.blp:302
+#: src/window.blp:299
 msgid "Toggle Monochrome"
 msgstr ""
 
-#: src/window.blp:309
+#: src/window.blp:306
 msgid "Turn on monochrome for top image"
 msgstr ""
 
-#: src/window.blp:314
+#: src/window.blp:311
 msgid "Invert"
 msgstr ""
 
-#: src/window.blp:315
+#: src/window.blp:312
 msgid "Invert bright and dark in the monochrome image"
 msgstr ""
 
-#: src/window.blp:319
+#: src/window.blp:316
 msgid "Color"
 msgstr ""
 
-#: src/window.blp:321
+#: src/window.blp:318
 msgid "Choose the color of the monochrome image"
 msgstr ""
 
-#: src/window.blp:329
+#: src/window.blp:326
 msgid "Reset the color of the monochrome image to default"
 msgstr ""
 
-#: src/window.blp:355
+#: src/window.blp:352
 msgid "Threshold"
 msgstr ""
 
-#: src/window.blp:360
+#: src/window.blp:357
 msgid "Set the threshold of bright and dark for the monochrome image"
 msgstr ""
 
-#: src/window.blp:400
+#: src/window.blp:397
 msgid "Saving…"
 msgstr ""
 
-#: src/window.blp:419
+#: src/window.blp:415
 msgid "_Paste Top Icon from Clipboard"
 msgstr ""
 
-#: src/window.blp:424
+#: src/window.blp:416
 msgid "_Open Top Icon"
 msgstr ""
 
-#: src/window.blp:429
+#: src/window.blp:417
 msgid "_Open Bottom Icon"
 msgstr ""
 
-#: src/window.blp:436
+#: src/window.blp:421
 msgid "_Reset Bottom Icon"
 msgstr ""
 
-#: src/window.blp:441
+#: src/window.blp:422
 msgid "_Regenerate Icons"
 msgstr ""
 
-#: src/window.blp:448
+#: src/window.blp:426
 msgid "_Preferences"
 msgstr ""
 
-#: src/window.blp:453
+#: src/window.blp:427
 msgid "_Keyboard Shortcuts"
 msgstr ""
 
-#: src/window.blp:458
+#: src/window.blp:428
 msgid "_About Iconic"
 msgstr ""
 
-#: src/window.blp:467
+#: src/window.blp:434
 msgid "Change Top Image"
 msgstr ""
 
-#: src/window.blp:472
+#: src/window.blp:438
 msgid "Change Bottom Image"
 msgstr ""
 
-#: src/window.blp:479
+#: src/window.blp:439
 msgid "Temporarily Change Bottom Image"
 msgstr ""
 
-#: src/window.blp:484
+#: src/window.blp:442
+msgid "Temporarily Change Folder Color"
+msgstr ""
+
+#: src/window.blp:507
 msgid "Reset Temporary Bottom Image"
 msgstr ""
 
-#: src/window.blp:489
+#: src/window.blp:508
 msgid "Reset Image"
+msgstr ""
+
+#: src/windows/preview_window/window.blp:5
+msgid "Preview window of icon, drag from here to start drag operation"
 msgstr ""
 
 #: src/application.rs:184
@@ -857,7 +859,7 @@ msgstr ""
 msgid "translator-credits"
 msgstr ""
 
-#: src/objects/errors.rs:17 src/settings/settings.rs:446
+#: src/objects/errors.rs:17 src/settings/settings.rs:452
 msgid "Error"
 msgstr ""
 
@@ -866,30 +868,15 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: src/settings/settings.rs:463
-msgid ""
-"Are you sure you want to clear the cache? \n"
-" Clearing the cache means you probably won't be able to regenerate a lot of "
-"images."
-msgstr ""
-
-#: src/settings/settings.rs:466 src/windows/alert_dialogs.rs:82
-msgid "Cancel"
-msgstr ""
-
-#: src/settings/settings.rs:468
-msgid "Remove"
-msgstr ""
-
-#: src/window.rs:243
+#: src/window.rs:244
 msgid "Image reset"
 msgstr ""
 
-#: src/window.rs:787
-msgid "The set bottom icon could not be found, press ok to select a new one"
+#: src/window.rs:596
+msgid "The set bottom icon could not be found, resetting"
 msgstr ""
 
-#: src/window.rs:910
+#: src/window.rs:696
 msgid "Open Document"
 msgstr ""
 
@@ -932,6 +919,10 @@ msgstr ""
 msgid ""
 "Open image contain unsaved changes. Changes which are not saved will be "
 "permanently lost"
+msgstr ""
+
+#: src/windows/alert_dialogs.rs:82
+msgid "Cancel"
 msgstr ""
 
 #: src/windows/alert_dialogs.rs:83
@@ -986,39 +977,39 @@ msgstr ""
 msgid "Wait"
 msgstr ""
 
-#: src/windows/file_handling.rs:167 src/windows/file_handling.rs:172
+#: src/windows/file_handling.rs:159 src/windows/file_handling.rs:164
 msgid "No texture found"
 msgstr ""
 
-#: src/windows/file_handling.rs:282
+#: src/windows/file_handling.rs:273
 msgid "Unsupported file type"
 msgstr ""
 
-#: src/windows/file_handling.rs:322
+#: src/windows/file_handling.rs:312
 msgid "Nothing to save"
 msgstr ""
 
-#: src/windows/file_handling.rs:347
+#: src/windows/file_handling.rs:337
 msgid "Open Folder"
 msgstr ""
 
-#: src/windows/file_handling.rs:349
+#: src/windows/file_handling.rs:339
 msgid "File Saved"
 msgstr ""
 
-#: src/windows/file_handling.rs:363
+#: src/windows/file_handling.rs:353
 msgid "File not saved"
 msgstr ""
 
-#: src/windows/file_handling.rs:466
+#: src/windows/file_handling.rs:465
 msgid "Icon reset"
 msgstr ""
 
-#: src/windows/file_handling.rs:479 src/windows/file_handling.rs:498
+#: src/windows/file_handling.rs:478 src/windows/file_handling.rs:496
 msgid "Nothing selected"
 msgstr ""
 
-#: src/windows/file_handling.rs:540
+#: src/windows/file_handling.rs:538
 msgid "No file or path found, this is probably not your fault."
 msgstr ""
 

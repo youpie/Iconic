@@ -34,6 +34,19 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2026.4.1" date="2026-04-12" type="stable">
+      <description>
+        <p>A new update for Iconic, this one is not that special but features some nice improvements. New features:</p>
+        <ul>
+          <li>Added option to change the folder color using the context window menu in the main window</li>
+          <li>Improved Drag and drop speed</li>
+          <li>Added support for opening main screen context window using touch screen</li>
+          <li>Simplified settings</li>
+          <li>Added advanced settings menu</li>
+        </ul>
+        <p>Do not forget that if you encounter any issues, please create an issue!</p>
+      </description>
+    </release>
     <release version="2025.9.1" date="2025-09-30" type="stable">
       <description>
         <p>Free Palestine🇵🇸. After a long wait, a new Iconic release is finally here! Featuring fun new features and fixes!</p>

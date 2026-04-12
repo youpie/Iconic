@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Iconic\n"
 "Report-Msgid-Bugs-To: https://github.com/youpie/Folder_icon_creator\n"
-"POT-Creation-Date: 2025-10-01 00:01+0200\n"
-"PO-Revision-Date: 2025-10-02 12:18+0200\n"
+"POT-Creation-Date: 2026-04-12 17:21+0200\n"
+"PO-Revision-Date: 2026-04-12 17:34+0200\n"
 "Last-Translator: Youpie <youplamb@hotmail.nl>\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.7\n"
+"X-Generator: Poedit 3.9\n"
 
 #: data/nl.emphisia.icon.desktop.in.in:2
 #: data/nl.emphisia.icon.metainfo.xml.in.in:5
@@ -554,112 +554,112 @@ msgstr "Gebruik Systeem Kleur"
 msgid "Manually Select Folder Color"
 msgstr "Selecteer Handmatig een Kleur"
 
-#: src/settings/settings.blp:34
+#: src/settings/settings.blp:34 src/window.blp:445
 msgid "Blue"
 msgstr "Blauw"
 
-#: src/settings/settings.blp:35
+#: src/settings/settings.blp:35 src/window.blp:451
 msgid "Teal"
 msgstr "Groenblauw"
 
-#: src/settings/settings.blp:36
+#: src/settings/settings.blp:36 src/window.blp:457
 msgid "Green"
 msgstr "Groen"
 
-#: src/settings/settings.blp:37
+#: src/settings/settings.blp:37 src/window.blp:463
 msgid "Yellow"
 msgstr "Geel"
 
-#: src/settings/settings.blp:38
+#: src/settings/settings.blp:38 src/window.blp:469
 msgid "Orange"
 msgstr "Oranje"
 
-#: src/settings/settings.blp:39
+#: src/settings/settings.blp:39 src/window.blp:475
 msgid "Red"
 msgstr "Rood"
 
-#: src/settings/settings.blp:40
+#: src/settings/settings.blp:40 src/window.blp:481
 msgid "Pink"
 msgstr "Roze"
 
-#: src/settings/settings.blp:41
+#: src/settings/settings.blp:41 src/window.blp:487
 msgid "Purple"
 msgstr "Paars"
 
-#: src/settings/settings.blp:42
+#: src/settings/settings.blp:42 src/window.blp:493
 msgid "Slate"
 msgstr "Grijs"
 
-#: src/settings/settings.blp:43
+#: src/settings/settings.blp:43 src/window.blp:499
 msgid "Custom"
 msgstr "Aangepast"
 
-#: src/settings/settings.blp:51
+#: src/settings/settings.blp:55
 msgid "Primary Color"
 msgstr "Primaire kleur"
 
-#: src/settings/settings.blp:68
+#: src/settings/settings.blp:72
 msgid "Secondary Color"
 msgstr "Secundaire kleur"
 
-#: src/settings/settings.blp:85
+#: src/settings/settings.blp:89
 msgid "Use Custom Bottom Image"
 msgstr "Gebruik Eigen Onderste Afbeelding"
 
-#: src/settings/settings.blp:91
+#: src/settings/settings.blp:95
 msgid "use custom bottom image"
 msgstr "gebruik eigen onderste afbeelding"
 
-#: src/settings/settings.blp:97
+#: src/settings/settings.blp:101
 msgid "Current Image"
 msgstr "Huidige Afbeelding"
 
-#: src/settings/settings.blp:105
+#: src/settings/settings.blp:109
 msgid "Select Image"
 msgstr "Selecteer Afbeelding"
 
-#: src/settings/settings.blp:113
+#: src/settings/settings.blp:117
 msgid "Drag and Drop"
 msgstr "Drag-and-drop"
 
-#: src/settings/settings.blp:117
-msgid "Allow Drop During Drag"
-msgstr "Sta \"Drop\" tijdens \"Drag\" toe"
+#: src/settings/settings.blp:122
+msgid "Allow Drop During Drag*"
+msgstr "Sta \"Drop\" tijdens \"Drag\" toe*"
 
-#: src/settings/settings.blp:118
+#: src/settings/settings.blp:123
 msgid "Allow dropping the image back as a layer when dragging"
 msgstr ""
 "Maak het mogelijk om de huidige afbeelding terug in Iconic te slepen als laag"
 
-#: src/settings/settings.blp:122
-msgid "Default Drag-and-Drop Action"
-msgstr "Standaard \"Drag and Drop\" Actie"
+#: src/settings/settings.blp:128
+msgid "Default Drag-and-Drop Action*"
+msgstr "Standaard \"Drag and Drop\" Actie*"
 
-#: src/settings/settings.blp:123
+#: src/settings/settings.blp:129
 msgid "Set a default layer when dropping an image"
 msgstr "Stel een standaard laag in bij het inslepen van afbeeldingen"
 
-#: src/settings/settings.blp:129
+#: src/settings/settings.blp:136
 msgid "Use a default drag and drop action"
 msgstr "Gebruik een standaard drag-and-drop actie"
 
-#: src/settings/settings.blp:136
+#: src/settings/settings.blp:143
 msgid "Always select top layer"
 msgstr "Selecteer altijd de bovenste laag"
 
-#: src/settings/settings.blp:146
+#: src/settings/settings.blp:153
 msgid "Always select bottom layer"
 msgstr "Selecteer altijd de onderste laag"
 
-#: src/settings/settings.blp:159
+#: src/settings/settings.blp:166
 msgid "Regeneration"
 msgstr "Regeneratie"
 
-#: src/settings/settings.blp:163
+#: src/settings/settings.blp:170
 msgid "What is Regeneration?"
 msgstr "Het is Regeneratie?"
 
-#: src/settings/settings.blp:177
+#: src/settings/settings.blp:184
 msgid ""
 "Iconic is able to <i>Regenerate</i> compatible icons. Regeneration is the "
 "ability to change the color of a folder image after it has already been "
@@ -677,70 +677,69 @@ msgstr ""
 "folders op je systeem aanpast aan je huidige accent kleur. Na regeneratie "
 "moet je waarschijnlijk in- en uitloggen om de wijzigingen te zien"
 
-#: src/settings/settings.blp:185
-msgid "Regenerate Automatically"
+#: src/settings/settings.blp:192
+msgid "Enable Regeneration"
+msgstr "Schakel Regeneratie In"
+
+#: src/settings/settings.blp:193
+msgid ""
+"Enable the automatic regenerating of folders when a new system accent color "
+"is selected"
+msgstr ""
+"Schakel automatische regeneratie van folders wanneer je systeem accentkleur "
+"veranderd in"
+
+#: src/settings/settings.blp:197
+msgid "Automatic Genereration"
 msgstr "Automatische Regeneratie"
 
-#: src/settings/settings.blp:186
-msgid "Regenerate images on accent color change"
+#: src/settings/settings.blp:198
+msgid "Automatically regenerate the Icons when the system accent color changes"
 msgstr ""
-"Regenereer afbeeldingen als je de accent kleur veranderd van je systeem"
+"Als ingeschakeld zullen folders automatisch geregenereerd worden als de "
+"systeem accent kleur veranderd"
 
-#: src/settings/settings.blp:190
+#: src/settings/settings.blp:204 src/settings/settings.blp:212
 msgid "Loose Regeneration"
 msgstr "Vrije Regeneratie"
 
-#: src/settings/settings.blp:191
+#: src/settings/settings.blp:205 src/settings/settings.blp:213
 msgid ""
 "Allow regeneration of folder images with \"Use system folder color\" disabled"
 msgstr ""
 "Sta regeneratie van afbeeldingen gemaakt met \"Gebruik Systeem Kleur\" "
 "uitgeschakeld toe"
 
-#: src/settings/settings.blp:203
-msgid "Ignore Custom Folders"
-msgstr "Negeer Folders met Aangepaste Kleuren"
+#: src/settings/settings.blp:225
+msgid "Ignore Custom Folders*"
+msgstr "Negeer Folders met Aangepaste Kleuren*"
 
-#: src/settings/settings.blp:204
+#: src/settings/settings.blp:226
 msgid "Don't regenerate folder images with custom folder colors"
 msgstr "Regenereer geen folders met handmatig ingestelde kleuren"
 
-#: src/settings/settings.blp:209
-msgid "Store Top Images in Cache"
-msgstr "Sla Afbeeldingen op in Cache"
-
-#: src/settings/settings.blp:210
-msgid "Folder icons made while this option is disabled cannot be regenerated"
-msgstr ""
-"Folder afbeeldingen gemaakt terwijl deze optie is uitgeschakeld kunnen niet "
-"geregenereerd worden"
-
-#: src/settings/settings.blp:214
-msgid "Current Cache Usage"
-msgstr "Huidig Cache Gebruikt"
-
-#: src/settings/settings.blp:224
-msgid "Browse Cached Images"
-msgstr "Blader door Gecachte Afbeeldingen"
-
-#: src/settings/settings.blp:230
-msgid "Remove Cached Images"
-msgstr "Verwijder Gecachte Afbeeldingen"
-
-#: src/settings/settings.blp:241
+#: src/settings/settings.blp:233
 msgid "Advanced"
 msgstr "Geadvanceerd"
 
-#: src/settings/settings.blp:245
+#: src/settings/settings.blp:236
+msgid "Enable advanced settings"
+msgstr "Toon geavanceerde instellingen"
+
+#: src/settings/settings.blp:237
+msgid "Items marked with an '*' after enabling this switch are advanced"
+msgstr "Opties gemarkeerd met '*' zijn geadvanceerd"
+
+#: src/settings/settings.blp:242
 msgid "You can see these options because you have enabled the Devel profile"
 msgstr ""
 "Je kan deze opties zien omdat je het \"Devel\" profiel hebt geactiveerd"
 
-#: src/settings/settings.blp:256
+#: src/settings/settings.blp:253
 msgid "Select size of SVG images"
 msgstr "Selecteer grootte van SVG afbeeldingen"
 
-#: src/settings/settings.blp:257
+#: src/settings/settings.blp:254
 msgid ""
 "SVG images will by default be converted to a 1024x1024 image. You can adjust "
 "that here"
@@ -748,11 +747,11 @@ msgstr ""
 "SVG afbeeldingen worden standaard omgezet naar een 1024x1024 afbeelding. Dat "
 "kan je hier aanpassen"
 
-#: src/settings/settings.blp:269
+#: src/settings/settings.blp:266
 msgid "Select size of Thumbnail images"
 msgstr "Selecteer grootte van Thumbnail afbeeldingen"
 
-#: src/settings/settings.blp:270
+#: src/settings/settings.blp:267
 msgid ""
 "Thumbnail images will by default be converted to a 255x255 image. You can "
 "adjust that here"
@@ -797,125 +796,137 @@ msgstr "Opslaan"
 msgid "y-position of top image"
 msgstr "Y-positie van bovenste afbeelding"
 
-#: src/window.blp:219
+#: src/window.blp:239
+msgid "New top image is loading"
+msgstr "Nieuwe bovenste afbeelding wordt geladen"
+
+#: src/window.blp:251
+msgid "x-position of top image"
+msgstr "X-positie van bovenste afbeelding"
+
+#: src/window.blp:281
+msgid "size of top image"
+msgstr "Formaat van bovenste afbeelding"
+
+#: src/window.blp:299
+msgid "Toggle Monochrome"
+msgstr "Monochroom inschakelen"
+
+#: src/window.blp:306
+msgid "Turn on monochrome for top image"
+msgstr "Zet monochroom modus aan voor bovenste afbeelding"
+
+#: src/window.blp:311
+msgid "Invert"
+msgstr "Omkeren"
+
+#: src/window.blp:312
+msgid "Invert bright and dark in the monochrome image"
+msgstr "Keer donker en licht om voor de monochroom afbeelding"
+
+#: src/window.blp:316
+msgid "Color"
+msgstr "Kleur"
+
+#: src/window.blp:318
+msgid "Choose the color of the monochrome image"
+msgstr "Kies de kleur van de monochroom afbeelding"
+
+#: src/window.blp:326
+msgid "Reset the color of the monochrome image to default"
+msgstr "Reset de kleur van de monochroom afbeelding"
+
+#: src/window.blp:352
+msgid "Threshold"
+msgstr "Drempel"
+
+#: src/window.blp:357
+msgid "Set the threshold of bright and dark for the monochrome image"
+msgstr "Zet de drempelwaarde voor licht en donker van de monochroom afbeelding"
+
+#: src/window.blp:397
+msgid "Saving…"
+msgstr "Opslaan…"
+
+#: src/window.blp:415
+msgid "_Paste Top Icon from Clipboard"
+msgstr "_Plak Bovenste Icoon uit Klemboord"
+
+#: src/window.blp:416
+msgid "_Open Top Icon"
+msgstr "_Open bovenste Icoon"
+
+#: src/window.blp:417
+msgid "_Open Bottom Icon"
+msgstr "_Open onderste Icoon"
+
+#: src/window.blp:421
+msgid "_Reset Bottom Icon"
+msgstr "_Reset onderste Icoon"
+
+#: src/window.blp:422
+msgid "_Regenerate Icons"
+msgstr "_Regenereer Iconen"
+
+#: src/window.blp:426
+msgid "_Preferences"
+msgstr "_Instellingen"
+
+#: src/window.blp:427
+msgid "_Keyboard Shortcuts"
+msgstr "_Sneltoetsen"
+
+#: src/window.blp:428
+msgid "_About Iconic"
+msgstr "_Over Iconic"
+
+#: src/window.blp:434
+msgid "Change Top Image"
+msgstr "Verander bovenste afbeelding"
+
+#: src/window.blp:438
+msgid "Change Bottom Image"
+msgstr "Verander onderste afbeelding"
+
+#: src/window.blp:439
+msgid "Temporarily Change Bottom Image"
+msgstr "Open tijdelijke onderste afbeelding"
+
+#: src/window.blp:442
+msgid "Temporarily Change Folder Color"
+msgstr "Folder Kleur Tijdelijk Aanpassen"
+
+#: src/window.blp:507
+msgid "Reset Temporary Bottom Image"
+msgstr "Reset Tijdelijke Onderste Afbeelding"
+
+#: src/window.blp:508
+msgid "Reset Image"
+msgstr "Reset Afbeelding"
+
+#: src/windows/preview_window/window.blp:5
 msgid "Preview window of icon, drag from here to start drag operation"
 msgstr ""
 "Voorbeeld venster van het icoon, sleep van hier om een sleep actie te starten"
 
-#: src/window.blp:242
-msgid "New top image is loading"
-msgstr "Nieuwe bovenste afbeelding wordt geladen"
-
-#: src/window.blp:254
-msgid "x-position of top image"
-msgstr "X-positie van bovenste afbeelding"
-
-#: src/window.blp:284
-msgid "size of top image"
-msgstr "Formaat van bovenste afbeelding"
-
-#: src/window.blp:302
-msgid "Toggle Monochrome"
-msgstr "Monochroom inschakelen"
-
-#: src/window.blp:309
-msgid "Turn on monochrome for top image"
-msgstr "Zet monochroom modus aan voor bovenste afbeelding"
-
-#: src/window.blp:314
-msgid "Invert"
-msgstr "Omkeren"
-
-#: src/window.blp:315
-msgid "Invert bright and dark in the monochrome image"
-msgstr "Keer donker en licht om voor de monochroom afbeelding"
-
-#: src/window.blp:319
-msgid "Color"
-msgstr "Kleur"
-
-#: src/window.blp:321
-msgid "Choose the color of the monochrome image"
-msgstr "Kies de kleur van de monochroom afbeelding"
-
-#: src/window.blp:329
-msgid "Reset the color of the monochrome image to default"
-msgstr "Reset de kleur van de monochroom afbeelding"
-
-#: src/window.blp:355
-msgid "Threshold"
-msgstr "Drempel"
-
-#: src/window.blp:360
-msgid "Set the threshold of bright and dark for the monochrome image"
-msgstr "Zet de drempelwaarde voor licht en donker van de monochroom afbeelding"
-
-#: src/window.blp:400
-msgid "Saving…"
-msgstr "Opslaan…"
-
-#: src/window.blp:419
-msgid "_Paste Top Icon from Clipboard"
-msgstr "_Plak Bovenste Icoon uit Klemboord"
-
-#: src/window.blp:424
-msgid "_Open Top Icon"
-msgstr "_Open bovenste Icoon"
-
-#: src/window.blp:429
-msgid "_Open Bottom Icon"
-msgstr "_Open onderste Icoon"
-
-#: src/window.blp:436
-msgid "_Reset Bottom Icon"
-msgstr "_Reset onderste Icoon"
-
-#: src/window.blp:441
-msgid "_Regenerate Icons"
-msgstr "_Regenereer Iconen"
-
-#: src/window.blp:448
-msgid "_Preferences"
-msgstr "_Instellingen"
-
-#: src/window.blp:453
-msgid "_Keyboard Shortcuts"
-msgstr "_Sneltoetsen"
-
-#: src/window.blp:458
-msgid "_About Iconic"
-msgstr "_Over Iconic"
-
-#: src/window.blp:467
-msgid "Change Top Image"
-msgstr "Verander bovenste afbeelding"
-
-#: src/window.blp:472
-msgid "Change Bottom Image"
-msgstr "Verander onderste afbeelding"
-
-#: src/window.blp:479
-msgid "Temporarily Change Bottom Image"
-msgstr "Open tijdelijke onderste afbeelding"
-
-#: src/window.blp:484
-msgid "Reset Temporary Bottom Image"
-msgstr "Reset Tijdelijke Onderste Afbeelding"
-
-#: src/window.blp:489
-msgid "Reset Image"
-msgstr "Reset Afbeelding"
-
 #: src/application.rs:184
-msgid "Iconic allows you to add images onto a folder."
-msgstr "Iconic stelt je in staat afbeeldingen te te voegen aan folders."
+msgid ""
+"Iconic allows you to add images onto a folder.\n"
+"You can drag these created images straight into the properties window of the "
+"file manager!\n"
+"\n"
+"If you like this app, feel free to donate, I would really appreciate it!"
+msgstr ""
+"Iconic maakt het mogelijk om afbeeldingen te plakken op folders.\n"
+"Je kan de gegenereerde folders direct in het \"eigenschapen\" venster van "
+"een folder in je bestandsverkenner"
 
 #. Translators: This should not be translated, Please enter your credits here instead (format: "Name https://example.com" or "Name <email@example.com>", no quotes)
 #: src/application.rs:190
 msgid "translator-credits"
 msgstr "Youpie https://github.com/youpie"
 
-#: src/objects/errors.rs:17 src/settings/settings.rs:446
+#: src/objects/errors.rs:17 src/settings/settings.rs:452
 msgid "Error"
 msgstr "Fout"
 
@@ -924,37 +935,18 @@ msgstr "Fout"
 msgid "OK"
 msgstr "OK"
 
-#: src/settings/settings.rs:397 src/window.rs:910
-msgid "Open Document"
-msgstr "Open Document"
-
-#: src/settings/settings.rs:463
-msgid ""
-"Are you sure you want to clear the cache? \n"
-" Clearing the cache means you probably won't be able to regenerate a lot of "
-"images."
-msgstr ""
-"Weet je zeker dat je de cache wilt leegmaken?\n"
-"Het leegmaken van de cache betekent waarschijnlijk veel afbeeldingen niet "
-"opnieuw kan genereren."
-
-#: src/settings/settings.rs:466 src/windows/alert_dialogs.rs:82
-msgid "Cancel"
-msgstr "Annuleer"
-
-#: src/settings/settings.rs:468
-msgid "Remove"
-msgstr "Verwijder"
-
-#: src/window.rs:243
+#: src/window.rs:244
 msgid "Image reset"
 msgstr "Afbeelding resetten"
 
-#: src/window.rs:787
-msgid "The set bottom icon could not be found, press ok to select a new one"
+#: src/window.rs:596
+msgid "The set bottom icon could not be found, resetting"
 msgstr ""
-"De huidig ingestelde folder afbeelding kan niet gevonden worden, druk op OK "
-"om een nieuwe te selecteren"
+"De huidig ingestelde folder afbeelding kan niet gevonden worden, resetten"
+
+#: src/window.rs:696
+msgid "Open Document"
+msgstr "Open Document"
 
 #: src/windows/alert_dialogs.rs:28
 msgid "Drag and drop"
@@ -1001,6 +993,10 @@ msgid ""
 msgstr ""
 "Open afbeelding bevat niet-opgeslagen veranderingen. Niet opgeslagen "
 "veranderingen gaan permanent verloren"
+
+#: src/windows/alert_dialogs.rs:82
+msgid "Cancel"
+msgstr "Annuleer"
 
 #: src/windows/alert_dialogs.rs:83
 msgid "Discard"
@@ -1061,39 +1057,39 @@ msgstr "Toch afsluiten"
 msgid "Wait"
 msgstr "Wachten"
 
-#: src/windows/file_handling.rs:167 src/windows/file_handling.rs:172
+#: src/windows/file_handling.rs:159 src/windows/file_handling.rs:164
 msgid "No texture found"
 msgstr "Geen texture gevonden"
 
-#: src/windows/file_handling.rs:282
+#: src/windows/file_handling.rs:273
 msgid "Unsupported file type"
 msgstr "Niet ondersteund bestandstype"
 
-#: src/windows/file_handling.rs:322
+#: src/windows/file_handling.rs:312
 msgid "Nothing to save"
 msgstr "Niks op te slaan"
 
-#: src/windows/file_handling.rs:347
+#: src/windows/file_handling.rs:337
 msgid "Open Folder"
 msgstr "Open Folder"
 
-#: src/windows/file_handling.rs:349
+#: src/windows/file_handling.rs:339
 msgid "File Saved"
 msgstr "Bestand Opgeslagen"
 
-#: src/windows/file_handling.rs:363
+#: src/windows/file_handling.rs:353
 msgid "File not saved"
 msgstr "Bestand niet opgeslagen"
 
-#: src/windows/file_handling.rs:466
+#: src/windows/file_handling.rs:465
 msgid "Icon reset"
 msgstr "Icoon resetten"
 
-#: src/windows/file_handling.rs:479 src/windows/file_handling.rs:498
+#: src/windows/file_handling.rs:478 src/windows/file_handling.rs:496
 msgid "Nothing selected"
 msgstr "Niks geselecteerd"
 
-#: src/windows/file_handling.rs:540
+#: src/windows/file_handling.rs:538
 msgid "No file or path found, this is probably not your fault."
 msgstr "Geen bestand of pad gevonden, dit is waarschijnlijk niet jouw schuld."
 
@@ -1123,6 +1119,46 @@ msgstr[1] ""
 msgid "Regeneration sucessful, restart nautilus"
 msgstr "Regeneratie gelukt, herstart Nautilus"
 
+#~ msgid "Regenerate Automatically"
+#~ msgstr "Automatische Regeneratie"
+
+#~ msgid "Regenerate images on accent color change"
+#~ msgstr ""
+#~ "Regenereer afbeeldingen als je de accent kleur veranderd van je systeem"
+
+#~ msgid "Store Top Images in Cache"
+#~ msgstr "Sla Afbeeldingen op in Cache"
+
+#~ msgid ""
+#~ "Folder icons made while this option is disabled cannot be regenerated"
+#~ msgstr ""
+#~ "Folder afbeeldingen gemaakt terwijl deze optie is uitgeschakeld kunnen "
+#~ "niet geregenereerd worden"
+
+#~ msgid "Current Cache Usage"
+#~ msgstr "Huidig Cache Gebruikt"
+
+#~ msgid "Browse Cached Images"
+#~ msgstr "Blader door Gecachte Afbeeldingen"
+
+#~ msgid "Remove Cached Images"
+#~ msgstr "Verwijder Gecachte Afbeeldingen"
+
+#~ msgid "Iconic allows you to add images onto a folder."
+#~ msgstr "Iconic stelt je in staat afbeeldingen te te voegen aan folders."
+
+#~ msgid ""
+#~ "Are you sure you want to clear the cache? \n"
+#~ " Clearing the cache means you probably won't be able to regenerate a lot "
+#~ "of images."
+#~ msgstr ""
+#~ "Weet je zeker dat je de cache wilt leegmaken?\n"
+#~ "Het leegmaken van de cache betekent waarschijnlijk veel afbeeldingen niet "
+#~ "opnieuw kan genereren."
+
+#~ msgid "Remove"
+#~ msgstr "Verwijder"
+
 #~ msgid "Use a built-in bottom icon"
 #~ msgstr "Gebruik ingebouwd onderste icoon"
 
@@ -1149,13 +1185,6 @@ msgstr "Regeneratie gelukt, herstart Nautilus"
 #~ msgstr ""
 #~ "Standaard, na het slepen van een bestand, moet je de laag selecteren waar "
 #~ "je het bestand wil plakken. Die pop-up kan je hier uitschakelen"
-
-#~ msgid ""
-#~ "If enabled, folders will be automatically regenerated on system accent "
-#~ "color change"
-#~ msgstr ""
-#~ "Als ingeschakeld zullen folders automatisch geregenereerd worden als de "
-#~ "systeem accent kleur veranderd"
 
 #~ msgid "If enabled, folders with custom colors will not be regenerated"
 #~ msgstr ""
