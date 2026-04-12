@@ -121,7 +121,6 @@ mod imp {
         pub image_saved: Cell<bool>,
         pub last_drag_n_drop_generated_name: RefCell<Option<gio::File>>,
         pub generated_image: RefCell<Option<DynamicImage>>,
-        pub temp_bottom_image_loaded: Cell<bool>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
         pub count: Cell<i32>,
@@ -170,7 +169,6 @@ mod imp {
                 signals: RefCell::new(vec![]),
                 settings: gio::Settings::new(APP_ID),
                 count: Cell::new(0),
-                temp_bottom_image_loaded: Cell::new(false),
                 default_color: RefCell::new(HashMap::new()),
                 last_drag_n_drop_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(Cell::new(0)),
@@ -411,11 +409,22 @@ mod imp {
                 &"".to_variant(),
             );
 
-            temp_bottom_folder.connect_change_state(|action, para| {
-                let value = para.unwrap().str().unwrap();
-                debug!("{value}");
-                action.set_state(para.unwrap());
-            });
+            temp_bottom_folder.connect_change_state(clone!(
+                #[weak (rename_to=win)]
+                obj,
+                move |action, para| {
+                    let imp = win.imp();
+                    let value = para.unwrap().str().unwrap().to_owned();
+                    debug!("{value}");
+                    if value != "" {
+                        let mut properties = imp.file_properties.try_borrow().unwrap().clone();
+                        properties.bottom_image_type = BottomImageType::Folder(value);
+                        imp.file_properties.replace(properties);
+                        win.load_bottom_image();
+                    }
+                    action.set_state(para.unwrap());
+                }
+            ));
             self.obj().add_action(&temp_bottom_folder);
         }
 
@@ -524,7 +533,6 @@ impl IconicWindow {
             64,
             imageops::FilterType::Nearest,
         ));
-        debug!("temp image loaded {}", imp.temp_bottom_image_loaded.get());
         source.set_icon(Some(&icon), 0 as i32, 0 as i32);
         let gio_file = self.create_drag_file();
         imp.last_drag_n_drop_generated_name

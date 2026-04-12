@@ -1,8 +1,12 @@
 use crate::IconicWindow;
 use crate::glib;
+use crate::objects::properties::BottomImageType;
 use adw::subclass::prelude::*;
 use gio::glib::object::Cast;
 use gio::glib::object::ObjectExt;
+use gio::glib::variant::ToVariant;
+use gio::prelude::ActionExt;
+use gio::prelude::ActionMapExt;
 use gtk::GestureClick;
 use gtk::GestureLongPress;
 use gtk::gdk;
@@ -40,7 +44,21 @@ impl IconicWindow {
                 debug!("Neither, {}", gesture.type_().name());
                 (0.0, 0.0)
             };
-            debug!("X: {x}, Y:{y}");
+
+            let value = match imp.file_properties.borrow().bottom_image_type.clone() {
+                BottomImageType::FolderSystem => self.get_accent_color().to_variant(),
+                BottomImageType::Folder(color) => color.to_variant(),
+                _ => "".to_variant(),
+            };
+            if let Some(action) = self.lookup_action("temp_folder_color")
+                && Some(value.clone()) != action.state()
+            {
+                debug!("Changed value to {value:?}");
+                action.change_state(&value);
+            } else {
+                debug!("Action not found");
+            }
+
             let position = gdk::Rectangle::new(x as i32, y as i32, 0, 0);
             imp.popover_menu.set_pointing_to(Some(&position));
             imp.popover_menu.popup();

@@ -19,50 +19,42 @@ impl IconicWindow {
     // TODO This function is quite confusingly written
     pub fn load_folder_path_from_settings(&self) {
         let imp = self.imp();
-        imp.temp_bottom_image_loaded.replace(false);
         let mut file_properties = imp.file_properties.try_borrow().unwrap().clone();
 
         file_properties.bottom_image_type = BottomImageType::get_base(&self);
         imp.file_properties.replace(file_properties);
-
         if !imp.reset_color.is_visible() {
             self.reset_colors();
         }
 
+        self.load_bottom_image();
+    }
+
+    pub fn load_bottom_image(&self) {
         glib::spawn_future_local(glib::clone!(
             #[weak(rename_to = win)]
             self,
             async move {
-                win.load_bottom_image().await;
+                let imp = win.imp();
+                let bottom_image_type = imp
+                    .file_properties
+                    .try_borrow()
+                    .unwrap()
+                    .bottom_image_type
+                    .clone();
+
+                let icon_path = match bottom_image_type {
+                    BottomImageType::Folder(color) => win.load_built_in_bottom_icon(&color),
+                    BottomImageType::FolderCustom(fg, bg) => {
+                        win.create_custom_folder_color(&fg, &bg, false).await
+                    }
+                    BottomImageType::Custom(path) => path,
+                    _ => win.load_built_in_bottom_icon("None"),
+                };
+
+                win.load_folder_icon(icon_path).await;
             }
         ));
-    }
-
-    async fn load_bottom_image(&self) {
-        let imp = self.imp();
-        let bottom_image_type = imp
-            .file_properties
-            .try_borrow()
-            .unwrap()
-            .bottom_image_type
-            .clone();
-        let bottom_image_temp =
-            if let BottomImageType::Temporary(bottom_image_temp) = bottom_image_type {
-                *bottom_image_temp
-            } else {
-                bottom_image_type
-            };
-
-        let icon_path = match bottom_image_temp {
-            BottomImageType::Folder(color) => self.load_built_in_bottom_icon(&color),
-            BottomImageType::FolderCustom(fg, bg) => {
-                self.create_custom_folder_color(&fg, &bg, false).await
-            }
-            BottomImageType::Custom(path) => path,
-            _ => self.load_built_in_bottom_icon("None"),
-        };
-
-        self.load_folder_icon(icon_path).await;
     }
 
     // Replace the
@@ -145,7 +137,6 @@ impl IconicWindow {
                             imp.top_image_file.lock().unwrap().replace(iconic_file);
                         }
                         _ => {
-                            imp.temp_bottom_image_loaded.replace(true);
                             imp.bottom_image_file.lock().unwrap().replace(
                                 gio::spawn_blocking(move || {
                                     File::from_image(
@@ -262,7 +253,6 @@ impl IconicWindow {
                         .await;
                     }
                     Some(false) => {
-                        imp.temp_bottom_image_loaded.replace(true);
                         imp.stack.set_visible_child_name("stack_main_page");
                         self.new_iconic_file_creation(
                             Some(file),
@@ -305,7 +295,6 @@ impl IconicWindow {
                 Some(false) => {
                     // This value must be true if a temporary bottom image is loaded
                     // That is dumb
-                    imp.temp_bottom_image_loaded.replace(true);
                     imp.bottom_image_file.lock().unwrap().replace(file);
                     self.check_icon_update();
                 }
@@ -489,7 +478,6 @@ impl IconicWindow {
         let size: u32 = imp.settings.get("svg-render-size");
         match self.open_file_chooser().await {
             Some(x) => {
-                imp.temp_bottom_image_loaded.replace(true);
                 imp.stack.set_visible_child_name("stack_main_page");
                 self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
                     .await;

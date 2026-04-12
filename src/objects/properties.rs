@@ -252,7 +252,6 @@ pub enum BottomImageType {
     Folder(String),
     FolderCustom(Foreground, Background),
     Custom(PathBuf),
-    Temporary(Box<BottomImageType>),
 }
 
 impl BottomImageType {
@@ -286,13 +285,6 @@ impl BottomImageType {
                 _ => BottomImageType::Folder(set_folder_color),
             }
         }
-    }
-
-    // The Current bottom icon state can also be temporary
-    pub fn get_current(window: &IconicWindow) -> Self {
-        let imp = window.imp();
-        let bottom_base = BottomImageType::get_base(window);
-        bottom_base
     }
 }
 
