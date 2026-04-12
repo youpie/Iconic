@@ -18,57 +18,58 @@ impl IconicWindow {
     // Load the correct folder based on settings
     // TODO This function is quite confusingly written
     pub fn load_folder_path_from_settings(&self) {
+        let imp = self.imp();
+        imp.temp_bottom_image_loaded.replace(false);
+        let mut file_properties = imp.file_properties.try_borrow().unwrap().clone();
+
+        file_properties.bottom_image_type = BottomImageType::get_base(&self);
+        imp.file_properties.replace(file_properties);
+
+        if !imp.reset_color.is_visible() {
+            self.reset_colors();
+        }
+
         glib::spawn_future_local(glib::clone!(
             #[weak(rename_to = win)]
             self,
             async move {
-                let path;
-                let imp = win.imp();
-                imp.temp_bottom_image_loaded.replace(false);
-                let mut file_properties = imp.file_properties.try_borrow().unwrap().clone();
-                if imp.settings.boolean("manual-bottom-image-selection") {
-                    file_properties.bottom_image_type = BottomImageType::Custom;
-                    let cache_file_name: &str = &win.imp().settings.string("folder-cache-name");
-                    path = win.check_chache_icon(cache_file_name).await;
-                } else if imp.settings.string("selected-accent-color") == "Custom" {
-                    let custom_primary_color: String =
-                        imp.settings.string("primary-folder-color").into();
-                    let custom_secondary_color: String =
-                        imp.settings.string("secondary-folder-color").into();
-                    path = win
-                        .create_custom_folder_color(
-                            &custom_primary_color,
-                            &custom_secondary_color,
-                            false,
-                        )
-                        .await;
-                    file_properties.bottom_image_type =
-                        BottomImageType::FolderCustom(custom_primary_color, custom_secondary_color);
-                } else {
-                    let set_folder_color: String =
-                        imp.settings.string("selected-accent-color").into();
-                    path = win.load_built_in_bottom_icon(&set_folder_color).await;
-                    file_properties.bottom_image_type = match set_folder_color.as_str() {
-                        "None" => BottomImageType::FolderSystem,
-                        _ => BottomImageType::Folder(set_folder_color),
-                    }
-                }
-                imp.file_properties.replace(file_properties);
-                if !imp.reset_color.is_visible() {
-                    win.reset_colors();
-                }
-                info!("Loading path: {:?}", &path);
-                win.load_folder_icon(&path.into_os_string().into_string().unwrap())
-                    .await;
+                win.load_bottom_image().await;
             }
         ));
+    }
+
+    async fn load_bottom_image(&self) {
+        let imp = self.imp();
+        let bottom_image_type = imp
+            .file_properties
+            .try_borrow()
+            .unwrap()
+            .bottom_image_type
+            .clone();
+        let bottom_image_temp =
+            if let BottomImageType::Temporary(bottom_image_temp) = bottom_image_type {
+                *bottom_image_temp
+            } else {
+                bottom_image_type
+            };
+
+        let icon_path = match bottom_image_temp {
+            BottomImageType::Folder(color) => self.load_built_in_bottom_icon(&color),
+            BottomImageType::FolderCustom(fg, bg) => {
+                self.create_custom_folder_color(&fg, &bg, false).await
+            }
+            BottomImageType::Custom(path) => path,
+            _ => self.load_built_in_bottom_icon("None"),
+        };
+
+        self.load_folder_icon(icon_path).await;
     }
 
     // Replace the
     pub async fn create_custom_folder_color(
         &self,
-        primary_color: &str,
-        secondary_color: &str,
+        foreground: &str,
+        background: &str,
         regeneration: bool,
     ) -> PathBuf {
         info!("Creating custom folder colors");
@@ -78,8 +79,8 @@ impl IconicWindow {
         let new_custom_folder: String = folder_svg_lines
             .map(|row| {
                 let row_clone = row.to_string();
-                let row_clone = row_clone.replace("a4caee", &primary_color);
-                let mut row_clone = row_clone.replace("438de6", &secondary_color);
+                let row_clone = row_clone.replace("a4caee", &foreground);
+                let mut row_clone = row_clone.replace("438de6", &background);
                 row_clone.push_str("\n");
                 row_clone
             })
@@ -100,7 +101,7 @@ impl IconicWindow {
         cache_location
     }
 
-    pub async fn load_built_in_bottom_icon(&self, accent_color_setting: &str) -> PathBuf {
+    pub fn load_built_in_bottom_icon(&self, accent_color_setting: &str) -> PathBuf {
         // let imp = self.imp();
         let folder_color_name = match accent_color_setting {
             "None" => self.get_accent_color(),
@@ -372,7 +373,7 @@ impl IconicWindow {
         Ok(true)
     }
 
-    pub async fn copy_folder_image_to_cache(
+    pub fn copy_folder_image_to_cache(
         &self,
         original_path: &PathBuf,
         cache_dir: &PathBuf,
@@ -500,11 +501,11 @@ impl IconicWindow {
         };
     }
 
-    pub async fn load_folder_icon(&self, path: &str) {
+    pub async fn load_folder_icon(&self, path: PathBuf) {
         let size: u32 = self.imp().settings.get("thumbnail-size");
         self.new_iconic_file_creation(
             None,
-            Some(PathBuf::from(path)),
+            Some(path),
             self.imp().settings.get("svg-render-size"),
             size,
             false,

@@ -23,7 +23,6 @@ use crate::glib::clone;
 use crate::objects::errors::show_error_popup;
 use crate::objects::file::File;
 use crate::objects::properties::{BottomImageType, CustomRGB};
-use adw::prelude::AlertDialogExtManual;
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::Cancellable;
@@ -617,37 +616,6 @@ impl IconicWindow {
             }
         );
 
-        let resize_folder = glib::clone!(
-            #[weak(rename_to = this)]
-            self,
-            move |_: &gio::Settings, _: &str| {
-                glib::spawn_future_local(glib::clone!(
-                    #[weak(rename_to = win)]
-                    this,
-                    async move {
-                        let path: &str = &win.imp().settings.string("folder-svg-path");
-                        win.load_folder_icon(path).await;
-                    }
-                ));
-            }
-        );
-
-        let reload_thumbnails = glib::clone!(
-            #[weak(rename_to = this)]
-            self,
-            move |_: &gio::Settings, _: &str| {
-                glib::spawn_future_local(glib::clone!(
-                    #[weak(rename_to = win)]
-                    this,
-                    async move {
-                        let path: &str = &win.imp().settings.string("folder-svg-path");
-                        win.load_folder_icon(path).await;
-                        win.imp().reset_color.set_visible(true);
-                    }
-                ));
-            }
-        );
-
         adw::StyleManager::default().connect_accent_color_notify(glib::clone!(
             #[weak(rename_to = win)]
             self,
@@ -674,10 +642,6 @@ impl IconicWindow {
             .connect_changed(Some("selected-accent-color"), update_folder.clone());
         imp.settings
             .connect_changed(Some("manual-bottom-image-selection"), update_folder.clone());
-        imp.settings
-            .connect_changed(Some("svg-render-size"), resize_folder.clone());
-        imp.settings
-            .connect_changed(Some("thumbnail-size"), reload_thumbnails.clone());
     }
 
     pub fn setup_update(&self) {
@@ -762,7 +726,8 @@ impl IconicWindow {
         accent_color
     }
 
-    pub async fn check_chache_icon(&self, file_name: &str) -> PathBuf {
+    // Find the custom bottom image in the cache
+    pub fn check_chache_icon(&self, file_name: &str) -> PathBuf {
         let imp = self.imp();
         let icon_path = PathBuf::from(&imp.settings.string("folder-svg-path"));
         let cache_path = Self::get_cache_path();
@@ -777,44 +742,20 @@ impl IconicWindow {
             );
             return self
                 .copy_folder_image_to_cache(&icon_path, &cache_path)
-                .await
                 .unwrap()
                 .0;
         }
         info!("File not found AT ALL");
-        let dialog = show_error_popup(
+        let _ = show_error_popup(
             &self,
-            &gettext("The set bottom icon could not be found, press ok to select a new one"),
+            &gettext("The set bottom icon could not be found, resetting"),
             false,
             None::<String>,
         )
         .unwrap();
-        match &*dialog.clone().choose_future(self).await {
-            "OK" => {
-                let new_path = match self.open_file_chooser().await {
-                    Some(x) => x.path().unwrap().into_os_string().into_string().unwrap(),
-                    None => {
-                        self.application().unwrap().activate_action("quit", None);
-                        return PathBuf::new();
-                    }
-                };
-                imp.settings
-                    .set_string("folder-svg-path", &new_path)
-                    .unwrap();
-                let cached_file_name = self
-                    .copy_folder_image_to_cache(&PathBuf::from(new_path), &cache_path)
-                    .await
-                    .unwrap()
-                    .1;
-                imp.settings
-                    .set_string("folder-cache-name", &cached_file_name)
-                    .unwrap();
-                let cache_file_name = &imp.settings.string("folder-cache-name");
-                let folder_icon_cache_path = cache_path.join(cache_file_name);
-                return PathBuf::from(folder_icon_cache_path);
-            }
-            _ => unreachable!(),
-        };
+
+        imp.settings.default_value("manual-bottom-image-selection");
+        self.load_built_in_bottom_icon("None")
     }
 
     pub fn get_cache_path() -> PathBuf {
