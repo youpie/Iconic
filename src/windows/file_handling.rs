@@ -23,10 +23,6 @@ impl IconicWindow {
 
         file_properties.bottom_image_type = BottomImageType::get_base(&self);
         imp.file_properties.replace(file_properties);
-        if !imp.reset_color.is_visible() {
-            self.reset_colors();
-        }
-
         self.load_bottom_image();
     }
 
@@ -51,6 +47,10 @@ impl IconicWindow {
                     BottomImageType::Custom(path) => path,
                     _ => win.load_built_in_bottom_icon("None"),
                 };
+
+                if !imp.reset_color.is_visible() {
+                    win.reset_colors();
+                }
 
                 win.load_folder_icon(icon_path).await;
             }

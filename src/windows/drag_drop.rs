@@ -189,7 +189,7 @@ impl IconicWindow {
             .clone()
             .unwrap();
         self.image_save_sensitive(true);
-        info!(
+        warn!(
             "Drag operation cancelled, removing file. Reason: {:?}",
             reason
         );

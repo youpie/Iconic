@@ -238,7 +238,6 @@ pub mod imp {
                 let imp = win.imp();
                 win.default_sliders(false);
                 win.load_folder_path_from_settings();
-                win.reset_colors();
                 let mut top_image = imp.top_image_file.lock().unwrap();
                 win.load_empty_top_image(&mut top_image);
                 imp.toast_overlay
@@ -541,25 +540,26 @@ impl IconicWindow {
     // TODO: This approach is dumb. I am purposely failing a dictionary lookup and using unwrap_or to get my way
     pub fn get_default_color(&self) -> gdk::RGBA {
         let imp = self.imp();
-        let accent_color;
         debug!("Resetting top color");
-        let selected_accent_color = imp.settings.string("selected-accent-color");
-        let mut custom_rgb = RGBA::new(0.0, 0.0, 0.0, 0.0);
-        if selected_accent_color == "None" {
-            accent_color = self.get_accent_color();
-        } else if imp.settings.boolean("manual-bottom-image-selection") {
-            accent_color = "Blue".to_string();
-        } else if selected_accent_color == "Custom" {
-            accent_color = "Custom".to_string();
-            custom_rgb = RGBA::from_hex(imp.settings.string("secondary-folder-color").into());
-        } else {
-            accent_color = selected_accent_color.into();
-        }
+        let bottom_image_type = imp
+            .file_properties
+            .try_borrow()
+            .unwrap()
+            .bottom_image_type
+            .clone();
+
+        let accent_color = match bottom_image_type {
+            BottomImageType::FolderSystem => self.get_accent_color(),
+            BottomImageType::Folder(color) => color,
+            BottomImageType::FolderCustom(_, bg) => bg,
+            _ => "Blue".to_owned(),
+        };
+
         let color = imp
             .default_color
             .borrow()
             .get(&accent_color)
-            .unwrap_or(&custom_rgb)
+            .unwrap_or(&RGBA::from_hex(accent_color))
             .clone();
         debug!("Found color: {:?}", &color);
         color
