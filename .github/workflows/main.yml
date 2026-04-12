@@ -46,7 +46,7 @@ jobs:
           cp ./config.toml ./.cargo/config
       - name: create tarbal
         run: |
-          tar cf "${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}}" .
+          tar -cJf "${{env.ARTIFACT_DIR}}/${{env.FILE_NAME}}" .
 
       - name: create checksum
         run: |
