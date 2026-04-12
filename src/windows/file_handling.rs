@@ -329,7 +329,7 @@ impl IconicWindow {
         match file_chooser.save_future(Some(self)).await {
             Ok(file) => {
                 let saved_file = self
-                    .save_file(file, imp.monochrome_switch.is_active(), None, None)
+                    .save_file(file, imp.monochrome_switch.is_active(), None, None, false)
                     .await?;
                 self.imp().stack.set_visible_child_name("stack_main_page");
                 imp.toast_overlay.add_toast(
@@ -390,6 +390,7 @@ impl IconicWindow {
         use_monochrome: bool,
         manual_monochrome_values: Option<(u8, gtk::gdk::RGBA)>,
         top_image_hash: Option<u64>,
+        small: bool,
     ) -> GenResult<bool> {
         let imp = self.imp();
         let _busy_lock = Arc::clone(&imp.app_busy);
@@ -398,22 +399,30 @@ impl IconicWindow {
             .lock()
             .map_err_to_str()?
             .replace(file.clone());
-        let base_image = imp
-            .bottom_image_file
-            .lock()
-            .map_err_to_str()?
-            .as_ref()
-            .into_reason_result("No bottom image found")
-            .map_err_to_str()?
-            .dynamic_image
-            .clone();
 
+        let base_image = {
+            let base_lock = imp.bottom_image_file.lock().map_err_to_str()?;
+            let base = base_lock
+                .as_ref()
+                .into_reason_result("No bottom image found")
+                .map_err_to_str()?;
+            if small {
+                base.thumbnail.clone()
+            } else {
+                base.dynamic_image.clone()
+            }
+        };
+        debug!("Base: {}", base_image.width());
         let mut top_image_dynamicimage = {
-            let _top_image_lock = imp.top_image_file.lock().map_err_to_str()?;
-            let top_image = _top_image_lock
+            let top_image_lock = imp.top_image_file.lock().map_err_to_str()?;
+            let top_image = top_image_lock
                 .as_ref()
                 .into_reason_result("No top image found")?;
-            top_image.dynamic_image.clone()
+            if small {
+                top_image.thumbnail.clone()
+            } else {
+                top_image.dynamic_image.clone()
+            }
         };
         if use_monochrome {
             let (monochrome_threshold, monochrome_color) = match manual_monochrome_values {
