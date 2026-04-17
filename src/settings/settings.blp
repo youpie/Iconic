@@ -229,50 +229,12 @@ After regeneration, it is likely required to log out and in to see the changes")
       }
     }
 
-    Adw.PreferencesGroup advanced_settings {
+    Adw.PreferencesGroup {
       title: _("Advanced");
 
       Adw.SwitchRow enable_advanced {
         title: _("Enable advanced settings");
         subtitle: _("Items marked with an '*' after enabling this switch are advanced");
-      }
-
-      Label {
-        margin-top: 10;
-        label: _("You can see these options because you have enabled the Devel profile");
-        wrap: true;
-        valign: start;
-
-        styles [
-          "subtitle",
-          "warning",
-        ]
-      }
-
-      Adw.SpinRow svg_image_size {
-        title: _("Select size of SVG images");
-        subtitle: _("SVG images will by default be converted to a 1024x1024 image. You can adjust that here");
-
-        adjustment: Adjustment {
-          lower: 1;
-          upper: 102400;
-          value: 1024;
-          page-increment: 128;
-          step-increment: 1;
-        };
-      }
-
-      Adw.SpinRow thumbnail_image_size {
-        title: _("Select size of Thumbnail images");
-        subtitle: _("Thumbnail images will by default be converted to a 255x255 image. You can adjust that here");
-
-        adjustment: Adjustment {
-          lower: 1;
-          upper: 102400;
-          value: 255;
-          page-increment: 10;
-          step-increment: 1;
-        };
       }
     }
   }

@@ -34,10 +34,6 @@ mod imp {
         #[template_child]
         pub current_botton: TemplateChild<adw::ActionRow>,
         #[template_child]
-        pub svg_image_size: TemplateChild<adw::SpinRow>,
-        #[template_child]
-        pub advanced_settings: TemplateChild<adw::PreferencesGroup>,
-        #[template_child]
         pub default_dnd: TemplateChild<adw::ExpanderRow>,
         #[template_child]
         pub dnd_switch: TemplateChild<gtk::Switch>,
@@ -45,8 +41,6 @@ mod imp {
         pub radio_button_top: TemplateChild<gtk::CheckButton>,
         #[template_child]
         pub radio_button_bottom: TemplateChild<gtk::CheckButton>,
-        #[template_child]
-        pub thumbnail_image_size: TemplateChild<adw::SpinRow>,
         #[template_child]
         pub select_bottom_color: TemplateChild<adw::ComboRow>,
         #[template_child]
@@ -99,10 +93,7 @@ mod imp {
                 radio_button_top: TemplateChild::default(),
                 radio_button_bottom: TemplateChild::default(),
                 current_botton: TemplateChild::default(),
-                svg_image_size: TemplateChild::default(),
                 settings: gio::Settings::new(APP_ID),
-                advanced_settings: TemplateChild::default(),
-                thumbnail_image_size: TemplateChild::default(),
                 select_bottom_color: TemplateChild::default(),
                 use_builtin_icons_button: TemplateChild::default(),
                 use_external_icon_button: TemplateChild::default(),
@@ -183,7 +174,8 @@ fn scroll_to_bottom(preferences_page: &adw::PreferencesPage) {
     {
         // Get the vertical adjustment
         let vadjustment = scrolled_window.vadjustment();
-
+        debug!("page size: {}", vadjustment.page_size());
+        debug!("Value: {}", vadjustment.value());
         // Scroll to the bottom
         // You might want to do this in an idle callback to ensure the layout is complete
         glib::idle_add_local_once(move || {
@@ -208,9 +200,6 @@ impl PreferencesDialog {
     pub fn new() -> Self {
         let win = glib::Object::new::<Self>();
         let imp = win.imp();
-        if PROFILE != "Devel" {
-            win.imp().advanced_settings.set_visible(false);
-        }
         win.imp()
             .dnd_switch
             .set_active(win.imp().settings.boolean("default-dnd-activated"));
@@ -245,7 +234,6 @@ impl PreferencesDialog {
 
     fn setup_settings(&self) {
         let imp = self.imp();
-        let current_value: u32 = imp.settings.get("svg-render-size");
         imp.settings
             .bind("store-top-in-cache", &*imp.store_top_images, "active")
             .build();
@@ -276,27 +264,6 @@ impl PreferencesDialog {
                 "active",
             )
             .build();
-        imp.svg_image_size.set_value(current_value as f64);
-        imp.svg_image_size.connect_changed(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                let value = win.imp().svg_image_size.value() as u32;
-                debug!("{}", value);
-                let _ = win.imp().settings.set("svg-render-size", value);
-            }
-        ));
-        let current_value: u32 = imp.settings.get("thumbnail-size");
-        imp.thumbnail_image_size.set_value(current_value as f64);
-        imp.thumbnail_image_size.connect_changed(clone!(
-            #[weak(rename_to = win)]
-            self,
-            move |_| {
-                let value = win.imp().thumbnail_image_size.value() as u32;
-                debug!("{}", value);
-                let _ = win.imp().settings.set("thumbnail-size", value);
-            }
-        ));
         imp.select_bottom_color.connect_selected_item_notify(clone!(
             #[weak (rename_to = this)]
             self,
