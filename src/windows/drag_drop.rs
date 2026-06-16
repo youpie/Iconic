@@ -2,7 +2,7 @@ use crate::objects::errors::ErrorPopup;
 use crate::{IconicWindow, window};
 use crate::{glib::clone, objects::errors::show_error_popup};
 use adw::subclass::prelude::*;
-use gio::{Cancellable, glib, prelude::*};
+use gio::{glib, prelude::*};
 use gtk::gdk;
 use gtk::prelude::WidgetExt;
 use image::imageops;
@@ -75,7 +75,7 @@ pub fn setup_drag_drop_logic(win: &window::imp::IconicWindow) {
     ));
 
     let drag_source = gtk::DragSource::builder()
-        .actions(gdk::DragAction::LINK)
+        .actions(gdk::DragAction::COPY)
         .build();
 
     drag_source.connect_prepare(clone!(
@@ -182,26 +182,26 @@ impl IconicWindow {
     }
 
     pub fn drag_connect_cancel(&self, reason: gdk::DragCancelReason) -> bool {
-        let imp = self.imp();
-        let gio_file = imp
-            .last_drag_n_drop_generated_name
-            .borrow()
-            .clone()
-            .unwrap();
+        // let imp = self.imp();
+        // let gio_file = imp
+        //     .last_drag_n_drop_generated_name
+        //     .borrow()
+        //     .clone()
+        //     .unwrap();
         self.image_save_sensitive(true);
         warn!(
-            "Drag operation cancelled, removing file. Reason: {:?}",
+            "Drag operation cancelled, removing file. Reason: {:?}\n(Currently disabled, treating as a succesful drag)",
             reason
         );
-        match gio_file.delete(None::<&Cancellable>) {
-            Ok(_) => {
-                debug!("Deletion succesfull!");
-            }
-            Err(e) => {
-                warn!("Could not delete drag file, error: {:?}", e);
-            }
-        };
-        imp.drag_cancelled.set(true);
+        // match gio_file.delete(None::<&Cancellable>) {
+        //     Ok(_) => {
+        //         debug!("Deletion succesfull!");
+        //     }
+        //     Err(e) => {
+        //         warn!("Could not delete drag file, error: {:?}", e);
+        //     }
+        // };
+        // imp.drag_cancelled.set(true);
         false
     }
 
