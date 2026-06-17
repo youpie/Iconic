@@ -21,6 +21,8 @@ use std::{env, fs, path};
 use crate::IconicWindow;
 
 mod imp {
+    use std::cell::Cell;
+
     use crate::objects::properties::CustomRGB;
 
     use super::*;
@@ -78,6 +80,7 @@ mod imp {
         #[template_child]
         pub enable_advanced: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
+        pub initialized: Cell<bool>,
     }
 
     #[glib::object_subclass]
@@ -112,6 +115,7 @@ mod imp {
                 select_default_bottom: TemplateChild::default(),
                 preferences_page: TemplateChild::default(),
                 enable_advanced: TemplateChild::default(),
+                initialized: Cell::new(false),
             }
         }
 
@@ -151,7 +155,9 @@ mod imp {
                 #[weak]
                 win,
                 move |_| {
-                    scroll_to_bottom(&win.preferences_page);
+                    if win.initialized.get() {
+                        scroll_to_bottom(&win.preferences_page);
+                    }
                 }
             ));
         }
@@ -219,6 +225,7 @@ impl PreferencesDialog {
         win.disable_color_dropdown(true);
         win.setup_settings();
         win.show_color_options();
+        imp.initialized.set(true);
         win
     }
 
@@ -246,6 +253,9 @@ impl PreferencesDialog {
             .build();
         imp.settings
             .bind("allow-meta-drop", &*imp.meta_drop_switch, "active")
+            .build();
+        imp.settings
+            .bind("advanced-settings", &*imp.enable_advanced, "active")
             .build();
         imp.settings
             .bind("default-dnd-activated", &*imp.dnd_switch, "active")

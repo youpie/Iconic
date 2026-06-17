@@ -85,5 +85,9 @@
       <default>false</default>
       <summary>If true, the pop-up informing the user that adwaita colors has been detected has been shown</summary>
     </key>
+    <key name="advanced-settings" type="b">
+      <default>false</default>
+      <summary>If true, show the advanced settings page</summary>
+    </key>
 	</schema>
 </schemalist>
