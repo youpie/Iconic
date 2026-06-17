@@ -14,6 +14,8 @@ use xmp_toolkit::{OpenFileOptions, XmpFile, XmpMeta, XmpValue, xmp_ns};
 
 use crate::{GenResult, IconicWindow};
 
+const SYSTEM_FOLDER_PATH: &str = "/app/share/Iconic/folders/";
+
 impl IconicWindow {
     // Load the correct folder based on settings
     // TODO This function is quite confusingly written
@@ -40,12 +42,12 @@ impl IconicWindow {
                     .clone();
 
                 let icon_path = match bottom_image_type {
-                    BottomImageType::Folder(color) => win.load_built_in_bottom_icon(&color),
+                    BottomImageType::Folder(color) => win.get_built_in_bottom_icon_path(&color),
                     BottomImageType::FolderCustom(fg, bg) => {
                         win.create_custom_folder_color(&fg, &bg, false).await
                     }
                     BottomImageType::Custom(path) => path,
-                    _ => win.load_built_in_bottom_icon("None"),
+                    _ => win.get_built_in_bottom_icon_path("None"),
                 };
 
                 if !imp.reset_color.is_visible() {
@@ -65,8 +67,11 @@ impl IconicWindow {
         regeneration: bool,
     ) -> PathBuf {
         info!("Creating custom folder colors");
+        let imp = self.imp();
+        let desktop = imp.file_properties.borrow().desktop;
         let folder_svg_file =
-            std::fs::read_to_string("/app/share/Iconic/folders/folder_Custom.svg").unwrap();
+            std::fs::read_to_string(format!("{SYSTEM_FOLDER_PATH}{desktop}/folder_Custom.svg"))
+                .unwrap();
         let folder_svg_lines = folder_svg_file.lines();
         let new_custom_folder: String = folder_svg_lines
             .map(|row| {
@@ -93,14 +98,15 @@ impl IconicWindow {
         cache_location
     }
 
-    pub fn load_built_in_bottom_icon(&self, accent_color_setting: &str) -> PathBuf {
-        // let imp = self.imp();
+    pub fn get_built_in_bottom_icon_path(&self, accent_color_setting: &str) -> PathBuf {
+        let imp = self.imp();
+        let desktop = imp.file_properties.borrow().desktop;
         let folder_color_name = match accent_color_setting {
             "None" => self.get_accent_color(),
             x => x.to_string(),
         };
         let folder_path = PathBuf::from(format!(
-            "/app/share/Iconic/folders/folder_{}.svg",
+            "{SYSTEM_FOLDER_PATH}{desktop}/folder_{}.svg",
             folder_color_name
         ));
         folder_path
@@ -656,6 +662,11 @@ impl IconicWindow {
             xmp_ns::XMP,
             "mask",
             &XmpValue::new(serde_json::to_string(&properties.mask)?),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "desktop",
+            &XmpValue::new(serde_json::to_string(&properties.desktop)?),
         )?;
         metadata.set_property(
             xmp_ns::XMP,

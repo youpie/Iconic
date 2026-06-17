@@ -134,7 +134,7 @@ pub mod imp {
         pub file_properties: RefCell<FileProperties>,
         pub drag_cancelled: Cell<bool>,
 
-        pub image_mask: RwLock<Option<DynamicImage>>,
+        pub image_mask: RwLock<DynamicImage>,
     }
 
     impl Default for IconicWindow {
@@ -181,7 +181,7 @@ pub mod imp {
                 drag_active: Rc::new(Cell::new(false)),
                 file_properties: RefCell::new(FileProperties::default()),
                 drag_cancelled: Cell::new(false),
-                image_mask: RwLock::new(None),
+                image_mask: RwLock::new(DynamicImage::new_rgb8(0, 0)),
             }
         }
     }
@@ -472,7 +472,7 @@ impl IconicWindow {
         .unwrap();
 
         imp.settings.default_value("manual-bottom-image-selection");
-        self.load_built_in_bottom_icon("None")
+        self.get_built_in_bottom_icon_path("None")
     }
 
     pub fn get_cache_path() -> PathBuf {

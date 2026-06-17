@@ -7,6 +7,7 @@ use gtk::prelude::RangeExt;
 use hex::FromHex;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
+use strum::{AsRefStr, Display};
 use thiserror::Error;
 use xmp_toolkit::{XmpMeta, XmpValue, xmp_ns};
 
@@ -31,6 +32,7 @@ pub struct FileProperties {
     pub monochrome_color: Option<(u8, u8, u8)>,
     pub monochrome_threshold_val: u8,
     pub mask: MaskType,
+    pub desktop: DesktopEnvironment,
     pub default: bool, // If the values above are still equal with the generated image. False if for example, the image was regenerated
 }
 
@@ -57,6 +59,7 @@ impl FileProperties {
         let monochrome_threshold_val = imp.threshold_scale.value() as u8;
         let monochrome_invert = imp.monochrome_invert.is_active();
         let mask = MaskType::default();
+        let desktop = DesktopEnvironment::default();
         let bottom_image_type = imp.file_properties.borrow().bottom_image_type.clone();
         Self {
             bottom_image_type,
@@ -70,6 +73,7 @@ impl FileProperties {
             monochrome_threshold_val,
             monochrome_toggle,
             mask,
+            desktop,
             default: true,
         }
     }
@@ -139,6 +143,7 @@ impl FileProperties {
         };
 
         let mask = MaskType::Automatic;
+        let desktop = DesktopEnvironment::default();
 
         Ok(Self {
             x_val,
@@ -152,6 +157,7 @@ impl FileProperties {
             top_image_hash,
             bottom_image_type,
             mask,
+            desktop,
             default: true,
         })
     }
@@ -226,6 +232,12 @@ impl FileProperties {
                 .unwrap_or(XmpValue::new("Automatic".to_owned()))
                 .value,
         )?;
+        let desktop: DesktopEnvironment = serde_json::from_str(
+            &xmp_data
+                .property(xmp_ns::XMP, "desktop")
+                .unwrap_or(XmpValue::new("Gnome".to_owned()))
+                .value,
+        )?;
         let default: bool = xmp_data
             .property(xmp_ns::XMP, "default")
             .unwrap_or(XmpValue::new("true".to_owned()))
@@ -243,9 +255,18 @@ impl FileProperties {
             top_image_hash,
             bottom_image_type,
             mask,
+            desktop,
             default,
         })
     }
+}
+
+#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize, Display)]
+pub enum DesktopEnvironment {
+    #[default]
+    Gnome,
+    Kde,
+    Plasma,
 }
 
 #[derive(Debug, Error)]
