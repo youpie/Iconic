@@ -61,7 +61,7 @@ impl IconicWindow {
                 debug!("Action not found");
             }
 
-            if let Some(action) = self.lookup_action("activate-mask") {
+            if let Some(action) = self.lookup_action("enable-mask") {
                 let mask_type = imp.file_properties.try_borrow().unwrap().mask.clone();
                 match mask_type {
                     MaskType::Disabled => action.change_state(&false.to_variant()),

@@ -1,6 +1,6 @@
 [package]
 name = "Iconic"
-version = "2026.4.1"
+version = "2026.6.1"
 edition = "2024"
 
 # override package level optimization, to always be maximum

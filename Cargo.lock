@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "Iconic"
-version = "2026.4.1"
+version = "2026.6.1"
 dependencies = [
  "async-channel",
  "cairo-rs",

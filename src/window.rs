@@ -44,7 +44,7 @@ const DEFAULT_Y_SLIDER: f64 = 9.447;
 const DEFAULT_SIZE_SLIDER: f64 = 24.0;
 
 pub mod imp {
-    use std::{cell::Cell, collections::HashMap, rc::Rc};
+    use std::{cell::Cell, collections::HashMap, rc::Rc, sync::RwLock};
 
     use crate::{
         objects::properties::FileProperties,
@@ -128,12 +128,13 @@ pub mod imp {
         pub generated_image: RefCell<Option<DynamicImage>>,
         pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
-        pub count: Cell<i32>,
         pub regeneration_lock: Arc<Cell<usize>>,
         pub app_busy: Arc<()>,
         pub drag_active: Rc<Cell<bool>>,
         pub file_properties: RefCell<FileProperties>,
         pub drag_cancelled: Cell<bool>,
+
+        pub image_mask: RwLock<Option<DynamicImage>>,
     }
 
     impl Default for IconicWindow {
@@ -173,7 +174,6 @@ pub mod imp {
                 file_created: Cell::new(false),
                 signals: RefCell::new(vec![]),
                 settings: gio::Settings::new(APP_ID),
-                count: Cell::new(0),
                 default_color: RefCell::new(HashMap::new()),
                 last_drag_n_drop_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(Cell::new(0)),
@@ -181,6 +181,7 @@ pub mod imp {
                 drag_active: Rc::new(Cell::new(false)),
                 file_properties: RefCell::new(FileProperties::default()),
                 drag_cancelled: Cell::new(false),
+                image_mask: RwLock::new(None),
             }
         }
     }

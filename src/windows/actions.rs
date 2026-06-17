@@ -87,6 +87,14 @@ fn set_up_mask_action(window: &IconicWindow) -> SimpleAction {
     mask_action
 }
 
+/*
+    -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    Split between statefull and klass actions
+
+    -------------------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
 pub fn set_up_klass_actions(klass: &mut ClassStruct<IconicWindow>) {
     klass.install_action("app.open_top_icon", None, move |win, _, _| {
         glib::spawn_future_local(clone!(
