@@ -1,6 +1,7 @@
 use crate::IconicWindow;
 use crate::glib;
 use crate::objects::properties::BottomImageType;
+use crate::objects::properties::MaskType;
 use adw::subclass::prelude::*;
 use gio::glib::object::Cast;
 use gio::glib::object::ObjectExt;
@@ -58,6 +59,14 @@ impl IconicWindow {
                 action.change_state(&value);
             } else {
                 debug!("Action not found");
+            }
+
+            if let Some(action) = self.lookup_action("activate-mask") {
+                let mask_type = imp.file_properties.try_borrow().unwrap().mask.clone();
+                match mask_type {
+                    MaskType::Disabled => action.change_state(&false.to_variant()),
+                    _ => action.change_state(&true.to_variant()),
+                }
             }
 
             let position = gdk::Rectangle::new(x as i32, y as i32, 0, 0);

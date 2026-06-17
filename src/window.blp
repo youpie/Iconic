@@ -22,7 +22,7 @@ template $IconicWindow: Adw.ApplicationWindow {
             [top]
             Adw.HeaderBar {
               title-widget: Adw.WindowTitle {
-                title: "Iconic";
+                title: _("Iconic");
               };
 
               [end]
@@ -62,7 +62,6 @@ template $IconicWindow: Adw.ApplicationWindow {
 
                 ProgressBar regeneration_osd_second {
                   fraction: 0.5;
-                  visible: true;
                   halign: fill;
 
                   styles [
@@ -128,6 +127,7 @@ template $IconicWindow: Adw.ApplicationWindow {
                   icon-name: "document-save-symbolic";
                 }
 
+                tooltip-text: _("Save the current image to disk");
                 margin-start: 5;
                 sensitive: false;
                 action-name: "app.save_button";
@@ -138,7 +138,7 @@ template $IconicWindow: Adw.ApplicationWindow {
               }
 
               title-widget: Adw.WindowTitle {
-                title: "Iconic";
+                title: _("Iconic");
               };
 
               [end]
@@ -432,6 +432,13 @@ menu primary_menu {
 menu image_menu {
   section {
     item (_("Change Top Image"), "app.open_top_icon")
+
+    item {
+      label: _("Remove overflow");
+      action: "win.enable-mask";
+    }
+
+    item (_("_Set Custom Mask"), "win.custom_mask")
   }
 
   section {

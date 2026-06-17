@@ -79,6 +79,8 @@ mod imp {
         pub preferences_page: TemplateChild<adw::PreferencesPage>,
         #[template_child]
         pub enable_advanced: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub enable_overflow: TemplateChild<adw::SwitchRow>,
         pub settings: gio::Settings,
         pub initialized: Cell<bool>,
     }
@@ -115,6 +117,7 @@ mod imp {
                 select_default_bottom: TemplateChild::default(),
                 preferences_page: TemplateChild::default(),
                 enable_advanced: TemplateChild::default(),
+                enable_overflow: TemplateChild::default(),
                 initialized: Cell::new(false),
             }
         }
@@ -256,6 +259,9 @@ impl PreferencesDialog {
             .build();
         imp.settings
             .bind("advanced-settings", &*imp.enable_advanced, "active")
+            .build();
+        imp.settings
+            .bind("mask-enabled", &*imp.enable_overflow, "active")
             .build();
         imp.settings
             .bind("default-dnd-activated", &*imp.dnd_switch, "active")

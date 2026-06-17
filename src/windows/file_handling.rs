@@ -1,6 +1,6 @@
 use crate::objects::errors::{ErrorPopup, IntoResult, show_error_popup};
 use crate::objects::file::File;
-use crate::objects::properties::{BottomImageType, FileProperties};
+use crate::objects::properties::{BottomImageType, FileProperties, MaskType};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gio::*;
@@ -17,11 +17,11 @@ use crate::{GenResult, IconicWindow};
 impl IconicWindow {
     // Load the correct folder based on settings
     // TODO This function is quite confusingly written
-    pub fn load_folder_path_from_settings(&self) {
+    pub fn set_up_and_load_bottom_icon(&self) {
         let imp = self.imp();
         let mut file_properties = imp.file_properties.try_borrow().unwrap().clone();
-
-        file_properties.bottom_image_type = BottomImageType::get_base(&self);
+        file_properties.mask = MaskType::from_settings(&imp.settings);
+        file_properties.bottom_image_type = BottomImageType::get_standard(&self);
         imp.file_properties.replace(file_properties);
         self.load_bottom_image();
     }
@@ -463,7 +463,7 @@ impl IconicWindow {
         self.imp()
             .toast_overlay
             .add_toast(adw::Toast::new(&gettext("Icon reset")));
-        self.load_folder_path_from_settings();
+        self.set_up_and_load_bottom_icon();
     }
 
     pub async fn load_top_icon(&self) {
@@ -651,6 +651,11 @@ impl IconicWindow {
             xmp_ns::XMP,
             "bottom_image_type",
             &XmpValue::new(serde_json::to_string(&properties.bottom_image_type)?),
+        )?;
+        metadata.set_property(
+            xmp_ns::XMP,
+            "mask",
+            &XmpValue::new(serde_json::to_string(&properties.mask)?),
         )?;
         metadata.set_property(
             xmp_ns::XMP,

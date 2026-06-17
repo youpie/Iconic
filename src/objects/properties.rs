@@ -1,7 +1,7 @@
 use std::{fs::DirEntry, path::PathBuf};
 
 use adw::subclass::prelude::ObjectSubclassIsExt;
-use gio::prelude::SettingsExt;
+use gio::{Settings, prelude::SettingsExt};
 use gtk::gdk;
 use gtk::prelude::RangeExt;
 use hex::FromHex;
@@ -30,6 +30,7 @@ pub struct FileProperties {
     pub monochrome_default: bool,
     pub monochrome_color: Option<(u8, u8, u8)>,
     pub monochrome_threshold_val: u8,
+    pub mask: MaskType,
     pub default: bool, // If the values above are still equal with the generated image. False if for example, the image was regenerated
 }
 
@@ -55,6 +56,7 @@ impl FileProperties {
         let monochrome_default = default_monochrome_color == imp.monochrome_color.rgba();
         let monochrome_threshold_val = imp.threshold_scale.value() as u8;
         let monochrome_invert = imp.monochrome_invert.is_active();
+        let mask = MaskType::default();
         let bottom_image_type = imp.file_properties.borrow().bottom_image_type.clone();
         Self {
             bottom_image_type,
@@ -67,6 +69,7 @@ impl FileProperties {
             monochrome_invert,
             monochrome_threshold_val,
             monochrome_toggle,
+            mask,
             default: true,
         }
     }
@@ -135,6 +138,8 @@ impl FileProperties {
             false => BottomImageType::Unknown,
         };
 
+        let mask = MaskType::Automatic;
+
         Ok(Self {
             x_val,
             y_val,
@@ -146,6 +151,7 @@ impl FileProperties {
             monochrome_toggle,
             top_image_hash,
             bottom_image_type,
+            mask,
             default: true,
         })
     }
@@ -214,6 +220,12 @@ impl FileProperties {
                 .into_reason_result("XMP bottom_image_type")?
                 .value,
         )?;
+        let mask: MaskType = serde_json::from_str(
+            &xmp_data
+                .property(xmp_ns::XMP, "mask")
+                .unwrap_or(XmpValue::new("Automatic".to_owned()))
+                .value,
+        )?;
         let default: bool = xmp_data
             .property(xmp_ns::XMP, "default")
             .unwrap_or(XmpValue::new("true".to_owned()))
@@ -230,6 +242,7 @@ impl FileProperties {
             monochrome_toggle,
             top_image_hash,
             bottom_image_type,
+            mask,
             default,
         })
     }
@@ -267,7 +280,7 @@ impl BottomImageType {
     }
 
     // Get the base bottom image state
-    pub fn get_base(window: &IconicWindow) -> Self {
+    pub fn get_standard(window: &IconicWindow) -> Self {
         let imp = window.imp();
         if imp.settings.boolean("manual-bottom-image-selection") {
             let cache_file_name: String = imp.settings.string("folder-cache-name").into();
@@ -284,6 +297,25 @@ impl BottomImageType {
                 "None" => BottomImageType::FolderSystem,
                 _ => BottomImageType::Folder(set_folder_color),
             }
+        }
+    }
+}
+
+pub type MaskName = String;
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub enum MaskType {
+    #[default]
+    Disabled,
+    Automatic,
+    Custom(MaskName),
+}
+
+impl MaskType {
+    pub fn from_settings(settings: &Settings) -> Self {
+        match settings.boolean("mask-enabled") {
+            false => Self::Disabled,
+            true => Self::Automatic,
         }
     }
 }

@@ -39,16 +39,19 @@ use std::hash::RandomState;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
+const DEFAULT_X_SLIDER: f64 = 0.0;
+const DEFAULT_Y_SLIDER: f64 = 9.447;
+const DEFAULT_SIZE_SLIDER: f64 = 24.0;
+
 pub mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc};
 
-    use gio::{SimpleAction, glib::VariantTy};
-
     use crate::{
         objects::properties::FileProperties,
-        settings::settings::PreferencesDialog,
         windows::{
-            drag_drop::setup_drag_drop_logic, drag_overlay::DragOverlay,
+            actions::{set_up_klass_actions, set_up_stateful_actions},
+            drag_drop::setup_drag_drop_logic,
+            drag_overlay::DragOverlay,
             preview_window::PreviewWindow,
         },
     };
@@ -191,110 +194,7 @@ pub mod imp {
         fn class_init(klass: &mut Self::Class) {
             Self::bind_template(klass);
             Self::Type::bind_template_callbacks(klass);
-            klass.install_action("app.open_top_icon", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.load_top_icon().await;
-                    }
-                ));
-                debug!("References: {}", Arc::strong_count(&win.imp().app_busy));
-            });
-            klass.install_action("app.open_file_location", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        let file = win.imp().saved_file.lock().unwrap().clone().unwrap();
-                        win.open_directory(&file).await;
-                    }
-                ));
-            });
-            klass.install_action("app.select_folder", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.load_temp_folder_icon().await;
-                    }
-                ));
-            });
-            klass.install_action("app.open_bottom_icon", None, move |win, _, _| {
-                win.check_icon_update();
-            });
-            klass.install_action("app.change_bottom", None, move |win, _, _| {
-                let imp = win.imp();
-                _ = imp
-                    .settings
-                    .set_boolean("manual-bottom-image-selection", true);
-                let preferences = PreferencesDialog::new();
-                adw::prelude::AdwDialogExt::present(&preferences, Some(win));
-                preferences
-                    .activate_action("win.select_folder_settings", None)
-                    .unwrap();
-            });
-            klass.install_action("app.reset", None, move |win, _, _| {
-                let imp = win.imp();
-                win.default_sliders(false);
-                win.load_folder_path_from_settings();
-                let mut top_image = imp.top_image_file.lock().unwrap();
-                win.load_empty_top_image(&mut top_image);
-                imp.toast_overlay
-                    .add_toast(adw::Toast::new(&gettext("Image reset")));
-            });
-            klass.install_action("app.reset_bottom", None, move |win, _, _| {
-                win.reset_bottom_icon();
-            });
-            klass.install_action("app.paste", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.paste_from_clipboard().await;
-                    }
-                ));
-            });
-            klass.install_action("app.regenerate", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        let imp = win.imp();
-                        let id = imp.regeneration_lock.get();
-                        imp.regeneration_lock.replace(id + 1);
-                        match win.regenerate_icons().await {
-                            Ok(_) => (),
-                            Err(x) => {
-                                show_error_popup(&win, "", true, Some(x));
-                            }
-                        };
-                        //imp.stack.set_visible_child_name(&previous_stack);
-                        debug!("Done generating");
-                    }
-                ));
-            });
-            klass.install_action("app.save_button", None, move |win, _, _| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    win,
-                    async move {
-                        win.drag_and_drop_information_dialog();
-                        match win.open_save_file_dialog().await {
-                            Ok(_) => (),
-                            Err(error) => {
-                                show_error_popup(&win, &error.to_string(), true, Some(error));
-                            }
-                        };
-                    }
-                ));
-            });
-            klass.install_action("app.monochrome_switch", None, move |win, _, _| {
-                win.monochrome_swtich_change();
-            });
-            klass.install_action("app.reset_color", None, move |win, _, _| {
-                win.reset_colors();
-            });
+            set_up_klass_actions(klass);
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -306,6 +206,7 @@ pub mod imp {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
+            let imp = obj.imp();
             // If you read this and think of a more elegant way to achieve this, please let me know
             // This shares the value of if a drag operation is currently active
             // I now create a RefCell<Rc<Cell<bool>>>
@@ -318,41 +219,7 @@ pub mod imp {
 
             setup_drag_drop_logic(self);
 
-            let temp_bottom_folder = SimpleAction::new_stateful(
-                "temp_folder_color",
-                Some(&VariantTy::STRING),
-                &"".to_variant(),
-            );
-
-            temp_bottom_folder.connect_change_state(clone!(
-                #[weak (rename_to=win)]
-                obj,
-                move |action, para| {
-                    let imp = win.imp();
-                    let value = para.unwrap().str().unwrap().to_owned();
-                    debug!("{value}");
-                    if value != "" {
-                        let mut properties = imp.file_properties.try_borrow().unwrap().clone();
-                        properties.bottom_image_type = match value.as_str() {
-                            "Custom" => {
-                                let custom_primary_color: String =
-                                    imp.settings.string("primary-folder-color").into();
-                                let custom_secondary_color: String =
-                                    imp.settings.string("secondary-folder-color").into();
-                                BottomImageType::FolderCustom(
-                                    custom_primary_color,
-                                    custom_secondary_color,
-                                )
-                            }
-                            _ => BottomImageType::Folder(value),
-                        };
-                        imp.file_properties.replace(properties);
-                        win.load_bottom_image();
-                    }
-                    action.set_state(para.unwrap());
-                }
-            ));
-            self.obj().add_action(&temp_bottom_folder);
+            set_up_stateful_actions(imp);
         }
 
         fn dispose(&self) {
@@ -421,14 +288,18 @@ impl IconicWindow {
     pub fn default_sliders(&self, add_marks: bool) {
         let imp = self.imp();
         if add_marks {
-            imp.x_scale.add_mark(0.0, gtk::PositionType::Top, None);
-            imp.y_scale.add_mark(0.0, gtk::PositionType::Bottom, None);
+            imp.x_scale
+                .add_mark(DEFAULT_X_SLIDER, gtk::PositionType::Top, None);
+            imp.y_scale
+                .add_mark(DEFAULT_X_SLIDER, gtk::PositionType::Bottom, None);
+            imp.y_scale
+                .add_mark(DEFAULT_Y_SLIDER, gtk::PositionType::Bottom, None);
+            imp.size
+                .add_mark(DEFAULT_SIZE_SLIDER, gtk::PositionType::Top, None);
         }
-        imp.size.add_mark(24.0, gtk::PositionType::Top, None);
-        imp.y_scale.add_mark(9.447, gtk::PositionType::Bottom, None);
-        imp.y_scale.set_value(9.447);
-        imp.size.set_value(24.0);
-        imp.x_scale.set_value(0.0);
+        imp.y_scale.set_value(DEFAULT_Y_SLIDER);
+        imp.size.set_value(DEFAULT_SIZE_SLIDER);
+        imp.x_scale.set_value(DEFAULT_X_SLIDER);
         let monochrome_switch_state = imp.settings.boolean("monochrome-mode-active");
         imp.monochrome_switch.set_active(monochrome_switch_state);
     }
@@ -446,7 +317,7 @@ impl IconicWindow {
         imp.stack.set_visible_child_name("stack_welcome_page");
         self.setup_settings();
         self.setup_update();
-        self.load_folder_path_from_settings();
+        self.set_up_and_load_bottom_icon();
         self.slider_control_sensitivity(false);
     }
 
@@ -456,7 +327,7 @@ impl IconicWindow {
             #[weak(rename_to = win)]
             self,
             move |_: &gio::Settings, _: &str| {
-                win.load_folder_path_from_settings();
+                win.set_up_and_load_bottom_icon();
             }
         );
 
@@ -468,7 +339,7 @@ impl IconicWindow {
                 if imp.file_properties.borrow().bottom_image_type == BottomImageType::FolderSystem {
                     // error!("Reloading folder image");
                     win.check_if_regeneration_needed();
-                    win.load_folder_path_from_settings();
+                    win.set_up_and_load_bottom_icon();
                 }
                 _ = imp
                     .settings
@@ -737,7 +608,7 @@ impl IconicWindow {
     }
 
     // TODO decouple UI components from these functions
-    fn monochrome_swtich_change(&self) {
+    pub fn monochrome_swtich_change(&self) {
         let imp = self.imp();
         let switch_state = imp.monochrome_switch.is_active();
         debug!("Updating monochrome state to {:?}", switch_state);
