@@ -7,7 +7,7 @@ use gtk::prelude::RangeExt;
 use hex::FromHex;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
-use strum::{AsRefStr, Display};
+use strum::Display;
 use thiserror::Error;
 use xmp_toolkit::{XmpMeta, XmpValue, xmp_ns};
 

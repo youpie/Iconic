@@ -453,6 +453,7 @@ impl IconicWindow {
                 imp.x_scale.value(),
                 imp.y_scale.value(),
                 imp.size.value(),
+                true,
             )
             .await;
         let path = file.path().unwrap();

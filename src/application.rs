@@ -132,6 +132,7 @@ impl IconicApplication {
         self.set_accels_for_action("app.preferences", &["<primary>comma"]);
         self.set_accels_for_action("app.select_folder", &["<primary><shift>o"]);
         self.set_accels_for_action("app.paste", &["<primary>v"]);
+        self.set_accels_for_action("app.advanced", &["<primary>a"]);
         self.set_accels_for_action("app.regenerate", &["<primary>r"]);
         self.set_accels_for_action("app.shortcuts", &["<primary>question"]);
         self.set_accels_for_action("app.reset", &["r"]);

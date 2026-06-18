@@ -46,6 +46,8 @@ const DEFAULT_SIZE_SLIDER: f64 = 24.0;
 pub mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc, sync::RwLock};
 
+    use gio::{Menu, MenuModel};
+
     use crate::{
         objects::properties::FileProperties,
         windows::{
@@ -117,6 +119,10 @@ pub mod imp {
         pub regeneration_revealer: TemplateChild<gtk::Revealer>,
         #[template_child]
         pub drag_overlay: TemplateChild<DragOverlay>,
+        #[template_child]
+        pub image_menu_simple: TemplateChild<MenuModel>,
+        #[template_child]
+        pub image_menu: TemplateChild<MenuModel>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
@@ -166,6 +172,8 @@ pub mod imp {
                 gesture_click: TemplateChild::default(),
                 regeneration_revealer: TemplateChild::default(),
                 drag_overlay: TemplateChild::default(),
+                image_menu: TemplateChild::default(),
+                image_menu_simple: TemplateChild::default(),
                 bottom_image_file: Arc::new(Mutex::new(None)),
                 top_image_file: Arc::new(Mutex::new(None)),
                 saved_file: Arc::new(Mutex::new(None)),

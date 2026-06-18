@@ -8,6 +8,7 @@ use gio::glib::object::ObjectExt;
 use gio::glib::variant::ToVariant;
 use gio::prelude::ActionExt;
 use gio::prelude::ActionMapExt;
+use gio::prelude::SettingsExt;
 use gtk::GestureClick;
 use gtk::GestureLongPress;
 use gtk::gdk;
@@ -70,6 +71,12 @@ impl IconicWindow {
             }
 
             let position = gdk::Rectangle::new(x as i32, y as i32, 0, 0);
+            if imp.settings.boolean("advanced-settings") {
+                imp.popover_menu.set_menu_model(Some(&imp.image_menu.get()));
+            } else {
+                imp.popover_menu
+                    .set_menu_model(Some(&imp.image_menu_simple.get()));
+            }
             imp.popover_menu.set_pointing_to(Some(&position));
             imp.popover_menu.popup();
         }

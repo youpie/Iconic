@@ -5,11 +5,10 @@ use crate::{
         errors::show_error_popup,
         properties::{BottomImageType, MaskType},
     },
-    settings::settings::PreferencesDialog,
     window::imp::IconicWindow,
 };
-use adw::prelude::*;
 use adw::subclass::prelude::*;
+use adw::{Toast, prelude::*};
 use gettextrs::gettext;
 use gio::{
     SimpleAction,
@@ -128,16 +127,30 @@ pub fn set_up_klass_actions(klass: &mut ClassStruct<IconicWindow>) {
     klass.install_action("app.open_bottom_icon", None, move |win, _, _| {
         win.check_icon_update();
     });
-    klass.install_action("app.change_bottom", None, move |win, _, _| {
+    // klass.install_action("app.change_bottom", None, move |win, _, _| {
+    //     let imp = win.imp();
+    //     _ = imp
+    //         .settings
+    //         .set_boolean("manual-bottom-image-selection", true);
+    //     let preferences = PreferencesDialog::new();
+    //     adw::prelude::AdwDialogExt::present(&preferences, Some(win));
+    //     preferences
+    //         .activate_action("win.select_folder_settings", None)
+    //         .unwrap();
+    // });
+    klass.install_action("app.advanced", None, move |win, _, _| {
         let imp = win.imp();
-        _ = imp
-            .settings
-            .set_boolean("manual-bottom-image-selection", true);
-        let preferences = PreferencesDialog::new();
-        adw::prelude::AdwDialogExt::present(&preferences, Some(win));
-        preferences
-            .activate_action("win.select_folder_settings", None)
-            .unwrap();
+        let advanced_state = imp.settings.boolean("advanced-settings");
+        let new_state = if advanced_state {
+            imp.toast_overlay
+                .add_toast(Toast::new(&gettext("Disabled advanced mode")));
+            false
+        } else {
+            imp.toast_overlay
+                .add_toast(Toast::new(&gettext("Enabled advanced mode")));
+            true
+        };
+        _ = imp.settings.set_boolean("advanced-settings", new_state);
     });
     klass.install_action("app.reset", None, move |win, _, _| {
         let imp = win.imp();

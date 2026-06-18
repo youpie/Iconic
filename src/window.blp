@@ -413,8 +413,8 @@ template $IconicWindow: Adw.ApplicationWindow {
 menu primary_menu {
   section {
     item (_("_Paste Top Icon from Clipboard"), "app.paste")
-    item (_("_Open Top Icon"), "app.open_top_icon")
-    item (_("_Open Bottom Icon"), "app.select_folder")
+    item (_("_Select Top Icon"), "app.open_top_icon")
+    item (_("_Select Bottom Icon"), "app.select_folder")
   }
 
   section {
@@ -434,16 +434,15 @@ menu image_menu {
     item (_("Change Top Image"), "app.open_top_icon")
 
     item {
-      label: _("Remove overflow");
+      label: _("Remove overflow*");
       action: "win.enable-mask";
     }
 
-    item (_("_Set Custom Mask"), "win.custom_mask")
+    item (_("_Set Custom Mask*"), "win.custom_mask")
   }
 
   section {
-    item (_("Change Bottom Image"), "app.change_bottom")
-    item (_("Temporarily Change Bottom Image"), "app.select_folder")
+    item (_("Temporarily Change Bottom Image*"), "app.select_folder")
 
     submenu temp_folder_color {
       label: _("Temporarily Change Folder Color");
@@ -511,7 +510,83 @@ menu image_menu {
   }
 
   section {
-    item (_("Reset Temporary Bottom Image"), "app.reset_bottom")
+    item (_("Reset Temporary Bottom Image*"), "app.reset_bottom")
+    item (_("Reset Image"), "app.reset")
+  }
+}
+
+menu image_menu_simple {
+  section {
+    item (_("Change Top Image"), "app.open_top_icon")
+  }
+
+  section {
+    submenu temp_folder_color_simple {
+      label: _("Temporarily Change Folder Color");
+
+      item {
+        label: _("Blue");
+        action: "win.temp_folder_color";
+        target: "Blue";
+      }
+
+      item {
+        label: _("Teal");
+        action: "win.temp_folder_color";
+        target: "Teal";
+      }
+
+      item {
+        label: _("Green");
+        action: "win.temp_folder_color";
+        target: "Green";
+      }
+
+      item {
+        label: _("Yellow");
+        action: "win.temp_folder_color";
+        target: "Yellow";
+      }
+
+      item {
+        label: _("Orange");
+        action: "win.temp_folder_color";
+        target: "Orange";
+      }
+
+      item {
+        label: _("Red");
+        action: "win.temp_folder_color";
+        target: "Red";
+      }
+
+      item {
+        label: _("Pink");
+        action: "win.temp_folder_color";
+        target: "Pink";
+      }
+
+      item {
+        label: _("Purple");
+        action: "win.temp_folder_color";
+        target: "Purple";
+      }
+
+      item {
+        label: _("Slate");
+        action: "win.temp_folder_color";
+        target: "Slate";
+      }
+
+      item {
+        label: _("Custom");
+        action: "win.temp_folder_color";
+        target: "Custom";
+      }
+    }
+  }
+
+  section {
     item (_("Reset Image"), "app.reset")
   }
 }

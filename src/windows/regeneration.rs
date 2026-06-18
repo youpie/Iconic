@@ -298,6 +298,7 @@ impl IconicWindow {
                 properties.x_val,
                 properties.y_val,
                 properties.zoom_val,
+                true,
             )
             .await;
         info!("Saving image");
