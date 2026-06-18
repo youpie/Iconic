@@ -19,7 +19,7 @@
  */
 
 use crate::IconicWindow;
-use crate::config::{APP_ICON, VERSION};
+use crate::config::{APP_ICON, PROFILE, VERSION};
 use crate::glib::WeakRef;
 use crate::settings::settings::PreferencesDialog;
 use adw::prelude::{AdwApplicationWindowExt, AdwDialogExt};
@@ -136,6 +136,9 @@ impl IconicApplication {
         self.set_accels_for_action("app.regenerate", &["<primary>r"]);
         self.set_accels_for_action("app.shortcuts", &["<primary>question"]);
         self.set_accels_for_action("app.reset", &["r"]);
+        if PROFILE == "Devel" {
+            self.set_accels_for_action("app.debug", &["a"]);
+        }
     }
 
     fn show_preferences_dialog(&self) {

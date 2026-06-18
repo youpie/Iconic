@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
+    config::PROFILE,
     objects::{
         errors::show_error_popup,
         properties::{BottomImageType, MaskType},
@@ -213,4 +214,14 @@ pub fn set_up_klass_actions(klass: &mut ClassStruct<IconicWindow>) {
     klass.install_action("app.reset_color", None, move |win, _, _| {
         win.reset_colors();
     });
+
+    // DEBUG
+    // --------------------------------------------------------------------------------
+    if PROFILE == "Devel" {
+        klass.install_action("app.debug", None, move |win, _, _| {
+            let imp = win.imp();
+            let properties = imp.file_properties.borrow().clone();
+            println!("{:#?}", properties);
+        });
+    }
 }

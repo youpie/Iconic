@@ -2,13 +2,13 @@ use std::path::PathBuf;
 
 use image::{DynamicImage, GenericImageView};
 
-use crate::{GenResult, window::IconicWindow};
+use crate::window::IconicWindow;
 
 impl IconicWindow {
-    fn load_default_mask(&self) -> GenResult<PathBuf> {
+    fn load_default_mask(&self) -> PathBuf {
         let mut path = self.get_built_in_bottom_icon_path("None");
         path.set_file_name("mask.svg");
-        Ok(path)
+        path
     }
 
     pub fn apply_mask_to_top_image(

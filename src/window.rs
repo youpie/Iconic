@@ -46,7 +46,7 @@ const DEFAULT_SIZE_SLIDER: f64 = 24.0;
 pub mod imp {
     use std::{cell::Cell, collections::HashMap, rc::Rc, sync::RwLock};
 
-    use gio::{Menu, MenuModel};
+    use gio::MenuModel;
 
     use crate::{
         objects::properties::FileProperties,
