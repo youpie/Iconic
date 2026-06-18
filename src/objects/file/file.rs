@@ -66,7 +66,11 @@ impl File {
 
         // Thumbnail logic
         let thumbnail = if thumbnail_size > 0 {
-            Self::load_file(&image_file, thumbnail_size)?.0
+            image.resize(
+                thumbnail_size,
+                thumbnail_size,
+                imageops::FilterType::CatmullRom,
+            )
         } else {
             DynamicImage::new_rgba8(0, 0)
         };

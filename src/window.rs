@@ -44,7 +44,7 @@ const DEFAULT_Y_SLIDER: f64 = 9.447;
 const DEFAULT_SIZE_SLIDER: f64 = 24.0;
 
 pub mod imp {
-    use std::{cell::Cell, collections::HashMap, rc::Rc, sync::RwLock};
+    use std::{cell::Cell, collections::HashMap, rc::Rc};
 
     use gio::MenuModel;
 
@@ -125,22 +125,27 @@ pub mod imp {
         pub image_menu: TemplateChild<MenuModel>,
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
-        pub default_color: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
         pub top_image_file: Arc<Mutex<Option<File>>>,
+
+        pub default_colors: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
+
         pub saved_file: Arc<Mutex<Option<gio::File>>>,
         pub file_created: Cell<bool>,
         pub image_saved: Cell<bool>,
+
+        // This is used to, during the double image render of a drag operation, rename the larger file the same as the smaller file
         pub last_drag_n_drop_generated_name: RefCell<Option<gio::File>>,
+
+        // This generated image is used to quickly add an image to the mouse pointer during a drag operation
         pub generated_image: RefCell<Option<DynamicImage>>,
-        pub signals: RefCell<Vec<glib::SignalHandlerId>>,
         pub settings: gio::Settings,
+
         pub regeneration_lock: Arc<Cell<usize>>,
         pub app_busy: Arc<()>,
+
         pub drag_active: Rc<Cell<bool>>,
         pub file_properties: RefCell<FileProperties>,
         pub drag_cancelled: Cell<bool>,
-
-        pub image_mask: RwLock<DynamicImage>,
     }
 
     impl Default for IconicWindow {
@@ -180,16 +185,14 @@ pub mod imp {
                 image_saved: Cell::new(true),
                 generated_image: RefCell::new(None),
                 file_created: Cell::new(false),
-                signals: RefCell::new(vec![]),
                 settings: gio::Settings::new(APP_ID),
-                default_color: RefCell::new(HashMap::new()),
+                default_colors: RefCell::new(HashMap::new()),
                 last_drag_n_drop_generated_name: RefCell::new(None),
                 regeneration_lock: Arc::new(Cell::new(0)),
                 app_busy: Arc::new(()),
                 drag_active: Rc::new(Cell::new(false)),
                 file_properties: RefCell::new(FileProperties::default()),
                 drag_cancelled: Cell::new(false),
-                image_mask: RwLock::new(DynamicImage::new_rgb8(0, 0)),
             }
         }
     }
@@ -279,7 +282,7 @@ impl IconicWindow {
         if PROFILE == "Devel" {
             imp.main_status_page.set_icon_name(Some(APP_ICON));
         }
-        imp.default_color.replace(HashMap::from([
+        imp.default_colors.replace(HashMap::from([
             ("Blue".to_string(), RGBA::from_rgb(67, 141, 230)),
             ("Teal".to_string(), RGBA::from_rgb(18, 158, 176)),
             ("Green".to_string(), RGBA::from_rgb(61, 158, 79)),
@@ -436,7 +439,7 @@ impl IconicWindow {
         };
 
         let color = imp
-            .default_color
+            .default_colors
             .borrow()
             .get(&accent_color)
             .unwrap_or(&RGBA::from_hex(accent_color))

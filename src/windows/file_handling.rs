@@ -445,15 +445,16 @@ impl IconicWindow {
                 None,
             );
         }
+        // TODO Mask
         let generated_image = self
             .generate_image(
                 base_image,
+                None,
                 top_image_dynamicimage,
                 imageops::FilterType::Gaussian,
                 imp.x_scale.value(),
                 imp.y_scale.value(),
                 imp.size.value(),
-                true,
             )
             .await;
         let path = file.path().unwrap();
@@ -560,9 +561,10 @@ impl IconicWindow {
         } else {
             file.unwrap()
         };
+        let mask_path = self.get_mask_path();
         let new_file = match gio::spawn_blocking(move || {
             // TODO image mask
-            File::new(file_temp, svg_render_size, thumbnail_render_size, None)
+            File::new(file_temp, svg_render_size, thumbnail_render_size, mask_path)
                 .map_err(|err| err.to_string())
         })
         .await

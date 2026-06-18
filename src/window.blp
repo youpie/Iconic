@@ -432,12 +432,7 @@ menu primary_menu {
 menu image_menu {
   section {
     item (_("Change Top Image"), "app.open_top_icon")
-
-    item {
-      label: _("Remove overflow*");
-      action: "win.enable-mask";
-    }
-
+    item (_("Remove overflow"), "win.enable-mask")
     item (_("_Set Custom Mask*"), "win.custom_mask")
   }
 
@@ -518,6 +513,7 @@ menu image_menu {
 menu image_menu_simple {
   section {
     item (_("Change Top Image"), "app.open_top_icon")
+    item (_("Remove overflow"), "win.enable-mask")
   }
 
   section {

@@ -230,10 +230,10 @@ impl IconicWindow {
                     let folder_path = self
                         .create_custom_folder_color(&foreground, &background, true)
                         .await;
+                    let mask_path = self.get_mask_path();
                     (
                         gio::spawn_blocking(move || {
-                            // TODO Image mask
-                            File::from_path(folder_path, 1024, 0, None)
+                            File::from_path(folder_path, 1024, 0, mask_path)
                                 .map_err(|err| err.to_string())
                         })
                         .await
@@ -273,9 +273,9 @@ impl IconicWindow {
                 .into_reason_result("Getting top image hash")?
                 .to_string(),
         );
+        let mask_path = self.get_mask_path();
         let top_image_file = gio::spawn_blocking(move || {
-            // TODO image mask
-            File::from_path(top_image_path, 1024, 0, None).map_err(|err| err.to_string())
+            File::from_path(top_image_path, 1024, 0, mask_path).map_err(|err| err.to_string())
         })
         .await
         .unwrap()?
@@ -290,15 +290,16 @@ impl IconicWindow {
         )?;
 
         // Using the generic generate_image function. The icon can faithfully be recreated
+        // TODO mask
         let generated_image = self
             .generate_image(
                 bottom_image_file,
+                None,
                 top_image,
                 imageops::FilterType::Gaussian,
                 properties.x_val,
                 properties.y_val,
                 properties.zoom_val,
-                true,
             )
             .await;
         info!("Saving image");
@@ -333,9 +334,9 @@ impl IconicWindow {
         // Icons that are compatible for regeneration are only allowed to use default folder images.
         // So when regenerating icons, you need the folder which is the same color as the current accent color
         let bottom_image_path = self.get_built_in_bottom_icon_path(&accent_color);
+        let mask_path = self.get_mask_path();
         Ok(gio::spawn_blocking(move || {
-            // TODO image mask
-            File::from_path(bottom_image_path, 1024, 0, None).map_err(|err| err.to_string())
+            File::from_path(bottom_image_path, 1024, 0, mask_path).map_err(|err| err.to_string())
         })
         .await
         .unwrap()?
@@ -437,7 +438,7 @@ impl IconicWindow {
             None => self.get_accent_color(),
         };
         Ok(imp
-            .default_color
+            .default_colors
             .borrow()
             .get(&accent_color)
             .into_result()?
