@@ -207,52 +207,60 @@ impl IconicWindow {
 
         // Icons that are compatible for regeneration are only allowed to use default folder images.
         // So when regenerating icons, you need the folder which is the same color as the current accent color
-        let (bottom_image_file, custom_accent_color, custom_accent_color_hex) = match properties
-            .bottom_image_type
-            .clone()
-        {
-            BottomImageType::FolderSystem => (
-                self.get_bottom_icon_from_accent_color(None, strict_mode_enabled)
+        let (bottom_image_file, mask, custom_accent_color, custom_accent_color_hex) =
+            match properties.bottom_image_type.clone() {
+                BottomImageType::FolderSystem => (
+                    self.get_bottom_icon_from_accent_color(None, strict_mode_enabled)
+                        .await?,
+                    // TODO No mask
+                    None,
+                    None,
+                    None,
+                ),
+                BottomImageType::Folder(color) if !properties.default || !strict_mode_enabled => (
+                    self.get_bottom_icon_from_accent_color(
+                        Some(color.clone()),
+                        strict_mode_enabled,
+                    )
                     .await?,
-                None,
-                None,
-            ),
-            BottomImageType::Folder(color) if !properties.default || !strict_mode_enabled => (
-                self.get_bottom_icon_from_accent_color(Some(color.clone()), strict_mode_enabled)
-                    .await?,
-                Some(color),
-                None,
-            ),
-            BottomImageType::FolderCustom(foreground, background)
-                if !properties.default || (!strict_mode_enabled || !ignore_custom_colored) =>
-            {
-                if strict_mode_enabled || ignore_custom_colored {
-                    let folder_path = self
-                        .create_custom_folder_color(&foreground, &background, true)
-                        .await;
-                    let mask_path = self.get_mask_path();
-                    (
-                        gio::spawn_blocking(move || {
+                    // TODO No maks
+                    None,
+                    Some(color),
+                    None,
+                ),
+                BottomImageType::FolderCustom(foreground, background)
+                    if !properties.default || (!strict_mode_enabled || !ignore_custom_colored) =>
+                {
+                    if strict_mode_enabled || ignore_custom_colored {
+                        let folder_path = self
+                            .create_custom_folder_color(&foreground, &background, true)
+                            .await;
+                        let mask_path = self.get_mask_path();
+                        let image_file = gio::spawn_blocking(move || {
                             File::from_path(folder_path, 1024, 0, mask_path)
                                 .map_err(|err| err.to_string())
                         })
                         .await
-                        .unwrap()?
-                        .image,
-                        None,
-                        Some(background),
-                    )
-                } else {
-                    (
-                        self.get_bottom_icon_from_accent_color(None, strict_mode_enabled)
-                            .await?,
-                        None,
-                        Some(background),
-                    )
+                        .unwrap()?;
+                        (
+                            image_file.image,
+                            Some(image_file.image_mask),
+                            None,
+                            Some(background),
+                        )
+                    } else {
+                        (
+                            self.get_bottom_icon_from_accent_color(None, strict_mode_enabled)
+                                .await?,
+                            // TODO No mask
+                            None,
+                            None,
+                            Some(background),
+                        )
+                    }
                 }
-            }
-            _ => return Ok(()),
-        };
+                _ => return Ok(()),
+            };
         info!("Generating image");
 
         // If strict mode is disabled and the image is not regenerated during strict mode. And the image is regenerated, is has te be regenerated to mark it as no longer default
@@ -290,11 +298,11 @@ impl IconicWindow {
         )?;
 
         // Using the generic generate_image function. The icon can faithfully be recreated
-        // TODO mask
+        // TODO mask is still not applied from everywhere
         let generated_image = self
             .generate_image(
                 bottom_image_file,
-                None,
+                mask,
                 top_image,
                 imageops::FilterType::Gaussian,
                 properties.x_val,

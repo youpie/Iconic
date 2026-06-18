@@ -71,6 +71,8 @@ fn set_up_mask_action(window: &IconicWindow) -> SimpleAction {
         window,
         move |action, _para| {
             let mut properties = imp.file_properties.try_borrow().unwrap().clone();
+            let obj = imp.obj();
+
             properties.mask = match action.state() {
                 Some(t) if t == true.to_variant() => {
                     action.set_state(&false.to_variant());
@@ -82,6 +84,7 @@ fn set_up_mask_action(window: &IconicWindow) -> SimpleAction {
                 }
             };
             imp.file_properties.replace(properties);
+            obj.check_icon_update();
         }
     ));
     mask_action
@@ -222,6 +225,17 @@ pub fn set_up_klass_actions(klass: &mut ClassStruct<IconicWindow>) {
             let imp = win.imp();
             let properties = imp.file_properties.borrow().clone();
             println!("{:#?}", properties);
+        });
+        klass.install_action("app.debug_mask", None, move |win, _, _| {
+            let imp = win.imp();
+            let mut cache_path = crate::IconicWindow::get_cache_path();
+            cache_path.push("mask.png");
+            let mask = imp.bottom_image_file.lock().unwrap().clone();
+            if let Some(mask) = mask {
+                _ = mask.image_mask.save(&cache_path)
+            }
+            imp.toast_overlay
+                .add_toast(adw::Toast::new(&format!("mask saved at {:?}", cache_path)));
         });
     }
 }

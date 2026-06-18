@@ -1,6 +1,18 @@
 using Gtk 4.0;
 using Adw 1;
 
+Adjustment percentage2 {
+  lower: -50;
+  upper: 50;
+  step-increment: 1;
+}
+
+Adjustment percentage {
+  lower: -50;
+  upper: 50;
+  step-increment: 1;
+}
+
 template $IconicWindow: Adw.ApplicationWindow {
   default-width: 400;
   default-height: 650;
@@ -197,13 +209,7 @@ template $IconicWindow: Adw.ApplicationWindow {
                         orientation: vertical;
                         tooltip-text: _("y-position of top image");
                         value-changed => $render_callback() swapped;
-
-                        adjustment: Adjustment percentage2 {
-                          lower: -50;
-                          upper: 50;
-                          step-increment: 1;
-                        };
-
+                        adjustment: percentage2;
                         vexpand: true;
                         digits: 0;
                         // draw-value: true;
@@ -235,6 +241,15 @@ template $IconicWindow: Adw.ApplicationWindow {
                           }
 
                           [overlay]
+                          ScrolledWindow scrolled_area {
+                            hadjustment: percentage;
+                            vadjustment: percentage2;
+                            hscrollbar-policy: always;
+                            vscrollbar-policy: always;
+                            kinetic-scrolling: true;
+                          }
+
+                          [overlay]
                           Adw.Spinner image_loading_spinner {
                             tooltip-text: _("New top image is loading");
                             valign: center;
@@ -250,13 +265,7 @@ template $IconicWindow: Adw.ApplicationWindow {
                           orientation: horizontal;
                           tooltip-text: _("x-position of top image");
                           value-changed => $render_callback() swapped;
-
-                          adjustment: Adjustment percentage {
-                            lower: -50;
-                            upper: 50;
-                            step-increment: 1;
-                          };
-
+                          adjustment: percentage;
                           hexpand: true;
                           // vexpand: true;
                           digits: 0;

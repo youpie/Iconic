@@ -138,6 +138,7 @@ impl IconicApplication {
         self.set_accels_for_action("app.reset", &["r"]);
         if PROFILE == "Devel" {
             self.set_accels_for_action("app.debug", &["a"]);
+            self.set_accels_for_action("app.debug_mask", &["m"]);
         }
     }
 

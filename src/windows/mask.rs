@@ -4,7 +4,7 @@ use adw::subclass::prelude::*;
 
 use image::DynamicImage;
 
-use crate::window::IconicWindow;
+use crate::{objects::properties::MaskType, window::IconicWindow};
 
 impl IconicWindow {
     pub fn get_mask_path(&self) -> Option<PathBuf> {
@@ -14,6 +14,17 @@ impl IconicWindow {
             .bottom_image_type
             .is_strict_compatible()
             .map(|_| self.load_default_mask())
+    }
+
+    // TODO Fix custom mask implementation
+    pub fn serve_mask(&self, mask: DynamicImage) -> Option<DynamicImage> {
+        let imp = self.imp();
+        let mask_setting = imp.file_properties.borrow().mask.clone();
+        match mask_setting {
+            MaskType::Automatic => Some(mask),
+            MaskType::Disabled => None,
+            MaskType::Custom(_) => None,
+        }
     }
 
     fn load_default_mask(&self) -> PathBuf {

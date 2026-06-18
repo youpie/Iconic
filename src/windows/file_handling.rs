@@ -406,16 +406,16 @@ impl IconicWindow {
             .map_err_to_str()?
             .replace(file.clone());
 
-        let base_image = {
+        let (base_image, mask) = {
             let base_lock = imp.bottom_image_file.lock().map_err_to_str()?;
             let base = base_lock
                 .as_ref()
                 .into_reason_result("No bottom image found")
                 .map_err_to_str()?;
             if small {
-                base.thumbnail.clone()
+                (base.thumbnail.clone(), base.thumbnail_mask.clone())
             } else {
-                base.image.clone()
+                (base.image.clone(), base.image_mask.clone())
             }
         };
         debug!("Base: {}", base_image.width());
@@ -445,11 +445,10 @@ impl IconicWindow {
                 None,
             );
         }
-        // TODO Mask
         let generated_image = self
             .generate_image(
                 base_image,
-                None,
+                self.serve_mask(mask),
                 top_image_dynamicimage,
                 imageops::FilterType::Gaussian,
                 imp.x_scale.value(),

@@ -35,7 +35,7 @@ impl IconicWindow {
         let generated_image = &self
             .generate_image(
                 base,
-                Some(base_mask),
+                self.serve_mask(base_mask),
                 top_image,
                 imageops::FilterType::Nearest,
                 imp.x_scale.value(),
