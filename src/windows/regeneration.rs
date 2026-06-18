@@ -1,6 +1,6 @@
 use crate::GenResult;
 use crate::objects::errors::IntoResult;
-use crate::objects::file::File;
+use crate::objects::file::file::File;
 use crate::objects::properties::{BottomImageType, FileProperties, PropertiesSource};
 use crate::{IconicWindow, objects::errors::show_error_popup};
 
@@ -83,7 +83,7 @@ impl IconicWindow {
         let filestream = new_file.open_readwrite(gio::Cancellable::NONE)?;
         let test = filestream.output_stream();
         if let Some(original_file) = &file.files {
-            if !file.dynamic_image_resized {
+            if !file.image_resized {
                 info!("Saving original image to cache");
                 let buffer = original_file.load_bytes(gio::Cancellable::NONE)?;
                 test.write_bytes(&buffer.0, gio::Cancellable::NONE)?;
@@ -91,8 +91,7 @@ impl IconicWindow {
             }
         }
         info!("Saving dynamic image to cache");
-        file.dynamic_image
-            .save_with_format(file_path, ImageFormat::WebP)?;
+        file.image.save_with_format(file_path, ImageFormat::WebP)?;
         Ok(())
     }
 
@@ -233,11 +232,13 @@ impl IconicWindow {
                         .await;
                     (
                         gio::spawn_blocking(move || {
-                            File::from_path(folder_path, 1024, 0).map_err(|err| err.to_string())
+                            // TODO Image mask
+                            File::from_path(folder_path, 1024, 0, None)
+                                .map_err(|err| err.to_string())
                         })
                         .await
                         .unwrap()?
-                        .dynamic_image,
+                        .image,
                         None,
                         Some(background),
                     )
@@ -273,11 +274,12 @@ impl IconicWindow {
                 .to_string(),
         );
         let top_image_file = gio::spawn_blocking(move || {
-            File::from_path(top_image_path, 1024, 0).map_err(|err| err.to_string())
+            // TODO image mask
+            File::from_path(top_image_path, 1024, 0, None).map_err(|err| err.to_string())
         })
         .await
         .unwrap()?
-        .dynamic_image;
+        .image;
         // Create the top image
         let top_image = self.set_correct_monochrome_values_based_on_image_properties(
             &properties,
@@ -331,11 +333,12 @@ impl IconicWindow {
         // So when regenerating icons, you need the folder which is the same color as the current accent color
         let bottom_image_path = self.get_built_in_bottom_icon_path(&accent_color);
         Ok(gio::spawn_blocking(move || {
-            File::from_path(bottom_image_path, 1024, 0).map_err(|err| err.to_string())
+            // TODO image mask
+            File::from_path(bottom_image_path, 1024, 0, None).map_err(|err| err.to_string())
         })
         .await
         .unwrap()?
-        .dynamic_image)
+        .image)
     }
 
     // Search in the list of stored icons to see which ones are valid for regeneration

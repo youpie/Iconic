@@ -1,5 +1,5 @@
 use crate::objects::errors::{ErrorPopup, IntoResult, show_error_popup};
-use crate::objects::file::File;
+use crate::objects::file::file::File;
 use crate::objects::properties::{BottomImageType, FileProperties, MaskType};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -415,7 +415,7 @@ impl IconicWindow {
             if small {
                 base.thumbnail.clone()
             } else {
-                base.dynamic_image.clone()
+                base.image.clone()
             }
         };
         debug!("Base: {}", base_image.width());
@@ -427,7 +427,7 @@ impl IconicWindow {
             if small {
                 top_image.thumbnail.clone()
             } else {
-                top_image.dynamic_image.clone()
+                top_image.image.clone()
             }
         };
         if use_monochrome {
@@ -554,7 +554,8 @@ impl IconicWindow {
             file.unwrap()
         };
         let new_file = match gio::spawn_blocking(move || {
-            File::new(file_temp, svg_render_size, thumbnail_render_size)
+            // TODO image mask
+            File::new(file_temp, svg_render_size, thumbnail_render_size, None)
                 .map_err(|err| err.to_string())
         })
         .await

@@ -21,7 +21,7 @@
 use crate::config::{APP_ICON, APP_ID, PROFILE};
 use crate::glib::clone;
 use crate::objects::errors::show_error_popup;
-use crate::objects::file::File;
+use crate::objects::file::file::File;
 use crate::objects::properties::{BottomImageType, CustomRGB};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -515,7 +515,7 @@ impl IconicWindow {
         let mut top_image = imp.top_image_file.lock().unwrap();
         let bottom_image = imp.bottom_image_file.lock().unwrap();
         if (*top_image).is_some() && (*bottom_image).is_some() {
-            let top_image_width = top_image.as_ref().unwrap().dynamic_image.width();
+            let top_image_width = top_image.as_ref().unwrap().image.width();
             if top_image_width > 1 {
                 // If the top image is empty, these controlls are disabled
                 // This is to check if it's needed to turn them on again

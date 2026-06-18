@@ -7,14 +7,15 @@ use crate::IconicWindow;
 impl IconicWindow {
     pub async fn render_to_screen(&self) {
         let imp = self.imp();
-        let base = imp
+        let base_file = imp
             .bottom_image_file
             .lock()
             .unwrap()
             .as_ref()
             .unwrap()
-            .thumbnail
             .clone();
+        let base = base_file.thumbnail;
+        let base_mask = base_file.thumbnail_mask;
         let mut top_image = imp
             .top_image_file
             .lock()
@@ -30,6 +31,11 @@ impl IconicWindow {
                 imp.monochrome_color.rgba(),
                 None,
             );
+        }
+        if let Some(mask) = self.lookup_action("enable-mask")
+            && mask.state() == Some(true.to_variant())
+        {
+            top_image = self.apply_mask_to_top_image(top_image, base_mask)
         }
         self.image_save_sensitive(true);
         let texture = self.dynamic_image_to_texture(
