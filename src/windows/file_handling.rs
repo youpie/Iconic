@@ -495,6 +495,12 @@ impl IconicWindow {
         match self.open_file_chooser().await {
             Some(x) => {
                 imp.stack.set_visible_child_name("stack_main_page");
+
+                let mut file_properties = imp.file_properties.borrow().clone();
+                file_properties.bottom_image_type =
+                    BottomImageType::Custom(x.path().unwrap_or_default());
+                imp.file_properties.replace(file_properties);
+
                 self.new_iconic_file_creation(Some(x), None, size, thumbnail_size, false)
                     .await;
             }

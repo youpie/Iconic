@@ -125,7 +125,7 @@ pub fn set_up_klass_actions(klass: &mut ClassStruct<IconicWindow>) {
             }
         ));
     });
-    klass.install_action("app.open_bottom_icon", None, move |win, _, _| {
+    klass.install_action("app.open_empty_bottom", None, move |win, _, _| {
         win.check_icon_update();
     });
     // klass.install_action("app.change_bottom", None, move |win, _, _| {
