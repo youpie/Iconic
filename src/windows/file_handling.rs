@@ -1,5 +1,6 @@
 use crate::objects::errors::{ErrorPopup, IntoResult, show_error_popup};
 use crate::objects::file::file::File;
+use crate::objects::file::mask::MaskOption;
 use crate::objects::properties::{BottomImageType, FileProperties, MaskType};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -560,7 +561,13 @@ impl IconicWindow {
         } else {
             file.unwrap()
         };
-        let mask_path = self.get_mask_path();
+        let mask_path = if change_top_icon {
+            // A top image does not need a mask
+            MaskOption::Disabled
+        } else {
+            self.get_mask_path()
+        };
+
         let new_file = match gio::spawn_blocking(move || {
             // TODO image mask
             File::new(file_temp, svg_render_size, thumbnail_render_size, mask_path)

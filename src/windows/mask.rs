@@ -2,28 +2,62 @@ use std::path::PathBuf;
 
 use adw::subclass::prelude::*;
 
-use image::DynamicImage;
+use image::{DynamicImage, GenericImageView};
+use log::warn;
+use uuid::Uuid;
 
-use crate::{objects::properties::MaskType, window::IconicWindow};
+use crate::{
+    GenResult,
+    objects::{
+        file::{file::File, mask::MaskOption},
+        properties::MaskType,
+    },
+    window::IconicWindow,
+};
 
 impl IconicWindow {
-    pub fn get_mask_path(&self) -> Option<PathBuf> {
+    pub fn get_mask_path(&self) -> MaskOption {
         let imp = self.imp();
         let properties = imp.file_properties.borrow().clone();
-        properties
+        let mask = properties
             .bottom_image_type
             .is_strict_compatible()
-            .map(|_| self.load_default_mask())
+            .map(|_| self.load_default_mask());
+        match mask {
+            Some(mask_path) => MaskOption::Custom(mask_path),
+            None => MaskOption::Automatic,
+        }
     }
 
-    // TODO Fix custom mask implementation
-    pub fn serve_mask(&self, mask: DynamicImage) -> Option<DynamicImage> {
+    /// Serve the correct mask based on settings
+    /// Pass the mask image from the `Iconic::File`
+    pub fn serve_mask(&self, mask: Option<DynamicImage>) -> Option<DynamicImage> {
         let imp = self.imp();
-        let mask_setting = imp.file_properties.borrow().mask.clone();
-        match mask_setting {
-            MaskType::Automatic => Some(mask),
-            MaskType::Disabled => None,
-            MaskType::Custom(_) => None,
+        if let Some(mask) = mask {
+            let mask_setting = imp.file_properties.borrow().mask.clone();
+            match mask_setting {
+                MaskType::Automatic => Some(mask),
+                MaskType::Disabled => None,
+                MaskType::Custom(_) => {
+                    let custom_mask = imp.custom_mask.borrow().clone();
+                    if let Some(custom_mask) = custom_mask  // Custom mask must be the same dimension as normal mask for correct function
+                        && custom_mask.dimensions() != mask.dimensions()
+                    {
+                        Some(custom_mask.resize(
+                            mask.width(),
+                            mask.height(),
+                            image::imageops::FilterType::Nearest,
+                        ))
+                    } else {
+                        None
+                    }
+                }
+            }
+        } else {
+            // the mask from the iconic file can be empty (if top image)
+            // This is wrong but no mask will be applied
+            warn!("Empty Mask provided (likely programming error)");
+            None
         }
     }
 
@@ -47,5 +81,21 @@ impl IconicWindow {
         }
 
         DynamicImage::ImageRgba8(top_image_pixels)
+    }
+
+    pub async fn choose_custom_mask(&self) -> GenResult<()> {
+        let imp = self.imp();
+        let file_option = self.open_file_chooser().await;
+        if let Some(file) = file_option {
+            let file_name = Uuid::now_v7().to_string();
+
+            let mut properties = imp.file_properties.borrow().clone();
+            properties.mask = MaskType::Custom(file_name);
+            imp.file_properties.replace(properties);
+
+            let image = File::load_file(&file, 1024)?;
+            imp.custom_mask.replace(Some(image.0));
+        }
+        Ok(())
     }
 }

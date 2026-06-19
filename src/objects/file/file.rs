@@ -12,6 +12,7 @@ use std::path::PathBuf;
 
 use crate::GenResult;
 use crate::objects::errors::IntoResult;
+use crate::objects::file::mask::MaskOption;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
@@ -20,10 +21,10 @@ pub struct File {
     pub filename: String,
     pub extension: String,
     pub image: DynamicImage,
-    pub image_mask: DynamicImage,
+    pub image_mask: Option<DynamicImage>,
     pub image_resized: bool,
     pub thumbnail: DynamicImage,
-    pub thumbnail_mask: DynamicImage,
+    pub thumbnail_mask: Option<DynamicImage>,
     pub hash: u64,
 }
 
@@ -36,7 +37,7 @@ impl File {
         image_file: gio::File,
         size: u32,
         thumbnail_size: u32,
-        mask_path: Option<PathBuf>,
+        mask_path: MaskOption,
     ) -> GenResult<Self> {
         let (mut image, file_info) = Self::load_file(&image_file, size)?;
         let image_path = image_file
@@ -110,7 +111,7 @@ impl File {
         path: impl AsRef<std::path::Path>,
         size: u32,
         thumbnail_size: u32,
-        mask_path: Option<PathBuf>,
+        mask_path: MaskOption,
     ) -> GenResult<Self> {
         let file = gio::File::for_path(path);
         Self::new(file, size, thumbnail_size, mask_path)
@@ -140,7 +141,8 @@ impl File {
         }
 
         let image_mask = Self::auto_generate_mask(&image);
-        let thumbnail_mask = image_mask.resize(thumbnail_size, thumbnail_size, Nearest);
+        let thumbnail_mask = Some(image_mask.resize(thumbnail_size, thumbnail_size, Nearest));
+        let image_mask = Some(image_mask);
 
         Self {
             files: None,

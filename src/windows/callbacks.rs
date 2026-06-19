@@ -14,6 +14,7 @@ use gtk::GestureLongPress;
 use gtk::gdk;
 use gtk::prelude::PopoverExt;
 use log::debug;
+use resvg::tiny_skia::Mask;
 
 #[gtk::template_callbacks]
 impl IconicWindow {
@@ -62,11 +63,23 @@ impl IconicWindow {
                 debug!("Action not found");
             }
 
-            if let Some(action) = self.lookup_action("enable-mask") {
+            if let Some(action) = self.lookup_action("enable-mask")
+                && let Some(custom) = self.lookup_action("custom-mask")
+            {
                 let mask_type = imp.file_properties.try_borrow().unwrap().mask.clone();
                 match mask_type {
-                    MaskType::Disabled => action.change_state(&false.to_variant()),
-                    _ => action.change_state(&true.to_variant()),
+                    MaskType::Disabled => {
+                        action.change_state(&false.to_variant());
+                        custom.change_state(&false.to_variant())
+                    }
+                    MaskType::Automatic => {
+                        action.change_state(&true.to_variant());
+                        custom.change_state(&false.to_variant())
+                    }
+                    MaskType::Custom(_) => {
+                        action.change_state(&true.to_variant());
+                        custom.change_state(&true.to_variant())
+                    }
                 }
             }
 

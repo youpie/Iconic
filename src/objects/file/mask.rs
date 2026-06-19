@@ -7,6 +7,13 @@ use crate::GenResult;
 type MainMask = DynamicImage;
 type ThumbnailMask = DynamicImage;
 
+#[derive(Debug, PartialEq)]
+pub enum MaskOption {
+    Custom(PathBuf),
+    Automatic,
+    Disabled,
+}
+
 impl super::file::File {
     pub fn auto_generate_mask(image: &DynamicImage) -> DynamicImage {
         let bottom_image_pixels = image.to_rgba8();
@@ -23,9 +30,12 @@ impl super::file::File {
         main_size: u32,
         thumbnail_size: u32,
         image: &DynamicImage,
-        mask_path: Option<PathBuf>,
-    ) -> GenResult<(MainMask, ThumbnailMask)> {
-        let image_mask = if let Some(path) = mask_path {
+        mask_path: MaskOption,
+    ) -> GenResult<(Option<MainMask>, Option<ThumbnailMask>)> {
+        if mask_path == MaskOption::Disabled {
+            return Ok((None, None));
+        }
+        let image_mask = if let MaskOption::Custom(path) = mask_path {
             Self::load_file(&gio::File::for_path(path), main_size)
                 .map_err(|e| format!("Failed to load path: {}", e.to_string()))?
                 .0
@@ -37,6 +47,6 @@ impl super::file::File {
             thumbnail_size,
             imageops::FilterType::Nearest,
         );
-        Ok((image_mask, thumbnail_mask))
+        Ok((Some(image_mask), Some(thumbnail_mask)))
     }
 }

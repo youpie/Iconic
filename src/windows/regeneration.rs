@@ -302,7 +302,7 @@ impl IconicWindow {
         let generated_image = self
             .generate_image(
                 bottom_image_file,
-                mask,
+                mask.unwrap_or_default(),
                 top_image,
                 imageops::FilterType::Gaussian,
                 properties.x_val,

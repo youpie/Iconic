@@ -7,7 +7,7 @@ use gtk::gdk;
 use gtk::prelude::WidgetExt;
 use image::imageops;
 use log::*;
-use random_str::random::{CharBuilder, RandomStringBuilder};
+use uuid::Uuid;
 
 pub fn setup_drag_drop_logic(win: &window::imp::IconicWindow) {
     let obj = win.obj();
@@ -162,13 +162,7 @@ impl IconicWindow {
         let data_path = self.get_data_path();
         debug!("data path: {:?}", data_path);
         let mut file_path = data_path.clone();
-        let random_string = RandomStringBuilder::new()
-            .with_length(10)
-            .with_lowercase()
-            .with_numbers()
-            .with_uppercase()
-            .build()
-            .unwrap();
+        let random_string = Uuid::now_v7();
         let generated_file_name = format!(
             "folder-{}{}.png",
             random_string,

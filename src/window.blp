@@ -241,15 +241,6 @@ template $IconicWindow: Adw.ApplicationWindow {
                           }
 
                           [overlay]
-                          ScrolledWindow scrolled_area {
-                            hadjustment: percentage;
-                            vadjustment: percentage2;
-                            hscrollbar-policy: always;
-                            vscrollbar-policy: always;
-                            kinetic-scrolling: true;
-                          }
-
-                          [overlay]
                           Adw.Spinner image_loading_spinner {
                             tooltip-text: _("New top image is loading");
                             valign: center;
@@ -442,7 +433,7 @@ menu image_menu {
   section {
     item (_("Change Top Image"), "app.open_top_icon")
     item (_("Remove overflow"), "win.enable-mask")
-    item (_("_Set Custom Mask*"), "win.custom_mask")
+    item (_("_Set Custom Mask*"), "win.custom-mask")
   }
 
   section {

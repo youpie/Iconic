@@ -126,6 +126,7 @@ pub mod imp {
 
         pub bottom_image_file: Arc<Mutex<Option<File>>>,
         pub top_image_file: Arc<Mutex<Option<File>>>,
+        pub custom_mask: RefCell<Option<DynamicImage>>,
 
         pub default_colors: RefCell<HashMap<String, gdk::RGBA, RandomState>>,
 
@@ -193,6 +194,7 @@ pub mod imp {
                 drag_active: Rc::new(Cell::new(false)),
                 file_properties: RefCell::new(FileProperties::default()),
                 drag_cancelled: Cell::new(false),
+                custom_mask: RefCell::new(None),
             }
         }
     }

@@ -136,9 +136,9 @@ impl IconicApplication {
         self.set_accels_for_action("app.regenerate", &["<primary>r"]);
         self.set_accels_for_action("app.shortcuts", &["<primary>question"]);
         self.set_accels_for_action("app.reset", &["r"]);
+        self.set_accels_for_action("app.debug_mask", &["<primary>m"]);
         if PROFILE == "Devel" {
             self.set_accels_for_action("app.debug", &["a"]);
-            self.set_accels_for_action("app.debug_mask", &["m"]);
         }
     }
 

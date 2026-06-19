@@ -19,12 +19,12 @@ strip = "symbols"
 [dependencies]
 gettext-rs = { version = "0.7.7", features = ["gettext-system"] }
 image = "0.25.10"
-gio = "0.22.5"
-librsvg = "2.62.1"
+gio = "0.22.6"
+librsvg = "2.62.3"
 cairo-rs = "0.22.0"
 resvg = "0.47.0"
 usvg = "0.47.0"
-log = "0.4.29"
+log = "0.4.32"
 pretty_env_logger = "0.5"
 rand = "0.10.1"
 hex = "0.4.3"
@@ -32,19 +32,19 @@ thiserror = "2.0.18"
 gdk4 = "0.11.2"
 gsk4 = "0.11.1"
 xmp_toolkit = "1.12.1"
-serde_json = "1.0.149"
+serde_json = "1.0.150"
 serde = { version = "1.0.228", features = ["serde_derive"] }
-random_str = "1.1.0"
 async-channel = "2.5.0"
 strum = { version = "0.28.0", features = ["derive"] }
+uuid = { version = "1.23.3", features = ["v7"] }
 
 
 [dependencies.gtk]
 package = "gtk4"
-version = "0.11.2"
-features = ["v4_18"]
+version = "0.11.3"
+features = ["v4_22"]
 
 [dependencies.adw]
 package = "libadwaita"
 version = "0.9.1"
-features = ["v1_8"]
+features = ["v1_9"]

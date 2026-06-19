@@ -23,8 +23,10 @@ pub fn set_up_stateful_actions(window: &IconicWindow) {
 
     let temp_bottom_action = set_up_temp_bottom_icon_action(window);
     let mask_action = set_up_mask_action(window);
+    let custom_mask_action = set_up_custom_mask_action(window);
     obj.add_action(&mask_action);
     obj.add_action(&temp_bottom_action);
+    obj.add_action(&custom_mask_action);
 }
 
 fn set_up_temp_bottom_icon_action(window: &IconicWindow) -> SimpleAction {
@@ -90,6 +92,26 @@ fn set_up_mask_action(window: &IconicWindow) -> SimpleAction {
     mask_action
 }
 
+fn set_up_custom_mask_action(window: &IconicWindow) -> SimpleAction {
+    let mask_action = SimpleAction::new_stateful("custom-mask", None, &false.to_variant());
+    mask_action.connect_activate(clone!(
+        #[weak]
+        window,
+        move |_, _| {
+            glib::spawn_future_local(clone!(
+                #[weak]
+                window,
+                async move {
+                    let obj = window.obj();
+                    _ = obj.choose_custom_mask().await;
+                    obj.check_icon_update();
+                }
+            ));
+        }
+    ));
+    mask_action
+}
+
 /*
     -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -131,17 +153,6 @@ pub fn set_up_klass_actions(klass: &mut ClassStruct<IconicWindow>) {
     klass.install_action("app.open_empty_bottom", None, move |win, _, _| {
         win.check_icon_update();
     });
-    // klass.install_action("app.change_bottom", None, move |win, _, _| {
-    //     let imp = win.imp();
-    //     _ = imp
-    //         .settings
-    //         .set_boolean("manual-bottom-image-selection", true);
-    //     let preferences = PreferencesDialog::new();
-    //     adw::prelude::AdwDialogExt::present(&preferences, Some(win));
-    //     preferences
-    //         .activate_action("win.select_folder_settings", None)
-    //         .unwrap();
-    // });
     klass.install_action("app.advanced", None, move |win, _, _| {
         let imp = win.imp();
         let advanced_state = imp.settings.boolean("advanced-settings");
@@ -218,6 +229,21 @@ pub fn set_up_klass_actions(klass: &mut ClassStruct<IconicWindow>) {
         win.reset_colors();
     });
 
+    klass.install_action("app.debug_mask", None, move |win, _, _| {
+        let imp = win.imp();
+        let mut cache_path = crate::IconicWindow::get_cache_path();
+        cache_path.push("mask.png");
+        let mask = imp.bottom_image_file.lock().unwrap().clone();
+        if let Some(mask) = mask {
+            _ = mask.image_mask.is_some_and(|mask| {
+                _ = mask.save(&cache_path);
+                true
+            });
+        }
+        imp.toast_overlay
+            .add_toast(adw::Toast::new(&format!("mask saved at {:?}", cache_path)));
+    });
+
     // DEBUG
     // --------------------------------------------------------------------------------
     if PROFILE == "Devel" {
@@ -225,17 +251,6 @@ pub fn set_up_klass_actions(klass: &mut ClassStruct<IconicWindow>) {
             let imp = win.imp();
             let properties = imp.file_properties.borrow().clone();
             println!("{:#?}", properties);
-        });
-        klass.install_action("app.debug_mask", None, move |win, _, _| {
-            let imp = win.imp();
-            let mut cache_path = crate::IconicWindow::get_cache_path();
-            cache_path.push("mask.png");
-            let mask = imp.bottom_image_file.lock().unwrap().clone();
-            if let Some(mask) = mask {
-                _ = mask.image_mask.save(&cache_path)
-            }
-            imp.toast_overlay
-                .add_toast(adw::Toast::new(&format!("mask saved at {:?}", cache_path)));
         });
     }
 }
