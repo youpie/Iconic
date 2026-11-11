@@ -14,9 +14,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use xmp_toolkit::{OpenFileOptions, XmpFile, XmpMeta, XmpValue, xmp_ns};
 
+use crate::config::PKGDATADIR;
 use crate::{GenResult, IconicWindow};
-
-const SYSTEM_FOLDER_PATH: &str = "/app/share/Iconic/folders/";
 
 impl IconicWindow {
     // Load the correct folder based on settings
@@ -72,7 +71,7 @@ impl IconicWindow {
         let imp = self.imp();
         let desktop = imp.file_properties.borrow().desktop;
         let folder_svg_file =
-            std::fs::read_to_string(format!("{SYSTEM_FOLDER_PATH}{desktop}/folder_Custom.svg"))
+            std::fs::read_to_string(format!("{PKGDATADIR}/folders/{desktop}/folder_Custom.svg"))
                 .unwrap();
         let folder_svg_lines = folder_svg_file.lines();
         let new_custom_folder: String = folder_svg_lines
@@ -108,7 +107,7 @@ impl IconicWindow {
             x => x.to_string(),
         };
         let folder_path = PathBuf::from(format!(
-            "{SYSTEM_FOLDER_PATH}{desktop}/folder_{}.svg",
+            "{PKGDATADIR}/folders/{desktop}/folder_{}.svg",
             folder_color_name
         ));
         folder_path
